@@ -1,13 +1,40 @@
-.barra-superior {
+:host {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.barra-superior {
+  flex: 0 0 7dvh;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 1rem;
+  box-sizing: border-box;
+}
+
+.navegacao,
+.conta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.conteudo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
 
 .rodape {
+  flex: 0 0 9dvh;
   padding: 0.75rem 1rem;
   font-size: 0.85rem;
   text-align: center;
+  box-sizing: border-box;
+  overflow-y: auto;
 }

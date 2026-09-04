@@ -1,14 +1,25 @@
 <header class="barra-superior">
-  @if (autenticacaoService.estaAutenticado()) {
-    <span>{{ autenticacaoService.usuarioAtual()?.email }}</span>
-    <button type="button" (click)="sair()">Sign out</button>
-  } @else {
-    <button type="button" (click)="abrirModalEntrar()">Sign in</button>
-    <a routerLink="/cadastro">Sign up</a>
-  }
+  <nav class="navegacao">
+    @if (autenticacaoService.estaAutenticado()) {
+      <button type="button" routerLink="/baralhos">Decks</button>
+      <button type="button" routerLink="/colecao">Collection</button>
+    }
+  </nav>
+
+  <div class="conta">
+    @if (autenticacaoService.estaAutenticado()) {
+      <span>{{ autenticacaoService.usuarioAtual()?.email }}</span>
+      <button type="button" (click)="sair()">Sign out</button>
+    } @else {
+      <button type="button" (click)="abrirModalEntrar()">Sign in</button>
+      <a routerLink="/cadastro">Sign up</a>
+    }
+  </div>
 </header>
 
-<router-outlet />
+<main class="conteudo">
+  <router-outlet />
+</main>
 
 @if (modalEntrarAberta()) {
   <app-modal-entrar (fechar)="fecharModalEntrar()" />
