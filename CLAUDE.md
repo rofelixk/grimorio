@@ -4,6 +4,7 @@ MTG collection & deck manager — a free, Brazil-first web app. Personal passion
 
 Full context, rationale, and roadmap: [docs/project-brief.md](docs/project-brief.md). Read it when a decision depends on the "why".
 What gets persisted in Supabase (per-column decisions and rationale): [docs/data-model.md](docs/data-model.md).
+For design tools (e.g. Claude Design) working visually against this repo: [docs/design-context.md](docs/design-context.md).
 
 ## Language convention
 Split by audience; no bilingual or translated documents.
