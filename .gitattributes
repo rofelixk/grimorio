@@ -1,0 +1,17 @@
+# Normalize line endings: store as LF in the repo and check out as LF on
+# every platform, so working copies stay consistent and Git stops warning
+# about LF -> CRLF conversion on Windows.
+* text=auto eol=lf
+
+# Binary files Git should never touch (text=auto usually detects these, but
+# be explicit for the common ones in this project).
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.woff  binary
+*.woff2 binary
+*.ttf  binary
+*.eot  binary
