@@ -10,8 +10,22 @@ export interface PaginaDeCartas {
   total: number;
 }
 
-// Limita quantas imagens de carta são carregadas de uma vez pela busca.
+// Tamanho de página padrão (usado quando quem chama não sabe quantas colunas
+// a grade de resultados tem) — ver calcularTamanhoPagina abaixo para o
+// tamanho por número de colunas.
 export const TAMANHO_PAGINA_BUSCA = 25;
+
+// Linhas completas por página para cada número de colunas já usado no app
+// (início: 5 no desktop/2 no mobile; detalhe de coleção: 4 no desktop/2 no
+// mobile) — escolhidas para ficar perto de TAMANHO_PAGINA_BUSCA sem deixar a
+// última linha da grade incompleta. Um número de colunas fora dessa lista cai
+// no fallback: a linha mais próxima de TAMANHO_PAGINA_BUSCA.
+const LINHAS_POR_COLUNA: Record<number, number> = { 2: 10, 4: 6, 5: 5 };
+
+export function calcularTamanhoPagina(colunas: number): number {
+  const linhas = LINHAS_POR_COLUNA[colunas] ?? Math.max(1, Math.round(TAMANHO_PAGINA_BUSCA / colunas));
+  return colunas * linhas;
+}
 
 @Injectable({ providedIn: 'root' })
 export class CartasService {
@@ -23,9 +37,10 @@ export class CartasService {
     termo: string,
     campo: CampoDeBusca,
     pagina = 1,
+    tamanhoPagina = TAMANHO_PAGINA_BUSCA,
   ): Promise<PaginaDeCartas> {
-    const inicio = (pagina - 1) * TAMANHO_PAGINA_BUSCA;
-    const fim = inicio + TAMANHO_PAGINA_BUSCA - 1;
+    const inicio = (pagina - 1) * tamanhoPagina;
+    const fim = inicio + tamanhoPagina - 1;
 
     const { data, error, count } = await this.clienteSupabase
       .from('cards')

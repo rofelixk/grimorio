@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { CartasService, TAMANHO_PAGINA_BUSCA } from './cartas.service';
+import { CartasService, TAMANHO_PAGINA_BUSCA, calcularTamanhoPagina } from './cartas.service';
 import { TOKEN_CLIENTE_SUPABASE } from '@shared/config';
 
 function configurarServico(respostaRange: { data: unknown; error: unknown; count?: number | null }) {
@@ -54,7 +54,7 @@ describe('CartasService', () => {
     expect(ilike).toHaveBeenCalledWith('type_line', '%dragon%');
   });
 
-  it('requests the range for the given page, defaulting to the first page', async () => {
+  it('requests the range for the given page, defaulting to the first page and the default page size', async () => {
     const { servico, range } = configurarServico({ data: [], error: null, count: 0 });
 
     await servico.buscarCartas('dragon', 'name');
@@ -65,6 +65,16 @@ describe('CartasService', () => {
       2 * TAMANHO_PAGINA_BUSCA,
       3 * TAMANHO_PAGINA_BUSCA - 1,
     );
+  });
+
+  it('requests the range using a custom page size when given one', async () => {
+    const { servico, range } = configurarServico({ data: [], error: null, count: 0 });
+
+    await servico.buscarCartas('dragon', 'name', 1, 24);
+    expect(range).toHaveBeenLastCalledWith(0, 23);
+
+    await servico.buscarCartas('dragon', 'name', 3, 24);
+    expect(range).toHaveBeenLastCalledWith(48, 71);
   });
 
   it('throws with the Postgres error message when the query fails', async () => {
@@ -109,5 +119,18 @@ describe('CartasService', () => {
     await expect(servico.buscarCartaPorId('1')).rejects.toThrow(
       'permission denied for table cards',
     );
+  });
+});
+
+describe('calcularTamanhoPagina', () => {
+  it('returns a full-rows page size for each column count already used in the app', () => {
+    expect(calcularTamanhoPagina(5)).toBe(25);
+    expect(calcularTamanhoPagina(4)).toBe(24);
+    expect(calcularTamanhoPagina(2)).toBe(20);
+  });
+
+  it('falls back to the row count closest to the default page size for any other column count', () => {
+    // 25 / 3 = 8.33 -> rounds to 8 rows -> 24
+    expect(calcularTamanhoPagina(3)).toBe(24);
   });
 });

@@ -51,6 +51,22 @@ describe('App', () => {
     expect(labels).not.toContain('Collection');
   });
 
+  it('always shows a Home button linking to /, even when logged out', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const labels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((b) =>
+      (b as HTMLButtonElement).textContent?.trim(),
+    );
+    expect(labels).toContain('Home');
+
+    const target = fixture.debugElement
+      .query(By.css('.navegacao'))
+      .query(By.directive(RouterLink))
+      .injector.get(RouterLink).urlTree?.toString();
+    expect(target).toBe('/');
+  });
+
   it('shows Decks and Collection buttons linking to /baralhos and /colecao when logged in', () => {
     autenticacaoServiceMock.estaAutenticado.mockReturnValue(true);
     autenticacaoServiceMock.usuarioAtual.mockReturnValue({ email: 'ash@example.com' });
@@ -68,7 +84,7 @@ describe('App', () => {
       .query(By.css('.navegacao'))
       .queryAll(By.directive(RouterLink))
       .map((el) => el.injector.get(RouterLink).urlTree?.toString());
-    expect(targets).toEqual(['/baralhos', '/colecao']);
+    expect(targets).toEqual(['/', '/baralhos', '/colecao']);
   });
 
   it('opens the sign-in modal when Sign in is clicked', () => {
