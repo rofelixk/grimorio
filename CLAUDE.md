@@ -5,6 +5,12 @@ MTG collection & deck manager — a free, Brazil-first web app. Personal passion
 Full context, rationale, and roadmap: [docs/project-brief.md](docs/project-brief.md). Read it when a decision depends on the "why".
 What gets persisted in Supabase (per-column decisions and rationale): [docs/data-model.md](docs/data-model.md).
 
+## Language convention
+Split by audience; no bilingual or translated documents.
+- **English:** `CLAUDE.md`, everything under `docs/` except its README (working reference for the builder + AI).
+- **pt-BR:** `README.md`, `docs/README.md` (public face), and all git commit messages.
+- Code comments follow the surrounding code.
+
 ## Commands & workflow
 - **Do not run `npm test`, `npm start`, `npm run build`, `ng test`, `ng serve`, or `ng build`.** The user runs and verifies these. Claude's job is to create/modify the necessary files and then hand off.
 - Run tests: `npm test` (Jest, via `jest-preset-angular`; config in `jest.config.js` / `setup-jest.ts`). Watch mode: `npm run test:watch`.

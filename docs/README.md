@@ -12,3 +12,7 @@ Convenções:
 - Estes documentos registram **intenção e justificativa**. O schema executável ficará nos
   arquivos de migração do Supabase quando existirem.
 - Datas relativas são convertidas para absolutas ao escrever.
+- **Idioma:** os documentos de trabalho aqui (exceto este índice) são escritos em inglês —
+  são a referência usada durante o desenvolvimento, pelo autor e pela IA. O material
+  voltado ao público (`README.md` principal, este índice) e as mensagens de commit ficam
+  em pt-BR. Não se mantêm versões traduzidas.
