@@ -13,10 +13,11 @@ Full context, rationale, and roadmap: [docs/project-brief.md](docs/project-brief
 - **Frontend:** Angular — the user's existing area of expertise. The course's focus is AI-collaboration fluency, not learning a new frontend framework, so the frontend deliberately stays on familiar ground (no React/Next.js stretch).
 - **Backend:** Supabase (Postgres + auth + storage), free tier.
 - **Hosting:** Vercel, free tier.
-- **Card data:** Scryfall API — live queries for MVP, no local bulk data yet.
+- **Card data:** Scryfall **bulk data** files, downloaded/trimmed/stored in Supabase. Search and display run against this local `cards` table — no live Scryfall calls at runtime.
 
 ## Core Architecture Decisions
 - **Cards keyed by `oracle_id`** (language-independent), never `scryfall_id` (per-printing/per-language). This lets the same card be recognized across languages and printings, and sets up Portuguese support with no schema migration.
+- **Local card DB:** a server-side script (local `npm` script first, later a scheduled GitHub Action) upserts the trimmed Scryfall *Oracle Cards* bulk file into `cards` via the `service_role` key — never in the browser. Refresh ~weekly. `cards` RLS = `SELECT` for authenticated users, writes only via `service_role` (contrast with per-user tables). Rationale in the brief's *Card Data Ingestion* section.
 - **Storage location system:** flat, user-named containers (e.g. "Blue Binder"). Each card tracks `lastLocationUpdateDate`. Location confidence is flagged for re-check when a card's deck membership changes after that date; a manual "correct location" action resets confidence.
 - Everything must run on free tiers — treat quota and cost as design constraints.
 
@@ -35,10 +36,11 @@ Full context, rationale, and roadmap: [docs/project-brief.md](docs/project-brief
 - Collection CRUD
 - Deck CRUD (Commander/EDH focus), incl. basic Commander legality checks
 - Storage location system with location-confidence tracking (see above)
+- Local trimmed card DB from Scryfall bulk data (search/display source)
 - Search/filter, error handling, polish, deployment
 
 **Out of scope for MVP (Phase 2/3):**
 - Card scanning (OCR-based text/set recognition)
 - Deck analysis & recommendations engine
-- Portuguese card display
-- Local/offline trimmed card database
+- Portuguese card display (localized bulk files)
+- Fully offline card search
