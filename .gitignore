@@ -141,3 +141,15 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Angular
+/dist
+/tmp
+/out-tsc
+/bazel-out
+/.angular/cache
+.sass-cache/
+/connect.lock
+/libpeerconnection.log
+testem.log
+/typings
