@@ -21,6 +21,26 @@ card-data rationale).
     `service_role` key used by the import script. No user ever writes to it.
   - Per-user tables: RLS on, every row scoped to `auth.uid()`.
 
+## Table relationships
+
+Kept up to date as tables are added, so a future change can be scoped by seeing what already
+points where, without re-deriving it from the live schema.
+
+```
+cards (oracle_id PK)  ── shared, read-only reference data
+  ↑ oracle_id FK ── printings (scryfall_id PK)  ── per-printing lookup
+  ↑ oracle_id FK ── collection_items.oracle_id
+  ↑ oracle_id FK ── deck_cards.oracle_id            (planned, not yet built)
+
+collections (id PK, user_id)  ── per-user
+  ↑ collection_id FK ── collection_items
+
+collection_items (id PK)
+  → collection_id FK → collections
+  → oracle_id FK → cards
+  → set_code: bare nullable text, NOT an FK to printings yet — see Deferred
+```
+
 ---
 
 ## `cards` — local trimmed card catalogue
@@ -145,11 +165,47 @@ card_faces = [
 
 ---
 
+## `printings` — per-printing lookup (set + collector number → card)
+
+Populated by a **second** ingestion script from Scryfall's **Default Cards** bulk file (one
+object per printing, ~90–110k rows after the same paper/layout filter used for `cards`).
+Exists to resolve "set code + collector number" (what OCR/card-scanning reads off a physical
+card, and the more reliable recognition target than the card name — stable position/format
+across foils, alt-arts, Universes Beyond frames) to a specific printing, and from there back
+to the oracle-level data already in `cards`.
+
+| Column | Scryfall source | Type / notes |
+|---|---|---|
+| `scryfall_id` | `id` | UUID, primary key. Identity of the printing (not the lookup key — see index below). |
+| `oracle_id` | `oracle_id` | UUID, FK → `cards(oracle_id)`. The join back to oracle-level data. No `on delete cascade`: the import script only upserts into `cards`, never deletes, so there's no deletion path to guard against yet. |
+| `set_code` | `set` | Text. |
+| `collector_number` | `collector_number` | Text, **not numeric** — Scryfall uses values like `182a`, `★7`. |
+| `lang` | `lang` | Text, default `'en'`. Only `en` ingested for now (matching `cards`), but kept so `(set_code, collector_number, lang)` stays unambiguous once Portuguese data lands — no migration needed then. |
+| `image_url` | `image_uris.normal` | Text, nullable. Optional: lets the app show the *exact* scanned printing's art instead of `cards.image_url`'s representative-printing art. |
+
+Unique index on `(set_code, collector_number, lang)` — the actual scan-resolution lookup.
+Separate index on `oracle_id` — Postgres doesn't auto-index a foreign key column (only the
+referenced side gets one via the target table's own PK), so without it every join back to
+`cards`, or a future delete cascade, does a sequential scan.
+
+RLS: same pattern as `cards` — `SELECT` for `authenticated`, writes only via `service_role`.
+
+**Known gap:** filling this table does not, by itself, let a user *record* which printing they
+own — see the `collection_items` follow-up in *Deferred* below.
+
+---
+
 ## Deferred (Phase 2+)
 
-- **Printing tracking.** Either ingest Scryfall's *Default Cards* bulk file (one row per
-  printing) into a `printings` table keyed by `scryfall_id`, or capture
-  set + collector number + finish + condition per collection item.
+- **`collection_items` printing reference.** `set_code` (below) is a bare nullable text
+  column with no FK — it can't disambiguate two printings that share a set code (rare, but
+  happens with some promos) and doesn't capture `lang`. Once `printings` exists, the real fix
+  is likely a nullable `scryfall_id` FK → `printings(scryfall_id)` (nullable so "I own this
+  card, printing unknown" stays representable — a legitimate casual-tracking case, not just a
+  migration artifact), with `set_code` either dropped in favour of the FK or kept only as a
+  fast-filter denormalization. The unique index on `collection_items` — currently
+  `(collection_id, oracle_id, coalesce(set_code, ''))` — would need the same treatment,
+  probably keyed on `scryfall_id` instead once it exists. **Not yet designed or built.**
 - **Portuguese.** Ingest localized data (`printed_name`, `printed_text`, localized images).
   No schema migration needed — everything is keyed on `oracle_id`.
 - **Relational `card_faces` table** — migrate from the JSONB column if face-level querying
@@ -158,12 +214,56 @@ card_faces = [
 
 ---
 
+## `collections` — user-defined card groupings
+
+A user can have any number of collections (e.g. "Binder", "Vault"), each with a name and a
+color picked from a small app-side preset palette (stored as a key, not a raw hex — see
+`@shared/constants`). A card may belong to any number of a user's collections; collections
+are groupings, not an exclusive "this card lives here" ledger — that stricter modelling is
+what the storage location/container system (Deferred, below) will eventually own.
+
+**Naming exception:** `collections` / `collection_items` and their columns are named in
+English, not pt-BR like the rest of the app's identifiers (CLAUDE.md's convention). This was
+a deliberate choice to match the existing `cards` table's naming and the SQL/data layer in
+general, rather than mixing languages within the DB schema.
+
+| Column | Type / notes |
+|---|---|
+| `id` | UUID, primary key. |
+| `user_id` | UUID, FK → `auth.users`. Owner. |
+| `name` | Text. |
+| `color` | Text. Preset-palette key, not a raw hex/RGB value. |
+| `created_at` | timestamptz, default `now()`. |
+
+RLS: full CRUD scoped to `auth.uid() = user_id` — the first table in the app that isn't
+read-only for end users (contrast with `cards`).
+
+## `collection_items` — cards within a collection
+
+| Column | Type / notes |
+|---|---|
+| `id` | UUID, primary key. |
+| `collection_id` | UUID, FK → `collections(id)`, `on delete cascade`. |
+| `oracle_id` | UUID, FK → `cards(oracle_id)`. |
+| `set_code` | Text, **nullable**. Placeholder for future printing tracking (see Deferred). Every row added by the MVP flow leaves this `NULL` — the app has no per-printing card data yet (that needs the deferred *Default Cards* ingestion), so there's nothing to store here yet. Column exists now purely to avoid a migration later. |
+| `quantity` | Integer, default `1`, `check (quantity > 0)`. Adding a card the user already has in that collection (same `oracle_id` + `set_code`) increments this rather than inserting a new row; removing one copy decrements it, deleting the row once it hits 0. |
+| `date_added` | timestamptz, default `now()`. Set once on insert; **not** touched when `quantity` changes later. |
+| `updated_at` | timestamptz, default `now()`, bumped by a trigger on every `UPDATE`. Drives "last updated" ordering in the collection detail view — unlike `date_added`, this *does* move when `quantity` changes. |
+
+Unique index on `(collection_id, oracle_id, coalesce(set_code, ''))` — this is what "add this
+card again" resolves against to decide insert vs. increment. (Postgres unique constraints
+treat `NULL` as distinct from `NULL`, which would defeat this for every MVP row since
+`set_code` is always `NULL` for now — the `coalesce` sidesteps that.)
+
+RLS: scoped indirectly — no `user_id` column here; policies check
+`exists (select 1 from collections where id = collection_items.collection_id and user_id = auth.uid())`.
+
+---
+
 ## Planned tables (not yet designed)
 
 Stubs — fill in when each is built.
 
-- **`collection_items`** — `user_id`, `oracle_id`, `quantity`; later: printing, finish,
-  condition, language, `container_id`, `last_location_update_date`.
 - **`containers`** — `user_id`, `name` (flat, user-named storage locations).
 - **`decks`** — `user_id`, `name`, commander `oracle_id`, format.
 - **`deck_cards`** — `deck_id`, `oracle_id`, `quantity`, `is_commander`.
