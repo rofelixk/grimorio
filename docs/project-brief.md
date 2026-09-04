@@ -1,5 +1,7 @@
 # MTG Collection & Deck App — Project Brief
 
+*See also: [data-model.md](data-model.md) for what gets persisted, and the [docs index](README.md).*
+
 ## Vision
 A free, Brazil-first web app for Magic: The Gathering players to manage their card collection and decks — built as a personal passion project and a hands-on learning exercise in backend development and AI-assisted development.
 

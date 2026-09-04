@@ -3,6 +3,7 @@
 MTG collection & deck manager — a free, Brazil-first web app. Personal passion project and a hands-on learning exercise in backend development and AI-assisted development.
 
 Full context, rationale, and roadmap: [docs/project-brief.md](docs/project-brief.md). Read it when a decision depends on the "why".
+What gets persisted in Supabase (per-column decisions and rationale): [docs/data-model.md](docs/data-model.md).
 
 ## Commands & workflow
 - **Do not run `npm test`, `npm start`, `npm run build`, `ng test`, `ng serve`, or `ng build`.** The user runs and verifies these. Claude's job is to create/modify the necessary files and then hand off.
