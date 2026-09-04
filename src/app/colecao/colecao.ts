@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-collection',
+  selector: 'app-colecao',
   imports: [RouterLink],
-  templateUrl: './collection.html',
+  templateUrl: './colecao.html',
 })
-export class Collection {}
+export class Colecao {}

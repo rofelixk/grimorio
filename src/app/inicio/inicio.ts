@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-decks',
+  selector: 'app-inicio',
   imports: [RouterLink],
-  templateUrl: './decks.html',
+  templateUrl: './inicio.html',
 })
-export class Decks {}
+export class Inicio {}

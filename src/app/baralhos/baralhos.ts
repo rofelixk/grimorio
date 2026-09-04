@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-baralhos',
   imports: [RouterLink],
-  templateUrl: './home.html',
+  templateUrl: './baralhos.html',
 })
-export class Home {}
+export class Baralhos {}
