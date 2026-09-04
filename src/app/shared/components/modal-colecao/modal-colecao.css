@@ -1,0 +1,42 @@
+.fundo {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.modal {
+  min-width: 20rem;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 4px;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.paleta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cor {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--cor);
+  cursor: pointer;
+  padding: 0;
+}
+
+.cor.selecionada {
+  border-color: #111;
+}

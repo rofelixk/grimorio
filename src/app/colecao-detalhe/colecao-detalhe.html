@@ -1,0 +1,55 @@
+@if (carregando()) {
+  <div class="carregando" role="status" aria-label="Loading"></div>
+}
+
+@if (erro()) {
+  <p class="erro">{{ erro() }}</p>
+  <button type="button" routerLink="/colecao">Back to collections</button>
+}
+
+@if (colecao(); as colecaoCarregada) {
+  <div class="pagina">
+    <div class="coluna-busca">
+      <div class="cabecalho">
+        <h1>{{ colecaoCarregada.name }}</h1>
+        <button type="button" routerLink="/colecao">Back to collections</button>
+      </div>
+
+      <app-busca-cartas
+        [chave]="chaveBusca"
+        [mostrarBotaoAdicionar]="true"
+        rotuloBotaoAdicionar="Add to collection"
+        [colunas]="4"
+        [colunasMobile]="2"
+        (adicionarCarta)="adicionarCarta($event)"
+      />
+    </div>
+
+    <div class="coluna-itens">
+      <h2>Cards in this collection</h2>
+
+      @if (itens().length === 0) {
+        <p>No cards added yet.</p>
+      } @else {
+        <ul class="lista-itens">
+          @for (item of itens(); track item.id) {
+            <li>
+              <span class="nome">{{ item.nome }}</span>
+              <span class="custo-de-mana">
+                @for (segmento of segmentosCustoDeMana(item); track $index) {
+                  @if (segmento.tipo === 'simbolo') {
+                    <img class="simbolo-mana" [src]="segmento.caminhoSvg" [alt]="segmento.codigo" />
+                  } @else {
+                    {{ segmento.valor }}
+                  }
+                }
+              </span>
+              <span class="quantidade">&times;{{ item.quantity }}</span>
+              <button type="button" (click)="removerUmaCopia(item)">Remove</button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+}

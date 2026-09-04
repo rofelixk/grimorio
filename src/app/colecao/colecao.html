@@ -1,2 +1,115 @@
-<h1>Collection</h1>
-<button type="button" routerLink="/">Back</button>
+<div class="pagina">
+  <div class="coluna-colecoes">
+    <div class="cabecalho">
+      <h1>Collections</h1>
+      <button type="button" (click)="abrirModalCriar()">Add collection</button>
+    </div>
+
+    @if (carregando()) {
+      <div class="carregando" role="status" aria-label="Loading"></div>
+    }
+
+    @if (erro()) {
+      <p class="erro">{{ erro() }}</p>
+    }
+
+    @if (!carregando() && colecoes().length === 0) {
+      <p>You don't have any collections yet.</p>
+    }
+
+    <ul class="lista-colecoes">
+      @for (colecao of colecoes(); track colecao.id) {
+        <li class="colecao" [style.--cor]="corHex(colecao.color)">
+          <a class="nome" [routerLink]="['/colecao', colecao.id]">
+            <span class="marcador"></span>
+            {{ colecao.name }}
+          </a>
+          <div class="acoes">
+            <button type="button" (click)="abrirModalEditar(colecao)">Edit</button>
+            <button type="button" (click)="excluir(colecao)">Delete</button>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div class="coluna-busca-carta">
+    <div class="topo-busca-carta">
+      <h2>Find a card in your collections</h2>
+
+      <div class="busca">
+        <input
+          type="text"
+          placeholder="Search a card..."
+          [value]="termoBuscaCarta()"
+          (input)="termoBuscaCarta.set($any($event.target).value)"
+        />
+        <select
+          [value]="campoBuscaCarta()"
+          (change)="campoBuscaCarta.set($any($event.target).value)"
+        >
+          <option value="name">Name</option>
+          <option value="type_line">Type line</option>
+        </select>
+        <button type="button" (click)="buscarCarta()" [disabled]="buscandoCarta()">Search</button>
+      </div>
+
+      @if (termoBuscaCartaInvalido) {
+        <p class="erro-validacao">Enter at least 3 characters to search.</p>
+      }
+
+      @if (buscandoCarta()) {
+        <div class="carregando" role="status" aria-label="Loading"></div>
+      }
+
+      @if (erroBuscaCarta()) {
+        <p class="erro">{{ erroBuscaCarta() }}</p>
+      }
+    </div>
+
+    <div class="resultados-busca-carta-scroll">
+      @if (resultadosBuscaCarta() !== null && !buscandoCarta()) {
+        @if (resultadosBuscaCarta()!.length === 0) {
+          <p>No matches.</p>
+        } @else {
+          <ul class="resultados-busca-carta">
+            @for (item of resultadosBuscaCarta(); track item.id) {
+              <li>
+                @if (item.imagem_url) {
+                  <img class="imagem" [src]="item.imagem_url" [alt]="item.nome" />
+                }
+                <div class="informacoes">
+                  @let nomeDestacado = destacar(item.nome);
+                  <span class="nome"
+                    >{{ nomeDestacado.antes
+                    }}@if (nomeDestacado.trecho) {
+                      <mark>{{ nomeDestacado.trecho }}</mark>
+                    }{{ nomeDestacado.depois }}</span
+                  >
+
+                  @let tipoDestacado = destacar(item.tipo);
+                  <span class="tipo"
+                    >{{ tipoDestacado.antes
+                    }}@if (tipoDestacado.trecho) {
+                      <mark>{{ tipoDestacado.trecho }}</mark>
+                    }{{ tipoDestacado.depois }}</span
+                  >
+
+                  <span class="rotulo-colecao" [style.--cor]="corHex(item.colecao_cor)">
+                    <span class="marcador"></span>
+                    {{ item.colecao_nome }}
+                  </span>
+                  <span class="atualizado">Updated {{ item.updated_at | date: 'mediumDate' }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      }
+    </div>
+  </div>
+</div>
+
+@if (modalAberta()) {
+  <app-modal-colecao [colecao]="colecaoEmEdicao()" (fechar)="fecharModal()" (salvo)="aoSalvar($event)" />
+}
