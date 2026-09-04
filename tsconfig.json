@@ -18,7 +18,8 @@
       "@shared/constants": ["./src/app/shared/constants/index.ts"],
       "@shared/config": ["./src/app/shared/config/index.ts"],
       "@shared/services": ["./src/app/shared/services/index.ts"],
-      "@shared/components": ["./src/app/shared/components/index.ts"]
+      "@shared/components": ["./src/app/shared/components/index.ts"],
+      "@shared/guards": ["./src/app/shared/guards/index.ts"]
     }
   },
   "angularCompilerOptions": {

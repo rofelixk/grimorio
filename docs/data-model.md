@@ -19,11 +19,6 @@ card-data rationale).
 - **Row Level Security.**
   - `cards`: RLS on. `SELECT` for authenticated users; inserts/updates only via the
     `service_role` key used by the import script. No user ever writes to it.
-    **Temporary exception:** an additional `cards_anon_select_temporary` policy also
-    grants `SELECT` to `anon`, added to unblock the search feature built before auth
-    exists. `cards` is public reference data (no per-user sensitivity), so this is a
-    scoping shortcut, not a security compromise — but it should be dropped once auth
-    is in place and search can require an authenticated session like everything else.
   - Per-user tables: RLS on, every row scoped to `auth.uid()`.
 
 ---

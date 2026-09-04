@@ -2,17 +2,66 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { App } from './app';
 import { routes } from './app.routes';
+import { AutenticacaoService } from '@shared/services';
 
 describe('App', () => {
+  let autenticacaoServiceMock: {
+    estaAutenticado: jest.Mock;
+    usuarioAtual: jest.Mock;
+    sair: jest.Mock;
+  };
+
   beforeEach(async () => {
+    autenticacaoServiceMock = {
+      estaAutenticado: jest.fn().mockReturnValue(false),
+      usuarioAtual: jest.fn().mockReturnValue(null),
+      sair: jest.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter(routes)],
+      providers: [
+        provideRouter(routes),
+        { provide: AutenticacaoService, useValue: autenticacaoServiceMock },
+      ],
     }).compileComponents();
   });
 
   it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
     expect(fixture.componentInstance).toBeTruthy();
+  });
+
+  it('shows Sign in and Sign up when logged out', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const texto = fixture.nativeElement.textContent;
+    expect(texto).toContain('Sign in');
+    expect(texto).toContain('Sign up');
+  });
+
+  it('opens the sign-in modal when Sign in is clicked', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const botaoEntrar = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Sign in',
+    ) as HTMLButtonElement;
+    botaoEntrar.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-modal-entrar')).not.toBeNull();
+  });
+
+  it('shows the email and Sign out when logged in', () => {
+    autenticacaoServiceMock.estaAutenticado.mockReturnValue(true);
+    autenticacaoServiceMock.usuarioAtual.mockReturnValue({ email: 'ash@example.com' });
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const texto = fixture.nativeElement.textContent;
+
+    expect(texto).toContain('ash@example.com');
+    expect(texto).toContain('Sign out');
   });
 });

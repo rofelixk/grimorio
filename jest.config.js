@@ -15,5 +15,6 @@ module.exports = {
     '^@shared/config$': '<rootDir>/src/app/shared/config/index.ts',
     '^@shared/services$': '<rootDir>/src/app/shared/services/index.ts',
     '^@shared/components$': '<rootDir>/src/app/shared/components/index.ts',
+    '^@shared/guards$': '<rootDir>/src/app/shared/guards/index.ts',
   },
 };

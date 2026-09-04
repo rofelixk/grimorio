@@ -1,0 +1,35 @@
+<button type="button" routerLink="/">Back</button>
+
+<h1>Sign up</h1>
+
+@if (!cadastroConcluido()) {
+  <form (ngSubmit)="cadastrar()">
+    <input
+      type="email"
+      name="email"
+      placeholder="Email"
+      required
+      [ngModel]="email()"
+      (ngModelChange)="email.set($event)"
+    />
+    <input
+      type="password"
+      name="senha"
+      placeholder="Password"
+      required
+      [ngModel]="senha()"
+      (ngModelChange)="senha.set($event)"
+    />
+    <button type="submit" [disabled]="enviando()">Sign up</button>
+  </form>
+
+  @if (erro()) {
+    <p class="erro">{{ erro() }}</p>
+  }
+} @else {
+  @if (precisaConfirmarEmail()) {
+    <p>Check your email to confirm your account.</p>
+  } @else {
+    <p>Account created. You're signed in.</p>
+  }
+}
