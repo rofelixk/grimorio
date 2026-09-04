@@ -1,6 +1,12 @@
 {
   "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm test)",
+      "Bash(npm run build)"
+    ],
     "deny": [
+      "Bash(npm run import:cards)",
       "Read(.env)",
       "Read(./.env)",
       "Read(.env.local)",

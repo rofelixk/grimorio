@@ -16,7 +16,9 @@ Split by audience; no bilingual or translated documents.
 - **Shared cross-cutting code** (interfaces, constants, and anything else added under `src/app/shared/`) is imported via a `@shared/*` path alias (e.g. `@shared/interfaces`, `@shared/constants`), not a relative path — configured in both `tsconfig.json` (Angular app) and `scripts/tsconfig.json` (Node scripts). Any new subfolder added under `shared/` should get its own alias and barrel (`index.ts`) following this same pattern.
 
 ## Commands & workflow
-- **Do not run `npm test`, `npm start`, `npm run build`, `ng test`, `ng serve`, or `ng build`.** The user runs and verifies these. Claude's job is to create/modify the necessary files and then hand off.
+- **Claude may run `npm install`, `npm test`, and `npm run build`** to verify its own work directly instead of only handing files off.
+- **Do not run `npm start`/`ng serve`** (long-running dev server) — the user runs and checks that themselves.
+- **Never run any script that talks to an external database or API — Supabase or Scryfall** (currently `npm run import:cards` / `scripts/importar-cartas.ts`), regardless of the above. These write real data or hit rate-limited/paid-adjacent services and must stay a human-run, human-watched action. Any future script with the same property (DB writes, external API calls) gets the same treatment by default.
 - Run tests: `npm test` (Jest, via `jest-preset-angular`; config in `jest.config.js` / `setup-jest.ts`). Watch mode: `npm run test:watch`.
 - Dev server: `npm start` (`ng serve`, http://localhost:4200). Production build: `npm run build`.
 
