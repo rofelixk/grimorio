@@ -1,0 +1,36 @@
+.cartao {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.informacoes {
+  flex: 1;
+  min-width: 0;
+}
+
+.informacoes ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.informacoes li {
+  padding-block: 0.25rem;
+}
+
+.informacoes li:not(:last-child) {
+  border-bottom: 1px solid #ddd;
+  margin-inline: 0.5rem;
+}
+
+.cartao img {
+  max-width: 40%;
+  height: auto;
+  object-fit: contain;
+}
