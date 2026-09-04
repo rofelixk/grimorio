@@ -7,8 +7,8 @@ What gets persisted in Supabase (per-column decisions and rationale): [docs/data
 
 ## Language convention
 Split by audience; no bilingual or translated documents.
-- **English:** `CLAUDE.md`, everything under `docs/` except its README (working reference for the builder + AI).
-- **pt-BR:** `README.md`, `docs/README.md` (public face), and all git commit messages.
+- **English:** `CLAUDE.md`, everything under `docs/` except its README and `docs/historico-ia/` (working reference for the builder + AI).
+- **pt-BR:** `README.md`, `docs/README.md`, `docs/historico-ia/` (public face — per-feature AI-collaboration case studies for course evaluators; not auto-loaded context, read on demand only), and all git commit messages.
 - **Code identifiers (classes, files, folders, functions, variables, properties) are pt-BR**, except framework/tooling naming conventions — Angular building blocks and suffixes (`Component`, `Service`, selectors' `app-` prefix), npm script names, and third-party API/library terms (`fetch`, `URI`, class/field names that mirror an external API or DB schema verbatim, e.g. Scryfall/Postgres field names) stay as the convention or source dictates.
 - **Boolean naming:** prefer `eh` over `is` as the prefix (`ehAtivo`, not `isActive`).
 - **Interface namespaces are prefixed `I`** (e.g. `ICarta`). Inside one, the plain name (`Detalhes`) is the canonical/stored shape — what you'd reach for by default. A shape that deviates from that gets a suffix naming the deviation (`DetalhesRaw` = untouched external API shape). Nested sub-shapes follow the same rule at their own level (e.g. `Face` / `FaceRaw`).
