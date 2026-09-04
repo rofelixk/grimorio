@@ -1,0 +1,43 @@
+<button type="button" routerLink="/">Back</button>
+
+@if (carregando()) {
+  <div class="carregando" role="status" aria-label="Loading"></div>
+} @else if (erro()) {
+  <p class="erro">{{ erro() }}</p>
+} @else if (visualizacao; as v) {
+  <div class="carta-detalhe">
+    <div class="coluna-arte">
+      @if (v.imagemExibida) {
+        <img class="arte" [src]="v.imagemExibida" [alt]="v.nomeExibido" />
+      }
+      @if (ehMultiface) {
+        <button type="button" class="botao-virar" (click)="alternarFace()">Flip card</button>
+      }
+    </div>
+    <div class="informacoes">
+      <ul>
+        <li>{{ v.nomeExibido }}</li>
+        <li>
+          @for (segmento of v.segmentosCustoDeMana; track $index) {
+            @if (segmento.tipo === 'simbolo') {
+              <img class="simbolo-mana" [src]="segmento.caminhoSvg" [alt]="segmento.codigo" />
+            } @else {
+              {{ segmento.valor }}
+            }
+          }
+        </li>
+        <li>{{ v.manaValue }}</li>
+        <li>{{ v.tipoExibido }}</li>
+        <li>
+          @for (segmento of v.segmentosTextoOracle; track $index) {
+            @if (segmento.tipo === 'simbolo') {
+              <img class="simbolo-mana" [src]="segmento.caminhoSvg" [alt]="segmento.codigo" />
+            } @else {
+              {{ segmento.valor }}
+            }
+          }
+        </li>
+      </ul>
+    </div>
+  </div>
+}

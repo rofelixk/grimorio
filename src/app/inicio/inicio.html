@@ -1,14 +1,11 @@
-<button type="button" routerLink="/baralhos">Decks</button>
-<button type="button" routerLink="/colecao">Collection</button>
-
 <div class="busca">
   <input
     type="text"
     placeholder="Search cards..."
-    [value]="termo()"
-    (input)="termo.set($any($event.target).value)"
+    [value]="estado.termo()"
+    (input)="estado.termo.set($any($event.target).value)"
   />
-  <select [value]="campo()" (change)="campo.set($any($event.target).value)">
+  <select [value]="estado.campo()" (change)="estado.campo.set($any($event.target).value)">
     <option value="name">Name</option>
     <option value="type_line">Type line</option>
   </select>
@@ -27,16 +24,36 @@
   <p class="erro">{{ erro() }}</p>
 }
 
-@if (resultados() !== null && !carregando()) {
-  @if (resultados()!.length === 0) {
+@if (estado.resultados() !== null && !carregando()) {
+  @if (estado.resultados()!.length === 0) {
     <p>No results.</p>
   } @else {
     <ul class="lista-resultados">
-      @for (item of resultados(); track item.oracle_id) {
+      @for (item of estado.resultados(); track item.oracle_id) {
         <li>
           <app-cartao [carta]="item" />
         </li>
       }
     </ul>
+
+    @if (totalPaginas > 1) {
+      <div class="paginacao">
+        <button
+          type="button"
+          (click)="irParaPagina(estado.pagina() - 1)"
+          [disabled]="estado.pagina() <= 1"
+        >
+          Previous
+        </button>
+        <span>Page {{ estado.pagina() }} of {{ totalPaginas }}</span>
+        <button
+          type="button"
+          (click)="irParaPagina(estado.pagina() + 1)"
+          [disabled]="estado.pagina() >= totalPaginas"
+        >
+          Next
+        </button>
+      </div>
+    }
   }
 }

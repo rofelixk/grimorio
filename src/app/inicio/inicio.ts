@@ -1,45 +1,61 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { CampoDeBusca, CartasService } from '@shared/services';
+import { CartasService, EstadoBuscaCartasService, TAMANHO_PAGINA_BUSCA } from '@shared/services';
 import { Cartao } from '@shared/components';
-import { ICarta } from '@shared/interfaces';
 
 const TAMANHO_MINIMO_TERMO = 3;
 
 @Component({
   selector: 'app-inicio',
-  imports: [RouterLink, Cartao],
+  imports: [Cartao],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
 export class Inicio {
   private readonly cartasService = inject(CartasService);
+  protected readonly estado = inject(EstadoBuscaCartasService);
 
-  protected readonly termo = signal('');
-  protected readonly campo = signal<CampoDeBusca>('name');
   protected readonly carregando = signal(false);
   protected readonly erro = signal<string | null>(null);
-  protected readonly resultados = signal<ICarta.Detalhes[] | null>(null);
-  protected readonly tentouBuscar = signal(false);
 
   protected get termoInvalido(): boolean {
-    return this.tentouBuscar() && this.termo().trim().length < TAMANHO_MINIMO_TERMO;
+    return this.estado.tentouBuscar() && this.estado.termo().trim().length < TAMANHO_MINIMO_TERMO;
+  }
+
+  protected get totalPaginas(): number {
+    return Math.max(1, Math.ceil(this.estado.total() / TAMANHO_PAGINA_BUSCA));
   }
 
   async buscar(): Promise<void> {
-    this.tentouBuscar.set(true);
+    this.estado.tentouBuscar.set(true);
 
-    if (this.termo().trim().length < TAMANHO_MINIMO_TERMO) {
+    if (this.estado.termo().trim().length < TAMANHO_MINIMO_TERMO) {
       return;
     }
 
+    await this.executarBusca(1);
+  }
+
+  async irParaPagina(pagina: number): Promise<void> {
+    if (pagina < 1 || pagina > this.totalPaginas) {
+      return;
+    }
+
+    await this.executarBusca(pagina);
+  }
+
+  private async executarBusca(pagina: number): Promise<void> {
     this.carregando.set(true);
     this.erro.set(null);
-    this.resultados.set(null);
 
     try {
-      const resultado = await this.cartasService.buscarCartas(this.termo().trim(), this.campo());
-      this.resultados.set(resultado);
+      const resultado = await this.cartasService.buscarCartas(
+        this.estado.termo().trim(),
+        this.estado.campo(),
+        pagina,
+      );
+      this.estado.resultados.set(resultado.cartas);
+      this.estado.total.set(resultado.total);
+      this.estado.pagina.set(pagina);
     } catch (erroCapturado) {
       this.erro.set(erroCapturado instanceof Error ? erroCapturado.message : 'Erro desconhecido.');
     } finally {

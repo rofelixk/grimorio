@@ -1,0 +1,85 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.carregando {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-block: 0.5rem;
+  border: 3px solid #ccc;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.carta-detalhe {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
+  margin-block-start: 1rem;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.coluna-arte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 0 0 40%;
+  min-height: 0;
+}
+
+.arte {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 7px;
+}
+
+.botao-virar {
+  flex: 0 0 auto;
+}
+
+.informacoes {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.informacoes ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.informacoes li {
+  padding-block: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.informacoes li:not(:last-child) {
+  border-bottom: 1px solid #ddd;
+  margin-inline: 0.5rem;
+}
+
+.simbolo-mana {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: text-bottom;
+}
