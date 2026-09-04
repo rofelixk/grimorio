@@ -1,12 +1,12 @@
 # MTG Collection & Deck App — Project Brief
 
 ## Vision
-A free, Brazil-first web app for Magic: The Gathering players to manage their card collection and decks — built as a personal passion project and a hands-on learning exercise in React, backend development, and AI-assisted development.
+A free, Brazil-first web app for Magic: The Gathering players to manage their card collection and decks — built as a personal passion project and a hands-on learning exercise in backend development and AI-assisted development.
 
 ## Core Values
 - **Free** — No cost, no paywall, no data monetization. Built with AI, a technology with real environmental cost; being free and genuinely useful is a way of giving something back.
 - **Brasil** — Built for Brazilian players first. Portuguese card names/text are a core requirement, not a later localization pass. Others may use it, but it isn't designed around them.
-- **Knowledge** — Taken seriously despite being coursework. The goal is real understanding of React, basic backend, and AI collaboration/specification skills — not just a finished app. Mistakes and friction are part of the learning, not something to be engineered away.
+- **Knowledge** — Taken seriously despite being coursework. The goal is real understanding of basic backend development and AI collaboration/specification skills — not just a finished app. Mistakes and friction are part of the learning, not something to be engineered away.
 - **Discovery** — *Ad astra, per aspera.* Difficulty is expected and accepted, not avoided.
 
 ## Target User
@@ -37,7 +37,7 @@ Brazilian MTG players, primarily Commander/EDH format.
 - Local/offline trimmed card database
 
 ## Tech Stack
-- **Frontend:** React / Next.js (deliberate stretch — user is an experienced Angular developer choosing to learn React)
+- **Frontend:** Angular — the user's existing area of expertise. The course's focus is fluency in AI-assisted development, not learning a new frontend framework, so the frontend is deliberately kept on familiar ground rather than stretching into React/Next.js. This keeps the learning effort on backend concepts and AI collaboration/specification skills.
 - **Backend:** Supabase (Postgres + auth + storage), free tier
 - **Hosting:** Vercel (free tier)
 - **Card data:** Scryfall API (live queries for MVP; no local bulk data yet)
@@ -63,5 +63,5 @@ Brazilian MTG players, primarily Commander/EDH format.
 - Possible hierarchical storage containers (binder → page → slot)
 
 ## Working Principle for AI Collaboration
-- **Delegate** what's already understood (boilerplate, repetitive/familiar patterns).
-- **Collaborate** (explain, don't just generate) on what's being learned — React and backend concepts.
+- **Delegate** what's already understood (boilerplate, repetitive/familiar patterns, most Angular/frontend work).
+- **Collaborate** (explain, don't just generate) on what's being learned — backend concepts and AI collaboration/specification practice.
