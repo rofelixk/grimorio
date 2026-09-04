@@ -1,15 +1,21 @@
-<div class="cartao" [class.multiface]="ehMultiface" (click)="alternarFace()">
-  <div class="informacoes">
-    <ul>
-      <li>{{ nomeExibido }}</li>
-      <li>{{ custoDeManaExibido }}</li>
-      <li>{{ carta.mana_value }}</li>
-      <li>{{ tipoExibido }}</li>
-      <li>{{ textoOracleExibido }}</li>
-      <li>{{ carta.color_identity.join(', ') }}</li>
-    </ul>
-  </div>
-  @if (imagemExibida) {
-    <img [src]="imagemExibida" [alt]="nomeExibido" />
+<a
+  class="cartao"
+  [class.multiface]="podeVirar"
+  [routerLink]="['/carta', carta.oracle_id]"
+  [style.--progresso]="progresso()"
+  (mouseenter)="iniciarHover()"
+  (mouseleave)="pararHover()"
+  (contextmenu)="$event.preventDefault()"
+>
+  @if (imagemFrente) {
+    <div class="moldura-giro">
+      <div class="giro" [class.virada]="virada()">
+        <img class="arte face frente" [src]="imagemFrente" [alt]="carta.name" draggable="false" />
+        @if (imagemVerso) {
+          <img class="arte face verso" [src]="imagemVerso" [alt]="carta.name" draggable="false" />
+        }
+      </div>
+      <div class="brilho"></div>
+    </div>
   }
-</div>
+</a>

@@ -1,12 +1,25 @@
 import { TestBed } from '@angular/core/testing';
-import { Cartao } from './cartao';
+import { provideRouter } from '@angular/router';
+import { ATRASO_PARA_VIRAR_MS, Cartao } from './cartao';
 import { ICarta } from '@shared/interfaces';
+
+type InstanciaDeTeste = {
+  iniciarHover(): void;
+  pararHover(): void;
+  virada: () => boolean;
+  progresso: () => number;
+};
 
 describe('Cartao', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Cartao],
+      providers: [provideRouter([])],
     }).compileComponents();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('should create', () => {
@@ -15,58 +28,112 @@ describe('Cartao', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('renders name, mana cost, mana value, type line, oracle text and color identity', () => {
+  it('links to the card detail page', () => {
     const fixture = TestBed.createComponent(Cartao);
     fixture.componentRef.setInput('carta', cartaSimples());
     fixture.detectChanges();
 
-    const texto = fixture.nativeElement.textContent;
-    expect(texto).toContain('Ashling, the Limitless');
-    expect(texto).toContain('{2}{R}');
-    expect(texto).toContain('3');
-    expect(texto).toContain('Legendary Creature — Elemental Sorcerer');
-    expect(texto).toContain('Elemental permanent spells');
-    expect(texto).toContain('B, G, R, U, W');
+    const link = fixture.nativeElement.querySelector('a.cartao') as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe('/carta/77a9e7cf-76e9-4323-8504-a5b831de00be');
   });
 
-  it('falls back to card_faces[0] for mana cost and oracle text when the card-level fields are null (multiface)', () => {
-    const fixture = TestBed.createComponent(Cartao);
-    fixture.componentRef.setInput('carta', cartaMultiface());
-    fixture.detectChanges();
-
-    const texto = fixture.nativeElement.textContent;
-    expect(texto).toContain('{2}{G}{W}{U}');
-    expect(texto).toContain('Flying');
-  });
-
-  it('flips to the back face when clicked (multiface)', () => {
-    const fixture = TestBed.createComponent(Cartao);
-    fixture.componentRef.setInput('carta', cartaMultiface());
-    fixture.detectChanges();
-
-    fixture.nativeElement.querySelector('.cartao').click();
-    fixture.detectChanges();
-
-    const texto = fixture.nativeElement.textContent;
-    expect(texto).toContain('Aang, Destined Savior');
-    expect(texto).toContain('Something else happens here.');
-    expect(fixture.nativeElement.querySelector('img').src).toContain('back');
-
-    fixture.nativeElement.querySelector('.cartao').click();
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain('Aang, at the Crossroads');
-  });
-
-  it('does nothing when a single-faced card is clicked', () => {
+  it('renders only the front-face image for a single-faced card', () => {
     const fixture = TestBed.createComponent(Cartao);
     fixture.componentRef.setInput('carta', cartaSimples());
     fixture.detectChanges();
 
-    fixture.nativeElement.querySelector('.cartao').click();
+    expect(fixture.nativeElement.textContent.trim()).toBe('');
+    const imagemFrente = fixture.nativeElement.querySelector('img.frente') as HTMLImageElement;
+    expect(imagemFrente.src).toContain('example.jpg');
+    expect(fixture.nativeElement.querySelector('img.verso')).toBeNull();
+  });
+
+  it('preloads both face images on init for a multiface card', () => {
+    const criados: string[] = [];
+    const ImagemOriginal = global.Image;
+    class ImagemFalsa {
+      set src(valor: string) {
+        criados.push(valor);
+      }
+    }
+    // @ts-expect-error substitui o construtor global de Image só para o teste
+    global.Image = ImagemFalsa;
+
+    const fixture = TestBed.createComponent(Cartao);
+    fixture.componentRef.setInput('carta', cartaMultiface());
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Ashling, the Limitless');
+    expect(criados).toEqual([
+      'https://cards.scryfall.io/normal/front/f/e/example.jpg',
+      'https://cards.scryfall.io/normal/back/f/e/example.jpg',
+    ]);
+
+    global.Image = ImagemOriginal;
+  });
+
+  it('increases the highlight progress the longer the hover lasts, and flips once the delay elapses', () => {
+    jest.useFakeTimers();
+
+    const fixture = TestBed.createComponent(Cartao);
+    fixture.componentRef.setInput('carta', cartaMultiface());
+    fixture.detectChanges();
+    const instancia = fixture.componentInstance as unknown as InstanciaDeTeste;
+
+    instancia.iniciarHover();
+    jest.advanceTimersByTime(ATRASO_PARA_VIRAR_MS / 2);
+    expect(instancia.virada()).toBe(false);
+    expect(instancia.progresso()).toBeGreaterThan(0);
+    expect(instancia.progresso()).toBeLessThan(1);
+
+    jest.advanceTimersByTime(ATRASO_PARA_VIRAR_MS / 2);
+    expect(instancia.virada()).toBe(true);
+  });
+
+  it('returns to the front face and resets the highlight as soon as the hover ends', () => {
+    jest.useFakeTimers();
+
+    const fixture = TestBed.createComponent(Cartao);
+    fixture.componentRef.setInput('carta', cartaMultiface());
+    fixture.detectChanges();
+    const instancia = fixture.componentInstance as unknown as InstanciaDeTeste;
+
+    instancia.iniciarHover();
+    jest.advanceTimersByTime(ATRASO_PARA_VIRAR_MS);
+    expect(instancia.virada()).toBe(true);
+
+    instancia.pararHover();
+    expect(instancia.virada()).toBe(false);
+    expect(instancia.progresso()).toBe(0);
+  });
+
+  it('does not schedule a flip for a single-faced card on hover', () => {
+    jest.useFakeTimers();
+
+    const fixture = TestBed.createComponent(Cartao);
+    fixture.componentRef.setInput('carta', cartaSimples());
+    fixture.detectChanges();
+    const instancia = fixture.componentInstance as unknown as InstanciaDeTeste;
+
+    instancia.iniciarHover();
+    jest.advanceTimersByTime(ATRASO_PARA_VIRAR_MS);
+    expect(instancia.virada()).toBe(false);
+  });
+
+  it('does not render a back face, apply the multiface class, or schedule a flip when the second face has no art', () => {
+    jest.useFakeTimers();
+
+    const fixture = TestBed.createComponent(Cartao);
+    fixture.componentRef.setInput('carta', cartaMultifaceSemArteNoVerso());
+    fixture.detectChanges();
+    const instancia = fixture.componentInstance as unknown as InstanciaDeTeste;
+
+    expect(fixture.nativeElement.querySelector('img.verso')).toBeNull();
+    expect(fixture.nativeElement.querySelector('a.multiface')).toBeNull();
+
+    instancia.iniciarHover();
+    jest.advanceTimersByTime(ATRASO_PARA_VIRAR_MS);
+    expect(instancia.virada()).toBe(false);
+    expect(instancia.progresso()).toBe(0);
   });
 });
 
@@ -86,6 +153,16 @@ function cartaSimples(): ICarta.Detalhes {
     commander_legality: 'legal',
     image_url: 'https://cards.scryfall.io/normal/front/5/9/example.jpg',
     card_faces: null,
+  };
+}
+
+function cartaMultifaceSemArteNoVerso(): ICarta.Detalhes {
+  const carta = cartaMultiface();
+  return {
+    ...carta,
+    card_faces: carta.card_faces!.map((face, indice) =>
+      indice === 1 ? { ...face, image_url: null } : face,
+    ),
   };
 }
 

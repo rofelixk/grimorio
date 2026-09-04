@@ -1,45 +1,63 @@
 .cartao {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  height: 100%;
+  --progresso: 0;
+  position: relative;
+  display: block;
+  aspect-ratio: 63 / 88;
   box-sizing: border-box;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+  color: inherit;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.informacoes {
-  flex: 1;
-  min-width: 0;
+.cartao:hover {
+  z-index: 1;
 }
 
-.informacoes ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.moldura-giro {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1200px;
 }
 
-.informacoes li {
-  padding-block: 0.25rem;
+.brilho {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 3px rgba(255, 165, 0, var(--progresso)),
+    0 0 18px 4px rgba(255, 165, 0, var(--progresso));
+  pointer-events: none;
+  transition: box-shadow 0.05s linear;
 }
 
-.informacoes li:not(:last-child) {
-  border-bottom: 1px solid #ddd;
-  margin-inline: 0.5rem;
+.giro {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
 }
 
-.cartao img {
-  max-width: 40%;
-  height: auto;
+.giro.virada {
+  transform: rotateY(180deg);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  backface-visibility: hidden;
 }
 
-.cartao.multiface {
-  cursor: pointer;
+.verso {
+  transform: rotateY(180deg);
 }
 
-.cartao.multiface:hover {
-  outline: 3px solid orange;
-  outline-offset: -1px;
+.arte {
+  border-radius: 18px;
 }
