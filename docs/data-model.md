@@ -83,7 +83,7 @@ refresh stays idempotent (the whole array is replaced with the row). A relationa
 UIs) ever becomes a real need.
 
 Populated for gameplay layouts that carry faces: `transform`, `modal_dfc`, `adventure`,
-`split`, `flip`, `battle`, `meld`, `reversible_card`. Each element:
+`split`, `flip`, `battle`, `meld`, `reversible_card`, `prepare`. Each element:
 
 ```
 { name, mana_cost, type_line, oracle_text, colors, power, toughness, image_url }

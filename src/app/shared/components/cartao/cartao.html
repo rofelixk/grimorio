@@ -1,15 +1,15 @@
-<div class="cartao">
+<div class="cartao" [class.multiface]="ehMultiface" (click)="alternarFace()">
   <div class="informacoes">
     <ul>
-      <li>{{ carta.name }}</li>
+      <li>{{ nomeExibido }}</li>
       <li>{{ custoDeManaExibido }}</li>
       <li>{{ carta.mana_value }}</li>
-      <li>{{ carta.type_line }}</li>
+      <li>{{ tipoExibido }}</li>
       <li>{{ textoOracleExibido }}</li>
       <li>{{ carta.color_identity.join(', ') }}</li>
     </ul>
   </div>
-  @if (carta.image_url) {
-    <img [src]="carta.image_url" [alt]="carta.name" />
+  @if (imagemExibida) {
+    <img [src]="imagemExibida" [alt]="nomeExibido" />
   }
 </div>
