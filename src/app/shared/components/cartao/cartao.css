@@ -34,3 +34,12 @@
   height: auto;
   object-fit: contain;
 }
+
+.cartao.multiface {
+  cursor: pointer;
+}
+
+.cartao.multiface:hover {
+  outline: 3px solid orange;
+  outline-offset: -1px;
+}

@@ -38,6 +38,36 @@ describe('Cartao', () => {
     expect(texto).toContain('{2}{G}{W}{U}');
     expect(texto).toContain('Flying');
   });
+
+  it('flips to the back face when clicked (multiface)', () => {
+    const fixture = TestBed.createComponent(Cartao);
+    fixture.componentRef.setInput('carta', cartaMultiface());
+    fixture.detectChanges();
+
+    fixture.nativeElement.querySelector('.cartao').click();
+    fixture.detectChanges();
+
+    const texto = fixture.nativeElement.textContent;
+    expect(texto).toContain('Aang, Destined Savior');
+    expect(texto).toContain('Something else happens here.');
+    expect(fixture.nativeElement.querySelector('img').src).toContain('back');
+
+    fixture.nativeElement.querySelector('.cartao').click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Aang, at the Crossroads');
+  });
+
+  it('does nothing when a single-faced card is clicked', () => {
+    const fixture = TestBed.createComponent(Cartao);
+    fixture.componentRef.setInput('carta', cartaSimples());
+    fixture.detectChanges();
+
+    fixture.nativeElement.querySelector('.cartao').click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Ashling, the Limitless');
+  });
 });
 
 function cartaSimples(): ICarta.Detalhes {

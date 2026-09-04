@@ -23,4 +23,5 @@ export const LAYOUTS_MULTIFACE = new Set([
   'battle',
   'meld',
   'reversible_card',
+  'prepare',
 ]);
