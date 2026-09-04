@@ -9,7 +9,11 @@ What gets persisted in Supabase (per-column decisions and rationale): [docs/data
 Split by audience; no bilingual or translated documents.
 - **English:** `CLAUDE.md`, everything under `docs/` except its README (working reference for the builder + AI).
 - **pt-BR:** `README.md`, `docs/README.md` (public face), and all git commit messages.
-- Code comments follow the surrounding code.
+- **Code identifiers (classes, files, folders, functions, variables, properties) are pt-BR**, except framework/tooling naming conventions — Angular building blocks and suffixes (`Component`, `Service`, selectors' `app-` prefix), npm script names, and third-party API/library terms (`fetch`, `URI`, class/field names that mirror an external API or DB schema verbatim, e.g. Scryfall/Postgres field names) stay as the convention or source dictates.
+- **Boolean naming:** prefer `eh` over `is` as the prefix (`ehAtivo`, not `isActive`).
+- **Interface namespaces are prefixed `I`** (e.g. `ICarta`). Inside one, the plain name (`Detalhes`) is the canonical/stored shape — what you'd reach for by default. A shape that deviates from that gets a suffix naming the deviation (`DetalhesRaw` = untouched external API shape). Nested sub-shapes follow the same rule at their own level (e.g. `Face` / `FaceRaw`).
+- Code comments follow the surrounding code — pt-BR for pt-BR code.
+- **Shared cross-cutting code** (interfaces, constants, and anything else added under `src/app/shared/`) is imported via a `@shared/*` path alias (e.g. `@shared/interfaces`, `@shared/constants`), not a relative path — configured in both `tsconfig.json` (Angular app) and `scripts/tsconfig.json` (Node scripts). Any new subfolder added under `shared/` should get its own alias and barrel (`index.ts`) following this same pattern.
 
 ## Commands & workflow
 - **Do not run `npm test`, `npm start`, `npm run build`, `ng test`, `ng serve`, or `ng build`.** The user runs and verifies these. Claude's job is to create/modify the necessary files and then hand off.
