@@ -1,1 +1,15 @@
+<header class="barra-superior">
+  @if (autenticacaoService.estaAutenticado()) {
+    <span>{{ autenticacaoService.usuarioAtual()?.email }}</span>
+    <button type="button" (click)="sair()">Sign out</button>
+  } @else {
+    <button type="button" (click)="abrirModalEntrar()">Sign in</button>
+    <a routerLink="/cadastro">Sign up</a>
+  }
+</header>
+
 <router-outlet />
+
+@if (modalEntrarAberta()) {
+  <app-modal-entrar (fechar)="fecharModalEntrar()" />
+}
