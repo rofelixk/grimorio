@@ -1,5 +1,4 @@
 import { Injectable, InjectionToken, inject } from '@angular/core';
-import * as Tesseract from 'tesseract.js';
 import { CartasService, ImpressaoEncontrada } from './cartas.service';
 import { lerCandidatosDeImpressao } from '@shared/utils';
 
@@ -133,6 +132,12 @@ export class LeitorDeCartaService {
 
     try {
       const fotoReduzida = await reduzirFotoParaOcr(foto);
+      // Import dinâmico (não estático no topo do arquivo): como este serviço
+      // é injetado já na página Início, um import estático do Tesseract
+      // entra no bundle inicial e pesa a carga de qualquer visita, mesmo sem
+      // usar a câmera. Import dinâmico vira um chunk separado, baixado só
+      // quando alguém realmente escaneia uma carta.
+      const Tesseract = await import('tesseract.js');
       const { data } = await Tesseract.recognize(fotoReduzida, 'eng');
       linhasDebug.push(`OCR bruto: "${data.text.trim()}"`);
 
