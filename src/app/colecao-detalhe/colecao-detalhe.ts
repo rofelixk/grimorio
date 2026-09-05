@@ -22,6 +22,12 @@ export class ColecaoDetalhe implements OnInit {
   protected readonly itens = signal<IColecao.ItemListado[]>([]);
   protected readonly modalAberta = signal(false);
 
+  // Mobile only (≤640px): a lista de cartas da coleção vira uma folha (sheet)
+  // recolhível no rodapé em vez de coluna lateral — mesmo tratamento de
+  // Colecao (colecao.ts/.css) — senão ela fica por cima do botão de câmera
+  // da busca. Desktop ignora isso.
+  protected readonly sheetAberta = signal(false);
+
   private colecaoId!: string;
 
   async ngOnInit(): Promise<void> {
@@ -68,6 +74,11 @@ export class ColecaoDetalhe implements OnInit {
   async removerUmaCopia(item: IColecao.ItemListado): Promise<void> {
     await this.colecoesService.removerUmaCopia(item.id);
     this.itens.set(await this.colecoesService.listarItens(this.colecaoId));
+  }
+
+  // Ver nota em Colecao.alternarSheet — mesmo toggle, sem arrastar.
+  alternarSheet(): void {
+    this.sheetAberta.update((aberta) => !aberta);
   }
 
   abrirModalEditar(): void {

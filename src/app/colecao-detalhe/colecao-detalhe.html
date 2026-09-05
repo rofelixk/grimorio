@@ -29,7 +29,11 @@
       />
     </div>
 
-    <div class="coluna-itens">
+    <div class="coluna-itens" [class.sheet-expandida]="sheetAberta()">
+      <button type="button" class="alca-sheet" (click)="alternarSheet()" aria-label="Alternar lista de cartas">
+        <span class="alca"></span>
+      </button>
+
       <h2>Cartas nesta coleção</h2>
 
       @if (itens().length === 0) {

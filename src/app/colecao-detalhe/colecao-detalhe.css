@@ -46,6 +46,10 @@
   overflow-y: auto;
 }
 
+.alca-sheet {
+  display: none;
+}
+
 .lista-itens {
   list-style: none;
   margin: 0;
@@ -102,5 +106,63 @@
 @keyframes girar {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Mobile (≤640px) — mesmo ponto de corte e tratamento de sheet de
+   colecao.css: a lista de cartas da coleção vira uma folha recolhível no
+   rodapé em vez de coluna lateral, senão fica por cima do botão de câmera
+   da busca. */
+@media (max-width: 640px) {
+  .pagina {
+    display: block;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .coluna-busca {
+    height: 100%;
+  }
+
+  .coluna-itens {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(7dvh + 1px);
+    height: 196px;
+    flex: 0 0 auto;
+    border-left: none;
+    border-top: 1px solid #ddd;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    transition: height 200ms ease;
+    z-index: 5;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .coluna-itens {
+      transition: none;
+    }
+  }
+
+  .coluna-itens.sheet-expandida {
+    height: min(75dvh, 640px);
+  }
+
+  .alca-sheet {
+    display: flex;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: 6px 0 10px;
+    border: none;
+    background: none;
+  }
+
+  .alca-sheet .alca {
+    width: 38px;
+    height: 4px;
+    border-radius: 2px;
+    background: #ddd;
   }
 }
