@@ -13,27 +13,29 @@
       <p class="erro">{{ erro() }}</p>
     }
 
-    @if (!carregando() && colecoes().length === 0) {
-      <p>You don't have any collections yet.</p>
-    }
-
-    <ul class="lista-colecoes">
-      @for (colecao of colecoes(); track colecao.id) {
-        <li class="colecao" [style.--cor]="corHex(colecao.color)">
-          <a class="nome" [routerLink]="['/colecao', colecao.id]">
-            <span class="marcador"></span>
-            {{ colecao.name }}
-          </a>
-          <div class="acoes">
-            <button type="button" (click)="abrirModalEditar(colecao)">Edit</button>
-            <button type="button" (click)="excluir(colecao)">Delete</button>
-          </div>
-        </li>
+    <div class="grade-colecoes">
+      @if (!carregando() && colecoes().length === 0) {
+        <p class="vazio">You don't have any collections yet.</p>
       }
-    </ul>
+
+      @for (colecao of colecoes(); track colecao.id) {
+        <div class="colecao-binder" [style.--cor]="corHex(colecao.color)">
+          <span class="binder-aba"></span>
+          <span class="binder-sombra"></span>
+          <span class="binder-folha"></span>
+          <a class="binder-face" [routerLink]="['/colecao', colecao.id]">
+            <span class="nome">{{ colecao.name }}</span>
+          </a>
+        </div>
+      }
+    </div>
   </div>
 
-  <div class="coluna-busca-carta">
+  <div class="coluna-busca-carta" [class.sheet-expandida]="sheetAberta()">
+    <button type="button" class="alca-sheet" (click)="alternarSheet()" aria-label="Toggle card search">
+      <span class="alca"></span>
+    </button>
+
     <div class="topo-busca-carta">
       <h2>Find a card in your collections</h2>
 
@@ -111,5 +113,5 @@
 </div>
 
 @if (modalAberta()) {
-  <app-modal-colecao [colecao]="colecaoEmEdicao()" (fechar)="fecharModal()" (salvo)="aoSalvar($event)" />
+  <app-modal-colecao [colecao]="null" (fechar)="fecharModal()" (salvo)="aoSalvar($event)" />
 }

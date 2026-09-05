@@ -38,3 +38,21 @@
   box-sizing: border-box;
   overflow-y: auto;
 }
+
+/* Abaixo de 640px (mesmo ponto de corte de busca-cartas.css), a barra de
+   navegação vira uma barra fixa no rodapé em vez de cabeçalho — só reordena
+   os mesmos elementos via flex `order`, sem duplicar markup/nav. */
+@media (max-width: 640px) {
+  .conteudo {
+    order: 0;
+  }
+
+  .rodape {
+    order: 1;
+  }
+
+  .barra-superior {
+    order: 2;
+    border-top: 1px solid #eee;
+  }
+}

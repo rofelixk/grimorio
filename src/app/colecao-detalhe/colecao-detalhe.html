@@ -12,7 +12,11 @@
     <div class="coluna-busca">
       <div class="cabecalho">
         <h1>{{ colecaoCarregada.name }}</h1>
-        <button type="button" routerLink="/colecao">Back to collections</button>
+        <div class="acoes-cabecalho">
+          <button type="button" (click)="abrirModalEditar()">Edit</button>
+          <button type="button" (click)="excluir()">Delete</button>
+          <button type="button" routerLink="/colecao">Back to collections</button>
+        </div>
       </div>
 
       <app-busca-cartas
@@ -52,4 +56,8 @@
       }
     </div>
   </div>
+
+  @if (modalAberta()) {
+    <app-modal-colecao [colecao]="colecaoCarregada" (fechar)="fecharModal()" (salvo)="aoSalvar($event)" />
+  }
 }

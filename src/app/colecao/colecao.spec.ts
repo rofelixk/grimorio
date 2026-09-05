@@ -33,14 +33,12 @@ function itemBuscaExemplo(sobrescritas: Partial<IColecao.ItemEmColecao> = {}): I
 describe('Colecao', () => {
   let colecoesServiceMock: {
     listarColecoes: jest.Mock;
-    excluirColecao: jest.Mock;
     buscarCartasEmColecoes: jest.Mock;
   };
 
   beforeEach(async () => {
     colecoesServiceMock = {
       listarColecoes: jest.fn().mockResolvedValue([]),
-      excluirColecao: jest.fn().mockResolvedValue(undefined),
       buscarCartasEmColecoes: jest.fn().mockResolvedValue([]),
     };
 
@@ -91,38 +89,19 @@ describe('Colecao', () => {
     expect(fixture.nativeElement.querySelector('app-modal-colecao')).not.toBeNull();
   });
 
-  it('deletes a collection after confirmation and refreshes the list', async () => {
+  it('does not show Edit/Delete on the collections grid — those live on the collection detail screen', async () => {
     colecoesServiceMock.listarColecoes.mockResolvedValue([colecaoExemplo()]);
-    jest.spyOn(window, 'confirm').mockReturnValue(true);
 
     const fixture = TestBed.createComponent(Colecao);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    colecoesServiceMock.listarColecoes.mockResolvedValue([]);
-    await fixture.componentInstance.excluir(colecaoExemplo());
-    fixture.detectChanges();
-
-    expect(colecoesServiceMock.excluirColecao).toHaveBeenCalledWith('1');
-    expect(fixture.nativeElement.textContent).toContain("don't have any collections");
-  });
-
-  it('does not delete when the confirmation is dismissed', async () => {
-    colecoesServiceMock.listarColecoes.mockResolvedValue([colecaoExemplo()]);
-    jest.spyOn(window, 'confirm').mockReturnValue(false);
-
-    const fixture = TestBed.createComponent(Colecao);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const botaoExcluir = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
-      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Delete',
-    ) as HTMLButtonElement;
-    botaoExcluir.click();
-
-    expect(colecoesServiceMock.excluirColecao).not.toHaveBeenCalled();
+    const labels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((b) =>
+      (b as HTMLButtonElement).textContent?.trim(),
+    );
+    expect(labels).not.toContain('Edit');
+    expect(labels).not.toContain('Delete');
   });
 
   describe('card search', () => {

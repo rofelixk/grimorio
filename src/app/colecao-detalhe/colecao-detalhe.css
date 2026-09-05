@@ -29,6 +29,12 @@
   margin-block: 1rem;
 }
 
+.acoes-cabecalho {
+  display: flex;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
 .coluna-itens {
   flex: 0 0 40dvw;
   min-height: 0;

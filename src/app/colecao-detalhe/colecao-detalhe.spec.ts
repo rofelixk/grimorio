@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { ColecaoDetalhe } from './colecao-detalhe';
 import { CartasService, ColecoesService } from '@shared/services';
 import { IColecao } from '@shared/interfaces';
@@ -27,6 +27,8 @@ describe('ColecaoDetalhe', () => {
     listarItens: jest.Mock;
     adicionarCarta: jest.Mock;
     removerUmaCopia: jest.Mock;
+    atualizarColecao: jest.Mock;
+    excluirColecao: jest.Mock;
   };
 
   async function criarFixture(id: string | null = 'c1') {
@@ -52,6 +54,8 @@ describe('ColecaoDetalhe', () => {
       listarItens: jest.fn().mockResolvedValue([]),
       adicionarCarta: jest.fn().mockResolvedValue(undefined),
       removerUmaCopia: jest.fn().mockResolvedValue(undefined),
+      atualizarColecao: jest.fn().mockResolvedValue(colecaoExemplo()),
+      excluirColecao: jest.fn().mockResolvedValue(undefined),
     };
   });
 
@@ -121,5 +125,57 @@ describe('ColecaoDetalhe', () => {
 
     expect(colecoesServiceMock.removerUmaCopia).toHaveBeenCalledWith('i1');
     expect(colecoesServiceMock.listarItens).toHaveBeenCalledTimes(2);
+  });
+
+  it('opens the edit modal when Edit is clicked', async () => {
+    const fixture = await criarFixture();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const botaoEditar = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Edit',
+    ) as HTMLButtonElement;
+    botaoEditar.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-modal-colecao')).not.toBeNull();
+  });
+
+  it('deletes the collection after confirmation and navigates back to the list', async () => {
+    jest.spyOn(window, 'confirm').mockReturnValue(true);
+
+    const fixture = await criarFixture();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const router = TestBed.inject(Router);
+    const navigateSpy = jest.spyOn(router, 'navigate');
+
+    const botaoExcluir = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Delete',
+    ) as HTMLButtonElement;
+    botaoExcluir.click();
+    await fixture.whenStable();
+
+    expect(colecoesServiceMock.excluirColecao).toHaveBeenCalledWith('c1');
+    expect(navigateSpy).toHaveBeenCalledWith(['/colecao']);
+  });
+
+  it('does not delete when the confirmation is dismissed', async () => {
+    jest.spyOn(window, 'confirm').mockReturnValue(false);
+
+    const fixture = await criarFixture();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const botaoExcluir = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Delete',
+    ) as HTMLButtonElement;
+    botaoExcluir.click();
+
+    expect(colecoesServiceMock.excluirColecao).not.toHaveBeenCalled();
   });
 });

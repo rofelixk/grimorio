@@ -23,8 +23,11 @@ export class Colecao implements OnInit {
   protected readonly carregando = signal(true);
   protected readonly erro = signal<string | null>(null);
   protected readonly colecoes = signal<IColecao.Detalhes[]>([]);
-  protected readonly colecaoEmEdicao = signal<IColecao.Detalhes | null>(null);
   protected readonly modalAberta = signal(false);
+
+  // Mobile only (≤640px): busca de cartas vira uma folha (sheet) recolhível no
+  // rodapé em vez de coluna lateral — ver colecao.css. Desktop ignora isso.
+  protected readonly sheetAberta = signal(false);
 
   protected readonly termoBuscaCarta = signal('');
   protected readonly campoBuscaCarta = signal<CampoDeBusca>('name');
@@ -85,12 +88,6 @@ export class Colecao implements OnInit {
   }
 
   abrirModalCriar(): void {
-    this.colecaoEmEdicao.set(null);
-    this.modalAberta.set(true);
-  }
-
-  abrirModalEditar(colecao: IColecao.Detalhes): void {
-    this.colecaoEmEdicao.set(colecao);
     this.modalAberta.set(true);
   }
 
@@ -99,28 +96,15 @@ export class Colecao implements OnInit {
   }
 
   async aoSalvar(colecao: IColecao.Detalhes): Promise<void> {
-    const criando = this.colecaoEmEdicao() === null;
     this.modalAberta.set(false);
-
-    if (criando) {
-      this.router.navigate(['/colecao', colecao.id]);
-      return;
-    }
-
-    await this.carregarColecoes();
+    this.router.navigate(['/colecao', colecao.id]);
   }
 
-  async excluir(colecao: IColecao.Detalhes): Promise<void> {
-    if (!confirm(`Delete collection "${colecao.name}"? This also removes its cards.`)) {
-      return;
-    }
-
-    try {
-      await this.colecoesService.excluirColecao(colecao.id);
-      await this.carregarColecoes();
-    } catch (erroCapturado) {
-      this.erro.set(erroCapturado instanceof Error ? erroCapturado.message : 'Erro desconhecido.');
-    }
+  // Mobile: alterna a folha de busca entre recolhida e expandida. Ver
+  // "State management" em design_handoff_colecao_1e/README.md — versão sem
+  // arrastar, um toggle já é suficiente.
+  alternarSheet(): void {
+    this.sheetAberta.update((aberta) => !aberta);
   }
 
   private async carregarColecoes(): Promise<void> {

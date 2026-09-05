@@ -1,24 +1,26 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ColecoesService } from '@shared/services';
 import { IColecao, ICarta } from '@shared/interfaces';
-import { BuscaCartas } from '@shared/components';
+import { BuscaCartas, ModalColecao } from '@shared/components';
 import { dividirEmSegmentos, SegmentoDeTexto } from '@shared/utils';
 
 @Component({
   selector: 'app-colecao-detalhe',
-  imports: [RouterLink, BuscaCartas],
+  imports: [RouterLink, BuscaCartas, ModalColecao],
   templateUrl: './colecao-detalhe.html',
   styleUrl: './colecao-detalhe.css',
 })
 export class ColecaoDetalhe implements OnInit {
   private readonly rotaAtiva = inject(ActivatedRoute);
   private readonly colecoesService = inject(ColecoesService);
+  private readonly router = inject(Router);
 
   protected readonly carregando = signal(true);
   protected readonly erro = signal<string | null>(null);
   protected readonly colecao = signal<IColecao.Detalhes | null>(null);
   protected readonly itens = signal<IColecao.ItemListado[]>([]);
+  protected readonly modalAberta = signal(false);
 
   private colecaoId!: string;
 
@@ -66,5 +68,34 @@ export class ColecaoDetalhe implements OnInit {
   async removerUmaCopia(item: IColecao.ItemListado): Promise<void> {
     await this.colecoesService.removerUmaCopia(item.id);
     this.itens.set(await this.colecoesService.listarItens(this.colecaoId));
+  }
+
+  abrirModalEditar(): void {
+    this.modalAberta.set(true);
+  }
+
+  fecharModal(): void {
+    this.modalAberta.set(false);
+  }
+
+  aoSalvar(colecaoAtualizada: IColecao.Detalhes): void {
+    this.modalAberta.set(false);
+    this.colecao.set(colecaoAtualizada);
+  }
+
+  async excluir(): Promise<void> {
+    const colecaoAtual = this.colecao();
+    if (!colecaoAtual) return;
+
+    if (!confirm(`Delete collection "${colecaoAtual.name}"? This also removes its cards.`)) {
+      return;
+    }
+
+    try {
+      await this.colecoesService.excluirColecao(colecaoAtual.id);
+      this.router.navigate(['/colecao']);
+    } catch (erroCapturado) {
+      this.erro.set(erroCapturado instanceof Error ? erroCapturado.message : 'Erro desconhecido.');
+    }
   }
 }
