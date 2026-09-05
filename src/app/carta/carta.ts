@@ -1,18 +1,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { CartasService } from '@shared/services';
 import { ICarta } from '@shared/interfaces';
 import { criarVisualizacaoDeCarta, ehCartaMultiface, VisualizacaoDeCarta } from '@shared/utils';
 
 @Component({
   selector: 'app-carta',
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './carta.html',
   styleUrl: './carta.css',
 })
 export class Carta implements OnInit {
   private readonly rotaAtiva = inject(ActivatedRoute);
   private readonly cartasService = inject(CartasService);
+  private readonly location = inject(Location);
 
   protected readonly carregando = signal(true);
   protected readonly erro = signal<string | null>(null);
@@ -56,5 +58,13 @@ export class Carta implements OnInit {
       return;
     }
     this.indiceFaceExibida.update((indice) => (indice === 0 ? 1 : 0));
+  }
+
+  // Volta para a página de origem (coleção, início, etc.) em vez de sempre ir
+  // para "/" — usa o histórico do navegador, então funciona para qualquer
+  // tela que já linke para /carta/:oracleId sem precisar saber de antemão
+  // quais são essas telas.
+  voltar(): void {
+    this.location.back();
   }
 }

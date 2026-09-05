@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Location } from '@angular/common';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { convertToParamMap } from '@angular/router';
 import { Carta } from './carta';
@@ -108,6 +109,26 @@ describe('Carta', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Aang, Destined Savior');
+  });
+
+  it('goes back to the previous page (not always home) when Voltar is clicked', async () => {
+    await configurarComponente('1');
+    cartasServiceMock.buscarCartaPorId.mockResolvedValue(cartaSimples());
+
+    const fixture = TestBed.createComponent(Carta);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const location = TestBed.inject(Location);
+    const backSpy = jest.spyOn(location, 'back');
+
+    const botaoVoltar = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Voltar',
+    ) as HTMLButtonElement;
+    botaoVoltar.click();
+
+    expect(backSpy).toHaveBeenCalled();
   });
 });
 
