@@ -73,7 +73,7 @@ describe('Colecao', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain("don't have any collections");
+    expect(fixture.nativeElement.textContent).toContain('não tem nenhuma coleção');
   });
 
   it('opens the create modal when "Add collection" is clicked', () => {
@@ -81,7 +81,7 @@ describe('Colecao', () => {
     fixture.detectChanges();
 
     const botao = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
-      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Add collection',
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Adicionar coleção',
     ) as HTMLButtonElement;
     botao.click();
     fixture.detectChanges();
@@ -100,8 +100,8 @@ describe('Colecao', () => {
     const labels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((b) =>
       (b as HTMLButtonElement).textContent?.trim(),
     );
-    expect(labels).not.toContain('Edit');
-    expect(labels).not.toContain('Delete');
+    expect(labels).not.toContain('Editar');
+    expect(labels).not.toContain('Excluir');
   });
 
   describe('card search', () => {
@@ -123,7 +123,7 @@ describe('Colecao', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('.erro-validacao')?.textContent).toContain(
-        'at least 3 characters',
+        'pelo menos 3 caracteres',
       );
       expect(colecoesServiceMock.buscarCartasEmColecoes).not.toHaveBeenCalled();
     });
@@ -198,7 +198,7 @@ describe('Colecao', () => {
       await fixture.componentInstance.buscarCarta();
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain('No matches.');
+      expect(fixture.nativeElement.textContent).toContain('Nenhum resultado.');
     });
   });
 });

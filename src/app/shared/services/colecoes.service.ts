@@ -60,7 +60,7 @@ export class ColecoesService {
     } = await this.clienteSupabase.auth.getUser();
 
     if (!user) {
-      throw new Error('Not authenticated.');
+      throw new Error('Não autenticado.');
     }
 
     const { data, error } = await this.clienteSupabase

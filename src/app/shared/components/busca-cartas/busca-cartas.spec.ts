@@ -56,7 +56,7 @@ describe('BuscaCartas', () => {
     fixture.detectChanges();
 
     const mensagem = fixture.nativeElement.querySelector('.erro-validacao');
-    expect(mensagem?.textContent).toContain('at least 3 characters');
+    expect(mensagem?.textContent).toContain('pelo menos 3 caracteres');
     expect(cartasServiceMock.buscarCartas).not.toHaveBeenCalled();
   });
 
@@ -75,7 +75,7 @@ describe('BuscaCartas', () => {
     fixture.detectChanges();
 
     const botaoBuscar = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
-      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Search',
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Buscar',
     ) as HTMLButtonElement;
     expect(botaoBuscar.disabled).toBe(true);
     expect(cartasServiceMock.buscarCartas).toHaveBeenCalledWith('ash', 'name', 1, 25);
@@ -112,7 +112,7 @@ describe('BuscaCartas', () => {
     await instancia.buscar();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('No results.');
+    expect(fixture.nativeElement.textContent).toContain('Nenhum resultado.');
   });
 
   it('shows the error message when the search fails', async () => {
@@ -167,7 +167,7 @@ describe('BuscaCartas', () => {
     expect(anterior.disabled).toBe(true);
     expect(proxima.disabled).toBe(false);
     expect(fixture.nativeElement.querySelector('.paginacao span').textContent).toContain(
-      'Page 1 of 3',
+      'Página 1 de 3',
     );
 
     cartasServiceMock.buscarCartas.mockResolvedValue({
@@ -243,7 +243,7 @@ describe('BuscaCartas', () => {
 
     const fixture = criarFixture();
     fixture.componentRef.setInput('mostrarBotaoAdicionar', true);
-    fixture.componentRef.setInput('rotuloBotaoAdicionar', 'Add to collection');
+    fixture.componentRef.setInput('rotuloBotaoAdicionar', 'Adicionar à coleção');
     fixture.detectChanges();
     const instancia = instanciaDe(fixture);
     instancia.estado.termo.set('ash');
@@ -254,7 +254,7 @@ describe('BuscaCartas', () => {
     instancia.adicionarCarta.subscribe(emitido);
 
     const botao = fixture.nativeElement.querySelector('.botao-adicionar') as HTMLButtonElement;
-    expect(botao.textContent).toContain('Add to collection');
+    expect(botao.textContent).toContain('Adicionar à coleção');
     botao.click();
 
     expect(emitido).toHaveBeenCalledWith(cartaExemplo('1'));
@@ -324,7 +324,7 @@ describe('BuscaCartas', () => {
       fixture.detectChanges();
 
       // 41 resultados / 20 por página (mobile) = 3 páginas
-      expect(fixture.nativeElement.textContent).toContain('Page 1 of 3');
+      expect(fixture.nativeElement.textContent).toContain('Página 1 de 3');
     });
   });
 });

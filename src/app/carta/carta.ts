@@ -22,7 +22,7 @@ export class Carta implements OnInit {
   async ngOnInit(): Promise<void> {
     const oracleId = this.rotaAtiva.snapshot.paramMap.get('oracleId');
     if (!oracleId) {
-      this.erro.set('Card not found.');
+      this.erro.set('Carta não encontrada.');
       this.carregando.set(false);
       return;
     }
@@ -30,12 +30,12 @@ export class Carta implements OnInit {
     try {
       const resultado = await this.cartasService.buscarCartaPorId(oracleId);
       if (!resultado) {
-        this.erro.set('Card not found.');
+        this.erro.set('Carta não encontrada.');
       } else {
         this.carta.set(resultado);
       }
     } catch (erroCapturado) {
-      this.erro.set(erroCapturado instanceof Error ? erroCapturado.message : 'Unknown error.');
+      this.erro.set(erroCapturado instanceof Error ? erroCapturado.message : 'Erro desconhecido.');
     } finally {
       this.carregando.set(false);
     }

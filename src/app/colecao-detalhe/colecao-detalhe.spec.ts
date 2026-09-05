@@ -70,7 +70,7 @@ describe('ColecaoDetalhe', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain('Collection not found');
+    expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain('Coleção não encontrada');
   });
 
   it('shows an error when the collection does not exist', async () => {
@@ -81,7 +81,7 @@ describe('ColecaoDetalhe', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain('Collection not found');
+    expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain('Coleção não encontrada');
   });
 
   it('loads the collection and its items on init', async () => {
@@ -104,7 +104,7 @@ describe('ColecaoDetalhe', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('No cards added yet.');
+    expect(fixture.nativeElement.textContent).toContain('Nenhuma carta adicionada ainda.');
   });
 
   it('calls removerUmaCopia and reloads the item list when Remove is clicked', async () => {
@@ -117,7 +117,7 @@ describe('ColecaoDetalhe', () => {
 
     colecoesServiceMock.listarItens.mockResolvedValueOnce([]);
     const botaoRemover = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
-      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Remove',
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Remover',
     ) as HTMLButtonElement;
     botaoRemover.click();
     await fixture.whenStable();
@@ -134,7 +134,7 @@ describe('ColecaoDetalhe', () => {
     fixture.detectChanges();
 
     const botaoEditar = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
-      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Edit',
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Editar',
     ) as HTMLButtonElement;
     botaoEditar.click();
     fixture.detectChanges();
@@ -154,7 +154,7 @@ describe('ColecaoDetalhe', () => {
     const navigateSpy = jest.spyOn(router, 'navigate');
 
     const botaoExcluir = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
-      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Delete',
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Excluir',
     ) as HTMLButtonElement;
     botaoExcluir.click();
     await fixture.whenStable();
@@ -172,7 +172,7 @@ describe('ColecaoDetalhe', () => {
     fixture.detectChanges();
 
     const botaoExcluir = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
-      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Delete',
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Excluir',
     ) as HTMLButtonElement;
     botaoExcluir.click();
 

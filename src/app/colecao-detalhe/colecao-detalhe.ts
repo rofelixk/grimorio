@@ -27,7 +27,7 @@ export class ColecaoDetalhe implements OnInit {
   async ngOnInit(): Promise<void> {
     const id = this.rotaAtiva.snapshot.paramMap.get('id');
     if (!id) {
-      this.erro.set('Collection not found.');
+      this.erro.set('Coleção não encontrada.');
       this.carregando.set(false);
       return;
     }
@@ -40,7 +40,7 @@ export class ColecaoDetalhe implements OnInit {
       ]);
 
       if (!colecao) {
-        this.erro.set('Collection not found.');
+        this.erro.set('Coleção não encontrada.');
       } else {
         this.colecao.set(colecao);
         this.itens.set(itens);
@@ -87,7 +87,7 @@ export class ColecaoDetalhe implements OnInit {
     const colecaoAtual = this.colecao();
     if (!colecaoAtual) return;
 
-    if (!confirm(`Delete collection "${colecaoAtual.name}"? This also removes its cards.`)) {
+    if (!confirm(`Excluir a coleção "${colecaoAtual.name}"? Isso também remove suas cartas.`)) {
       return;
     }
 

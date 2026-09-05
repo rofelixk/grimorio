@@ -1,6 +1,6 @@
 <div class="fundo" (click)="fechar.emit()">
   <div class="modal" (click)="$event.stopPropagation()">
-    <h2>Sign in</h2>
+    <h2>Entrar</h2>
 
     <form (ngSubmit)="entrar()">
       <input
@@ -14,18 +14,18 @@
       <input
         type="password"
         name="senha"
-        placeholder="Password"
+        placeholder="Senha"
         required
         [ngModel]="senha()"
         (ngModelChange)="senha.set($event)"
       />
-      <button type="submit" [disabled]="enviando()">Sign in</button>
+      <button type="submit" [disabled]="enviando()">Entrar</button>
     </form>
 
     @if (erro()) {
       <p class="erro">{{ erro() }}</p>
     }
 
-    <button type="button" class="fechar" (click)="fechar.emit()">Close</button>
+    <button type="button" class="fechar" (click)="fechar.emit()">Fechar</button>
   </div>
 </div>

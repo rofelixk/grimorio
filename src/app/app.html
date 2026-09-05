@@ -1,19 +1,19 @@
 <header class="barra-superior">
   <nav class="navegacao">
-    <button type="button" routerLink="/">Home</button>
+    <button type="button" routerLink="/">Início</button>
     @if (autenticacaoService.estaAutenticado()) {
-      <button type="button" routerLink="/baralhos">Decks</button>
-      <button type="button" routerLink="/colecao">Collection</button>
+      <button type="button" routerLink="/baralhos">Baralhos</button>
+      <button type="button" routerLink="/colecao">Coleção</button>
     }
   </nav>
 
   <div class="conta">
     @if (autenticacaoService.estaAutenticado()) {
       <span>{{ autenticacaoService.usuarioAtual()?.email }}</span>
-      <button type="button" (click)="sair()">Sign out</button>
+      <button type="button" (click)="sair()">Sair</button>
     } @else {
-      <button type="button" (click)="abrirModalEntrar()">Sign in</button>
-      <a routerLink="/cadastro">Sign up</a>
+      <button type="button" (click)="abrirModalEntrar()">Entrar</button>
+      <a routerLink="/cadastro">Cadastre-se</a>
     }
   </div>
 </header>
@@ -28,9 +28,9 @@
 
 <footer class="rodape">
   <p>
-    Card data and images via Scryfall. Portions of the materials used are property of Wizards of
-    the Coast. &copy;Wizards of the Coast LLC. This site is not produced, endorsed, supported, or
-    affiliated with Wizards of the Coast or Scryfall.
-    <a routerLink="/creditos">Learn more</a>
+    Dados e imagens de cartas via Scryfall. Partes do material utilizado são propriedade da
+    Wizards of the Coast. &copy;Wizards of the Coast LLC. Este site não é produzido, endossado,
+    apoiado ou afiliado à Wizards of the Coast ou à Scryfall.
+    <a routerLink="/creditos">Saiba mais</a>
   </p>
 </footer>

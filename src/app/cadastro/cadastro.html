@@ -1,6 +1,6 @@
-<button type="button" routerLink="/">Back</button>
+<button type="button" routerLink="/">Voltar</button>
 
-<h1>Sign up</h1>
+<h1>Cadastre-se</h1>
 
 @if (!cadastroConcluido()) {
   <form (ngSubmit)="cadastrar()">
@@ -15,12 +15,12 @@
     <input
       type="password"
       name="senha"
-      placeholder="Password"
+      placeholder="Senha"
       required
       [ngModel]="senha()"
       (ngModelChange)="senha.set($event)"
     />
-    <button type="submit" [disabled]="enviando()">Sign up</button>
+    <button type="submit" [disabled]="enviando()">Cadastrar</button>
   </form>
 
   @if (erro()) {
@@ -28,8 +28,8 @@
   }
 } @else {
   @if (precisaConfirmarEmail()) {
-    <p>Check your email to confirm your account.</p>
+    <p>Verifique seu e-mail para confirmar sua conta.</p>
   } @else {
-    <p>Account created. You're signed in.</p>
+    <p>Conta criada. Você está conectado.</p>
   }
 }

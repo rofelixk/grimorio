@@ -23,7 +23,7 @@ describe('Creditos', () => {
     const texto = fixture.nativeElement.textContent;
     expect(texto).toContain('Scryfall');
     expect(texto).toContain('Wizards of the Coast');
-    expect(texto).toContain('not produced, endorsed, supported, or affiliated');
+    expect(texto).toContain('não é produzido, endossado, apoiado ou afiliado');
   });
 
   it('links back to /', () => {

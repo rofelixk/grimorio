@@ -43,7 +43,7 @@ describe('Cadastro', () => {
     ).cadastrar();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain("You're signed in");
+    expect(fixture.nativeElement.textContent).toContain('Você está conectado');
   });
 
   it('shows an email-confirmation message when no session comes back immediately', async () => {
@@ -56,7 +56,7 @@ describe('Cadastro', () => {
     ).cadastrar();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Check your email');
+    expect(fixture.nativeElement.textContent).toContain('Verifique seu e-mail');
   });
 
   it('shows the error message on failure', async () => {

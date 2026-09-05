@@ -62,7 +62,7 @@ describe('Carta', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain('not found');
+    expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain('não encontrada');
   });
 
   it('shows an error message when the lookup fails', async () => {

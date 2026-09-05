@@ -1,10 +1,10 @@
 @if (carregando()) {
-  <div class="carregando" role="status" aria-label="Loading"></div>
+  <div class="carregando" role="status" aria-label="Carregando"></div>
 }
 
 @if (erro()) {
   <p class="erro">{{ erro() }}</p>
-  <button type="button" routerLink="/colecao">Back to collections</button>
+  <button type="button" routerLink="/colecao">Voltar para coleções</button>
 }
 
 @if (colecao(); as colecaoCarregada) {
@@ -13,16 +13,16 @@
       <div class="cabecalho">
         <h1>{{ colecaoCarregada.name }}</h1>
         <div class="acoes-cabecalho">
-          <button type="button" (click)="abrirModalEditar()">Edit</button>
-          <button type="button" (click)="excluir()">Delete</button>
-          <button type="button" routerLink="/colecao">Back to collections</button>
+          <button type="button" (click)="abrirModalEditar()">Editar</button>
+          <button type="button" (click)="excluir()">Excluir</button>
+          <button type="button" routerLink="/colecao">Voltar para coleções</button>
         </div>
       </div>
 
       <app-busca-cartas
         [chave]="chaveBusca"
         [mostrarBotaoAdicionar]="true"
-        rotuloBotaoAdicionar="Add to collection"
+        rotuloBotaoAdicionar="Adicionar à coleção"
         [colunas]="4"
         [colunasMobile]="2"
         (adicionarCarta)="adicionarCarta($event)"
@@ -30,10 +30,10 @@
     </div>
 
     <div class="coluna-itens">
-      <h2>Cards in this collection</h2>
+      <h2>Cartas nesta coleção</h2>
 
       @if (itens().length === 0) {
-        <p>No cards added yet.</p>
+        <p>Nenhuma carta adicionada ainda.</p>
       } @else {
         <ul class="lista-itens">
           @for (item of itens(); track item.id) {
@@ -49,7 +49,7 @@
                 }
               </span>
               <span class="quantidade">&times;{{ item.quantity }}</span>
-              <button type="button" (click)="removerUmaCopia(item)">Remove</button>
+              <button type="button" (click)="removerUmaCopia(item)">Remover</button>
             </li>
           }
         </ul>

@@ -1,7 +1,7 @@
-<button type="button" routerLink="/">Back</button>
+<button type="button" routerLink="/">Voltar</button>
 
 @if (carregando()) {
-  <div class="carregando" role="status" aria-label="Loading"></div>
+  <div class="carregando" role="status" aria-label="Carregando"></div>
 } @else if (erro()) {
   <p class="erro">{{ erro() }}</p>
 } @else if (visualizacao; as v) {
@@ -11,7 +11,7 @@
         <img class="arte" [src]="v.imagemExibida" [alt]="v.nomeExibido" />
       }
       @if (ehMultiface) {
-        <button type="button" class="botao-virar" (click)="alternarFace()">Flip card</button>
+        <button type="button" class="botao-virar" (click)="alternarFace()">Virar carta</button>
       }
     </div>
     <div class="informacoes">

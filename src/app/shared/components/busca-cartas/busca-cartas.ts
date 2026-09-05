@@ -25,7 +25,7 @@ export class BuscaCartas implements OnInit {
   // `colecao-${id}`) — ver RegistroEstadoBuscaCartasService.
   @Input({ required: true }) chave!: string;
   @Input() mostrarBotaoAdicionar = false;
-  @Input() rotuloBotaoAdicionar = 'Add';
+  @Input() rotuloBotaoAdicionar = 'Adicionar';
   // Quantas cartas por linha da grade de resultados — varia conforme a
   // página que usa esta busca (ex.: início vs. detalhe de coleção).
   @Input() colunas = 5;

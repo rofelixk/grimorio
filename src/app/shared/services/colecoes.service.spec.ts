@@ -59,7 +59,7 @@ describe('ColecoesService', () => {
       const auth = { getUser: jest.fn().mockResolvedValue({ data: { user: null } }) };
 
       await expect(servicoCom({ from: jest.fn(), auth }).criarColecao('Binder', 'azul')).rejects.toThrow(
-        'Not authenticated.',
+        'Não autenticado.',
       );
     });
   });

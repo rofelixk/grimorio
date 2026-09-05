@@ -1,23 +1,23 @@
 <div class="busca">
   <input
     type="text"
-    placeholder="Search cards..."
+    placeholder="Buscar cartas..."
     [value]="estado.termo()"
     (input)="estado.termo.set($any($event.target).value)"
   />
   <select [value]="estado.campo()" (change)="estado.campo.set($any($event.target).value)">
-    <option value="name">Name</option>
-    <option value="type_line">Type line</option>
+    <option value="name">Nome</option>
+    <option value="type_line">Tipo</option>
   </select>
-  <button type="button" (click)="buscar()" [disabled]="carregando()">Search</button>
+  <button type="button" (click)="buscar()" [disabled]="carregando()">Buscar</button>
 </div>
 
 @if (termoInvalido) {
-  <p class="erro-validacao">Enter at least 3 characters to search.</p>
+  <p class="erro-validacao">Digite pelo menos 3 caracteres para buscar.</p>
 }
 
 @if (carregando()) {
-  <div class="carregando" role="status" aria-label="Loading"></div>
+  <div class="carregando" role="status" aria-label="Carregando"></div>
 }
 
 @if (erro()) {
@@ -26,7 +26,7 @@
 
 @if (estado.resultados() !== null && !carregando()) {
   @if (estado.resultados()!.length === 0) {
-    <p>No results.</p>
+    <p>Nenhum resultado.</p>
   } @else {
     <ul
       class="lista-resultados"
@@ -52,15 +52,15 @@
           (click)="irParaPagina(estado.pagina() - 1)"
           [disabled]="estado.pagina() <= 1"
         >
-          Previous
+          Anterior
         </button>
-        <span>Page {{ estado.pagina() }} of {{ totalPaginas }}</span>
+        <span>Página {{ estado.pagina() }} de {{ totalPaginas }}</span>
         <button
           type="button"
           (click)="irParaPagina(estado.pagina() + 1)"
           [disabled]="estado.pagina() >= totalPaginas"
         >
-          Next
+          Próxima
         </button>
       </div>
     }

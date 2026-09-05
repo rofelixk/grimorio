@@ -1,18 +1,18 @@
 <div class="fundo" (click)="fechar.emit()">
   <div class="modal" (click)="$event.stopPropagation()">
-    <h2>{{ colecao ? 'Edit collection' : 'New collection' }}</h2>
+    <h2>{{ colecao ? 'Editar coleção' : 'Nova coleção' }}</h2>
 
     <form (ngSubmit)="salvar()">
       <input
         type="text"
         name="nome"
-        placeholder="Collection name"
+        placeholder="Nome da coleção"
         required
         [ngModel]="nome()"
         (ngModelChange)="nome.set($event)"
       />
 
-      <div class="paleta" role="radiogroup" aria-label="Color">
+      <div class="paleta" role="radiogroup" aria-label="Cor">
         @for (opcao of paleta; track opcao.chave) {
           <button
             type="button"
@@ -26,13 +26,13 @@
         }
       </div>
 
-      <button type="submit" [disabled]="enviando()">Save</button>
+      <button type="submit" [disabled]="enviando()">Salvar</button>
     </form>
 
     @if (erro()) {
       <p class="erro">{{ erro() }}</p>
     }
 
-    <button type="button" class="fechar" (click)="fechar.emit()">Close</button>
+    <button type="button" class="fechar" (click)="fechar.emit()">Fechar</button>
   </div>
 </div>

@@ -37,8 +37,8 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const texto = fixture.nativeElement.textContent;
-    expect(texto).toContain('Sign in');
-    expect(texto).toContain('Sign up');
+    expect(texto).toContain('Entrar');
+    expect(texto).toContain('Cadastre-se');
   });
 
   it('hides the Decks and Collection buttons when logged out', () => {
@@ -47,8 +47,8 @@ describe('App', () => {
     const labels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((b) =>
       (b as HTMLButtonElement).textContent?.trim(),
     );
-    expect(labels).not.toContain('Decks');
-    expect(labels).not.toContain('Collection');
+    expect(labels).not.toContain('Baralhos');
+    expect(labels).not.toContain('Coleção');
   });
 
   it('always shows a Home button linking to /, even when logged out', () => {
@@ -58,7 +58,7 @@ describe('App', () => {
     const labels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((b) =>
       (b as HTMLButtonElement).textContent?.trim(),
     );
-    expect(labels).toContain('Home');
+    expect(labels).toContain('Início');
 
     const target = fixture.debugElement
       .query(By.css('.navegacao'))
@@ -77,8 +77,8 @@ describe('App', () => {
     const labels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((b) =>
       (b as HTMLButtonElement).textContent?.trim(),
     );
-    expect(labels).toContain('Decks');
-    expect(labels).toContain('Collection');
+    expect(labels).toContain('Baralhos');
+    expect(labels).toContain('Coleção');
 
     const targets = fixture.debugElement
       .query(By.css('.navegacao'))
@@ -92,7 +92,7 @@ describe('App', () => {
     fixture.detectChanges();
 
     const botaoEntrar = Array.from(fixture.nativeElement.querySelectorAll('button')).find(
-      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Sign in',
+      (b) => (b as HTMLButtonElement).textContent?.trim() === 'Entrar',
     ) as HTMLButtonElement;
     botaoEntrar.click();
     fixture.detectChanges();
@@ -109,6 +109,6 @@ describe('App', () => {
     const texto = fixture.nativeElement.textContent;
 
     expect(texto).toContain('ash@example.com');
-    expect(texto).toContain('Sign out');
+    expect(texto).toContain('Sair');
   });
 });

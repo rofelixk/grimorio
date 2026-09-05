@@ -18,12 +18,12 @@ describe('Baralhos', () => {
   it('shows the Decks title', () => {
     const fixture = TestBed.createComponent(Baralhos);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Decks');
+    expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Baralhos');
   });
 
   it('has a back button', () => {
     const fixture = TestBed.createComponent(Baralhos);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('button')?.textContent?.trim()).toBe('Back');
+    expect(fixture.nativeElement.querySelector('button')?.textContent?.trim()).toBe('Voltar');
   });
 });

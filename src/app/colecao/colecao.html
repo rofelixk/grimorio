@@ -1,12 +1,12 @@
 <div class="pagina">
   <div class="coluna-colecoes">
     <div class="cabecalho">
-      <h1>Collections</h1>
-      <button type="button" (click)="abrirModalCriar()">Add collection</button>
+      <h1>Coleções</h1>
+      <button type="button" (click)="abrirModalCriar()">Adicionar coleção</button>
     </div>
 
     @if (carregando()) {
-      <div class="carregando" role="status" aria-label="Loading"></div>
+      <div class="carregando" role="status" aria-label="Carregando"></div>
     }
 
     @if (erro()) {
@@ -15,7 +15,7 @@
 
     <div class="grade-colecoes">
       @if (!carregando() && colecoes().length === 0) {
-        <p class="vazio">You don't have any collections yet.</p>
+        <p class="vazio">Você ainda não tem nenhuma coleção.</p>
       }
 
       @for (colecao of colecoes(); track colecao.id) {
@@ -32,17 +32,17 @@
   </div>
 
   <div class="coluna-busca-carta" [class.sheet-expandida]="sheetAberta()">
-    <button type="button" class="alca-sheet" (click)="alternarSheet()" aria-label="Toggle card search">
+    <button type="button" class="alca-sheet" (click)="alternarSheet()" aria-label="Alternar busca de cartas">
       <span class="alca"></span>
     </button>
 
     <div class="topo-busca-carta">
-      <h2>Find a card in your collections</h2>
+      <h2>Encontre uma carta nas suas coleções</h2>
 
       <div class="busca">
         <input
           type="text"
-          placeholder="Search a card..."
+          placeholder="Buscar uma carta..."
           [value]="termoBuscaCarta()"
           (input)="termoBuscaCarta.set($any($event.target).value)"
         />
@@ -50,18 +50,18 @@
           [value]="campoBuscaCarta()"
           (change)="campoBuscaCarta.set($any($event.target).value)"
         >
-          <option value="name">Name</option>
-          <option value="type_line">Type line</option>
+          <option value="name">Nome</option>
+          <option value="type_line">Tipo</option>
         </select>
-        <button type="button" (click)="buscarCarta()" [disabled]="buscandoCarta()">Search</button>
+        <button type="button" (click)="buscarCarta()" [disabled]="buscandoCarta()">Buscar</button>
       </div>
 
       @if (termoBuscaCartaInvalido) {
-        <p class="erro-validacao">Enter at least 3 characters to search.</p>
+        <p class="erro-validacao">Digite pelo menos 3 caracteres para buscar.</p>
       }
 
       @if (buscandoCarta()) {
-        <div class="carregando" role="status" aria-label="Loading"></div>
+        <div class="carregando" role="status" aria-label="Carregando"></div>
       }
 
       @if (erroBuscaCarta()) {
@@ -72,7 +72,7 @@
     <div class="resultados-busca-carta-scroll">
       @if (resultadosBuscaCarta() !== null && !buscandoCarta()) {
         @if (resultadosBuscaCarta()!.length === 0) {
-          <p>No matches.</p>
+          <p>Nenhum resultado.</p>
         } @else {
           <ul class="resultados-busca-carta">
             @for (item of resultadosBuscaCarta(); track item.id) {
@@ -101,7 +101,7 @@
                     <span class="marcador"></span>
                     {{ item.colecao_nome }}
                   </span>
-                  <span class="atualizado">Updated {{ item.updated_at | date: 'mediumDate' }}</span>
+                  <span class="atualizado">Atualizado em {{ item.updated_at | date: 'mediumDate' }}</span>
                 </div>
               </li>
             }
