@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, Input, OnDestroy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ICarta } from '@shared/interfaces';
 import { ehCartaMultiface } from '@shared/utils';
@@ -11,7 +11,7 @@ export const ATRASO_PARA_VIRAR_MS = 1000;
   templateUrl: './cartao.html',
   styleUrl: './cartao.css',
 })
-export class Cartao implements OnInit, OnDestroy {
+export class Cartao implements OnDestroy {
   @Input({ required: true }) carta!: ICarta.Detalhes;
 
   protected readonly virada = signal(false);
@@ -37,14 +37,6 @@ export class Cartao implements OnInit, OnDestroy {
     return this.ehMultiface && this.imagemVerso !== null;
   }
 
-  ngOnInit(): void {
-    for (const url of [this.imagemFrente, this.imagemVerso]) {
-      if (url) {
-        new Image().src = url;
-      }
-    }
-  }
-
   ngOnDestroy(): void {
     this.pararHover();
   }
@@ -52,6 +44,17 @@ export class Cartao implements OnInit, OnDestroy {
   iniciarHover(): void {
     if (!this.podeVirar) {
       return;
+    }
+
+    // Começa a decodificar o verso já ao entrar no hover — bem antes do
+    // atraso pra virar (ATRASO_PARA_VIRAR_MS), então a virada não pisca
+    // esperando a imagem carregar. A frente não precisa disso (já está
+    // sendo carregada pelo próprio <img> da tela). Só faz isso aqui, sob
+    // demanda, em vez de pré-carregar o verso de toda carta da grade no
+    // ngOnInit — a maioria nunca chega a ser hovertada, e isso somava
+    // memória à toa numa grade grande de resultados.
+    if (this.imagemVerso) {
+      new Image().src = this.imagemVerso;
     }
 
     this.inicioHover = performance.now();

@@ -10,9 +10,21 @@
   @if (imagemFrente) {
     <div class="moldura-giro">
       <div class="giro" [class.virada]="virada()">
-        <img class="arte face frente" [src]="imagemFrente" [alt]="carta.name" draggable="false" />
+        <img
+          class="arte face frente"
+          [src]="imagemFrente"
+          [alt]="carta.name"
+          draggable="false"
+          loading="lazy"
+        />
         @if (imagemVerso) {
-          <img class="arte face verso" [src]="imagemVerso" [alt]="carta.name" draggable="false" />
+          <img
+            class="arte face verso"
+            [src]="imagemVerso"
+            [alt]="carta.name"
+            draggable="false"
+            loading="lazy"
+          />
         }
       </div>
       <div class="brilho"></div>

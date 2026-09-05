@@ -48,7 +48,7 @@ describe('Cartao', () => {
     expect(fixture.nativeElement.querySelector('img.verso')).toBeNull();
   });
 
-  it('preloads both face images on init for a multiface card', () => {
+  it('does not preload the back face before any hover happens', () => {
     const criados: string[] = [];
     const ImagemOriginal = global.Image;
     class ImagemFalsa {
@@ -63,10 +63,30 @@ describe('Cartao', () => {
     fixture.componentRef.setInput('carta', cartaMultiface());
     fixture.detectChanges();
 
-    expect(criados).toEqual([
-      'https://cards.scryfall.io/normal/front/f/e/example.jpg',
-      'https://cards.scryfall.io/normal/back/f/e/example.jpg',
-    ]);
+    expect(criados).toEqual([]);
+
+    global.Image = ImagemOriginal;
+  });
+
+  it('preloads the back face as soon as hover starts, for a multiface card', () => {
+    const criados: string[] = [];
+    const ImagemOriginal = global.Image;
+    class ImagemFalsa {
+      set src(valor: string) {
+        criados.push(valor);
+      }
+    }
+    // @ts-expect-error substitui o construtor global de Image só para o teste
+    global.Image = ImagemFalsa;
+
+    const fixture = TestBed.createComponent(Cartao);
+    fixture.componentRef.setInput('carta', cartaMultiface());
+    fixture.detectChanges();
+    const instancia = fixture.componentInstance as unknown as InstanciaDeTeste;
+
+    instancia.iniciarHover();
+
+    expect(criados).toEqual(['https://cards.scryfall.io/normal/back/f/e/example.jpg']);
 
     global.Image = ImagemOriginal;
   });
