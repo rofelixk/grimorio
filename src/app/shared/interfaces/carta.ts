@@ -17,13 +17,23 @@ export namespace ICarta {
     image_uris?: { normal: string };
   }
 
-  /** Objeto de carta como retornado pela API do Scryfall, sem corte. */
+  /**
+   * Objeto de carta como retornado pela API do Scryfall, sem corte. Usado
+   * tanto para o bulk file Oracle Cards (um objeto por `oracle_id`) quanto
+   * para Default Cards (um objeto por impressão) — mesmo formato de objeto
+   * em ambos, Default Cards só repete `oracle_id` entre impressões e carrega
+   * os campos de impressão abaixo (`id`, `set`, `collector_number`, `lang`).
+   */
   export interface DetalhesRaw {
+    id: string;
     oracle_id: string;
     name: string;
     games: string[];
     layout: string;
+    set: string;
     set_type: string;
+    collector_number: string;
+    lang: string;
     mana_cost?: string;
     cmc: number;
     type_line: string;

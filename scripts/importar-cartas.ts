@@ -3,7 +3,7 @@ import { createGunzip } from 'node:zlib';
 import { createInterface } from 'node:readline';
 import { Readable } from 'node:stream';
 import { createClient } from '@supabase/supabase-js';
-import { ICarta } from '@shared/interfaces';
+import { ICarta, IImpressao } from '@shared/interfaces';
 import { LAYOUTS_EXCLUIDOS, TIPOS_DE_EDICAO_EXCLUIDOS, LAYOUTS_MULTIFACE } from '@shared/constants';
 
 // Exigido pelas diretrizes da API do Scryfall: https://scryfall.com/docs/api — um
@@ -41,6 +41,11 @@ function dividirEmLotes<T>(itens: T[], tamanho: number): T[][] {
 }
 
 function atendeFiltroDeImportacao(carta: ICarta.DetalhesRaw): boolean {
+  // Guarda defensiva: nenhum layout hoje deveria chegar aqui sem oracle_id,
+  // mas um upsert em lote falha por inteiro (todas as linhas do lote, não só
+  // a culpada) se uma única linha violar a constraint not-null — bem mais
+  // barato filtrar aqui do que descobrir isso de novo em produção.
+  if (!carta.oracle_id) return false;
   if (!carta.games?.includes('paper')) return false;
   if (LAYOUTS_EXCLUIDOS.has(carta.layout)) return false;
   if (TIPOS_DE_EDICAO_EXCLUIDOS.has(carta.set_type)) return false;
@@ -87,7 +92,20 @@ function cortarCarta(carta: ICarta.DetalhesRaw): ICarta.Detalhes {
   };
 }
 
-async function obterUriDeDownloadDasCartasOracle(): Promise<string> {
+function cortarImpressao(carta: ICarta.DetalhesRaw): IImpressao.Detalhes {
+  const facesDaCarta = cortarFacesDaCarta(carta);
+
+  return {
+    scryfall_id: carta.id,
+    oracle_id: carta.oracle_id,
+    set_code: carta.set,
+    collector_number: carta.collector_number,
+    lang: carta.lang,
+    image_url: carta.image_uris?.normal ?? facesDaCarta?.[0]?.image_url ?? null,
+  };
+}
+
+async function obterUriDeDownloadDoBulkFile(tipo: string): Promise<string> {
   const res = await fetch('https://api.scryfall.com/bulk-data', {
     headers: CABECALHOS_REQUISICAO_SCRYFALL,
   });
@@ -97,24 +115,33 @@ async function obterUriDeDownloadDasCartasOracle(): Promise<string> {
   const { data } = (await res.json()) as {
     data: Array<{ type: string; jsonl_download_uri: string }>;
   };
-  const cartasOracle = data.find((entrada) => entrada.type === 'oracle_cards');
-  if (!cartasOracle) {
-    throw new Error('Entrada oracle_cards não encontrada no índice de bulk-data');
+  const entrada = data.find((item) => item.type === tipo);
+  if (!entrada) {
+    throw new Error(`Entrada ${tipo} não encontrada no índice de bulk-data`);
   }
-  return cartasOracle.jsonl_download_uri;
+  return entrada.jsonl_download_uri;
 }
 
-// Descobre, baixa, filtra e corta o arquivo bulk Oracle Cards, retornando cada
-// linha que seria upsertada em `cards`. Não realiza nenhuma escrita.
-async function importarCartas(): Promise<ICarta.Detalhes[]> {
+interface ResultadoImportacao {
+  cartas: ICarta.Detalhes[];
+  impressoes: IImpressao.Detalhes[];
+}
+
+// Descobre, baixa, filtra e corta o arquivo bulk Default Cards — um objeto por
+// impressão, ao contrário de Oracle Cards (um por oracle_id) — retornando as
+// linhas que seriam upsertadas em `cards` e em `printings`. Um único download
+// popula as duas tabelas: um objeto de Default Cards já carrega todo campo
+// oracle-level que Oracle Cards teria, mais os campos de impressão. Não
+// realiza nenhuma escrita.
+async function importarCartas(): Promise<ResultadoImportacao> {
   console.log('Buscando índice de bulk-data...');
-  const uriDeDownload = await obterUriDeDownloadDasCartasOracle();
-  console.log(`URI de download do oracle_cards: ${uriDeDownload}`);
+  const uriDeDownload = await obterUriDeDownloadDoBulkFile('default_cards');
+  console.log(`URI de download do default_cards: ${uriDeDownload}`);
 
   console.log('Baixando, filtrando e cortando em stream...');
   const res = await fetch(uriDeDownload, { headers: CABECALHOS_REQUISICAO_SCRYFALL });
   if (!res.ok || !res.body) {
-    throw new Error(`Falha ao baixar o arquivo oracle_cards: ${res.status} ${res.statusText}`);
+    throw new Error(`Falha ao baixar o arquivo default_cards: ${res.status} ${res.statusText}`);
   }
 
   // O arquivo é JSON Lines comprimido em gzip: um objeto de carta por linha, não
@@ -127,53 +154,79 @@ async function importarCartas(): Promise<ICarta.Detalhes[]> {
 
   let total = 0;
   const cartasCortadas: ICarta.Detalhes[] = [];
+  const impressoesCortadas: IImpressao.Detalhes[] = [];
+  // Default Cards repete o mesmo oracle_id uma vez por impressão — mantém só a
+  // primeira encontrada por oracle_id como representante em `cards`, mesmo
+  // caráter arbitrário-mas-consistente que a curadoria da Scryfall em Oracle
+  // Cards já tinha (ver o aviso de "representative-printing" em data-model.md).
+  const oracleIdsVistos = new Set<string>();
 
   for await (const linha of linhas) {
     if (!linha.trim()) continue;
     const carta = JSON.parse(linha) as ICarta.DetalhesRaw;
     total++;
-    if (atendeFiltroDeImportacao(carta)) cartasCortadas.push(cortarCarta(carta));
+    if (!atendeFiltroDeImportacao(carta)) continue;
+
+    impressoesCortadas.push(cortarImpressao(carta));
+
+    if (!oracleIdsVistos.has(carta.oracle_id)) {
+      oracleIdsVistos.add(carta.oracle_id);
+      cartasCortadas.push(cortarCarta(carta));
+    }
   }
 
   console.log(`\nTotal de linhas no arquivo: ${total}`);
-  console.log(`Linhas mantidas e cortadas: ${cartasCortadas.length}`);
+  console.log(`Cartas (oracle_id únicos) mantidas: ${cartasCortadas.length}`);
+  console.log(`Impressões mantidas: ${impressoesCortadas.length}`);
 
-  return cartasCortadas;
+  return { cartas: cartasCortadas, impressoes: impressoesCortadas };
 }
 
-// Envia as linhas para `cards` em lotes. Continua após um lote com erro em vez
-// de abortar — isola a falha a esse lote e permite reportar exatamente quais
-// lotes falharam ao final, em vez de perder o progresso já enviado.
-async function enviarCartasParaSupabase(cartas: ICarta.Detalhes[]): Promise<void> {
-  const cliente = criarClienteSupabase();
-  const lotes = dividirEmLotes(cartas, TAMANHO_DO_LOTE);
+// Envia as linhas de uma tabela em lotes. Continua após um lote com erro em
+// vez de abortar — isola a falha a esse lote e permite reportar exatamente
+// quais lotes falharam ao final, em vez de perder o progresso já enviado.
+async function enviarParaSupabase<T extends object>(
+  cliente: ReturnType<typeof criarClienteSupabase>,
+  tabela: string,
+  colunaConflito: string,
+  linhas: T[],
+): Promise<void> {
+  const lotes = dividirEmLotes(linhas, TAMANHO_DO_LOTE);
 
   let totalEnviado = 0;
   const lotesComErro: Array<{ indice: number; mensagem: string }> = [];
 
   for (const [indice, lote] of lotes.entries()) {
-    const { error } = await cliente.from('cards').upsert(lote, { onConflict: 'oracle_id' });
+    // Nome da tabela é dinâmico (reutilizado para `cards` e `printings`), então
+    // o Supabase não consegue tipar o formato esperado da linha — mesma
+    // ausência de tipagem forte que o cliente já tinha antes desta função
+    // existir (`createClient` sem generic de schema).
+    const { error } = await cliente.from(tabela).upsert(lote as never, { onConflict: colunaConflito });
 
     if (error) {
       lotesComErro.push({ indice, mensagem: error.message });
-      console.error(`Lote ${indice + 1}/${lotes.length} falhou: ${error.message}`);
+      console.error(`[${tabela}] Lote ${indice + 1}/${lotes.length} falhou: ${error.message}`);
       continue;
     }
 
     totalEnviado += lote.length;
-    console.log(`Lote ${indice + 1}/${lotes.length} enviado (${lote.length} linhas).`);
+    console.log(`[${tabela}] Lote ${indice + 1}/${lotes.length} enviado (${lote.length} linhas).`);
   }
 
-  console.log(`\nLinhas enviadas com sucesso: ${totalEnviado}/${cartas.length}`);
+  console.log(`\n[${tabela}] Linhas enviadas com sucesso: ${totalEnviado}/${linhas.length}`);
   if (lotesComErro.length > 0) {
-    console.log(`Lotes com erro: ${lotesComErro.length}/${lotes.length}`);
+    console.log(`[${tabela}] Lotes com erro: ${lotesComErro.length}/${lotes.length}`);
     process.exitCode = 1;
   }
 }
 
 async function main() {
-  const cartas = await importarCartas();
-  await enviarCartasParaSupabase(cartas);
+  const { cartas, impressoes } = await importarCartas();
+  const cliente = criarClienteSupabase();
+
+  // cards antes de printings: printings.oracle_id referencia cards(oracle_id).
+  await enviarParaSupabase(cliente, 'cards', 'oracle_id', cartas);
+  await enviarParaSupabase(cliente, 'printings', 'scryfall_id', impressoes);
 }
 
 main().catch((erro) => {

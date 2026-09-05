@@ -16,7 +16,7 @@ export namespace IColecao {
     id: string;
     collection_id: string;
     oracle_id: string;
-    set_code: string | null;
+    printing_id: string | null;
     quantity: number;
     date_added: string;
     updated_at: string;

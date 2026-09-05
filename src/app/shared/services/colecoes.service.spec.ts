@@ -188,7 +188,7 @@ describe('ColecoesService', () => {
   });
 
   describe('adicionarCarta', () => {
-    it('increments the quantity when the card is already in the collection (no set_code yet)', async () => {
+    it('increments the quantity when the card is already in the collection (no printing chosen yet)', async () => {
       const maybeSingle = jest.fn().mockResolvedValue({
         data: { id: 'i1', quantity: 2 },
         error: null,
@@ -207,7 +207,7 @@ describe('ColecoesService', () => {
 
       expect(eqColecao).toHaveBeenCalledWith('collection_id', 'c1');
       expect(eqOracle).toHaveBeenCalledWith('oracle_id', 'o1');
-      expect(isFn).toHaveBeenCalledWith('set_code', null);
+      expect(isFn).toHaveBeenCalledWith('printing_id', null);
       expect(update).toHaveBeenCalledWith({ quantity: 3 });
       expect(eqUpdate).toHaveBeenCalledWith('id', 'i1');
     });

@@ -9,6 +9,11 @@ export const LAYOUTS_EXCLUIDOS = new Set([
   'vanguard',
   'augment',
   'host',
+  // Sem oracle_id/mana_cost/etc. no nível do objeto — cada face é, na
+  // prática, uma carta oracle-distinta impressa dos dois lados da mesma
+  // cópia física, não uma carta multiface de verdade. Tentar tratar como
+  // multiface (como antes) grava oracle_id null em `cards`/`printings`.
+  'reversible_card',
 ]);
 
 export const TIPOS_DE_EDICAO_EXCLUIDOS = new Set(['memorabilia', 'token', 'minigame']);
@@ -22,6 +27,5 @@ export const LAYOUTS_MULTIFACE = new Set([
   'flip',
   'battle',
   'meld',
-  'reversible_card',
   'prepare',
 ]);

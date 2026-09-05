@@ -38,7 +38,7 @@ collections (id PK, user_id)  ── per-user
 collection_items (id PK)
   → collection_id FK → collections
   → oracle_id FK → cards
-  → set_code: bare nullable text, NOT an FK to printings yet — see Deferred
+  → printing_id FK → printings (nullable — "I own this card" without a chosen printing)
 ```
 
 ---
@@ -64,7 +64,10 @@ row is imported only if **all** of these hold:
 - `games` includes `paper` — excludes digital-only (Alchemy / Arena) cards. *(This alone is
   not enough: the `art_series` example above also has `games: ["paper"]`.)*
 - `layout` is **not** one of: `art_series`, `token`, `double_faced_token`, `emblem`,
-  `scheme`, `planar`, `vanguard`, `augment`, `host`.
+  `scheme`, `planar`, `vanguard`, `augment`, `host`, `reversible_card` (no top-level
+  `oracle_id` — see *Known limitations*).
+- `oracle_id` is present *(belt-and-suspenders for any current or future layout without
+  one — a single row missing it fails the whole upsert batch, not just that row)*.
 - `set_type` is **not** one of: `memorabilia`, `token`, `minigame` *(secondary
   belt-and-suspenders check)*.
 
@@ -140,7 +143,7 @@ card_faces = [
 | Field(s) | Why not |
 |---|---|
 | `id` / `scryfall_id`, `multiverse_ids`, `mtgo_id`, `arena_id`, `tcgplayer_id`, `cardmarket_id` | Per-printing / external-service identifiers. Not needed. |
-| `set`, `set_name`, `set_type`, `collector_number`, `rarity`, `artist`, `released_at` | Printing-level. Belong on a collection item once printing tracking exists. (`set_type` is still *read* during import as a secondary filter — see *Import filter* — just not stored.) |
+| `set`, `set_name`, `set_type`, `rarity`, `artist`, `released_at` | Printing-level. `set`/`collector_number`/`lang` now live in `printings` (below); the rest still aren't captured anywhere. (`set_type` is still *read* during import as a secondary filter — see *Import filter* — just not stored.) |
 | `games` | Used only as an import filter (paper-only), then dropped. |
 | `colors` | `color_identity` covers our needs; `colors` adds little for v1. |
 | `prices` | Volatile; would need frequent refresh. Out of scope. |
@@ -157,18 +160,31 @@ card_faces = [
 
 - **Multi-face cards** are supported via `card_faces` (above), but: per-face `cmc` is not
   stored (rely on card-level `mana_value`; note Scryfall reports the *sum* for `split`
-  cards); `meld` stores only the two faces of one card, not the link to its meld partner;
-  `reversible_card` is handled by the same shape but is rare and untested.
-- **No printing information.** The collection will record `oracle_id` + quantity only; which
-  set / finish / condition you own is not captured yet.
+  cards); `meld` stores only the two faces of one card, not the link to its meld partner.
+  `reversible_card` is excluded entirely (see *Import filter*) rather than handled as
+  multi-face — those objects have no top-level `oracle_id`/`mana_cost`/etc. at all, since
+  each face is really its own oracle-distinct card printed on one piece of cardboard, not
+  one card with two faces; treating it like other multi-face layouts wrote `NULL`
+  `oracle_id` rows and broke an entire import batch.
+- **Printing tracking: schema exists, nothing populates or uses it yet.** `printings` and
+  `collection_items.printing_id` (below) are built, but `printings` is still empty — the
+  ingestion script only sources Oracle Cards today; sourcing it from Default Cards (which
+  would populate both `cards` and `printings` from a single download) is still to be built.
+  No service/UI code sets `printing_id` yet either. Finish/condition remain uncaptured.
 - **English only.** No `printed_name` / `printed_text`.
 
 ---
 
 ## `printings` — per-printing lookup (set + collector number → card)
 
-Populated by a **second** ingestion script from Scryfall's **Default Cards** bulk file (one
-object per printing, ~90–110k rows after the same paper/layout filter used for `cards`).
+**Built in Supabase; not yet populated.** Table and indexes exist. Populating it still needs
+an extension of the existing ingestion script to source from Scryfall's **Default Cards** bulk
+file (one object per printing, ~90–110k rows after the same paper/layout filter used for
+`cards`) instead of Oracle Cards — since a Default Cards row already carries every oracle-level
+field too, one download would populate both `cards` (deduped to one row per `oracle_id`) and
+`printings` (every filtered row), instead of needing a separate script/download per table.
+Not yet built.
+
 Exists to resolve "set code + collector number" (what OCR/card-scanning reads off a physical
 card, and the more reliable recognition target than the card name — stable position/format
 across foils, alt-arts, Universes Beyond frames) to a specific printing, and from there back
@@ -190,22 +206,10 @@ referenced side gets one via the target table's own PK), so without it every joi
 
 RLS: same pattern as `cards` — `SELECT` for `authenticated`, writes only via `service_role`.
 
-**Known gap:** filling this table does not, by itself, let a user *record* which printing they
-own — see the `collection_items` follow-up in *Deferred* below.
-
 ---
 
 ## Deferred (Phase 2+)
 
-- **`collection_items` printing reference.** `set_code` (below) is a bare nullable text
-  column with no FK — it can't disambiguate two printings that share a set code (rare, but
-  happens with some promos) and doesn't capture `lang`. Once `printings` exists, the real fix
-  is likely a nullable `scryfall_id` FK → `printings(scryfall_id)` (nullable so "I own this
-  card, printing unknown" stays representable — a legitimate casual-tracking case, not just a
-  migration artifact), with `set_code` either dropped in favour of the FK or kept only as a
-  fast-filter denormalization. The unique index on `collection_items` — currently
-  `(collection_id, oracle_id, coalesce(set_code, ''))` — would need the same treatment,
-  probably keyed on `scryfall_id` instead once it exists. **Not yet designed or built.**
 - **Portuguese.** Ingest localized data (`printed_name`, `printed_text`, localized images).
   No schema migration needed — everything is keyed on `oracle_id`.
 - **Relational `card_faces` table** — migrate from the JSONB column if face-level querying
@@ -245,15 +249,15 @@ read-only for end users (contrast with `cards`).
 | `id` | UUID, primary key. |
 | `collection_id` | UUID, FK → `collections(id)`, `on delete cascade`. |
 | `oracle_id` | UUID, FK → `cards(oracle_id)`. |
-| `set_code` | Text, **nullable**. Placeholder for future printing tracking (see Deferred). Every row added by the MVP flow leaves this `NULL` — the app has no per-printing card data yet (that needs the deferred *Default Cards* ingestion), so there's nothing to store here yet. Column exists now purely to avoid a migration later. |
-| `quantity` | Integer, default `1`, `check (quantity > 0)`. Adding a card the user already has in that collection (same `oracle_id` + `set_code`) increments this rather than inserting a new row; removing one copy decrements it, deleting the row once it hits 0. |
+| `printing_id` | UUID, **nullable**, FK → `printings(scryfall_id)`. Which exact printing the user owns — nullable so "I own this card" stays valid without ever picking one (most adds are expected to leave this unset; a purist can set it manually, or a scanned add resolves it directly). Replaces an earlier bare-text `set_code` placeholder that had no FK and couldn't disambiguate printings sharing a set code. Not yet set by any service/UI code — schema only so far. |
+| `quantity` | Integer, default `1`, `check (quantity > 0)`. Adding a card the user already has in that collection (same `oracle_id` + `printing_id`) increments this rather than inserting a new row; removing one copy decrements it, deleting the row once it hits 0. |
 | `date_added` | timestamptz, default `now()`. Set once on insert; **not** touched when `quantity` changes later. |
 | `updated_at` | timestamptz, default `now()`, bumped by a trigger on every `UPDATE`. Drives "last updated" ordering in the collection detail view — unlike `date_added`, this *does* move when `quantity` changes. |
 
-Unique index on `(collection_id, oracle_id, coalesce(set_code, ''))` — this is what "add this
-card again" resolves against to decide insert vs. increment. (Postgres unique constraints
-treat `NULL` as distinct from `NULL`, which would defeat this for every MVP row since
-`set_code` is always `NULL` for now — the `coalesce` sidesteps that.)
+Unique index on `(collection_id, oracle_id, coalesce(printing_id::text, ''))` — this is what
+"add this card again" resolves against to decide insert vs. increment. (Postgres unique
+constraints treat `NULL` as distinct from `NULL`, which would defeat this since most rows are
+expected to leave `printing_id` unset — the `coalesce` sidesteps that.)
 
 RLS: scoped indirectly — no `user_id` column here; policies check
 `exists (select 1 from collections where id = collection_items.collection_id and user_id = auth.uid())`.

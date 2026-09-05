@@ -153,15 +153,16 @@ export class ColecoesService {
     }));
   }
 
-  // Card já presente na coleção (mesmo oracle_id, sem set_code ainda — ver
-  // docs/data-model.md) tem a quantidade incrementada; senão cria o item.
+  // Card já presente na coleção (mesmo oracle_id, sem impressão escolhida
+  // ainda — ver docs/data-model.md) tem a quantidade incrementada; senão cria
+  // o item.
   async adicionarCarta(colecaoId: string, oracleId: string): Promise<void> {
     const { data: existente, error: erroBusca } = await this.clienteSupabase
       .from('collection_items')
       .select('id, quantity')
       .eq('collection_id', colecaoId)
       .eq('oracle_id', oracleId)
-      .is('set_code', null)
+      .is('printing_id', null)
       .maybeSingle();
 
     if (erroBusca) {
