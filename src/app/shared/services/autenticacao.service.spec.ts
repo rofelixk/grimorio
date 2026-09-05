@@ -65,6 +65,7 @@ describe('AutenticacaoService', () => {
     expect(clienteMock.auth.signUp).toHaveBeenCalledWith({
       email: 'ash@example.com',
       password: 'senha123',
+      options: { emailRedirectTo: window.location.origin },
     });
     expect(resultado).toEqual({ sessaoImediata: true });
   });

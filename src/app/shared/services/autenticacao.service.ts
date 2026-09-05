@@ -35,6 +35,15 @@ export class AutenticacaoService {
     const { data, error } = await this.clienteSupabase.auth.signUp({
       email,
       password: senha,
+      options: {
+        // Sem isto o Supabase usa o "Site URL" configurado no projeto como
+        // destino do link de confirmação (o padrão de fábrica é
+        // http://localhost:3000). Apontar para a origem atual faz o e-mail
+        // voltar para o mesmo host em que a pessoa se cadastrou — localhost,
+        // IP da LAN ou produção. O host precisa constar na lista de "Redirect
+        // URLs" do projeto Supabase, senão ele volta a cair no Site URL.
+        emailRedirectTo: window.location.origin,
+      },
     });
 
     if (error) {
