@@ -4,3 +4,4 @@ export * from './estado-busca-cartas.service';
 export * from './registro-estado-busca-cartas.service';
 export * from './colecoes.service';
 export * from './leitor-de-carta.service';
+export * from './baralhos.service';

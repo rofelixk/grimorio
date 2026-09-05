@@ -1,0 +1,64 @@
+.fundo {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.modal {
+  min-width: 20rem;
+  max-width: 90vw;
+  max-height: 80vh;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 4px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.lista-impressoes {
+  list-style: none;
+  margin: 0.75rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.lista-impressoes button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.4rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.miniatura {
+  width: 2rem;
+  height: auto;
+  border-radius: 2px;
+}
+
+.carregando {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-block: 0.5rem;
+  border: 3px solid #ccc;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

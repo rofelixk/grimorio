@@ -1,8 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ColecoesService } from '@shared/services';
-import { IColecao, ICarta } from '@shared/interfaces';
-import { BuscaCartas, ModalColecao } from '@shared/components';
+import { IColecao } from '@shared/interfaces';
+import { BuscaCartas, ModalColecao, CartaEscolhidaParaAdicionar } from '@shared/components';
 import { dividirEmSegmentos, SegmentoDeTexto } from '@shared/utils';
 
 @Component({
@@ -66,7 +66,10 @@ export class ColecaoDetalhe implements OnInit {
     return dividirEmSegmentos(item.mana_cost ?? '');
   }
 
-  async adicionarCarta(carta: ICarta.Detalhes): Promise<void> {
+  // printingId nunca é usado aqui — coleções ainda não escolhem impressão ao
+  // adicionar (collection_items.printing_id continua só-schema, ver
+  // docs/data-model.md); só baralhos usam pedirImpressao em BuscaCartas.
+  async adicionarCarta({ carta }: CartaEscolhidaParaAdicionar): Promise<void> {
     await this.colecoesService.adicionarCarta(this.colecaoId, carta.oracle_id);
     this.itens.set(await this.colecoesService.listarItens(this.colecaoId));
   }

@@ -16,7 +16,9 @@ const { recognize } = jest.requireMock('tesseract.js') as { recognize: jest.Mock
 type InstanciaTestavel = {
   estado: { termo: { set(v: string): void } };
   buscar(): Promise<void>;
-  adicionarCarta: { subscribe(fn: (carta: ICarta.Detalhes) => void): void };
+  adicionarCarta: {
+    subscribe(fn: (evento: { carta: ICarta.Detalhes; printingId: string | null }) => void): void;
+  };
   abrirCamera(): void;
   aoSelecionarFoto(evento: Event): Promise<void>;
 };
@@ -33,13 +35,17 @@ function eventoComArquivo(foto: Blob | null): Event {
 describe('BuscaCartas', () => {
   let cartasServiceMock: {
     buscarCartas: jest.Mock;
+    buscarCartasPossuidas: jest.Mock;
     buscarCartaPorImpressao: jest.Mock;
+    buscarImpressoesPorCarta: jest.Mock;
   };
 
   beforeEach(async () => {
     cartasServiceMock = {
       buscarCartas: jest.fn(),
+      buscarCartasPossuidas: jest.fn(),
       buscarCartaPorImpressao: jest.fn(),
+      buscarImpressoesPorCarta: jest.fn(),
     };
     recognize.mockReset();
 
@@ -287,7 +293,102 @@ describe('BuscaCartas', () => {
     expect(botao.textContent).toContain('Adicionar à coleção');
     botao.click();
 
-    expect(emitido).toHaveBeenCalledWith(cartaExemplo('1'));
+    expect(emitido).toHaveBeenCalledWith({ carta: cartaExemplo('1'), printingId: null });
+  });
+
+  it('passes identidadeCor through to buscarCartas when given', async () => {
+    cartasServiceMock.buscarCartas.mockResolvedValue({ cartas: [], total: 0 });
+
+    const fixture = criarFixture();
+    fixture.componentRef.setInput('identidadeCor', ['G', 'W']);
+    fixture.detectChanges();
+    const instancia = instanciaDe(fixture);
+    instancia.estado.termo.set('ash');
+    await instancia.buscar();
+
+    expect(cartasServiceMock.buscarCartas).toHaveBeenCalledWith('ash', 'name', 1, 25, ['G', 'W']);
+  });
+
+  it('hides results that fail filtroElegibilidade', async () => {
+    cartasServiceMock.buscarCartas.mockResolvedValue({
+      cartas: [cartaExemplo('1'), cartaExemplo('2')],
+      total: 2,
+    });
+
+    const fixture = criarFixture();
+    fixture.componentRef.setInput('filtroElegibilidade', (carta: ICarta.Detalhes) => carta.oracle_id === '1');
+    fixture.detectChanges();
+    const instancia = instanciaDe(fixture);
+    instancia.estado.termo.set('ash');
+    await instancia.buscar();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('app-cartao').length).toBe(1);
+  });
+
+  it('calls buscarCartasPossuidas instead of buscarCartas when the "somente minha coleção" toggle is checked', async () => {
+    cartasServiceMock.buscarCartas.mockResolvedValue({ cartas: [], total: 0 });
+    cartasServiceMock.buscarCartasPossuidas.mockResolvedValue({ cartas: [], total: 0 });
+
+    const fixture = criarFixture();
+    fixture.componentRef.setInput('permitirFiltroPossuidas', true);
+    fixture.detectChanges();
+    const instancia = instanciaDe(fixture);
+    instancia.estado.termo.set('ash');
+    await instancia.buscar();
+    expect(cartasServiceMock.buscarCartas).toHaveBeenCalled();
+    expect(cartasServiceMock.buscarCartasPossuidas).not.toHaveBeenCalled();
+
+    const toggle = fixture.nativeElement.querySelector(
+      '.filtro-possuidas input[type="checkbox"]',
+    ) as HTMLInputElement;
+    toggle.checked = true;
+    toggle.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+
+    expect(cartasServiceMock.buscarCartasPossuidas).toHaveBeenCalledWith('ash', 'name', 1, 25);
+  });
+
+  it('does not show the "somente minha coleção" toggle unless permitirFiltroPossuidas is set', () => {
+    const fixture = criarFixture();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.filtro-possuidas')).toBeNull();
+  });
+
+  it('opens the printing picker instead of emitting immediately when pedirImpressao is set, then emits with the chosen printing', async () => {
+    cartasServiceMock.buscarCartas.mockResolvedValue({ cartas: [cartaExemplo('1')], total: 1 });
+    cartasServiceMock.buscarImpressoesPorCarta.mockResolvedValue([
+      { scryfall_id: 'p1', oracle_id: '1', set_code: 'lea', collector_number: '1', lang: 'en', image_url: null },
+    ]);
+
+    const fixture = criarFixture();
+    fixture.componentRef.setInput('mostrarBotaoAdicionar', true);
+    fixture.componentRef.setInput('pedirImpressao', true);
+    fixture.detectChanges();
+    const instancia = instanciaDe(fixture);
+    instancia.estado.termo.set('ash');
+    await instancia.buscar();
+    fixture.detectChanges();
+
+    const emitido = jest.fn();
+    instancia.adicionarCarta.subscribe(emitido);
+
+    const botaoAdicionar = fixture.nativeElement.querySelector('.botao-adicionar') as HTMLButtonElement;
+    botaoAdicionar.click();
+    fixture.detectChanges();
+    expect(emitido).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('app-seletor-impressao')).not.toBeNull();
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const botoesImpressao = fixture.nativeElement.querySelectorAll(
+      '.lista-impressoes button',
+    ) as NodeListOf<HTMLButtonElement>;
+    botoesImpressao[1].click();
+
+    expect(emitido).toHaveBeenCalledWith({ carta: cartaExemplo('1'), printingId: 'p1' });
   });
 
   describe('scan button', () => {

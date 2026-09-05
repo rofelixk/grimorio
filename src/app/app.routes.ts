@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Inicio } from './inicio/inicio';
 import { Baralhos } from './baralhos/baralhos';
+import { BaralhoDetalhe } from './baralho-detalhe/baralho-detalhe';
 import { Colecao } from './colecao/colecao';
 import { ColecaoDetalhe } from './colecao-detalhe/colecao-detalhe';
 import { Cadastro } from './cadastro/cadastro';
@@ -11,6 +12,7 @@ import { exigeAutenticacaoGuard } from '@shared/guards';
 export const routes: Routes = [
   { path: '', component: Inicio },
   { path: 'baralhos', component: Baralhos, canActivate: [exigeAutenticacaoGuard] },
+  { path: 'baralhos/:id', component: BaralhoDetalhe, canActivate: [exigeAutenticacaoGuard] },
   { path: 'colecao', component: Colecao, canActivate: [exigeAutenticacaoGuard] },
   { path: 'colecao/:id', component: ColecaoDetalhe, canActivate: [exigeAutenticacaoGuard] },
   { path: 'cadastro', component: Cadastro },

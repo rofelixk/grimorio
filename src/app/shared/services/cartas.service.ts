@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { TOKEN_CLIENTE_SUPABASE } from '@shared/config';
-import { ICarta } from '@shared/interfaces';
+import { ICarta, IImpressao } from '@shared/interfaces';
 
 export type CampoDeBusca = 'name' | 'type_line';
 
@@ -43,26 +43,108 @@ export class CartasService {
     @Inject(TOKEN_CLIENTE_SUPABASE) private readonly clienteSupabase: SupabaseClient,
   ) {}
 
+  // Nota comum a buscarCartas/buscarCartasPossuidas: `identidadeCor`, quando
+  // informado, aplica `containedBy('color_identity', identidadeCor)` — o
+  // operador `<@` do Postgres, ou seja, a identidade de cor da carta precisa
+  // ser subconjunto da informada. É a regra de identidade de cor do
+  // Commander, empurrada pro banco pra manter paginação/contagem corretas.
   async buscarCartas(
     termo: string,
     campo: CampoDeBusca,
     pagina = 1,
     tamanhoPagina = TAMANHO_PAGINA_BUSCA,
+    identidadeCor?: string[],
+  ): Promise<PaginaDeCartas> {
+    return this.executarBuscaPaginada(() => {
+      let consulta = this.clienteSupabase
+        .from('cards')
+        .select('*', { count: 'exact' })
+        .ilike(campo, `%${termo}%`);
+
+      if (identidadeCor) {
+        consulta = consulta.containedBy('color_identity', identidadeCor);
+      }
+
+      return consulta;
+    }, pagina, tamanhoPagina);
+  }
+
+  // Restringe a busca às cartas que o usuário já possui em alguma coleção —
+  // usado pelo toggle "somente minha coleção" na busca de baralho. RLS em
+  // `collection_items` já escopa isso ao usuário logado (mesmo princípio de
+  // buscarCartasEmColecoes em ColecoesService).
+  async buscarCartasPossuidas(
+    termo: string,
+    campo: CampoDeBusca,
+    pagina = 1,
+    tamanhoPagina = TAMANHO_PAGINA_BUSCA,
+    identidadeCor?: string[],
+  ): Promise<PaginaDeCartas> {
+    const { data: itensPossuidos, error: erroItens } = await this.clienteSupabase
+      .from('collection_items')
+      .select('oracle_id');
+
+    if (erroItens) {
+      throw new Error(erroItens.message);
+    }
+
+    const oracleIds = Array.from(
+      new Set(((itensPossuidos ?? []) as { oracle_id: string }[]).map((item) => item.oracle_id)),
+    );
+
+    // Evita `.in('oracle_id', [])`, que algumas versões do PostgREST tratam
+    // de forma inconsistente — sem nenhuma carta possuída, o resultado já é
+    // vazio por definição.
+    if (oracleIds.length === 0) {
+      return { cartas: [], total: 0 };
+    }
+
+    return this.executarBuscaPaginada(() => {
+      let consulta = this.clienteSupabase
+        .from('cards')
+        .select('*', { count: 'exact' })
+        .in('oracle_id', oracleIds)
+        .ilike(campo, `%${termo}%`);
+
+      if (identidadeCor) {
+        consulta = consulta.containedBy('color_identity', identidadeCor);
+      }
+
+      return consulta;
+    }, pagina, tamanhoPagina);
+  }
+
+  private async executarBuscaPaginada(
+    construirConsulta: () => { range: (inicio: number, fim: number) => PromiseLike<{ data: unknown; error: unknown; count: number | null }> },
+    pagina: number,
+    tamanhoPagina: number,
   ): Promise<PaginaDeCartas> {
     const inicio = (pagina - 1) * tamanhoPagina;
     const fim = inicio + tamanhoPagina - 1;
 
-    const { data, error, count } = await this.clienteSupabase
-      .from('cards')
-      .select('*', { count: 'exact' })
-      .ilike(campo, `%${termo}%`)
-      .range(inicio, fim);
+    const { data, error, count } = await construirConsulta().range(inicio, fim);
+
+    if (error) {
+      throw new Error((error as { message: string }).message);
+    }
+
+    return { cartas: (data ?? []) as ICarta.Detalhes[], total: count ?? 0 };
+  }
+
+  // Lista as impressões conhecidas de uma carta (por oracle_id), para o
+  // seletor de impressão exibido ao adicionar uma carta a um baralho.
+  async buscarImpressoesPorCarta(oracleId: string): Promise<IImpressao.Detalhes[]> {
+    const { data, error } = await this.clienteSupabase
+      .from('printings')
+      .select('*')
+      .eq('oracle_id', oracleId)
+      .order('set_code');
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return { cartas: (data ?? []) as ICarta.Detalhes[], total: count ?? 0 };
+    return (data ?? []) as IImpressao.Detalhes[];
   }
 
   async buscarCartaPorId(oracleId: string): Promise<ICarta.Detalhes | null> {

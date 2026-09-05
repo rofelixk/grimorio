@@ -13,6 +13,10 @@ export class EstadoBuscaCartasService {
   readonly total = signal(0);
   readonly resultados = signal<ICarta.Detalhes[] | null>(null);
   readonly tentouBuscar = signal(false);
+  // Toggle "somente minha coleção" — só usado quando app-busca-cartas recebe
+  // permitirFiltroPossuidas. Guardado aqui (e não no componente) pelo mesmo
+  // motivo dos demais campos: sobreviver a destruir/recriar o componente.
+  readonly filtrarPossuidas = signal(false);
   // Tamanho de página realmente usado na última busca — guardado aqui (e não
   // como campo do componente) para que totalPaginas continue correto depois
   // de o componente ser destruído/recriado (ex.: voltar da página de carta).

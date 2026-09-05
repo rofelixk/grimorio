@@ -1,0 +1,82 @@
+:host {
+  display: block;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 14px 22px;
+  border-bottom: 1px solid #eee;
+}
+
+.cabecalho h1 {
+  margin: 0;
+  flex: 1 1 auto;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.carregando {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-block: 0.5rem;
+  border: 3px solid #ccc;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lista-baralhos {
+  padding: 26px 22px 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.baralho-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+
+.baralho-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .baralho-card {
+    transition: none;
+  }
+
+  .baralho-card:hover {
+    transform: none;
+  }
+}
+
+.baralho-card .nome {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.baralho-card .formato {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+}

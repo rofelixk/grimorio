@@ -16,6 +16,42 @@ function configurarServico(respostaRange: { data: unknown; error: unknown; count
   return { servico: TestBed.inject(CartasService), from, select, ilike, range };
 }
 
+function configurarServicoComIdentidade(respostaRange: { data: unknown; error: unknown; count?: number | null }) {
+  const range = jest.fn().mockResolvedValue(respostaRange);
+  const containedBy = jest.fn().mockReturnValue({ range });
+  const ilike = jest.fn().mockReturnValue({ containedBy, range });
+  const select = jest.fn().mockReturnValue({ ilike });
+  const from = jest.fn().mockReturnValue({ select });
+  const clienteMock = { from };
+
+  TestBed.configureTestingModule({
+    providers: [CartasService, { provide: TOKEN_CLIENTE_SUPABASE, useValue: clienteMock }],
+  });
+
+  return { servico: TestBed.inject(CartasService), from, select, ilike, containedBy, range };
+}
+
+function configurarServicoParaPossuidas(
+  respostaItens: { data: unknown; error: unknown },
+  respostaRange: { data: unknown; error: unknown; count?: number | null },
+) {
+  const range = jest.fn().mockResolvedValue(respostaRange);
+  const ilike = jest.fn().mockReturnValue({ range });
+  const in_ = jest.fn().mockReturnValue({ ilike });
+  const selectCards = jest.fn().mockReturnValue({ in: in_ });
+  const selectItens = jest.fn().mockResolvedValue(respostaItens);
+  const from = jest.fn((tabela: string) =>
+    tabela === 'collection_items' ? { select: selectItens } : { select: selectCards },
+  );
+  const clienteMock = { from };
+
+  TestBed.configureTestingModule({
+    providers: [CartasService, { provide: TOKEN_CLIENTE_SUPABASE, useValue: clienteMock }],
+  });
+
+  return { servico: TestBed.inject(CartasService), from, selectItens, selectCards, in: in_, ilike, range };
+}
+
 function configurarServicoParaBuscaPorId(respostaMaybeSingle: { data: unknown; error: unknown }) {
   const maybeSingle = jest.fn().mockResolvedValue(respostaMaybeSingle);
   const eq = jest.fn().mockReturnValue({ maybeSingle });
@@ -106,6 +142,66 @@ describe('CartasService', () => {
 
     await expect(servico.buscarCartas('ash', 'name')).rejects.toThrow(
       'permission denied for table cards',
+    );
+  });
+
+  it('does not filter by color identity when none is given', async () => {
+    const { servico, ilike } = configurarServicoComIdentidade({ data: [], error: null, count: 0 });
+
+    await servico.buscarCartas('dragon', 'name');
+
+    expect(ilike).toHaveBeenCalledWith('name', '%dragon%');
+  });
+
+  it('filters by color identity containment when given one', async () => {
+    const { servico, containedBy, range } = configurarServicoComIdentidade({
+      data: [{ oracle_id: '1', color_identity: ['G'] }],
+      error: null,
+      count: 1,
+    });
+
+    const resultado = await servico.buscarCartas('dragon', 'name', 1, 25, ['G', 'U']);
+
+    expect(containedBy).toHaveBeenCalledWith('color_identity', ['G', 'U']);
+    expect(range).toHaveBeenCalledWith(0, 24);
+    expect(resultado).toEqual({ cartas: [{ oracle_id: '1', color_identity: ['G'] }], total: 1 });
+  });
+
+  it('restricts the search to owned cards when using buscarCartasPossuidas', async () => {
+    const { servico, from, in: in_, ilike } = configurarServicoParaPossuidas(
+      { data: [{ oracle_id: '1' }, { oracle_id: '2' }, { oracle_id: '1' }], error: null },
+      { data: [{ oracle_id: '1', name: 'Ashling' }], error: null, count: 1 },
+    );
+
+    const resultado = await servico.buscarCartasPossuidas('ash', 'name');
+
+    expect(from).toHaveBeenCalledWith('collection_items');
+    expect(from).toHaveBeenCalledWith('cards');
+    expect(in_).toHaveBeenCalledWith('oracle_id', ['1', '2']);
+    expect(ilike).toHaveBeenCalledWith('name', '%ash%');
+    expect(resultado).toEqual({ cartas: [{ oracle_id: '1', name: 'Ashling' }], total: 1 });
+  });
+
+  it('short-circuits to an empty result when the user owns no cards', async () => {
+    const { servico, selectCards } = configurarServicoParaPossuidas(
+      { data: [], error: null },
+      { data: [], error: null, count: 0 },
+    );
+
+    const resultado = await servico.buscarCartasPossuidas('ash', 'name');
+
+    expect(selectCards).not.toHaveBeenCalled();
+    expect(resultado).toEqual({ cartas: [], total: 0 });
+  });
+
+  it('throws with the Postgres error message when the owned-cards lookup fails', async () => {
+    const { servico } = configurarServicoParaPossuidas(
+      { data: null, error: { message: 'permission denied for table collection_items' } },
+      { data: [], error: null, count: 0 },
+    );
+
+    await expect(servico.buscarCartasPossuidas('ash', 'name')).rejects.toThrow(
+      'permission denied for table collection_items',
     );
   });
 
@@ -220,6 +316,48 @@ describe('CartasService', () => {
     });
 
     await expect(servico.buscarImagemDaImpressao('p1')).rejects.toThrow(
+      'permission denied for table printings',
+    );
+  });
+
+  it('lists every known printing of a card, ordered by set code', async () => {
+    const order = jest.fn().mockResolvedValue({
+      data: [{ scryfall_id: 'p1', oracle_id: '1', set_code: 'lea', collector_number: '1', lang: 'en', image_url: null }],
+      error: null,
+    });
+    const eq = jest.fn().mockReturnValue({ order });
+    const select = jest.fn().mockReturnValue({ eq });
+    const from = jest.fn().mockReturnValue({ select });
+    TestBed.configureTestingModule({
+      providers: [CartasService, { provide: TOKEN_CLIENTE_SUPABASE, useValue: { from } }],
+    });
+    const servico = TestBed.inject(CartasService);
+
+    const resultado = await servico.buscarImpressoesPorCarta('1');
+
+    expect(from).toHaveBeenCalledWith('printings');
+    expect(select).toHaveBeenCalledWith('*');
+    expect(eq).toHaveBeenCalledWith('oracle_id', '1');
+    expect(order).toHaveBeenCalledWith('set_code');
+    expect(resultado).toEqual([
+      { scryfall_id: 'p1', oracle_id: '1', set_code: 'lea', collector_number: '1', lang: 'en', image_url: null },
+    ]);
+  });
+
+  it('throws with the Postgres error message when listing printings fails', async () => {
+    const order = jest.fn().mockResolvedValue({
+      data: null,
+      error: { message: 'permission denied for table printings' },
+    });
+    const eq = jest.fn().mockReturnValue({ order });
+    const select = jest.fn().mockReturnValue({ eq });
+    const from = jest.fn().mockReturnValue({ select });
+    TestBed.configureTestingModule({
+      providers: [CartasService, { provide: TOKEN_CLIENTE_SUPABASE, useValue: { from } }],
+    });
+    const servico = TestBed.inject(CartasService);
+
+    await expect(servico.buscarImpressoesPorCarta('1')).rejects.toThrow(
       'permission denied for table printings',
     );
   });

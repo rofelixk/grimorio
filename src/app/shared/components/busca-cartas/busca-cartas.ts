@@ -18,6 +18,7 @@ import {
 } from '@shared/services';
 import { ICarta } from '@shared/interfaces';
 import { Cartao } from '../cartao/cartao';
+import { SeletorImpressao } from '../seletor-impressao/seletor-impressao';
 
 const TAMANHO_MINIMO_TERMO = 3;
 
@@ -25,9 +26,14 @@ const TAMANHO_MINIMO_TERMO = 3;
 // momento da busca, se a grade está mostrando `colunas` ou `colunasMobile`.
 const CONSULTA_MOBILE = '(max-width: 640px)';
 
+export interface CartaEscolhidaParaAdicionar {
+  carta: ICarta.Detalhes;
+  printingId: string | null;
+}
+
 @Component({
   selector: 'app-busca-cartas',
-  imports: [Cartao],
+  imports: [Cartao, SeletorImpressao],
   templateUrl: './busca-cartas.html',
   styleUrl: './busca-cartas.css',
 })
@@ -42,7 +48,22 @@ export class BuscaCartas implements OnInit {
   // página que usa esta busca (ex.: início vs. detalhe de coleção).
   @Input() colunas = 5;
   @Input() colunasMobile = 2;
-  @Output() adicionarCarta = new EventEmitter<ICarta.Detalhes>();
+  // Regra de identidade de cor do Commander: quando informada, restringe a
+  // busca a cartas cuja color_identity seja subconjunto desta (empurrado pro
+  // banco via CartasService.buscarCartas/buscarCartasPossuidas).
+  @Input() identidadeCor?: string[];
+  // Filtro client-side aplicado só à exibição (ex.: elegivelComoComandante) —
+  // usado quando a regra não é cleanly expressável como filtro de banco.
+  @Input() filtroElegibilidade?: (carta: ICarta.Detalhes) => boolean;
+  // Mostra um toggle "Somente minha coleção" que alterna entre buscar todo o
+  // catálogo e restringir às cartas que o usuário já possui.
+  @Input() permitirFiltroPossuidas = false;
+  // Abre o seletor de impressão antes de emitir adicionarCarta, em vez de
+  // emitir na hora — usado pelo fluxo de baralhos.
+  @Input() pedirImpressao = false;
+  @Output() adicionarCarta = new EventEmitter<CartaEscolhidaParaAdicionar>();
+
+  protected readonly cartaParaEscolherImpressao = signal<ICarta.Detalhes | null>(null);
 
   // Input de arquivo nativo (accept + capture), disparado via clique
   // programático a partir do botão da câmera — deixa o app abrir a câmera
@@ -126,6 +147,29 @@ export class BuscaCartas implements OnInit {
     return Math.max(1, Math.ceil(this.estado.total() / this.estado.tamanhoPaginaUsado()));
   }
 
+  // Resultados realmente exibidos — filtrados por filtroElegibilidade quando
+  // informado (ex.: o seletor de comandante só mostra cartas elegíveis).
+  protected get resultadosExibidos(): ICarta.Detalhes[] {
+    const resultados = this.estado.resultados() ?? [];
+    return this.filtroElegibilidade ? resultados.filter(this.filtroElegibilidade) : resultados;
+  }
+
+  protected aoClicarAdicionar(carta: ICarta.Detalhes): void {
+    if (this.pedirImpressao) {
+      this.cartaParaEscolherImpressao.set(carta);
+      return;
+    }
+    this.adicionarCarta.emit({ carta, printingId: null });
+  }
+
+  protected aoEscolherImpressao(printingId: string | null): void {
+    const carta = this.cartaParaEscolherImpressao();
+    this.cartaParaEscolherImpressao.set(null);
+    if (carta) {
+      this.adicionarCarta.emit({ carta, printingId });
+    }
+  }
+
   // Colunas efetivamente exibidas agora (varia com o breakpoint mobile de
   // busca-cartas.css), usadas para calcular quantas cartas buscar por página.
   private get colunasEfetivas(): number {
@@ -157,14 +201,22 @@ export class BuscaCartas implements OnInit {
     this.carregando.set(true);
     this.erro.set(null);
     const tamanhoPagina = calcularTamanhoPagina(this.colunasEfetivas);
+    const termo = this.estado.termo().trim();
+    const campo = this.estado.campo();
+    const usarPossuidas = this.permitirFiltroPossuidas && this.estado.filtrarPossuidas();
 
     try {
-      const resultado = await this.cartasService.buscarCartas(
-        this.estado.termo().trim(),
-        this.estado.campo(),
-        pagina,
-        tamanhoPagina,
-      );
+      // Chamadas com número de argumentos diferente conforme identidadeCor
+      // esteja definida — em vez de sempre passar 5 argumentos (o último
+      // undefined quando não há identidade), pra não alterar o formato das
+      // chamadas já existentes (coleções, que nunca usam identidadeCor).
+      const resultado = usarPossuidas
+        ? this.identidadeCor
+          ? await this.cartasService.buscarCartasPossuidas(termo, campo, pagina, tamanhoPagina, this.identidadeCor)
+          : await this.cartasService.buscarCartasPossuidas(termo, campo, pagina, tamanhoPagina)
+        : this.identidadeCor
+          ? await this.cartasService.buscarCartas(termo, campo, pagina, tamanhoPagina, this.identidadeCor)
+          : await this.cartasService.buscarCartas(termo, campo, pagina, tamanhoPagina);
       this.estado.resultados.set(resultado.cartas);
       this.estado.total.set(resultado.total);
       this.estado.pagina.set(pagina);

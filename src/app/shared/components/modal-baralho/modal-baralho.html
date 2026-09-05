@@ -1,0 +1,24 @@
+<div class="fundo" (click)="fechar.emit()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2>{{ baralho ? 'Editar baralho' : 'Novo baralho' }}</h2>
+
+    <form (ngSubmit)="salvar()">
+      <input
+        type="text"
+        name="nome"
+        placeholder="Nome do baralho"
+        required
+        [ngModel]="nome()"
+        (ngModelChange)="nome.set($event)"
+      />
+
+      <button type="submit" [disabled]="enviando()">Salvar</button>
+    </form>
+
+    @if (erro()) {
+      <p class="erro">{{ erro() }}</p>
+    }
+
+    <button type="button" class="fechar" (click)="fechar.emit()">Fechar</button>
+  </div>
+</div>

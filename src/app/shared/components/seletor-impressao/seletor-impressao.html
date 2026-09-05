@@ -1,0 +1,33 @@
+<div class="fundo" (click)="fechar.emit()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2>Escolher impressão — {{ carta.name }}</h2>
+
+    @if (carregando()) {
+      <div class="carregando" role="status" aria-label="Carregando"></div>
+    }
+
+    @if (erro()) {
+      <p class="erro">{{ erro() }}</p>
+    }
+
+    @if (!carregando() && !erro()) {
+      <ul class="lista-impressoes">
+        <li>
+          <button type="button" (click)="escolher(null)">Sem impressão específica</button>
+        </li>
+        @for (impressao of impressoes(); track impressao.scryfall_id) {
+          <li>
+            <button type="button" (click)="escolher(impressao.scryfall_id)">
+              @if (impressao.image_url) {
+                <img class="miniatura" [src]="impressao.image_url" [alt]="carta.name" />
+              }
+              <span>{{ impressao.set_code }} #{{ impressao.collector_number }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    <button type="button" class="fechar" (click)="fechar.emit()">Fechar</button>
+  </div>
+</div>

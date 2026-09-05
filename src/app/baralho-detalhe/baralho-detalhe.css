@@ -1,0 +1,224 @@
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: 0 0 auto;
+  margin-block: 1rem;
+  padding-inline: 1rem;
+}
+
+.acoes-cabecalho {
+  display: flex;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.secao-comandante {
+  padding-inline: 1rem;
+}
+
+.pagina {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  gap: 1rem;
+}
+
+.coluna-busca {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-inline: 1rem;
+}
+
+.painel-comandante {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-block-end: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.imagem-comandante {
+  width: 4rem;
+  height: auto;
+  border-radius: 4px;
+  flex: 0 0 auto;
+}
+
+.info-comandante {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.info-comandante .nome {
+  font-weight: 700;
+}
+
+.identidade {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: #eee;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.coluna-itens {
+  flex: 0 0 40dvw;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #ddd;
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.alca-sheet {
+  display: none;
+}
+
+.lista-itens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lista-itens li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.lista-itens .nome {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lista-itens .set-code {
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.lista-itens .custo-de-mana {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.simbolo-mana {
+  width: 1rem;
+  height: 1rem;
+}
+
+.lista-itens .quantidade {
+  flex: 0 0 auto;
+  color: #666;
+}
+
+.carregando {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-block: 0.5rem;
+  border: 3px solid #ccc;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mobile (≤640px) — mesmo tratamento de sheet de colecao-detalhe.css. */
+@media (max-width: 640px) {
+  .pagina {
+    display: block;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .coluna-busca {
+    height: 100%;
+  }
+
+  .coluna-itens {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(7dvh + 1px);
+    height: 196px;
+    flex: 0 0 auto;
+    border-left: none;
+    border-top: 1px solid #ddd;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    transition: height 200ms ease;
+    z-index: 5;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .coluna-itens {
+      transition: none;
+    }
+  }
+
+  .coluna-itens.sheet-expandida {
+    height: min(75dvh, 640px);
+  }
+
+  .alca-sheet {
+    display: flex;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: 6px 0 10px;
+    border: none;
+    background: none;
+  }
+
+  .alca-sheet .alca {
+    width: 38px;
+    height: 4px;
+    border-radius: 2px;
+    background: #ddd;
+  }
+}

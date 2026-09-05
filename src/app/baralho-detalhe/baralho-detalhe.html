@@ -1,0 +1,108 @@
+@if (carregando()) {
+  <div class="carregando" role="status" aria-label="Carregando"></div>
+}
+
+@if (erro()) {
+  <p class="erro">{{ erro() }}</p>
+  <button type="button" routerLink="/baralhos">Voltar para baralhos</button>
+}
+
+@if (baralho(); as baralhoCarregado) {
+  <div class="cabecalho">
+    <h1>{{ baralhoCarregado.name }}</h1>
+    <div class="acoes-cabecalho">
+      <button type="button" (click)="abrirModalEditar()">Editar</button>
+      <button type="button" (click)="excluir()">Excluir</button>
+      <button type="button" routerLink="/baralhos">Voltar para baralhos</button>
+    </div>
+  </div>
+
+  @if (erroAcao()) {
+    <p class="erro">{{ erroAcao() }}</p>
+  }
+
+  @if (!comandante) {
+    <div class="secao-comandante">
+      <h2>Escolha o comandante</h2>
+      <app-busca-cartas
+        [chave]="chaveBusca + '-comandante'"
+        [mostrarBotaoAdicionar]="true"
+        rotuloBotaoAdicionar="Definir comandante"
+        [filtroElegibilidade]="elegivelComoComandante"
+        [pedirImpressao]="true"
+        [colunas]="4"
+        [colunasMobile]="2"
+        (adicionarCarta)="aoDefinirComandante($event)"
+      />
+    </div>
+  } @else {
+    <div class="pagina">
+      <div class="coluna-busca">
+        <div class="painel-comandante">
+          @if (comandante.image_url) {
+            <img class="imagem-comandante" [src]="comandante.image_url" [alt]="comandante.nome" />
+          }
+          <div class="info-comandante">
+            <span class="nome">{{ comandante.nome }}</span>
+            <span class="identidade">
+              @for (cor of comandante.color_identity; track cor) {
+                <span class="pip">{{ cor }}</span>
+              }
+            </span>
+            <button type="button" (click)="trocarComandante()">Trocar comandante</button>
+          </div>
+        </div>
+
+        <app-busca-cartas
+          [chave]="chaveBusca"
+          [mostrarBotaoAdicionar]="true"
+          rotuloBotaoAdicionar="Adicionar ao baralho"
+          [identidadeCor]="comandante.color_identity"
+          [permitirFiltroPossuidas]="true"
+          [pedirImpressao]="true"
+          [colunas]="4"
+          [colunasMobile]="2"
+          (adicionarCarta)="aoAdicionarCarta($event)"
+        />
+      </div>
+
+      <div class="coluna-itens" [class.sheet-expandida]="sheetAberta()">
+        <button type="button" class="alca-sheet" (click)="alternarSheet()" aria-label="Alternar lista de cartas">
+          <span class="alca"></span>
+        </button>
+
+        <h2>Cartas no baralho ({{ totalCartas }}/99)</h2>
+
+        @if (cartasNaoComandante.length === 0) {
+          <p>Nenhuma carta adicionada ainda.</p>
+        } @else {
+          <ul class="lista-itens">
+            @for (item of cartasNaoComandante; track item.id) {
+              <li>
+                <span class="nome">{{ item.nome }}</span>
+                @if (item.set_code) {
+                  <span class="set-code">{{ item.set_code }}</span>
+                }
+                <span class="custo-de-mana">
+                  @for (segmento of segmentosCustoDeMana(item); track $index) {
+                    @if (segmento.tipo === 'simbolo') {
+                      <img class="simbolo-mana" [src]="segmento.caminhoSvg" [alt]="segmento.codigo" />
+                    } @else {
+                      {{ segmento.valor }}
+                    }
+                  }
+                </span>
+                <span class="quantidade">&times;{{ item.quantity }}</span>
+                <button type="button" (click)="removerUmaCopia(item)">Remover</button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
+
+  @if (modalAberta()) {
+    <app-modal-baralho [baralho]="baralhoCarregado" (fechar)="fecharModal()" (salvo)="aoSalvar($event)" />
+  }
+}

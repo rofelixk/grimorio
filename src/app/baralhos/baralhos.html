@@ -1,2 +1,30 @@
-<h1>Baralhos</h1>
-<button type="button" routerLink="/">Voltar</button>
+<div class="cabecalho">
+  <h1>Baralhos</h1>
+  <button type="button" (click)="abrirModalCriar()">Criar baralho</button>
+  <button type="button" routerLink="/">Voltar</button>
+</div>
+
+@if (carregando()) {
+  <div class="carregando" role="status" aria-label="Carregando"></div>
+}
+
+@if (erro()) {
+  <p class="erro">{{ erro() }}</p>
+}
+
+<div class="lista-baralhos">
+  @if (!carregando() && baralhos().length === 0) {
+    <p class="vazio">Você ainda não tem nenhum baralho.</p>
+  }
+
+  @for (baralho of baralhos(); track baralho.id) {
+    <a class="baralho-card" [routerLink]="['/baralhos', baralho.id]">
+      <span class="nome">{{ baralho.name }}</span>
+      <span class="formato">{{ baralho.format }}</span>
+    </a>
+  }
+</div>
+
+@if (modalAberta()) {
+  <app-modal-baralho [baralho]="null" (fechar)="fecharModal()" (salvo)="aoSalvar($event)" />
+}

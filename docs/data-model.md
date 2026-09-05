@@ -30,7 +30,7 @@ points where, without re-deriving it from the live schema.
 cards (oracle_id PK)  ── shared, read-only reference data
   ↑ oracle_id FK ── printings (scryfall_id PK)  ── per-printing lookup
   ↑ oracle_id FK ── collection_items.oracle_id
-  ↑ oracle_id FK ── deck_cards.oracle_id            (planned, not yet built)
+  ↑ oracle_id FK ── deck_cards.oracle_id
 
 collections (id PK, user_id)  ── per-user
   ↑ collection_id FK ── collection_items
@@ -39,6 +39,15 @@ collection_items (id PK)
   → collection_id FK → collections
   → oracle_id FK → cards
   → printing_id FK → printings (nullable — "I own this card" without a chosen printing)
+
+decks (id PK, user_id)  ── per-user
+  → commander_oracle_id FK → cards (nullable — unset until a commander is chosen)
+  ↑ deck_id FK ── deck_cards
+
+deck_cards (id PK)
+  → deck_id FK → decks
+  → oracle_id FK → cards
+  → printing_id FK → printings (nullable — same "no printing chosen" meaning as collection_items)
 ```
 
 ---
@@ -166,24 +175,25 @@ card_faces = [
   each face is really its own oracle-distinct card printed on one piece of cardboard, not
   one card with two faces; treating it like other multi-face layouts wrote `NULL`
   `oracle_id` rows and broke an entire import batch.
-- **Printing tracking: schema exists, nothing populates or uses it yet.** `printings` and
-  `collection_items.printing_id` (below) are built, but `printings` is still empty — the
-  ingestion script only sources Oracle Cards today; sourcing it from Default Cards (which
-  would populate both `cards` and `printings` from a single download) is still to be built.
-  No service/UI code sets `printing_id` yet either. Finish/condition remain uncaptured.
+- **Printing tracking: populated, but only used by `deck_cards` so far.** The ingestion
+  script sources Scryfall's *Default Cards* bulk file (one object per printing), which
+  populates both `cards` (deduped to one row per `oracle_id`) and `printings` in a single
+  download/run — see *Import filter* above and `printings` below. `deck_cards.printing_id`
+  (below) is set by `BaralhosService`, with a printing picker in the add-card UI.
+  `collection_items.printing_id` remains schema-only/unused — no service/UI code sets it —
+  a deliberate scope choice, not a technical limitation. Finish/condition remain uncaptured
+  either way.
 - **English only.** No `printed_name` / `printed_text`.
 
 ---
 
 ## `printings` — per-printing lookup (set + collector number → card)
 
-**Built in Supabase; not yet populated.** Table and indexes exist. Populating it still needs
-an extension of the existing ingestion script to source from Scryfall's **Default Cards** bulk
-file (one object per printing, ~90–110k rows after the same paper/layout filter used for
-`cards`) instead of Oracle Cards — since a Default Cards row already carries every oracle-level
-field too, one download would populate both `cards` (deduped to one row per `oracle_id`) and
-`printings` (every filtered row), instead of needing a separate script/download per table.
-Not yet built.
+**Populated.** The ingestion script sources Scryfall's **Default Cards** bulk file (one
+object per printing, ~90–110k rows after the same paper/layout filter used for `cards`)
+instead of Oracle Cards — since a Default Cards row already carries every oracle-level field
+too, one download populates both `cards` (deduped to one row per `oracle_id`) and `printings`
+(every filtered row), instead of needing a separate script/download per table.
 
 Exists to resolve "set code + collector number" (what OCR/card-scanning reads off a physical
 card, and the more reliable recognition target than the card name — stable position/format
@@ -264,10 +274,72 @@ RLS: scoped indirectly — no `user_id` column here; policies check
 
 ---
 
+## `decks` — user-defined Commander decks
+
+A user can have any number of decks, each with a name, a `format` (only `commander` is built —
+column exists for future formats), and at most one commander. `commander_oracle_id` is a
+denormalized pointer to the commander's `oracle_id` — the same card is also present as a row
+in `deck_cards` (`is_commander = true`); this column exists purely so the commander's
+color identity/name/image can be read with a single join back to `cards`, without also
+joining through `deck_cards` every time the deck header is shown.
+
+**Naming exception:** same as `collections`/`collection_items` — named in English to match
+`cards`/`printings` and the rest of the SQL/data layer, not pt-BR like the rest of the app's
+identifiers.
+
+| Column | Type / notes |
+|---|---|
+| `id` | UUID, primary key. |
+| `user_id` | UUID, FK → `auth.users`. Owner. |
+| `name` | Text. |
+| `commander_oracle_id` | UUID, **nullable**, FK → `cards(oracle_id)`. `NULL` until a commander is chosen; set/cleared by `BaralhosService.definirComandante`/`removerComandante`, kept in sync with the `is_commander` row in `deck_cards`. |
+| `format` | Text, default `'commander'`. Only Commander is built for the MVP (per CLAUDE.md scope) — the column exists so a future format doesn't need a migration. |
+| `created_at` | timestamptz, default `now()`. |
+
+RLS: full CRUD scoped to `auth.uid() = user_id`, same pattern as `collections`.
+
+## `deck_cards` — cards within a deck
+
+| Column | Type / notes |
+|---|---|
+| `id` | UUID, primary key. |
+| `deck_id` | UUID, FK → `decks(id)`, `on delete cascade`. |
+| `oracle_id` | UUID, FK → `cards(oracle_id)`. |
+| `printing_id` | UUID, **nullable**, FK → `printings(scryfall_id)`. Same "no printing chosen" meaning as `collection_items.printing_id`, but actually wired up here: `BaralhosService` and a printing-picker modal (`SeletorImpressao`) let the user choose an exact printing when adding a card, unlike `collection_items` where this stays schema-only. |
+| `quantity` | Integer, default `1`, `check (quantity > 0)`. Commander singleton rule (see below) means most non-basic-land rows sit at `quantity = 1`; basic lands and cards whose oracle text explicitly permits unlimited copies (e.g. Relentless Rats) can stack higher, and can have several rows — one per distinct `printing_id` chosen. |
+| `is_commander` | Boolean, default `false`. Exactly one row per deck should have this `true` (enforced by app logic, not a DB constraint) — that row's `oracle_id` matches `decks.commander_oracle_id`. |
+| `date_added` | timestamptz, default `now()`. Same semantics as `collection_items.date_added`. |
+| `updated_at` | timestamptz, default `now()`, bumped by a trigger on every `UPDATE` — same trigger function `collection_items` uses. |
+
+Unique index on `(deck_id, oracle_id, coalesce(printing_id::text, ''))` — same shape and
+`NULL`-handling rationale as `collection_items`'s index; it's what "add this card again"
+resolves against to decide insert vs. increment.
+
+**Commander rules enforced in `BaralhosService` (app-level, not DB constraints):**
+- **Commander eligibility** — a card can be set as commander only if its `type_line` contains
+  both "Legendary" and "Creature", or its `oracle_text` contains the literal phrase "can be
+  your commander" (catches backgrounds/planeswalkers Scryfall marks that way). See
+  `regras-comandante.ts` (`elegivelComoComandante`).
+- **Color identity** — a card can only be added if its `color_identity` is a subset of the
+  commander's (`dentroDaIdentidade`); pushed to the database query itself via
+  `CartasService.buscarCartas`'s `containedBy('color_identity', …)` filter for the search UI,
+  and re-checked in `BaralhosService.adicionarCarta` before writing.
+- **Singleton** — adding a card that already has a row in the deck (any printing) is blocked
+  unless the card is a basic land (`type_line` contains "Basic Land") or its `oracle_text`
+  contains "A deck can have any number of cards named ..." (`ehTerraBasica` /
+  `permiteCopiasIlimitadas`). The singleton check is by `oracle_id` regardless of
+  `printing_id` — two different printings of the same card are still "2 copies", illegal
+  outside those exceptions.
+- **99-card cap** — the sum of `quantity` across all non-commander rows in a deck cannot
+  exceed 99 (Commander's "commander + 99 other cards" deck size).
+
+RLS: scoped indirectly like `collection_items` — no `user_id` column here; policies check
+`exists (select 1 from decks where id = deck_cards.deck_id and user_id = auth.uid())`.
+
+---
+
 ## Planned tables (not yet designed)
 
 Stubs — fill in when each is built.
 
 - **`containers`** — `user_id`, `name` (flat, user-named storage locations).
-- **`decks`** — `user_id`, `name`, commander `oracle_id`, format.
-- **`deck_cards`** — `deck_id`, `oracle_id`, `quantity`, `is_commander`.

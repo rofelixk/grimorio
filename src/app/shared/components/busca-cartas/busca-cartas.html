@@ -30,15 +30,19 @@
   }
 </div>
 
-@if (termoInvalido) {
-  <p class="erro-validacao">Digite pelo menos 3 caracteres para buscar.</p>
+@if (permitirFiltroPossuidas) {
+  <label class="filtro-possuidas">
+    <input
+      type="checkbox"
+      [checked]="estado.filtrarPossuidas()"
+      (change)="estado.filtrarPossuidas.set($any($event.target).checked); buscar()"
+    />
+    Somente minha coleção
+  </label>
 }
 
-@if (mostrarBotaoCamera) {
-  <p class="instrucao-camera">
-    Foto do número do coletor e código do set impressos na carta (ex.: "042/264 SLX"), bem de
-    perto — sem se preocupar com o resto da carta.
-  </p>
+@if (termoInvalido) {
+  <p class="erro-validacao">Digite pelo menos 3 caracteres para buscar.</p>
 }
 
 @if (escaneando()) {
@@ -69,7 +73,7 @@
 }
 
 @if (estado.resultados() !== null && !carregando()) {
-  @if (estado.resultados()!.length === 0) {
+  @if (resultadosExibidos.length === 0) {
     <p>Nenhum resultado.</p>
   } @else {
     <ul
@@ -77,11 +81,11 @@
       [style.--colunas-desktop]="colunas"
       [style.--colunas-mobile]="colunasMobile"
     >
-      @for (item of estado.resultados(); track item.oracle_id) {
+      @for (item of resultadosExibidos; track item.oracle_id) {
         <li>
           <app-cartao [carta]="item" />
           @if (mostrarBotaoAdicionar) {
-            <button type="button" class="botao-adicionar" (click)="adicionarCarta.emit(item)">
+            <button type="button" class="botao-adicionar" (click)="aoClicarAdicionar(item)">
               {{ rotuloBotaoAdicionar }}
             </button>
           }
@@ -109,4 +113,12 @@
       </div>
     }
   }
+}
+
+@if (cartaParaEscolherImpressao(); as carta) {
+  <app-seletor-impressao
+    [carta]="carta"
+    (escolhido)="aoEscolherImpressao($event)"
+    (fechar)="cartaParaEscolherImpressao.set(null)"
+  />
 }
