@@ -20,6 +20,11 @@ export class Carta implements OnInit {
   protected readonly erro = signal<string | null>(null);
   protected readonly carta = signal<ICarta.Detalhes | null>(null);
   protected readonly indiceFaceExibida = signal(0);
+  // Arte da impressão específica lida pelo scanner (se a rota trouxer
+  // printingId) — sobrepõe a imagem "representante" de `carta.image_url`/
+  // `card_faces` quando presente. Ver ImpressaoEncontrada em
+  // cartas.service.ts para o porquê de existir uma diferença entre as duas.
+  protected readonly imagemDaImpressao = signal<string | null>(null);
 
   async ngOnInit(): Promise<void> {
     const oracleId = this.rotaAtiva.snapshot.paramMap.get('oracleId');
@@ -33,8 +38,14 @@ export class Carta implements OnInit {
       const resultado = await this.cartasService.buscarCartaPorId(oracleId);
       if (!resultado) {
         this.erro.set('Carta não encontrada.');
-      } else {
-        this.carta.set(resultado);
+        return;
+      }
+
+      this.carta.set(resultado);
+
+      const printingId = this.rotaAtiva.snapshot.paramMap.get('printingId');
+      if (printingId) {
+        this.imagemDaImpressao.set(await this.cartasService.buscarImagemDaImpressao(printingId));
       }
     } catch (erroCapturado) {
       this.erro.set(erroCapturado instanceof Error ? erroCapturado.message : 'Erro desconhecido.');
@@ -50,7 +61,14 @@ export class Carta implements OnInit {
 
   get visualizacao(): VisualizacaoDeCarta | null {
     const carta = this.carta();
-    return carta ? criarVisualizacaoDeCarta(carta, this.indiceFaceExibida()) : null;
+    if (!carta) {
+      return null;
+    }
+
+    const visualizacao = criarVisualizacaoDeCarta(carta, this.indiceFaceExibida());
+    const imagemDaImpressao = this.imagemDaImpressao();
+
+    return imagemDaImpressao ? { ...visualizacao, imagemExibida: imagemDaImpressao } : visualizacao;
   }
 
   alternarFace(): void {

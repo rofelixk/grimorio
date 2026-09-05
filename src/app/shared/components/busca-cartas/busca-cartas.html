@@ -10,10 +10,50 @@
     <option value="type_line">Tipo</option>
   </select>
   <button type="button" (click)="buscar()" [disabled]="carregando()">Buscar</button>
+  @if (mostrarBotaoCamera) {
+    <button
+      type="button"
+      (click)="abrirCamera()"
+      [disabled]="escaneando()"
+      aria-label="Escanear carta com a câmera"
+    >
+      📷
+    </button>
+    <input
+      #inputArquivo
+      type="file"
+      accept="image/*"
+      capture="environment"
+      hidden
+      (change)="aoSelecionarFoto($event)"
+    />
+  }
 </div>
 
 @if (termoInvalido) {
   <p class="erro-validacao">Digite pelo menos 3 caracteres para buscar.</p>
+}
+
+@if (mostrarBotaoCamera) {
+  <p class="instrucao-camera">
+    Foto do número do coletor e código do set impressos na carta (ex.: "042/264 SLX"), bem de
+    perto — sem se preocupar com o resto da carta.
+  </p>
+}
+
+@if (escaneando()) {
+  <div class="status-scan" role="status">
+    <div class="carregando" aria-hidden="true"></div>
+    <span>Lendo imagem... pode demorar um pouco na primeira vez (baixando o motor de OCR).</span>
+  </div>
+}
+
+@if (erroCamera()) {
+  <p class="erro">{{ erroCamera() }}</p>
+}
+
+@if (debugScan()) {
+  <pre class="debug-scan">{{ debugScan() }}</pre>
 }
 
 @if (carregando()) {

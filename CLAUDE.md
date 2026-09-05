@@ -22,7 +22,6 @@ Split by audience; no bilingual or translated documents.
 - **Never run any script that talks to an external database or API — Supabase or Scryfall** (currently `npm run import:cards` / `scripts/importar-cartas.ts`), regardless of the above. These write real data or hit rate-limited/paid-adjacent services and must stay a human-run, human-watched action. Any future script with the same property (DB writes, external API calls) gets the same treatment by default.
 - Run tests: `npm test` (Jest, via `jest-preset-angular`; config in `jest.config.js` / `setup-jest.ts`). Watch mode: `npm run test:watch`.
 - Dev server: `npm start` (`ng serve`, http://localhost:4200). Production build: `npm run build`.
-- **Phone camera testing over HTTPS:** `npm run tunnel:phone` runs `.tools/cloudflared.exe` (a portable binary, gitignored, not a project dependency) to expose the local `ng serve` on a temporary `https://*.trycloudflare.com` URL. Only needed for browser APIs that require a secure context (e.g. `getUserMedia` for in-app card scanning) — `start:lan`'s plain HTTP is enough for everything else. This is throwaway dev tooling, not part of the deployed app; the URL changes every run and the tunnel should only run while actively testing on a phone.
 
 ## Tech Stack
 - **Frontend:** Angular — the user's existing area of expertise. The course's focus is AI-collaboration fluency, not learning a new frontend framework, so the frontend deliberately stays on familiar ground (no React/Next.js stretch).

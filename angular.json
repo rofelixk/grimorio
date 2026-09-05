@@ -30,6 +30,9 @@
             ],
             "styles": [
               "src/styles.css"
+            ],
+            "allowedCommonJsDependencies": [
+              "tesseract.js"
             ]
           },
           "configurations": {
@@ -58,9 +61,6 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-          "options": {
-            "allowedHosts": [".trycloudflare.com"]
-          },
           "configurations": {
             "production": {
               "buildTarget": "grimorio:build:production"

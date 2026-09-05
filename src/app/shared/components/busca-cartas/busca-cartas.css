@@ -60,6 +60,35 @@
   }
 }
 
+.instrucao-camera {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.status-scan {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.status-scan .carregando {
+  margin-block: 0;
+  flex: 0 0 auto;
+}
+
+.debug-scan {
+  font-size: 0.8rem;
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .paginacao {
   display: flex;
   justify-content: center;

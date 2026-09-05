@@ -7,10 +7,13 @@ import { CartasService } from '@shared/services';
 import { ICarta } from '@shared/interfaces';
 
 describe('Carta', () => {
-  let cartasServiceMock: { buscarCartaPorId: jest.Mock };
+  let cartasServiceMock: { buscarCartaPorId: jest.Mock; buscarImagemDaImpressao: jest.Mock };
 
-  function configurarComponente(oracleId: string | null) {
-    cartasServiceMock = { buscarCartaPorId: jest.fn() };
+  function configurarComponente(oracleId: string | null, printingId?: string) {
+    cartasServiceMock = {
+      buscarCartaPorId: jest.fn(),
+      buscarImagemDaImpressao: jest.fn(),
+    };
 
     return TestBed.configureTestingModule({
       imports: [Carta],
@@ -19,14 +22,24 @@ describe('Carta', () => {
         { provide: CartasService, useValue: cartasServiceMock },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap(oracleId ? { oracleId } : {}) } },
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({
+                ...(oracleId ? { oracleId } : {}),
+                ...(printingId ? { printingId } : {}),
+              }),
+            },
+          },
         },
       ],
     }).compileComponents();
   }
 
   it('fetches the card by the oracleId route param and renders its details', async () => {
-    cartasServiceMock = { buscarCartaPorId: jest.fn().mockResolvedValue(cartaSimples()) };
+    cartasServiceMock = {
+      buscarCartaPorId: jest.fn().mockResolvedValue(cartaSimples()),
+      buscarImagemDaImpressao: jest.fn(),
+    };
     await TestBed.configureTestingModule({
       imports: [Carta],
       providers: [
@@ -81,7 +94,10 @@ describe('Carta', () => {
   });
 
   it('shows a Flip card button that switches faces (multiface)', async () => {
-    cartasServiceMock = { buscarCartaPorId: jest.fn().mockResolvedValue(cartaMultiface()) };
+    cartasServiceMock = {
+      buscarCartaPorId: jest.fn().mockResolvedValue(cartaMultiface()),
+      buscarImagemDaImpressao: jest.fn(),
+    };
     await TestBed.configureTestingModule({
       imports: [Carta],
       providers: [
@@ -109,6 +125,39 @@ describe('Carta', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Aang, Destined Savior');
+  });
+
+  it('overrides the displayed image with the scanned printing\'s art when the route carries a printingId', async () => {
+    await configurarComponente(cartaSimples().oracle_id, 'p1');
+    cartasServiceMock.buscarCartaPorId.mockResolvedValue(cartaSimples());
+    cartasServiceMock.buscarImagemDaImpressao.mockResolvedValue(
+      'https://cards.scryfall.io/normal/impressao-especifica.jpg',
+    );
+
+    const fixture = TestBed.createComponent(Carta);
+    fixture.detectChanges();
+    // Dois awaits sequenciais dentro do ngOnInit (busca a carta, depois a
+    // impressão) — um só whenStable() pode resolver na janela entre os dois,
+    // antes do segundo await sequer começar.
+    await fixture.whenStable();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(cartasServiceMock.buscarImagemDaImpressao).toHaveBeenCalledWith('p1');
+    expect(fixture.nativeElement.querySelector('img.arte').src).toContain('impressao-especifica.jpg');
+  });
+
+  it('falls back to the card\'s own image when no printingId is in the route', async () => {
+    await configurarComponente(cartaSimples().oracle_id);
+    cartasServiceMock.buscarCartaPorId.mockResolvedValue(cartaSimples());
+
+    const fixture = TestBed.createComponent(Carta);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(cartasServiceMock.buscarImagemDaImpressao).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('img.arte').src).toContain('example.jpg');
   });
 
   it('goes back to the previous page (not always home) when Voltar is clicked', async () => {

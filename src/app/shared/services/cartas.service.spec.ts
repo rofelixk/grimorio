@@ -30,6 +30,27 @@ function configurarServicoParaBuscaPorId(respostaMaybeSingle: { data: unknown; e
   return { servico: TestBed.inject(CartasService), from, select, eq, maybeSingle };
 }
 
+function configurarServicoParaBuscaPorImpressao(
+  respostasMaybeSingle: Array<{ data: unknown; error: unknown }>,
+) {
+  let chamada = 0;
+  const maybeSingle = jest.fn(() =>
+    Promise.resolve(respostasMaybeSingle[chamada++] ?? respostasMaybeSingle.at(-1)),
+  );
+  const encadeavel = { eq: jest.fn(), maybeSingle };
+  encadeavel.eq.mockReturnValue(encadeavel);
+  const ilike = jest.fn().mockReturnValue(encadeavel);
+  const select = jest.fn().mockReturnValue({ ilike });
+  const from = jest.fn().mockReturnValue({ select });
+  const clienteMock = { from };
+
+  TestBed.configureTestingModule({
+    providers: [CartasService, { provide: TOKEN_CLIENTE_SUPABASE, useValue: clienteMock }],
+  });
+
+  return { servico: TestBed.inject(CartasService), from, select, ilike, eq: encadeavel.eq, maybeSingle };
+}
+
 describe('CartasService', () => {
   it('queries the `cards` table, filtering the chosen column with a case-insensitive substring pattern', async () => {
     const { servico, from, select, ilike } = configurarServico({
@@ -118,6 +139,88 @@ describe('CartasService', () => {
 
     await expect(servico.buscarCartaPorId('1')).rejects.toThrow(
       'permission denied for table cards',
+    );
+  });
+
+  it('resolves a card by set code + collector number via the `printings` table, along with the printing id', async () => {
+    const { servico, from, select, ilike, eq } = configurarServicoParaBuscaPorImpressao([
+      { data: { scryfall_id: 'p1', cards: { oracle_id: '1', name: 'Ashling' } }, error: null },
+    ]);
+
+    const resultado = await servico.buscarCartaPorImpressao('SLX', '042');
+
+    expect(from).toHaveBeenCalledWith('printings');
+    expect(select).toHaveBeenCalledWith('scryfall_id, cards(*)');
+    expect(ilike).toHaveBeenCalledWith('set_code', 'SLX');
+    expect(eq).toHaveBeenCalledWith('collector_number', '042');
+    expect(eq).toHaveBeenCalledWith('lang', 'en');
+    expect(resultado).toEqual({ carta: { oracle_id: '1', name: 'Ashling' }, printingId: 'p1' });
+  });
+
+  it('retries without leading zeros when the exact collector number does not match', async () => {
+    const { servico, eq } = configurarServicoParaBuscaPorImpressao([
+      { data: null, error: null },
+      { data: { scryfall_id: 'p1', cards: { oracle_id: '1', name: 'Ashling' } }, error: null },
+    ]);
+
+    const resultado = await servico.buscarCartaPorImpressao('SLX', '007');
+
+    expect(eq).toHaveBeenCalledWith('collector_number', '007');
+    expect(eq).toHaveBeenCalledWith('collector_number', '7');
+    expect(resultado).toEqual({ carta: { oracle_id: '1', name: 'Ashling' }, printingId: 'p1' });
+  });
+
+  it('returns null when no printing matches either form of the collector number', async () => {
+    const { servico } = configurarServicoParaBuscaPorImpressao([
+      { data: null, error: null },
+      { data: null, error: null },
+    ]);
+
+    const resultado = await servico.buscarCartaPorImpressao('SLX', '007');
+
+    expect(resultado).toBeNull();
+  });
+
+  it('throws with the Postgres error message when the printing lookup fails', async () => {
+    const { servico } = configurarServicoParaBuscaPorImpressao([
+      { data: null, error: { message: 'permission denied for table printings' } },
+    ]);
+
+    await expect(servico.buscarCartaPorImpressao('SLX', '042')).rejects.toThrow(
+      'permission denied for table printings',
+    );
+  });
+
+  it('fetches a specific printing\'s image by scryfall_id', async () => {
+    const { servico, from, select, eq } = configurarServicoParaBuscaPorId({
+      data: { image_url: 'https://cards.scryfall.io/normal/p1.jpg' },
+      error: null,
+    });
+
+    const resultado = await servico.buscarImagemDaImpressao('p1');
+
+    expect(from).toHaveBeenCalledWith('printings');
+    expect(select).toHaveBeenCalledWith('image_url');
+    expect(eq).toHaveBeenCalledWith('scryfall_id', 'p1');
+    expect(resultado).toBe('https://cards.scryfall.io/normal/p1.jpg');
+  });
+
+  it('returns null when the printing has no image or does not exist', async () => {
+    const { servico } = configurarServicoParaBuscaPorId({ data: null, error: null });
+
+    const resultado = await servico.buscarImagemDaImpressao('inexistente');
+
+    expect(resultado).toBeNull();
+  });
+
+  it('throws with the Postgres error message when the printing image lookup fails', async () => {
+    const { servico } = configurarServicoParaBuscaPorId({
+      data: null,
+      error: { message: 'permission denied for table printings' },
+    });
+
+    await expect(servico.buscarImagemDaImpressao('p1')).rejects.toThrow(
+      'permission denied for table printings',
     );
   });
 });

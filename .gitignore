@@ -153,6 +153,3 @@ vite.config.ts.timestamp-*
 /libpeerconnection.log
 testem.log
 /typings
-
-# Local-only dev tools (e.g. cloudflared, downloaded portable binaries)
-/.tools

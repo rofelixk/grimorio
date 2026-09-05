@@ -16,4 +16,8 @@ export const routes: Routes = [
   { path: 'cadastro', component: Cadastro },
   { path: 'creditos', component: Creditos },
   { path: 'carta/:oracleId', component: Carta },
+  // printingId (scryfall_id) é opcional: repassado quando se chega aqui via
+  // scan, pra mostrar a arte da impressão exata em vez da "representante" de
+  // `cards` — ver ImpressaoEncontrada em cartas.service.ts.
+  { path: 'carta/:oracleId/:printingId', component: Carta },
 ];
