@@ -1,8 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Colecao } from './colecao';
-import { ColecoesService } from '@shared/services';
+import { ColecoesService, LeitorDeCartaService, ResultadoLeituraCarta } from '@shared/services';
 import { IColecao } from '@shared/interfaces';
+
+function eventoComArquivo(foto: Blob | null): Event {
+  const input = document.createElement('input');
+  input.type = 'file';
+  if (foto) {
+    Object.defineProperty(input, 'files', { value: [foto], configurable: true });
+  }
+  return { target: input } as unknown as Event;
+}
 
 function colecaoExemplo(sobrescritas: Partial<IColecao.Detalhes> = {}): IColecao.Detalhes {
   return {
@@ -35,11 +44,21 @@ describe('Colecao', () => {
     listarColecoes: jest.Mock;
     buscarCartasEmColecoes: jest.Mock;
   };
+  let leitorDeCartaMock: {
+    marcarEscaneamentoIniciado: jest.Mock;
+    consumirEscaneamentoPendente: jest.Mock;
+    lerFoto: jest.Mock;
+  };
 
   beforeEach(async () => {
     colecoesServiceMock = {
       listarColecoes: jest.fn().mockResolvedValue([]),
       buscarCartasEmColecoes: jest.fn().mockResolvedValue([]),
+    };
+    leitorDeCartaMock = {
+      marcarEscaneamentoIniciado: jest.fn(),
+      consumirEscaneamentoPendente: jest.fn().mockReturnValue(false),
+      lerFoto: jest.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -47,6 +66,7 @@ describe('Colecao', () => {
       providers: [
         provideRouter([]),
         { provide: ColecoesService, useValue: colecoesServiceMock },
+        { provide: LeitorDeCartaService, useValue: leitorDeCartaMock },
       ],
     }).compileComponents();
   });
@@ -199,6 +219,74 @@ describe('Colecao', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain('Nenhum resultado.');
+    });
+  });
+
+  describe('scan button', () => {
+    it('clicking the camera button opens the native camera picker', () => {
+      const fixture = TestBed.createComponent(Colecao);
+      fixture.detectChanges();
+
+      const botaoCamera = fixture.nativeElement.querySelector(
+        '[aria-label="Escanear carta com a câmera"]',
+      ) as HTMLButtonElement;
+      const inputArquivo = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
+      const cliqueSpy = jest.spyOn(inputArquivo, 'click');
+
+      botaoCamera.click();
+
+      expect(leitorDeCartaMock.marcarEscaneamentoIniciado).toHaveBeenCalled();
+      expect(cliqueSpy).toHaveBeenCalled();
+    });
+
+    it('on a successful scan, fills the name field with the card name and searches — showing the same list as a normal search', async () => {
+      const resultadoSucesso: ResultadoLeituraCarta = {
+        tipo: 'sucesso',
+        resultado: { carta: { oracle_id: 'o1', name: 'Lightning Bolt' } as never, printingId: 'p1' },
+        debug: [],
+      };
+      leitorDeCartaMock.lerFoto.mockResolvedValue(resultadoSucesso);
+      colecoesServiceMock.buscarCartasEmColecoes.mockResolvedValue([itemBuscaExemplo()]);
+
+      const fixture = TestBed.createComponent(Colecao);
+      fixture.detectChanges();
+
+      await fixture.componentInstance.aoSelecionarFoto(eventoComArquivo(new Blob(['x'])));
+      fixture.detectChanges();
+
+      expect(colecoesServiceMock.buscarCartasEmColecoes).toHaveBeenCalledWith('Lightning Bolt', 'name');
+      expect(fixture.nativeElement.querySelector('.coluna-busca-carta input').value).toBe(
+        'Lightning Bolt',
+      );
+      expect(fixture.nativeElement.textContent).toContain('Lightning Bolt');
+    });
+
+    it('on a failed scan, shows the error message and does not search', async () => {
+      leitorDeCartaMock.lerFoto.mockResolvedValue({
+        tipo: 'erro',
+        mensagem: 'Não consegui ler o número da carta e o código do set.',
+        debug: [],
+      } satisfies ResultadoLeituraCarta);
+
+      const fixture = TestBed.createComponent(Colecao);
+      fixture.detectChanges();
+
+      await fixture.componentInstance.aoSelecionarFoto(eventoComArquivo(new Blob(['x'])));
+      fixture.detectChanges();
+
+      expect(colecoesServiceMock.buscarCartasEmColecoes).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain(
+        'Não consegui ler o número da carta',
+      );
+    });
+
+    it('does nothing when no photo was picked', async () => {
+      const fixture = TestBed.createComponent(Colecao);
+      fixture.detectChanges();
+
+      await fixture.componentInstance.aoSelecionarFoto(eventoComArquivo(null));
+
+      expect(leitorDeCartaMock.lerFoto).not.toHaveBeenCalled();
     });
   });
 });

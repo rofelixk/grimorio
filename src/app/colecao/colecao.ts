@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CampoDeBusca, ColecoesService } from '@shared/services';
+import { CampoDeBusca, ColecoesService, LeitorDeCartaService } from '@shared/services';
 import { IColecao } from '@shared/interfaces';
 import { PALETA_CORES_COLECAO } from '@shared/constants';
 import { ModalColecao } from '@shared/components';
@@ -17,7 +17,12 @@ const TAMANHO_MINIMO_TERMO_BUSCA_CARTA = 3;
 })
 export class Colecao implements OnInit {
   private readonly colecoesService = inject(ColecoesService);
+  private readonly leitorDeCarta = inject(LeitorDeCartaService);
   private readonly router = inject(Router);
+
+  // Ver nota em BuscaCartas sobre por que isso é um input de arquivo nativo
+  // (accept + capture) em vez de um <video> ao vivo.
+  @ViewChild('inputArquivo') private inputArquivoRef?: ElementRef<HTMLInputElement>;
 
   protected readonly paleta = PALETA_CORES_COLECAO;
   protected readonly carregando = signal(true);
@@ -36,12 +41,60 @@ export class Colecao implements OnInit {
   protected readonly erroBuscaCarta = signal<string | null>(null);
   protected readonly resultadosBuscaCarta = signal<IColecao.ItemEmColecao[] | null>(null);
 
+  protected readonly escaneandoCarta = signal(false);
+  protected readonly avisoInterrompido = signal<string | null>(null);
+
   // Termo realmente buscado (pode ficar defasado do que está digitado agora)
   // — usado só para destacar por que cada resultado bateu.
   private termoBuscaCartaUsado = '';
 
   async ngOnInit(): Promise<void> {
     await this.carregarColecoes();
+
+    if (this.leitorDeCarta.consumirEscaneamentoPendente()) {
+      this.avisoInterrompido.set(
+        'A leitura foi interrompida (o navegador recarregou a página ao abrir a câmera). Tente escanear de novo.',
+      );
+    }
+  }
+
+  abrirCamera(): void {
+    this.avisoInterrompido.set(null);
+    this.leitorDeCarta.marcarEscaneamentoIniciado();
+    this.inputArquivoRef?.nativeElement.click();
+  }
+
+  // Diferente de BuscaCartas: aqui a leitura não abre um modal com a carta —
+  // só preenche o nome lido na busca já existente (que procura só no que o
+  // usuário já possui) e dispara essa busca, mostrando o resultado do jeito
+  // que a página já mostra hoje.
+  async aoSelecionarFoto(evento: Event): Promise<void> {
+    const input = evento.target as HTMLInputElement;
+    const foto = input.files?.[0];
+    input.value = ''; // permite fotografar e escolher o mesmo arquivo de novo
+
+    if (!foto) {
+      return;
+    }
+
+    this.escaneandoCarta.set(true);
+    this.avisoInterrompido.set(null);
+    this.erroBuscaCarta.set(null);
+
+    try {
+      const resultado = await this.leitorDeCarta.lerFoto(foto);
+
+      if (resultado.tipo === 'erro') {
+        this.erroBuscaCarta.set(resultado.mensagem);
+        return;
+      }
+
+      this.termoBuscaCarta.set(resultado.resultado.carta.name);
+      this.campoBuscaCarta.set('name');
+      await this.buscarCarta();
+    } finally {
+      this.escaneandoCarta.set(false);
+    }
   }
 
   protected get termoBuscaCartaInvalido(): boolean {

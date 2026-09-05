@@ -54,10 +54,37 @@
           <option value="type_line">Tipo</option>
         </select>
         <button type="button" (click)="buscarCarta()" [disabled]="buscandoCarta()">Buscar</button>
+        <button
+          type="button"
+          (click)="abrirCamera()"
+          [disabled]="escaneandoCarta()"
+          aria-label="Escanear carta com a câmera"
+        >
+          📷
+        </button>
+        <input
+          #inputArquivo
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+          (change)="aoSelecionarFoto($event)"
+        />
       </div>
 
       @if (termoBuscaCartaInvalido) {
         <p class="erro-validacao">Digite pelo menos 3 caracteres para buscar.</p>
+      }
+
+      @if (escaneandoCarta()) {
+        <div class="status-scan" role="status">
+          <div class="carregando" aria-hidden="true"></div>
+          <span>Lendo imagem... pode demorar um pouco na primeira vez (baixando o motor de OCR).</span>
+        </div>
+      }
+
+      @if (avisoInterrompido()) {
+        <p class="erro">{{ avisoInterrompido() }}</p>
       }
 
       @if (buscandoCarta()) {

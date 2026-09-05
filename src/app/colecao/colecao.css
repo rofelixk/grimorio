@@ -277,6 +277,20 @@
   margin: 0.5rem 0 0;
 }
 
+.status-scan {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.status-scan .carregando {
+  margin-block: 0;
+  flex: 0 0 auto;
+}
+
 /* Mobile (≤640px) — mesmo ponto de corte de busca-cartas.css ------------- */
 
 @media (max-width: 640px) {
