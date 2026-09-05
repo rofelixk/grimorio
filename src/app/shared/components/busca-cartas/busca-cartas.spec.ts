@@ -1,7 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { BuscaCartas } from './busca-cartas';
-import { CartasService, PaginaDeCartas, TAMANHO_PAGINA_BUSCA } from '@shared/services';
+import {
+  ATRASO_ENTRE_ETAPAS_LEITURA_MS,
+  CartasService,
+  PaginaDeCartas,
+  TAMANHO_PAGINA_BUSCA,
+} from '@shared/services';
 import { ICarta } from '@shared/interfaces';
 
 jest.mock('tesseract.js', () => ({ recognize: jest.fn() }));
@@ -26,10 +31,16 @@ function eventoComArquivo(foto: Blob | null): Event {
 }
 
 describe('BuscaCartas', () => {
-  let cartasServiceMock: { buscarCartas: jest.Mock; buscarCartaPorImpressao: jest.Mock };
+  let cartasServiceMock: {
+    buscarCartas: jest.Mock;
+    buscarCartaPorImpressao: jest.Mock;
+  };
 
   beforeEach(async () => {
-    cartasServiceMock = { buscarCartas: jest.fn(), buscarCartaPorImpressao: jest.fn() };
+    cartasServiceMock = {
+      buscarCartas: jest.fn(),
+      buscarCartaPorImpressao: jest.fn(),
+    };
     recognize.mockReset();
 
     await TestBed.configureTestingModule({
@@ -37,6 +48,9 @@ describe('BuscaCartas', () => {
       providers: [
         provideRouter([]),
         { provide: CartasService, useValue: cartasServiceMock },
+        // Sem isso, cada scan bem-sucedido perde ~800ms reais de teste (ver
+        // aguardarRespiro em leitor-de-carta.service.ts).
+        { provide: ATRASO_ENTRE_ETAPAS_LEITURA_MS, useValue: 0 },
       ],
     }).compileComponents();
   });
@@ -294,15 +308,8 @@ describe('BuscaCartas', () => {
       sessionStorage.clear();
     });
 
-    it('does not show the camera button by default', () => {
+    it('shows the camera button by default, and clicking it opens the native camera picker', () => {
       const fixture = criarFixture();
-      fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('[aria-label="Escanear carta com a câmera"]')).toBeNull();
-    });
-
-    it('shows the camera button when mostrarBotaoCamera is set, and clicking it opens the native camera picker', () => {
-      const fixture = criarFixture();
-      fixture.componentRef.setInput('mostrarBotaoCamera', true);
       fixture.detectChanges();
 
       const botaoCamera = fixture.nativeElement.querySelector(
@@ -320,10 +327,17 @@ describe('BuscaCartas', () => {
       expect(cliqueSpy).toHaveBeenCalled();
     });
 
+    it('hides the camera button when mostrarBotaoCamera is set to false', () => {
+      const fixture = criarFixture();
+      fixture.componentRef.setInput('mostrarBotaoCamera', false);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[aria-label="Escanear carta com a câmera"]')).toBeNull();
+    });
+
     describe('recovering from a browser reload while the camera app is open', () => {
       it('marks a scan as pending in sessionStorage when the camera opens, and clears it if the tab regains focus (photo taken or cancelled)', () => {
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
         const instancia = instanciaDe(fixture);
 
@@ -340,7 +354,6 @@ describe('BuscaCartas', () => {
         sessionStorage.setItem(CHAVE_ESCANEAMENTO_PENDENTE, '1');
 
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain(
@@ -351,7 +364,6 @@ describe('BuscaCartas', () => {
 
       it('does not show the interrupted-scan error when nothing was pending', () => {
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.querySelector('.erro')).toBeNull();
@@ -364,7 +376,6 @@ describe('BuscaCartas', () => {
         recognize.mockResolvedValue({ data: { text: 'Lightning Bolt' } });
 
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
         const instancia = instanciaDe(fixture);
 
@@ -373,25 +384,28 @@ describe('BuscaCartas', () => {
         expect(sessionStorage.getItem(CHAVE_ESCANEAMENTO_PENDENTE)).toBeNull();
       });
 
-      it('reads the printing off the OCR text and navigates to the matching card + printing id', async () => {
+      it('reads the printing off the OCR text, fills the name field and searches — showing the same grid as a normal search', async () => {
         recognize.mockResolvedValue({ data: { text: '042/264 SLX' } });
         cartasServiceMock.buscarCartaPorImpressao.mockResolvedValue({
-          carta: { oracle_id: 'abc' },
+          carta: { oracle_id: 'abc', name: 'Lightning Bolt' },
           printingId: 'p1',
+        });
+        cartasServiceMock.buscarCartas.mockResolvedValue({
+          cartas: [cartaExemplo('abc')],
+          total: 1,
         });
 
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
         const instancia = instanciaDe(fixture);
-        const router = TestBed.inject(Router);
-        const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
 
         await instancia.aoSelecionarFoto(eventoComArquivo(new Blob(['x'], { type: 'image/jpeg' })));
+        fixture.detectChanges();
 
         expect(recognize).toHaveBeenCalledWith(expect.anything(), 'eng');
         expect(cartasServiceMock.buscarCartaPorImpressao).toHaveBeenCalledWith('SLX', '042');
-        expect(navigateSpy).toHaveBeenCalledWith(['/carta', 'abc', 'p1']);
+        expect(cartasServiceMock.buscarCartas).toHaveBeenCalledWith('Lightning Bolt', 'name', 1, 25);
+        expect(fixture.nativeElement.querySelectorAll('app-cartao').length).toBe(1);
       });
 
       it('tries combinations of scattered candidates until one matches, even when number and code are not adjacent', async () => {
@@ -401,34 +415,33 @@ describe('BuscaCartas', () => {
         cartasServiceMock.buscarCartaPorImpressao.mockImplementation(
           async (codigo: string, numero: string) =>
             codigo === 'FIC' && numero === '0423'
-              ? { carta: { oracle_id: 'abc' }, printingId: 'p1' }
+              ? { carta: { oracle_id: 'abc', name: 'Card' }, printingId: 'p1' }
               : null,
         );
+        cartasServiceMock.buscarCartas.mockResolvedValue({ cartas: [], total: 0 });
 
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
         const instancia = instanciaDe(fixture);
-        const navigateSpy = jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
         await instancia.aoSelecionarFoto(eventoComArquivo(new Blob(['x'])));
+        fixture.detectChanges();
 
         expect(cartasServiceMock.buscarCartaPorImpressao).toHaveBeenCalledWith('FIC', '0423');
-        expect(navigateSpy).toHaveBeenCalledWith(['/carta', 'abc', 'p1']);
+        expect(cartasServiceMock.buscarCartas).toHaveBeenCalledWith('Card', 'name', 1, 25);
       });
 
       it('shows a debug panel on screen with the raw OCR text, the parsed printing and the Supabase result', async () => {
         recognize.mockResolvedValue({ data: { text: '042/264 SLX' } });
         cartasServiceMock.buscarCartaPorImpressao.mockResolvedValue({
-          carta: { oracle_id: 'abc' },
+          carta: { oracle_id: 'abc', name: 'Card' },
           printingId: 'p1',
         });
+        cartasServiceMock.buscarCartas.mockResolvedValue({ cartas: [], total: 0 });
 
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
         const instancia = instanciaDe(fixture);
-        jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
         await instancia.aoSelecionarFoto(eventoComArquivo(new Blob(['x'])));
         fixture.detectChanges();
@@ -436,26 +449,13 @@ describe('BuscaCartas', () => {
         const debug = fixture.nativeElement.querySelector('.debug-scan')?.textContent;
         expect(debug).toContain('OCR bruto: "042/264 SLX"');
         expect(debug).toContain('Candidatos: números [042, 264], códigos [SLX]');
-        expect(debug).toContain('combinação "042/SLX" -> {"carta":{"oracle_id":"abc"},"printingId":"p1"}');
-      });
-
-      it('shows the debug panel with the error message when OCR itself fails', async () => {
-        recognize.mockRejectedValue(new Error('boom'));
-
-        const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
-        fixture.detectChanges();
-        const instancia = instanciaDe(fixture);
-
-        await instancia.aoSelecionarFoto(eventoComArquivo(new Blob(['x'])));
-        fixture.detectChanges();
-
-        expect(fixture.nativeElement.querySelector('.debug-scan')?.textContent).toContain('Erro: boom');
+        expect(debug).toContain(
+          'combinação "042/SLX" -> {"carta":{"oracle_id":"abc","name":"Card"},"printingId":"p1"}',
+        );
       });
 
       it('does nothing when no photo was picked (e.g. the user cancelled)', async () => {
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
         const instancia = instanciaDe(fixture);
 
@@ -464,11 +464,10 @@ describe('BuscaCartas', () => {
         expect(recognize).not.toHaveBeenCalled();
       });
 
-      it('shows an error when the OCR text has no recognizable printing', async () => {
+      it('shows an error and does not search when the OCR text has no recognizable printing', async () => {
         recognize.mockResolvedValue({ data: { text: 'Lightning Bolt' } });
 
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
         const instancia = instanciaDe(fixture);
 
@@ -476,23 +475,22 @@ describe('BuscaCartas', () => {
         fixture.detectChanges();
 
         expect(cartasServiceMock.buscarCartaPorImpressao).not.toHaveBeenCalled();
-        expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain(
-          'Não consegui ler',
-        );
+        expect(cartasServiceMock.buscarCartas).not.toHaveBeenCalled();
+        expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain('Não consegui ler');
       });
 
-      it('shows an error when no printing matches', async () => {
+      it('shows an error and does not search when no printing matches', async () => {
         recognize.mockResolvedValue({ data: { text: '042/264 SLX' } });
         cartasServiceMock.buscarCartaPorImpressao.mockResolvedValue(null);
 
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
         const instancia = instanciaDe(fixture);
 
         await instancia.aoSelecionarFoto(eventoComArquivo(new Blob(['x'])));
         fixture.detectChanges();
 
+        expect(cartasServiceMock.buscarCartas).not.toHaveBeenCalled();
         expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain(
           'não encontrei nenhuma impressão',
         );
@@ -502,7 +500,6 @@ describe('BuscaCartas', () => {
         recognize.mockRejectedValue(new Error('boom'));
 
         const fixture = criarFixture();
-        fixture.componentRef.setInput('mostrarBotaoCamera', true);
         fixture.detectChanges();
         const instancia = instanciaDe(fixture);
 
@@ -512,6 +509,7 @@ describe('BuscaCartas', () => {
         expect(fixture.nativeElement.querySelector('.erro')?.textContent).toContain(
           'Falha ao processar a imagem.',
         );
+        expect(fixture.nativeElement.querySelector('.debug-scan')?.textContent).toContain('Erro: boom');
       });
     });
   });

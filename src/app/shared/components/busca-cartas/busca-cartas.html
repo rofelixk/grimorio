@@ -48,6 +48,10 @@
   </div>
 }
 
+@if (avisoInterrompido()) {
+  <p class="erro">{{ avisoInterrompido() }}</p>
+}
+
 @if (erroCamera()) {
   <p class="erro">{{ erroCamera() }}</p>
 }
