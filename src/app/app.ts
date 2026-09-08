@@ -1,27 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
-import { AutenticacaoService } from '@shared/services';
-import { ModalEntrar } from '@shared/components';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, ModalEntrar],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App {
-  protected readonly autenticacaoService = inject(AutenticacaoService);
-  protected readonly modalEntrarAberta = signal(false);
-
-  abrirModalEntrar(): void {
-    this.modalEntrarAberta.set(true);
-  }
-
-  fecharModalEntrar(): void {
-    this.modalEntrarAberta.set(false);
-  }
-
-  sair(): void {
-    this.autenticacaoService.sair();
-  }
-}
+export class App {}
