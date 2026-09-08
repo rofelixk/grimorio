@@ -21,6 +21,8 @@ is the source of truth for where things stand.
 - **[docs/decisions/](docs/decisions/)** — full record per decision (context,
   alternatives, consequences). Read the relevant one when a task depends on the
   "why".
+- **[docs/discovery/](docs/discovery/)** — provisional discovery notes (scope,
+  research) that have not yet settled into decisions. Working material, expect churn.
 
 ## Ignore for code/architecture analysis
 
