@@ -1,0 +1,22 @@
+@if (cards().length === 0) {
+  <p class="empty">No cards here yet.</p>
+}
+
+<ul class="card-list">
+  @for (card of cards(); track card.id) {
+    <li>
+      <img [src]="card.imageUrl" [alt]="card.name" width="60" />
+      <div class="card-info">
+        <strong>{{ card.name }}</strong>
+        <span>{{ card.setCode }} #{{ card.collectorNumber }} · {{ card.finish }} · {{ card.condition }}</span>
+        <span
+          >Qty {{ card.quantity }}
+          @if (card.forSale) {
+            · For sale
+          }</span
+        >
+      </div>
+      <button type="button" (click)="removeCard(card.id)">Remove</button>
+    </li>
+  }
+</ul>

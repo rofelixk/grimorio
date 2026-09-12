@@ -64,4 +64,17 @@ export class StorageLocationService {
   byId(id: string) {
     return computed(() => this.locations().find((location) => location.id === id));
   }
+
+  breadcrumb(id: string) {
+    return computed(() => {
+      const byId = new Map(this.locations().map((location) => [location.id, location]));
+      const path: StorageLocation[] = [];
+      let current = byId.get(id);
+      while (current) {
+        path.unshift(current);
+        current = current.parentId ? byId.get(current.parentId) : undefined;
+      }
+      return path;
+    });
+  }
 }

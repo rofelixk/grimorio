@@ -1,0 +1,25 @@
+@if (location(); as loc) {
+  <nav class="breadcrumb">
+    <a routerLink="/">Locations</a>
+    @for (crumb of breadcrumb(); track crumb.id) {
+      <span> / </span>
+      <a [routerLink]="['/locations', crumb.id]">{{ crumb.name }}</a>
+    }
+  </nav>
+
+  <h1>{{ loc.name }}</h1>
+
+  <section>
+    <h2>Sub-locations</h2>
+    <app-location-children [parentId]="loc.id" />
+  </section>
+
+  <section>
+    <h2>Cards here</h2>
+    <app-card-list [cards]="cardsHere()" (remove)="removeCard($event)" />
+    <app-add-card-form (cardAdded)="addCard($event)" />
+  </section>
+} @else {
+  <p>Location not found.</p>
+  <a routerLink="/">Back to locations</a>
+}

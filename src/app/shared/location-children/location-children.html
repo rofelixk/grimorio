@@ -1,0 +1,25 @@
+@if (children().length === 0) {
+  <p class="empty">No locations here yet.</p>
+}
+
+<ul class="location-list">
+  @for (child of children(); track child.id) {
+    <li>
+      <a [routerLink]="['/locations', child.id]">{{ child.name }}</a>
+      <button type="button" (click)="removeChild(child.id)">Remove</button>
+    </li>
+  }
+</ul>
+
+<form class="add-location" (submit)="$event.preventDefault(); addChild()">
+  <label>
+    New location name
+    <input
+      type="text"
+      [value]="newChildName()"
+      (input)="newChildName.set($any($event.target).value)"
+      placeholder="e.g. Box 1"
+    />
+  </label>
+  <button type="submit">Add location</button>
+</form>

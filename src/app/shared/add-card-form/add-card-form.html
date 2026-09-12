@@ -1,0 +1,87 @@
+<form class="add-card" (submit)="$event.preventDefault()">
+  <div class="lookup-fields">
+    <label>
+      Set code
+      <input
+        type="text"
+        [value]="setCode()"
+        (input)="setCode.set($any($event.target).value)"
+        placeholder="e.g. MH3"
+      />
+    </label>
+    <label>
+      Collector number
+      <input
+        type="text"
+        [value]="collectorNumber()"
+        (input)="collectorNumber.set($any($event.target).value)"
+        placeholder="e.g. 161"
+      />
+    </label>
+    <button type="button" (click)="generate()" [disabled]="generating()">
+      @if (generating()) {
+        Looking up card…
+      } @else {
+        Generate
+      }
+    </button>
+  </div>
+
+  @if (lookupError()) {
+    <p class="error">{{ lookupError() }}</p>
+  }
+
+  @if (generated(); as gen) {
+    <p class="generated-preview">Found: {{ gen.name }} ({{ gen.setName }}, {{ gen.rarity }})</p>
+
+    <div class="physical-fields">
+      <label>
+        Finish
+        <select [value]="finish()" (change)="finish.set($any($event.target).value)">
+          <option value="">nonfoil (default)</option>
+          @for (f of finishes; track f) {
+            <option [value]="f">{{ f }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Language
+        <input
+          type="text"
+          [value]="language()"
+          (input)="language.set($any($event.target).value)"
+          placeholder="en (default)"
+        />
+      </label>
+      <label>
+        Condition
+        <select [value]="condition()" (change)="condition.set($any($event.target).value)">
+          <option value="">NM (default)</option>
+          @for (c of conditions; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Quantity
+        <input
+          type="number"
+          min="1"
+          [value]="quantity()"
+          (input)="quantity.set($any($event.target).value)"
+          placeholder="1 (default)"
+        />
+      </label>
+      <label>
+        <input type="checkbox" [checked]="forSale()" (change)="forSale.set($any($event.target).checked)" />
+        For sale
+      </label>
+      <label>
+        Notes
+        <textarea [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea>
+      </label>
+    </div>
+
+    <button type="button" (click)="submit()">Add card</button>
+  }
+</form>

@@ -1,0 +1,27 @@
+.location-list {
+  list-style: none;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.empty {
+  color: #666;
+}
+
+.add-location {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
