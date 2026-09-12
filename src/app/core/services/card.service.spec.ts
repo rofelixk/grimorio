@@ -1,16 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { CardEntry } from '../models/card.model';
-import { mockCardEntry } from '../testing/card.mocks';
+import { mockCardEntryWithoutId } from '../testing/card.mocks';
 import { CardService } from './card.service';
 
-function cardWithoutId(): Omit<CardEntry, 'id'> {
-  const { id, ...rest } = mockCardEntry();
-  void id;
-  return rest;
-}
-
-const baseCard = cardWithoutId();
+const baseCard = mockCardEntryWithoutId();
 
 describe('CardService', () => {
   let service: CardService;

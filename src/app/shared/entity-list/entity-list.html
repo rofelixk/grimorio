@@ -1,0 +1,25 @@
+@if (items().length === 0) {
+  <p class="empty">{{ emptyLabel() }}</p>
+}
+
+<ul class="entity-list">
+  @for (item of items(); track item.id) {
+    <li>
+      <a [routerLink]="[routePrefix(), item.id]">{{ item.name }}</a>
+      <button type="button" (click)="remove.emit(item.id)">Remove</button>
+    </li>
+  }
+</ul>
+
+<form class="add-entity" (submit)="$event.preventDefault(); submitAdd()">
+  <label>
+    {{ formLabel() }}
+    <input
+      type="text"
+      [value]="newName()"
+      (input)="newName.set($any($event.target).value)"
+      [placeholder]="namePlaceholder()"
+    />
+  </label>
+  <button type="submit">{{ addLabel() }}</button>
+</form>

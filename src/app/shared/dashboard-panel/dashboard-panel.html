@@ -1,0 +1,9 @@
+<section class="panel">
+  <div class="panel-header">
+    <h2>{{ title() }}</h2>
+    <a [routerLink]="viewAllLink()">View all</a>
+  </div>
+  <div class="scroll-area">
+    <ng-content />
+  </div>
+</section>

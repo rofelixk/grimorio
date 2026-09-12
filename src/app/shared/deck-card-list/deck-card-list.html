@@ -1,0 +1,34 @@
+@if (rows().length === 0) {
+  <p class="empty">No cards here yet.</p>
+}
+
+<ul class="deck-card-list">
+  @for (row of rows(); track row.id) {
+    <li>
+      @if (row.identity; as identity) {
+        <img [src]="identity.imageUrl" [alt]="identity.name" width="60" />
+        <div class="card-info">
+          <strong>{{ identity.name }}</strong>
+          <span>{{ identity.setCode }} #{{ identity.collectorNumber }} · {{ identity.typeLine }}</span>
+          <app-color-identity [colorIdentity]="identity.colorIdentity" />
+        </div>
+      } @else {
+        <div class="card-info removed">This card was removed from your collection.</div>
+      }
+      <span class="status status-{{ row.status }}">
+        @switch (row.status) {
+          @case ('owned') {
+            Owned
+          }
+          @case ('not-owned') {
+            Not owned
+          }
+          @case ('removed') {
+            Removed
+          }
+        }
+      </span>
+      <button type="button" (click)="removeCard(row.id)">Remove</button>
+    </li>
+  }
+</ul>

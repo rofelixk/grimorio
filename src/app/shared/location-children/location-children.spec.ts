@@ -35,12 +35,10 @@ describe('LocationChildren', () => {
   });
 
   it('adds a child scoped to parentId', () => {
-    component.newChildName.set('Box 1');
-    component.addChild();
+    component.addChild('Box 1');
 
     expect(component.children().length).toBe(1);
     expect(component.children()[0].parentId).toBeNull();
-    expect(component.newChildName()).toBe('');
   });
 
   it('removes a child', () => {

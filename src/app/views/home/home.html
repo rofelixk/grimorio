@@ -1,3 +1,9 @@
-<h1>Locations</h1>
+<h1>Grimorio</h1>
 
-<app-location-children [parentId]="null" />
+<app-dashboard-panel title="Locations" viewAllLink="/locations">
+  <app-location-children [parentId]="null" />
+</app-dashboard-panel>
+
+<app-dashboard-panel title="Decks" viewAllLink="/decks">
+  <app-deck-list />
+</app-dashboard-panel>

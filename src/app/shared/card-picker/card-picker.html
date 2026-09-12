@@ -1,0 +1,67 @@
+<div class="mode-tabs">
+  <button type="button" [class.active]="mode() === 'collection'" (click)="mode.set('collection')">
+    From your collection
+  </button>
+  <button type="button" [class.active]="mode() === 'freeBuild'" (click)="mode.set('freeBuild')">
+    Free build
+  </button>
+</div>
+
+@if (mode() === 'collection') {
+  <div class="collection-picker">
+    <input
+      type="text"
+      [value]="search()"
+      (input)="search.set($any($event.target).value)"
+      placeholder="Search your collection…"
+    />
+    @if (matchingOwnedCards().length === 0) {
+      <p class="empty">No matching owned cards.</p>
+    }
+    <ul class="picker-results">
+      @for (card of matchingOwnedCards(); track card.id) {
+        <li>
+          <span>{{ card.name }} ({{ card.setCode }} #{{ card.collectorNumber }})</span>
+          <button type="button" (click)="pickOwned(card.id)">Add</button>
+        </li>
+      }
+    </ul>
+  </div>
+} @else {
+  <div class="free-build-picker">
+    <div class="lookup-fields">
+      <label>
+        Set code
+        <input type="text" [value]="setCode()" (input)="setCode.set($any($event.target).value)" placeholder="e.g. MH3" />
+      </label>
+      <label>
+        Collector number
+        <input
+          type="text"
+          [value]="collectorNumber()"
+          (input)="collectorNumber.set($any($event.target).value)"
+          placeholder="e.g. 161"
+        />
+      </label>
+      <button type="button" (click)="generate()" [disabled]="generating()">
+        @if (generating()) {
+          Looking up card…
+        } @else {
+          Generate
+        }
+      </button>
+    </div>
+
+    @if (lookupError()) {
+      <p class="error">{{ lookupError() }}</p>
+    }
+
+    @if (generatedIdentity(); as identity) {
+      <p class="generated-preview">Found: {{ identity.name }} ({{ identity.setName }}, {{ identity.rarity }})</p>
+      @if (!generatedPassesFilter()) {
+        <p class="error">This card doesn't meet the current criteria (color identity, legality, or already in the deck).</p>
+      }
+      <button type="button" (click)="pickFreeBuild()" [disabled]="!generatedPassesFilter()">Add card</button>
+    }
+  </div>
+}

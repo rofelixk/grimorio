@@ -1,0 +1,40 @@
+.color-identity {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #999;
+  background: #eee;
+  border: 1px solid #ccc;
+}
+
+.pip.filled {
+  color: #fff;
+  border-color: transparent;
+}
+
+.pip-W.filled {
+  background: #f8f6d8;
+  color: #333;
+}
+.pip-U.filled {
+  background: #0e68ab;
+}
+.pip-B.filled {
+  background: #150b00;
+}
+.pip-R.filled {
+  background: #d3202a;
+}
+.pip-G.filled {
+  background: #00733e;
+}

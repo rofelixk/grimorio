@@ -1,0 +1,59 @@
+@if (deck(); as d) {
+  <a routerLink="/decks">Decks</a>
+  <h1>{{ d.name }}</h1>
+
+  <section>
+    <h2>Commander</h2>
+    @if (commanderIdentity(); as commander) {
+      <div class="commander">
+        <img [src]="commander.imageUrl" [alt]="commander.name" width="90" />
+        <div>
+          <strong>{{ commander.name }}</strong>
+          <p>{{ commander.typeLine }}</p>
+          <app-color-identity [colorIdentity]="commander.colorIdentity" />
+        </div>
+        <button type="button" (click)="clearCommander()">Change commander</button>
+      </div>
+    } @else {
+      <p class="empty">No commander set. Pick one below (must be a legal, commander-eligible card).</p>
+      <app-card-picker [filter]="isCommanderEligible" (picked)="setCommander($event)" />
+    }
+  </section>
+
+  @if (legality(); as l) {
+    <section class="legality" [class.legal]="l.isLegal" [class.illegal]="!l.isLegal">
+      <h2>Legality: {{ l.isLegal ? 'Legal' : 'Not legal' }}</h2>
+      <ul>
+        <li>Card count: {{ l.totalCount }} / 100</li>
+        @if (l.singletonViolations.length > 0) {
+          <li>Singleton violations: {{ l.singletonViolations.join(', ') }}</li>
+        }
+        @if (l.nonLegalCards.length > 0) {
+          <li>Not commander-legal: {{ l.nonLegalCards.join(', ') }}</li>
+        }
+        @if (l.colorIdentityViolations.length > 0) {
+          <li>Outside color identity: {{ l.colorIdentityViolations.join(', ') }}</li>
+        }
+        @if (!l.commanderEligible) {
+          <li>Commander is not eligible to be a commander</li>
+        }
+        @if (!l.commanderLegal) {
+          <li>Commander is not commander-legal</li>
+        }
+      </ul>
+    </section>
+  }
+
+  <section>
+    <h2>Cards ({{ d.cards.length }})</h2>
+    <app-deck-card-list [cards]="d.cards" (remove)="removeCard($event)" />
+
+    @if (commanderIdentity()) {
+      <h3>Add a card</h3>
+      <app-card-picker [filter]="isAddable" (picked)="addCard($event)" />
+    }
+  </section>
+} @else {
+  <p>Deck not found.</p>
+  <a routerLink="/decks">Back to decks</a>
+}

@@ -1,0 +1,5 @@
+<span class="color-identity" [attr.aria-label]="'Color identity: ' + (colorIdentity().join(', ') || 'Colorless')">
+  @for (color of allColors; track color) {
+    <span class="pip pip-{{ color }}" [class.filled]="isPresent(color)">{{ color }}</span>
+  }
+</span>

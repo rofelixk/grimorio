@@ -1,0 +1,32 @@
+.commander {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty {
+  color: #666;
+}
+
+.legality {
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+
+  h2 {
+    margin-top: 0;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+}
+
+.legality.legal {
+  background: #e3f6e5;
+}
+
+.legality.illegal {
+  background: #fdf3d8;
+}

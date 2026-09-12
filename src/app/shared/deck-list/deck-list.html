@@ -1,0 +1,10 @@
+<app-entity-list
+  [items]="decks()"
+  routePrefix="/decks"
+  emptyLabel="No decks yet."
+  formLabel="New deck name"
+  addLabel="Add deck"
+  namePlaceholder="e.g. Atraxa Superfriends"
+  (add)="addDeck($event)"
+  (remove)="removeDeck($event)"
+/>

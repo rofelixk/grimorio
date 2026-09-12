@@ -2,6 +2,7 @@ export type CardFinish = 'nonfoil' | 'foil' | 'etched';
 export type CardCondition = 'NM' | 'LP' | 'MP' | 'HP' | 'DMG';
 export type CardRarity = 'common' | 'uncommon' | 'rare' | 'special' | 'mythic' | 'bonus';
 export type CommanderLegality = 'legal' | 'not_legal' | 'banned' | 'restricted';
+export type Color = 'W' | 'U' | 'B' | 'R' | 'G';
 
 export interface CardFace {
   name: string;
@@ -18,6 +19,9 @@ export interface CardEntry {
   collectorNumber: string;
   rarity: CardRarity;
   commanderLegality: CommanderLegality;
+  colorIdentity: Color[];
+  typeLine: string;
+  canBeCommander: boolean;
   finish: CardFinish;
   language: string;
   condition: CardCondition;

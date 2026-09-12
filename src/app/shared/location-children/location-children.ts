@@ -1,9 +1,9 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, computed, inject, input } from '@angular/core';
 import { StorageLocationService } from '../../core/services/storage-location.service';
+import { EntityList } from '../entity-list/entity-list';
 
 @Component({
-  imports: [RouterLink],
+  imports: [EntityList],
   selector: 'app-location-children',
   styleUrl: './location-children.scss',
   templateUrl: './location-children.html',
@@ -17,15 +17,8 @@ export class LocationChildren {
     this.locationsService.locations().filter((location) => location.parentId === this.parentId()),
   );
 
-  readonly newChildName = signal('');
-
-  addChild(): void {
-    const name = this.newChildName().trim();
-    if (!name) {
-      return;
-    }
+  addChild(name: string): void {
     this.locationsService.add({ name, parentId: this.parentId() });
-    this.newChildName.set('');
   }
 
   removeChild(id: string): void {

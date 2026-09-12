@@ -1,0 +1,48 @@
+.mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  button.active {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+}
+
+.picker-results {
+  list-style: none;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+}
+
+.empty {
+  color: #666;
+}
+
+.lookup-fields {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+.error {
+  color: #b00020;
+}
+
+.generated-preview {
+  font-style: italic;
+}

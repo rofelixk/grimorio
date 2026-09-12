@@ -11,6 +11,9 @@ export function mockCardEntry(overrides: Partial<CardEntry> = {}): CardEntry {
     collectorNumber: '161',
     rarity: 'common',
     commanderLegality: 'legal',
+    colorIdentity: ['R'],
+    typeLine: 'Instant',
+    canBeCommander: false,
     finish: 'nonfoil',
     language: 'en',
     condition: 'NM',
@@ -20,4 +23,10 @@ export function mockCardEntry(overrides: Partial<CardEntry> = {}): CardEntry {
     imageUrl: 'https://cards.scryfall.io/normal/front/9/0/909a52bc-53f6-4654-9db7-e8f48333d765.jpg',
     ...overrides,
   };
+}
+
+export function mockCardEntryWithoutId(overrides: Partial<CardEntry> = {}): Omit<CardEntry, 'id'> {
+  const { id, ...rest } = mockCardEntry(overrides);
+  void id;
+  return rest;
 }
