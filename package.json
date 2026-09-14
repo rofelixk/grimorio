@@ -4,9 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "start:phone": "ng serve --live-reload false",
-    "start:tunnel": "npx --yes cloudflared tunnel --url http://localhost:4200",
     "build": "ng build",
+    "serve:pwa": "npm run build && npx http-server dist/grimorio/browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
@@ -24,6 +23,7 @@
     "@angular/forms": "^22.1.0",
     "@angular/platform-browser": "^22.1.0",
     "@angular/router": "^22.1.0",
+    "@angular/service-worker": "^22.1.0",
     "@capacitor/core": "^8.5.1",
     "@supabase/supabase-js": "^2.116.0",
     "rxjs": "~7.8.0",
