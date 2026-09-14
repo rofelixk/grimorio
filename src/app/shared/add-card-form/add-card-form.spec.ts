@@ -74,4 +74,25 @@ describe('AddCardForm', () => {
     expect(component.lookupError()).toBe('network down');
     expect(component.generating()).toBe(false);
   });
+
+  it('seeds the set code and collector number fields from initial inputs and auto-generates', async () => {
+    fixture.componentRef.setInput('initialSetCode', 'war');
+    fixture.componentRef.setInput('initialCollectorNumber', '145');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.setCode()).toBe('war');
+    expect(component.collectorNumber()).toBe('145');
+    expect(cardLookup.lookup).toHaveBeenCalledWith('war', '145');
+    expect(component.generated()).not.toBeNull();
+  });
+
+  it('does not auto-generate when only one of the initial inputs is provided', async () => {
+    fixture.componentRef.setInput('initialSetCode', 'war');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.setCode()).toBe('war');
+    expect(cardLookup.lookup).not.toHaveBeenCalled();
+  });
 });

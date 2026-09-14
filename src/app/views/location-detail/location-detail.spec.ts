@@ -36,4 +36,19 @@ describe('LocationDetail', () => {
   it('filters cards to only this location', () => {
     expect(component.cardsHere()).toEqual([]);
   });
+
+  it('defaults to manual entry and switches to the scan form', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('app-add-card-form')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-card-scan-form')).toBeFalsy();
+
+    component.addMode.set('scan');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // card-scan-form nests app-add-card-form internally for the physical-detail step,
+    // so only its presence (not add-card-form's absence) distinguishes scan mode.
+    expect(fixture.nativeElement.querySelector('app-card-scan-form')).toBeTruthy();
+  });
 });

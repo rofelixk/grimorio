@@ -1,0 +1,27 @@
+<div class="scan-form">
+  <app-card-scan-capture (frameCaptured)="onFrameCaptured($event)" />
+
+  @if (ocrRunning()) {
+    <p class="status">Reading card…</p>
+  }
+  @if (ocrError()) {
+    <p class="error">{{ ocrError() }}</p>
+  }
+
+  @if (ocrText()) {
+    <details class="ocr-debug" open>
+      <summary>
+        Guessed: set "{{ guessedSetCode() || '?' }}", collector #{{
+          guessedCollectorNumber() || '?'
+        }}
+      </summary>
+      <pre>{{ ocrText() }}</pre>
+    </details>
+  }
+
+  <app-add-card-form
+    [initialSetCode]="guessedSetCode()"
+    [initialCollectorNumber]="guessedCollectorNumber()"
+    (cardAdded)="onCardAdded($event)"
+  />
+</div>

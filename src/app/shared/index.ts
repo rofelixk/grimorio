@@ -1,6 +1,8 @@
 export { AddCardForm } from './add-card-form/add-card-form';
 export { CardList } from './card-list/card-list';
 export { CardPicker } from './card-picker/card-picker';
+export { CardScanCapture } from './card-scan-capture/card-scan-capture';
+export { CardScanForm } from './card-scan-form/card-scan-form';
 export { ColorIdentity } from './color-identity/color-identity';
 export { DashboardPanel } from './dashboard-panel/dashboard-panel';
 export { DeckCardList } from './deck-card-list/deck-card-list';

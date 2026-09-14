@@ -1,0 +1,27 @@
+.scan-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.status {
+  font-style: italic;
+}
+
+.error {
+  color: #b00020;
+}
+
+.ocr-debug {
+  font-size: 0.85rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem;
+
+  pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0.5rem 0 0;
+    color: #444;
+  }
+}

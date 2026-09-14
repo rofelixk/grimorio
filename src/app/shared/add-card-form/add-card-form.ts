@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { CardCondition, CardEntry, CardFinish } from '@models/card.model';
 import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
 
@@ -20,6 +28,9 @@ export class AddCardForm {
 
   readonly cardAdded = output<Omit<CardEntry, 'id' | 'locationId'>>();
 
+  readonly initialSetCode = input('');
+  readonly initialCollectorNumber = input('');
+
   readonly setCode = signal('');
   readonly collectorNumber = signal('');
   readonly generating = signal(false);
@@ -32,6 +43,24 @@ export class AddCardForm {
   readonly quantity = signal('');
   readonly forSale = signal(false);
   readonly notes = signal('');
+
+  constructor() {
+    effect(() => {
+      const setCode = this.initialSetCode();
+      const collectorNumber = this.initialCollectorNumber();
+      if (setCode) {
+        this.setCode.set(setCode);
+      }
+      if (collectorNumber) {
+        this.collectorNumber.set(collectorNumber);
+      }
+      // Both fields guessed (e.g. from a card scan) — look it up right away so the
+      // user only has to review the result and add, instead of clicking Generate too.
+      if (setCode && collectorNumber) {
+        void this.generate();
+      }
+    });
+  }
 
   async generate(): Promise<void> {
     const setCode = this.setCode().trim();
