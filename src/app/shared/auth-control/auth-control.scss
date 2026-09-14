@@ -1,8 +1,11 @@
 .auth-control {
+  position: fixed;
+  top: 0.75rem;
+  right: 1rem;
+  z-index: 10;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-left: auto;
 
   .user-email {
     font-size: 0.9rem;
