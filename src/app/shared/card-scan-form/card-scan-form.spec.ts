@@ -154,7 +154,7 @@ describe('CardScanForm', () => {
     await component.onFrameCaptured(new Blob(['fake-image']));
 
     expect(component.ocrError()).toBe(
-      'Could not read the card automatically (worker init failed). Enter the details below.',
+      'Não foi possível ler a carta automaticamente (worker init failed). Informe os detalhes abaixo.',
     );
     expect(component.guessedSetCode()).toBe('');
     expect(component.guessedCollectorNumber()).toBe('');

@@ -1,12 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { NavBar } from './nav-bar';
 
 describe('NavBar', () => {
   let component: NavBar;
   let fixture: ComponentFixture<NavBar>;
-  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -14,7 +13,6 @@ describe('NavBar', () => {
       providers: [provideRouter([{ path: 'decks', component: NavBar }])],
     }).compileComponents();
 
-    router = TestBed.inject(Router);
     fixture = TestBed.createComponent(NavBar);
     component = fixture.componentInstance;
     await fixture.whenStable();
@@ -24,14 +22,22 @@ describe('NavBar', () => {
     expect(component).toBeTruthy();
   });
 
-  it('treats the root url as home', () => {
-    expect(component.isHome()).toBe(true);
+  it('starts with the drawer closed', () => {
+    expect(component.drawerOpen()).toBe(false);
   });
 
-  it('is not home after navigating elsewhere', async () => {
-    await router.navigateByUrl('/decks');
-    fixture.detectChanges();
+  it('toggles the drawer open and closed', () => {
+    component.toggleDrawer();
+    expect(component.drawerOpen()).toBe(true);
 
-    expect(component.isHome()).toBe(false);
+    component.toggleDrawer();
+    expect(component.drawerOpen()).toBe(false);
+  });
+
+  it('closeDrawer forces the drawer shut', () => {
+    component.toggleDrawer();
+    component.closeDrawer();
+
+    expect(component.drawerOpen()).toBe(false);
   });
 });

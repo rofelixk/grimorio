@@ -2,7 +2,7 @@
   <app-card-scan-capture (frameCaptured)="onFrameCaptured($event)" />
 
   @if (ocrRunning()) {
-    <p class="status">Reading card…</p>
+    <p class="status">Lendo carta…</p>
   }
   @if (ocrError()) {
     <p class="error">{{ ocrError() }}</p>
@@ -11,7 +11,7 @@
   @if (ocrText()) {
     <details class="ocr-debug" open>
       <summary>
-        Guessed: set "{{ guessedSetCode() || '?' }}", collector #{{
+        Detectado: edição "{{ guessedSetCode() || '?' }}", nº de coletor {{
           guessedCollectorNumber() || '?'
         }}
       </summary>

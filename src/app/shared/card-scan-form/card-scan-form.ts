@@ -112,8 +112,8 @@ export class CardScanForm {
     } catch (err) {
       this.ocrError.set(
         err instanceof Error
-          ? `Could not read the card automatically (${err.message}). Enter the details below.`
-          : 'Could not read the card automatically. Enter the details below.',
+          ? `Não foi possível ler a carta automaticamente (${err.message}). Informe os detalhes abaixo.`
+          : 'Não foi possível ler a carta automaticamente. Informe os detalhes abaixo.',
       );
     } finally {
       this.ocrRunning.set(false);

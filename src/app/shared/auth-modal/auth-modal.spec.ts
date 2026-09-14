@@ -43,7 +43,7 @@ describe('AuthModal', () => {
   it('requires an email and password before submitting', async () => {
     await component.submit();
 
-    expect(component.error()).toBe('Enter an email and password.');
+    expect(component.error()).toBe('Informe um email e uma senha.');
     expect(authService.signIn).not.toHaveBeenCalled();
   });
 

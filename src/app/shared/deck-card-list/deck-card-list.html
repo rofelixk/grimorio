@@ -1,5 +1,5 @@
 @if (rows().length === 0) {
-  <p class="empty">No cards here yet.</p>
+  <p class="empty">Nenhuma carta aqui ainda.</p>
 }
 
 <ul class="deck-card-list">
@@ -13,22 +13,22 @@
           <app-color-identity [colorIdentity]="identity.colorIdentity" />
         </div>
       } @else {
-        <div class="card-info removed">This card was removed from your collection.</div>
+        <div class="card-info removed">Esta carta foi removida da sua coleção.</div>
       }
       <span class="status status-{{ row.status }}">
         @switch (row.status) {
           @case ('owned') {
-            Owned
+            Na coleção
           }
           @case ('not-owned') {
-            Not owned
+            Não possuída
           }
           @case ('removed') {
-            Removed
+            Removida
           }
         }
       </span>
-      <button type="button" (click)="removeCard(row.id)">Remove</button>
+      <button type="button" (click)="removeCard(row.id)">Remover</button>
     </li>
   }
 </ul>

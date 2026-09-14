@@ -1,8 +1,26 @@
-<nav class="nav-bar">
-  @if (!isHome()) {
-    <a routerLink="/">Home</a>
-    <a routerLink="/decks">Decks</a>
-    <a routerLink="/locations">Locations</a>
-  }
+<header class="nav-bar">
+  <button
+    type="button"
+    class="menu-toggle"
+    (click)="toggleDrawer()"
+    [attr.aria-expanded]="drawerOpen()"
+    aria-controls="nav-drawer"
+    aria-label="Abrir menu"
+  >
+    ☰
+  </button>
+  <a routerLink="/" class="brand" (click)="closeDrawer()">Grimorio</a>
   <app-auth-control />
+</header>
+
+@if (drawerOpen()) {
+  <button type="button" class="drawer-backdrop" aria-label="Fechar menu" (click)="closeDrawer()"></button>
+}
+
+<nav id="nav-drawer" class="drawer" [class.open]="drawerOpen()">
+  <section class="drawer-group">
+    <h2>Acervo</h2>
+    <a routerLink="/decks" routerLinkActive="active" (click)="closeDrawer()">Decks</a>
+    <a routerLink="/locations" routerLinkActive="active" (click)="closeDrawer()">Coleção</a>
+  </section>
 </nav>

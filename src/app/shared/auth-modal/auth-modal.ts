@@ -55,7 +55,7 @@ export class AuthModal {
     const email = this.email().trim();
     const password = this.password();
     if (!email || !password) {
-      this.error.set('Enter an email and password.');
+      this.error.set('Informe um email e uma senha.');
       return;
     }
 
@@ -69,7 +69,7 @@ export class AuthModal {
       }
       this.requestClose();
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'Something went wrong. Try again.');
+      this.error.set(err instanceof Error ? err.message : 'Algo deu errado. Tente novamente.');
     } finally {
       this.submitting.set(false);
     }

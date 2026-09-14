@@ -1,16 +1,124 @@
+@use 'breakpoints' as bp;
+
+// Lets .nav-bar/.drawer-backdrop/.drawer become direct grid items of
+// the parent .app-layout at wide widths (see app.scss), instead of
+// being nested inside this component's own box.
+:host {
+  display: contents;
+}
+
 .nav-bar {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 20;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.menu-toggle {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  border-color: transparent;
+}
+
+.brand {
+  font-weight: bold;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+  text-decoration: none;
+  margin-right: auto;
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  z-index: 25;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 16rem;
+  max-width: 80vw;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+  z-index: 30;
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+.drawer-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  h2 {
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+  }
 
   a {
-    font-weight: bold;
+    color: var(--color-text);
+    text-decoration: none;
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+
+    &.active {
+      background: var(--color-surface-raised);
+      color: var(--color-accent);
+      font-weight: bold;
+    }
+
+    &:hover {
+      background: var(--color-surface-raised);
+    }
+  }
+}
+
+@include bp.wide {
+  .nav-bar {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .drawer-backdrop {
+    display: none;
+  }
+
+  .drawer {
+    position: static;
+    grid-column: 1;
+    grid-row: 2;
+    width: auto;
+    max-width: none;
+    height: auto;
+    transform: none;
+    border-right: 1px solid var(--color-border);
   }
 }

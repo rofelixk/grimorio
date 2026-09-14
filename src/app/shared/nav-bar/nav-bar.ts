@@ -1,26 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthControl } from '@shared/auth-control/auth-control';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, AuthControl],
+  imports: [RouterLink, RouterLinkActive, AuthControl],
   selector: 'app-nav-bar',
   styleUrl: './nav-bar.scss',
   templateUrl: './nav-bar.html',
 })
 export class NavBar {
-  private readonly router = inject(Router);
+  readonly drawerOpen = signal(false);
 
-  private readonly currentUrl = toSignal(
-    this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map((event) => event.urlAfterRedirects),
-    ),
-    { initialValue: this.router.url },
-  );
+  toggleDrawer(): void {
+    this.drawerOpen.update((open) => !open);
+  }
 
-  readonly isHome = computed(() => this.currentUrl() === '/');
+  closeDrawer(): void {
+    this.drawerOpen.set(false);
+  }
 }

@@ -1,0 +1,32 @@
+@use 'breakpoints' as bp;
+
+// Page shell: views should not set their own max-width/centering —
+// only internal spacing (section gaps, etc.). This is the one place
+// that owns the page's outer width and gutters.
+//
+// Below bp.wide the nav-bar's drawer is an overlay (fixed positioning),
+// so .app-layout is just normal block flow. At bp.wide and up, NavBar's
+// host renders `display: contents` (see nav-bar.scss), so its top bar
+// and drawer become direct grid items here alongside .app-shell — that's
+// what lets the drawer pin open as a sidebar instead of overlaying.
+.app-shell {
+  max-width: 960px;
+  margin-inline: auto;
+  padding: var(--space-4) var(--space-4) var(--space-6);
+}
+
+@include bp.wide {
+  .app-layout {
+    display: grid;
+    grid-template-columns: 16rem 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 100vh;
+  }
+
+  .app-shell {
+    grid-column: 2;
+    grid-row: 2;
+    max-width: none;
+    margin-inline: 0;
+  }
+}

@@ -1,6 +1,6 @@
 <dialog #dialog class="auth-modal" (close)="onDialogClosed()">
   <form (submit)="$event.preventDefault(); submit()">
-    <h2>{{ mode() === 'signUp' ? 'Sign up' : 'Sign in' }}</h2>
+    <h2>{{ mode() === 'signUp' ? 'Cadastrar' : 'Logar' }}</h2>
 
     <label>
       Email
@@ -12,7 +12,7 @@
       />
     </label>
     <label>
-      Password
+      Senha
       <input
         type="password"
         [value]="password()"
@@ -28,19 +28,19 @@
     <div class="actions">
       <button type="submit" [disabled]="submitting()">
         @if (submitting()) {
-          {{ mode() === 'signUp' ? 'Signing up…' : 'Signing in…' }}
+          {{ mode() === 'signUp' ? 'Cadastrando…' : 'Logando…' }}
         } @else {
-          {{ mode() === 'signUp' ? 'Sign up' : 'Sign in' }}
+          {{ mode() === 'signUp' ? 'Cadastrar' : 'Logar' }}
         }
       </button>
-      <button type="button" (click)="requestClose()">Cancel</button>
+      <button type="button" (click)="requestClose()">Cancelar</button>
     </div>
 
     <p class="toggle-mode">
       @if (mode() === 'signUp') {
-        Have an account? <a href="javascript:void(0)" (click)="toggleMode()">Sign in</a>
+        Já tem uma conta? <a href="javascript:void(0)" (click)="toggleMode()">Logar</a>
       } @else {
-        Need an account? <a href="javascript:void(0)" (click)="toggleMode()">Sign up</a>
+        Não tem uma conta? <a href="javascript:void(0)" (click)="toggleMode()">Cadastrar</a>
       }
     </p>
   </form>

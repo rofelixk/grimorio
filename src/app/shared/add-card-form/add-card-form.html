@@ -1,28 +1,28 @@
 <form class="add-card" (submit)="$event.preventDefault()">
   <div class="lookup-fields">
     <label>
-      Set code
+      Código da edição
       <input
         type="text"
         [value]="setCode()"
         (input)="setCode.set($any($event.target).value)"
-        placeholder="e.g. MH3"
+        placeholder="ex.: MH3"
       />
     </label>
     <label>
-      Collector number
+      Número de coletor
       <input
         type="text"
         [value]="collectorNumber()"
         (input)="collectorNumber.set($any($event.target).value)"
-        placeholder="e.g. 161"
+        placeholder="ex.: 161"
       />
     </label>
     <button type="button" (click)="generate()" [disabled]="generating()">
       @if (generating()) {
-        Looking up card…
+        Buscando carta…
       } @else {
-        Generate
+        Gerar
       }
     </button>
   </div>
@@ -32,56 +32,56 @@
   }
 
   @if (generated(); as gen) {
-    <p class="generated-preview">Found: {{ gen.name }} ({{ gen.setName }}, {{ gen.rarity }})</p>
+    <p class="generated-preview">Encontrada: {{ gen.name }} ({{ gen.setName }}, {{ gen.rarity }})</p>
 
     <div class="physical-fields">
       <label>
-        Finish
+        Acabamento
         <select [value]="finish()" (change)="finish.set($any($event.target).value)">
-          <option value="">nonfoil (default)</option>
+          <option value="">nonfoil (padrão)</option>
           @for (f of finishes; track f) {
             <option [value]="f">{{ f }}</option>
           }
         </select>
       </label>
       <label>
-        Language
+        Idioma
         <input
           type="text"
           [value]="language()"
           (input)="language.set($any($event.target).value)"
-          placeholder="en (default)"
+          placeholder="en (padrão)"
         />
       </label>
       <label>
-        Condition
+        Condição
         <select [value]="condition()" (change)="condition.set($any($event.target).value)">
-          <option value="">NM (default)</option>
+          <option value="">NM (padrão)</option>
           @for (c of conditions; track c) {
             <option [value]="c">{{ c }}</option>
           }
         </select>
       </label>
       <label>
-        Quantity
+        Quantidade
         <input
           type="number"
           min="1"
           [value]="quantity()"
           (input)="quantity.set($any($event.target).value)"
-          placeholder="1 (default)"
+          placeholder="1 (padrão)"
         />
       </label>
       <label>
         <input type="checkbox" [checked]="forSale()" (change)="forSale.set($any($event.target).checked)" />
-        For sale
+        À venda
       </label>
       <label>
-        Notes
+        Notas
         <textarea [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea>
       </label>
     </div>
 
-    <button type="button" (click)="submit()">Add card</button>
+    <button type="button" (click)="submit()">Adicionar carta</button>
   }
 </form>

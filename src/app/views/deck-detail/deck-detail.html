@@ -3,7 +3,7 @@
   <h1>{{ d.name }}</h1>
 
   <section>
-    <h2>Commander</h2>
+    <h2>Comandante</h2>
     @if (commanderIdentity(); as commander) {
       <div class="commander">
         <img [src]="commander.imageUrl" [alt]="commander.name" width="90" />
@@ -12,48 +12,48 @@
           <p>{{ commander.typeLine }}</p>
           <app-color-identity [colorIdentity]="commander.colorIdentity" />
         </div>
-        <button type="button" (click)="clearCommander()">Change commander</button>
+        <button type="button" (click)="clearCommander()">Trocar comandante</button>
       </div>
     } @else {
-      <p class="empty">No commander set. Pick one below (must be a legal, commander-eligible card).</p>
+      <p class="empty">Nenhum comandante definido. Escolha um abaixo (deve ser uma carta legal e apta a ser comandante).</p>
       <app-card-picker [filter]="isCommanderEligible" (picked)="setCommander($event)" />
     }
   </section>
 
   @if (legality(); as l) {
     <section class="legality" [class.legal]="l.isLegal" [class.illegal]="!l.isLegal">
-      <h2>Legality: {{ l.isLegal ? 'Legal' : 'Not legal' }}</h2>
+      <h2>Legalidade: {{ l.isLegal ? 'Legal' : 'Não legal' }}</h2>
       <ul>
-        <li>Card count: {{ l.totalCount }} / 100</li>
+        <li>Quantidade de cartas: {{ l.totalCount }} / 100</li>
         @if (l.singletonViolations.length > 0) {
-          <li>Singleton violations: {{ l.singletonViolations.join(', ') }}</li>
+          <li>Cartas repetidas: {{ l.singletonViolations.join(', ') }}</li>
         }
         @if (l.nonLegalCards.length > 0) {
-          <li>Not commander-legal: {{ l.nonLegalCards.join(', ') }}</li>
+          <li>Não permitidas para comandante: {{ l.nonLegalCards.join(', ') }}</li>
         }
         @if (l.colorIdentityViolations.length > 0) {
-          <li>Outside color identity: {{ l.colorIdentityViolations.join(', ') }}</li>
+          <li>Fora da identidade de cor: {{ l.colorIdentityViolations.join(', ') }}</li>
         }
         @if (!l.commanderEligible) {
-          <li>Commander is not eligible to be a commander</li>
+          <li>O comandante não é elegível para ser comandante</li>
         }
         @if (!l.commanderLegal) {
-          <li>Commander is not commander-legal</li>
+          <li>O comandante não é uma carta legal para comandante</li>
         }
       </ul>
     </section>
   }
 
   <section>
-    <h2>Cards ({{ d.cards.length }})</h2>
+    <h2>Cartas ({{ d.cards.length }})</h2>
     <app-deck-card-list [cards]="d.cards" (remove)="removeCard($event)" />
 
     @if (commanderIdentity()) {
-      <h3>Add a card</h3>
+      <h3>Adicionar carta</h3>
       <app-card-picker [filter]="isAddable" (picked)="addCard($event)" />
     }
   </section>
 } @else {
-  <p>Deck not found.</p>
-  <a routerLink="/decks">Back to decks</a>
+  <p>Deck não encontrado.</p>
+  <a routerLink="/decks">Voltar aos decks</a>
 }

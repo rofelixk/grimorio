@@ -125,14 +125,14 @@ describe('CardLookupService', () => {
   it('throws a not-found error when no printing matches', async () => {
     single.mockResolvedValue({ data: null, error: { code: 'PGRST116', message: 'no rows' } });
 
-    await expect(service.lookup('mid', '9999')).rejects.toThrow('No card found for MID #9999.');
+    await expect(service.lookup('mid', '9999')).rejects.toThrow('Nenhuma carta encontrada para MID #9999.');
   });
 
   it('throws a generic error on other failures', async () => {
     single.mockResolvedValue({ data: null, error: { code: '500', message: 'network down' } });
 
     await expect(service.lookup('mid', '278')).rejects.toThrow(
-      'Could not reach the card database. Check your connection and try again.',
+      'Não foi possível acessar o banco de dados de cartas. Verifique sua conexão e tente novamente.',
     );
   });
 

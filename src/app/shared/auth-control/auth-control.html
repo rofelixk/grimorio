@@ -1,9 +1,9 @@
 <span class="auth-control">
   @if (user(); as u) {
     <span class="user-email">{{ u.email }}</span>
-    <button type="button" (click)="signOut()">Sign out</button>
+    <button type="button" (click)="signOut()">Sair</button>
   } @else {
-    <button type="button" (click)="showModal.set(true)">Sign in</button>
+    <button type="button" (click)="showModal.set(true)">Logar</button>
   }
 </span>
 

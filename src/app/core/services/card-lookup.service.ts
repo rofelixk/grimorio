@@ -56,8 +56,8 @@ export class CardLookupService {
 
     if (error) {
       throw error.code === 'PGRST116'
-        ? new Error(`No card found for ${setCode.toUpperCase()} #${collectorNumber}.`)
-        : new Error('Could not reach the card database. Check your connection and try again.');
+        ? new Error(`Nenhuma carta encontrada para ${setCode.toUpperCase()} #${collectorNumber}.`)
+        : new Error('Não foi possível acessar o banco de dados de cartas. Verifique sua conexão e tente novamente.');
     }
 
     return mapRow(data as unknown as PrintingRow);

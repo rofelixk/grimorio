@@ -1,10 +1,10 @@
 <app-entity-list
   [items]="children()"
   routePrefix="/locations"
-  emptyLabel="No locations here yet."
-  formLabel="New location name"
-  addLabel="Add location"
-  namePlaceholder="e.g. Box 1"
+  emptyLabel="Nenhum local aqui ainda."
+  formLabel="Nome do novo local"
+  addLabel="Adicionar local"
+  namePlaceholder="ex.: Caixa 1"
   (add)="addChild($event)"
   (remove)="removeChild($event)"
 />

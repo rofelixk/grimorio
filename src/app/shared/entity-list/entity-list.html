@@ -6,7 +6,7 @@
   @for (item of items(); track item.id) {
     <li>
       <a [routerLink]="[routePrefix(), item.id]">{{ item.name }}</a>
-      <button type="button" (click)="remove.emit(item.id)">Remove</button>
+      <button type="button" (click)="remove.emit(item.id)">Remover</button>
     </li>
   }
 </ul>

@@ -1,6 +1,6 @@
 @if (location(); as loc) {
   <nav class="breadcrumb">
-    <a routerLink="/">Locations</a>
+    <a routerLink="/locations">Coleção</a>
     @for (crumb of breadcrumb(); track crumb.id) {
       <span> / </span>
       <a [routerLink]="['/locations', crumb.id]">{{ crumb.name }}</a>
@@ -10,20 +10,20 @@
   <h1>{{ loc.name }}</h1>
 
   <section>
-    <h2>Sub-locations</h2>
+    <h2>Sublocais</h2>
     <app-location-children [parentId]="loc.id" />
   </section>
 
   <section>
-    <h2>Cards here</h2>
+    <h2>Cartas aqui</h2>
     <app-card-list [cards]="cardsHere()" (remove)="removeCard($event)" />
 
     <div class="add-mode-toggle">
       <button type="button" (click)="addMode.set('manual')" [class.active]="addMode() === 'manual'">
-        Enter manually
+        Inserir manualmente
       </button>
       <button type="button" (click)="addMode.set('scan')" [class.active]="addMode() === 'scan'">
-        Scan card
+        Escanear carta
       </button>
     </div>
 
@@ -34,6 +34,6 @@
     }
   </section>
 } @else {
-  <p>Location not found.</p>
-  <a routerLink="/">Back to locations</a>
+  <p>Local não encontrado.</p>
+  <a routerLink="/locations">Voltar à coleção</a>
 }

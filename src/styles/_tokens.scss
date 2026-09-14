@@ -1,0 +1,48 @@
+:root {
+  // Neutral surface/text scale (dark, near-black background)
+  --color-bg: #14110f;
+  --color-surface: #1e1a17;
+  --color-surface-raised: #292320;
+  --color-border: #3a332e;
+  --color-text: #f2ede8;
+  --color-text-muted: #a89e96;
+
+  // Brand: orange primary, cyan accent
+  --color-primary: #e8792f;
+  --color-primary-hover: #f5893f;
+  --color-primary-contrast: #1a1008;
+  --color-accent: #3fc4d1;
+  --color-accent-hover: #5ad3df;
+
+  // Status (ported from existing ad-hoc values)
+  --color-success-bg: #e3f6e5;
+  --color-success-text: #1e5c28;
+  --color-warning-bg: #fdf3d8;
+  --color-warning-text: #7a5c05;
+  --color-danger: #c00;
+  --color-danger-bg: #fbe3e3;
+
+  // Spacing scale (0.25rem steps)
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  // Radii
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  // Type scale
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+}

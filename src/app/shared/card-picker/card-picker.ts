@@ -81,7 +81,7 @@ export class CardPicker {
       this.generated.set(result);
     } catch (err) {
       this.lookupError.set(
-        err instanceof Error ? err.message : 'Could not look up that card. Please try again.',
+        err instanceof Error ? err.message : 'Não foi possível encontrar essa carta. Tente novamente.',
       );
     } finally {
       this.generating.set(false);
