@@ -7,7 +7,9 @@ export type CardLookupResult = Pick<
   | 'name'
   | 'scryfallId'
   | 'oracleId'
+  | 'setCode'
   | 'setName'
+  | 'collectorNumber'
   | 'rarity'
   | 'commanderLegality'
   | 'colorIdentity'
@@ -34,11 +36,16 @@ interface CardRow {
 interface PrintingRow {
   scryfall_id: string;
   oracle_id: string;
+  set_code: string;
   set_name: string | null;
+  collector_number: string;
   rarity: string | null;
   image_url: string | null;
   cards: CardRow;
 }
+
+const NAME_SEARCH_MIN_LENGTH = 3;
+const NAME_SEARCH_LIMIT = 200;
 
 @Injectable({ providedIn: 'root' })
 export class CardLookupService {
@@ -48,7 +55,7 @@ export class CardLookupService {
     const { data, error } = await this.supabase
       .from('printings')
       .select(
-        'scryfall_id, oracle_id, set_name, rarity, image_url, cards(name, type_line, oracle_text, color_identity, commander_legality, card_faces)',
+        'scryfall_id, oracle_id, set_code, set_name, collector_number, rarity, image_url, cards(name, type_line, oracle_text, color_identity, commander_legality, card_faces)',
       )
       .eq('set_code', setCode.trim().toLowerCase())
       .eq('collector_number', normalizeCollectorNumber(collectorNumber))
@@ -61,6 +68,43 @@ export class CardLookupService {
     }
 
     return mapRow(data as unknown as PrintingRow);
+  }
+
+  async searchByName(query: string): Promise<CardLookupResult[]> {
+    const trimmed = query.trim();
+    if (trimmed.length < NAME_SEARCH_MIN_LENGTH) {
+      return [];
+    }
+
+    const { data, error } = await this.supabase
+      .from('printings')
+      .select(
+        'scryfall_id, oracle_id, set_code, set_name, collector_number, rarity, image_url, cards!inner(name, type_line, oracle_text, color_identity, commander_legality, card_faces)',
+      )
+      .ilike('cards.name', `%${trimmed}%`)
+      .order('set_code')
+      .order('collector_number')
+      .limit(NAME_SEARCH_LIMIT);
+
+    if (error) {
+      throw new Error('Não foi possível acessar o banco de dados de cartas. Verifique sua conexão e tente novamente.');
+    }
+
+    const rows = (data ?? []) as unknown as PrintingRow[];
+    const results = rows.map(mapRow);
+
+    // Collapse to one row per distinct card name, keeping the first printing
+    // encountered in the (set_code, collector_number)-ordered result set.
+    const seen = new Set<string>();
+    const deduped: CardLookupResult[] = [];
+    for (const result of results) {
+      if (seen.has(result.name)) {
+        continue;
+      }
+      seen.add(result.name);
+      deduped.push(result);
+    }
+    return deduped;
   }
 }
 
@@ -87,7 +131,9 @@ function mapRow(row: PrintingRow): CardLookupResult {
     name: card.name,
     scryfallId: row.scryfall_id,
     oracleId: row.oracle_id,
+    setCode: row.set_code.toUpperCase(),
     setName: row.set_name ?? '',
+    collectorNumber: row.collector_number,
     rarity: (row.rarity ?? 'common') as CardRarity,
     commanderLegality: card.commander_legality as CommanderLegality,
     colorIdentity: card.color_identity as Color[],

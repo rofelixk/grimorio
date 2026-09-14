@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DeckCard, DeckCardIdentity } from '@models/deck.model';
 import { CardService } from '@services/card.service';
 import { DeckService } from '@services/deck.service';
-import { CardPicker, ColorIdentity, DeckCardList } from '@shared';
+import { AddCardModal, CardPicker, ColorIdentity, DeckCardList } from '@shared';
 
 const BASIC_LAND_NAMES = new Set(['Plains', 'Island', 'Swamp', 'Mountain', 'Forest']);
 
@@ -17,7 +17,7 @@ function isSubsetColorIdentity(
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, CardPicker, ColorIdentity, DeckCardList],
+  imports: [RouterLink, AddCardModal, CardPicker, ColorIdentity, DeckCardList],
   selector: 'app-deck-detail',
   styleUrl: './deck-detail.scss',
   templateUrl: './deck-detail.html',
@@ -27,6 +27,7 @@ export class DeckDetail {
   private readonly cardService = inject(CardService);
 
   readonly id = input.required<string>();
+  readonly showAddCardModal = signal(false);
 
   readonly deck = computed(() => this.deckService.byId(this.id())());
 

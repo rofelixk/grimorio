@@ -1,20 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CardLookupService } from '@services/card-lookup.service';
-import { mockCardLookupResult } from '@testing/card.mocks';
-import { CardScanForm, guessSetAndCollector } from './card-scan-form';
-
-const recognize = vi.fn();
-const terminate = vi.fn().mockResolvedValue(undefined);
-const setParameters = vi.fn().mockResolvedValue(undefined);
-const createWorker = vi.fn().mockResolvedValue({ recognize, terminate, setParameters });
-
-vi.mock('tesseract.js', () => ({
-  default: {
-    createWorker: (...args: unknown[]) => createWorker(...args),
-    PSM: { SPARSE_TEXT: '11' },
-  },
-}));
+import { guessSetAndCollector, runCardOcr } from './card-ocr.util';
 
 describe('guessSetAndCollector', () => {
   it('extracts set code and collector number from clean OCR text', () => {
@@ -67,12 +52,22 @@ describe('guessSetAndCollector', () => {
   });
 });
 
-describe('CardScanForm', () => {
-  let component: CardScanForm;
-  let fixture: ComponentFixture<CardScanForm>;
+const recognize = vi.fn();
+const terminate = vi.fn().mockResolvedValue(undefined);
+const setParameters = vi.fn().mockResolvedValue(undefined);
+const createWorker = vi.fn().mockResolvedValue({ recognize, terminate, setParameters });
+
+vi.mock('tesseract.js', () => ({
+  default: {
+    createWorker: (...args: unknown[]) => createWorker(...args),
+    PSM: { SPARSE_TEXT: '11' },
+  },
+}));
+
+describe('runCardOcr', () => {
   let invertedBlob: Blob;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     recognize.mockReset().mockResolvedValue({ data: { text: '145/264\nWAR • EN' } });
     createWorker.mockClear();
     terminate.mockClear();
@@ -93,20 +88,6 @@ describe('CardScanForm', () => {
     ) {
       callback(invertedBlob);
     });
-
-    await TestBed.configureTestingModule({
-      imports: [CardScanForm],
-      providers: [
-        {
-          provide: CardLookupService,
-          useValue: { lookup: vi.fn().mockResolvedValue(mockCardLookupResult()) },
-        },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(CardScanForm);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   afterEach(() => {
@@ -114,14 +95,10 @@ describe('CardScanForm', () => {
     vi.restoreAllMocks();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('inverts the captured image and runs OCR on it once to prefill the guessed fields', async () => {
+  it('inverts the captured image and runs OCR on it once to guess the fields', async () => {
     const blob = new Blob(['fake-image']);
 
-    await component.onFrameCaptured(blob);
+    const result = await runCardOcr(blob);
 
     expect(createWorker).toHaveBeenCalledWith('eng');
     expect(setParameters).toHaveBeenCalledWith(
@@ -130,48 +107,27 @@ describe('CardScanForm', () => {
     expect(recognize).toHaveBeenCalledTimes(1);
     expect(recognize).toHaveBeenCalledWith(invertedBlob);
     expect(terminate).toHaveBeenCalled();
-    expect(component.guessedSetCode()).toBe('WAR');
-    expect(component.guessedCollectorNumber()).toBe('145');
-    expect(component.ocrText()).toBe('145/264\nWAR • EN');
-    expect(component.ocrError()).toBeNull();
-    expect(component.ocrRunning()).toBe(false);
+    expect(result).toEqual({ setCode: 'WAR', collectorNumber: '145' });
   });
 
   it('falls back to the original image if color inversion fails', async () => {
     const blob = new Blob(['fake-image']);
     vi.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue(null);
 
-    await component.onFrameCaptured(blob);
+    const result = await runCardOcr(blob);
 
     expect(recognize).toHaveBeenCalledTimes(1);
     expect(recognize).toHaveBeenCalledWith(blob);
-    expect(component.guessedSetCode()).toBe('WAR');
+    expect(result.setCode).toBe('WAR');
   });
 
   it('surfaces an error (including the underlying message) and leaves fields blank when OCR fails', async () => {
     createWorker.mockRejectedValueOnce(new Error('worker init failed'));
 
-    await component.onFrameCaptured(new Blob(['fake-image']));
+    const result = await runCardOcr(new Blob(['fake-image']));
 
-    expect(component.ocrError()).toBe(
-      'Não foi possível ler a carta automaticamente (worker init failed). Informe os detalhes abaixo.',
-    );
-    expect(component.guessedSetCode()).toBe('');
-    expect(component.guessedCollectorNumber()).toBe('');
-  });
-
-  it('re-emits cardAdded from the inner AddCardForm and clears the guess', async () => {
-    await component.onFrameCaptured(new Blob(['fake-image']));
-
-    let emitted: unknown;
-    component.cardAdded.subscribe((event) => (emitted = event));
-
-    const payload = { name: 'Lightning Bolt' } as never;
-    component.onCardAdded(payload);
-
-    expect(emitted).toBe(payload);
-    expect(component.ocrText()).toBe('');
-    expect(component.guessedSetCode()).toBe('');
-    expect(component.guessedCollectorNumber()).toBe('');
+    expect(result.error).toBe('Não foi possível ler a carta automaticamente (worker init failed).');
+    expect(result.setCode).toBe('');
+    expect(result.collectorNumber).toBe('');
   });
 });

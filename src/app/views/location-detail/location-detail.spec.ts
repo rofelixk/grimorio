@@ -37,18 +37,15 @@ describe('LocationDetail', () => {
     expect(component.cardsHere()).toEqual([]);
   });
 
-  it('defaults to manual entry and switches to the scan form', async () => {
+  it('opens the add-card modal when the trigger button is clicked', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(fixture.nativeElement.querySelector('app-add-card-form')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('app-card-scan-form')).toBeFalsy();
+    expect(component.showAddModal()).toBe(false);
 
-    component.addMode.set('scan');
-    fixture.detectChanges();
-    await fixture.whenStable();
+    const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('button'));
+    const button = buttons.find((b) => b.textContent?.trim() === 'Adicionar carta');
+    button?.click();
 
-    // card-scan-form nests app-add-card-form internally for the physical-detail step,
-    // so only its presence (not add-card-form's absence) distinguishes scan mode.
-    expect(fixture.nativeElement.querySelector('app-card-scan-form')).toBeTruthy();
+    expect(component.showAddModal()).toBe(true);
   });
 });

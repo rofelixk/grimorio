@@ -1,4 +1,9 @@
-<label class="capture">
-  Tirar ou enviar uma foto
-  <input type="file" accept="image/*" capture="environment" (change)="onFileSelected($event)" />
-</label>
+<button type="button" (click)="openFilePicker()">Scanear carta</button>
+<input
+  #fileInput
+  type="file"
+  accept="image/*"
+  capture="environment"
+  hidden
+  (change)="onFileSelected($event)"
+/>

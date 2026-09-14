@@ -18,20 +18,13 @@
     <h2>Cartas aqui</h2>
     <app-card-list [cards]="cardsHere()" (remove)="removeCard($event)" />
 
-    <div class="add-mode-toggle">
-      <button type="button" (click)="addMode.set('manual')" [class.active]="addMode() === 'manual'">
-        Inserir manualmente
-      </button>
-      <button type="button" (click)="addMode.set('scan')" [class.active]="addMode() === 'scan'">
-        Escanear carta
-      </button>
-    </div>
-
-    @if (addMode() === 'manual') {
-      <app-add-card-form (cardAdded)="addCard($event)" />
-    } @else {
-      <app-card-scan-form (cardAdded)="addCard($event)" />
-    }
+    <button type="button" class="btn-primary" (click)="showAddModal.set(true)">Adicionar carta</button>
+    <app-add-card-modal
+      [open]="showAddModal()"
+      context="collection"
+      [locationId]="loc.id"
+      (closed)="showAddModal.set(false)"
+    />
   </section>
 } @else {
   <p>Local não encontrado.</p>

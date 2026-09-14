@@ -1,0 +1,51 @@
+<dialog #searchDialog class="add-card-modal search-dialog" (close)="onSearchDialogNativeClose()">
+  <div class="modal-header">
+    <h2>Buscar carta</h2>
+    <button type="button" class="close-button" (click)="cancel()" aria-label="Fechar">✕</button>
+  </div>
+
+  <app-card-search-panel
+    [searchMode]="searchMode()"
+    [nameQuery]="nameQuery()"
+    [setCodeInput]="setCodeInput()"
+    [collectorNumberInput]="collectorNumberInput()"
+    [results]="filteredResults()"
+    [searching]="searching()"
+    [hasSearched]="hasSearched()"
+    [searchError]="searchError()"
+    [ocrHelperMessage]="ocrHelperMessage()"
+    (searchModeChanged)="setSearchMode($event)"
+    (nameQueryChanged)="nameQuery.set($event)"
+    (setCodeChanged)="setCodeInput.set($event)"
+    (collectorNumberChanged)="collectorNumberInput.set($event)"
+    (searchRequested)="runSearch()"
+    (cameraCaptured)="onCameraCaptured($event)"
+    (resultPicked)="pickResult($event)"
+  />
+</dialog>
+
+<dialog #confirmDialog class="add-card-modal confirm-dialog" (close)="onConfirmDialogNativeClose()">
+  @if (selected(); as candidate) {
+    <div class="modal-header">
+      <h2>{{ candidate.name }}</h2>
+      <button type="button" class="back-button" (click)="back()">Voltar</button>
+    </div>
+
+    <app-card-add-detail-panel
+      [candidate]="candidate"
+      [finish]="finish()"
+      [language]="language()"
+      [condition]="condition()"
+      [quantity]="quantity()"
+      [forSale]="forSale()"
+      [notes]="notes()"
+      (finishChanged)="finish.set($event)"
+      (languageChanged)="language.set($event)"
+      (conditionChanged)="condition.set($event)"
+      (quantityChanged)="quantity.set($event)"
+      (forSaleChanged)="forSale.set($event)"
+      (notesChanged)="notes.set($event)"
+      (confirm)="submit()"
+    />
+  }
+</dialog>

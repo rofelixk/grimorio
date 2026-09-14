@@ -1,0 +1,57 @@
+<div class="detail">
+  <img [src]="candidate().imageUrl" [alt]="candidate().name" />
+
+  <div class="physical-fields">
+    <label>
+      Acabamento
+      <select [value]="finish()" (change)="finishChanged.emit($any($event.target).value)">
+        <option value="">nonfoil (padrão)</option>
+        @for (f of finishes; track f) {
+          <option [value]="f">{{ f }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Idioma
+      <input
+        type="text"
+        [value]="language()"
+        (input)="languageChanged.emit($any($event.target).value)"
+        placeholder="en (padrão)"
+      />
+    </label>
+    <label>
+      Condição
+      <select [value]="condition()" (change)="conditionChanged.emit($any($event.target).value)">
+        <option value="">NM (padrão)</option>
+        @for (c of conditions; track c) {
+          <option [value]="c">{{ c }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Quantidade
+      <input
+        type="number"
+        min="1"
+        [value]="quantity()"
+        (input)="quantityChanged.emit($any($event.target).value)"
+        placeholder="1 (padrão)"
+      />
+    </label>
+    <label>
+      <input
+        type="checkbox"
+        [checked]="forSale()"
+        (change)="forSaleChanged.emit($any($event.target).checked)"
+      />
+      À venda
+    </label>
+    <label>
+      Notas
+      <textarea [value]="notes()" (input)="notesChanged.emit($any($event.target).value)"></textarea>
+    </label>
+  </div>
+
+  <button type="button" class="btn-primary" (click)="confirm.emit()">Adicionar</button>
+</div>

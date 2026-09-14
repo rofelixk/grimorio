@@ -1,0 +1,40 @@
+@use 'breakpoints' as bp;
+
+.add-card-modal {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  width: min(640px, 92vw);
+  max-height: 85vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  @include bp.mobile {
+    width: 96vw;
+    padding: var(--space-3);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+
+  h2 {
+    margin: 0;
+    font-size: var(--font-size-lg);
+  }
+}
+
+.close-button,
+.back-button {
+  background: transparent;
+  border: 1px solid var(--color-border);
+}

@@ -49,8 +49,14 @@
     <app-deck-card-list [cards]="d.cards" (remove)="removeCard($event)" />
 
     @if (commanderIdentity()) {
-      <h3>Adicionar carta</h3>
-      <app-card-picker [filter]="isAddable" (picked)="addCard($event)" />
+      <button type="button" class="btn-primary" (click)="showAddCardModal.set(true)">Adicionar carta</button>
+      <app-add-card-modal
+        [open]="showAddCardModal()"
+        context="deck"
+        [filter]="isAddable"
+        [deckId]="id()"
+        (closed)="showAddCardModal.set(false)"
+      />
     }
   </section>
 } @else {

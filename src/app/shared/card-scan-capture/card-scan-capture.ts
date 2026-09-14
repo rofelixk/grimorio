@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, output, viewChild } from '@angular/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -9,6 +9,12 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 })
 export class CardScanCapture {
   readonly frameCaptured = output<Blob>();
+
+  private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
+
+  openFilePicker(): void {
+    this.fileInput()?.nativeElement.click();
+  }
 
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
