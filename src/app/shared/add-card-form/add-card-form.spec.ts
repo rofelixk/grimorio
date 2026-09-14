@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CardLookupService } from '../../core/services/card-lookup.service';
-import { mockCardLookupResult } from '../../core/testing/card.mocks';
+import { CardLookupService } from '@services/card-lookup.service';
+import { mockCardLookupResult } from '@testing/card.mocks';
 import { AddCardForm } from './add-card-form';
 
 describe('AddCardForm', () => {

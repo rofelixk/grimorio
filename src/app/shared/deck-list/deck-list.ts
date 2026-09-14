@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { DeckService } from '../../core/services/deck.service';
-import { EntityList } from '../entity-list/entity-list';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { DeckService } from '@services/deck.service';
+import { EntityList } from '@shared/entity-list/entity-list';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [EntityList],
   selector: 'app-deck-list',
   styleUrl: './deck-list.scss',

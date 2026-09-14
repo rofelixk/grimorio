@@ -1,8 +1,9 @@
-import { Component, computed, inject, input } from '@angular/core';
-import { StorageLocationService } from '../../core/services/storage-location.service';
-import { EntityList } from '../entity-list/entity-list';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { StorageLocationService } from '@services/storage-location.service';
+import { EntityList } from '@shared/entity-list/entity-list';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [EntityList],
   selector: 'app-location-children',
   styleUrl: './location-children.scss',

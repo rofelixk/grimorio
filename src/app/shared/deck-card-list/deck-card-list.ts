@@ -1,7 +1,7 @@
-import { Component, computed, inject, input, output } from '@angular/core';
-import { DeckCard, DeckCardIdentity } from '../../core/models/deck.model';
-import { CardService } from '../../core/services/card.service';
-import { ColorIdentity } from '../color-identity/color-identity';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { DeckCard, DeckCardIdentity } from '@models/deck.model';
+import { CardService } from '@services/card.service';
+import { ColorIdentity } from '@shared/color-identity/color-identity';
 
 export type OwnershipStatus = 'owned' | 'not-owned' | 'removed';
 
@@ -12,6 +12,7 @@ export interface ResolvedDeckCard {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ColorIdentity],
   selector: 'app-deck-card-list',
   styleUrl: './deck-card-list.scss',

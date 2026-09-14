@@ -1,20 +1,22 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DeckCard, DeckCardIdentity } from '../../core/models/deck.model';
-import { CardService } from '../../core/services/card.service';
-import { DeckService } from '../../core/services/deck.service';
-import { CardPicker } from '../../shared/card-picker/card-picker';
-import { ColorIdentity } from '../../shared/color-identity/color-identity';
-import { DeckCardList } from '../../shared/deck-card-list/deck-card-list';
+import { DeckCard, DeckCardIdentity } from '@models/deck.model';
+import { CardService } from '@services/card.service';
+import { DeckService } from '@services/deck.service';
+import { CardPicker, ColorIdentity, DeckCardList } from '@shared';
 
 const BASIC_LAND_NAMES = new Set(['Plains', 'Island', 'Swamp', 'Mountain', 'Forest']);
 
-function isSubsetColorIdentity(card: DeckCardIdentity['colorIdentity'], commander: DeckCardIdentity['colorIdentity']): boolean {
+function isSubsetColorIdentity(
+  card: DeckCardIdentity['colorIdentity'],
+  commander: DeckCardIdentity['colorIdentity'],
+): boolean {
   const commanderColors = new Set(commander);
   return card.every((color) => commanderColors.has(color));
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, CardPicker, ColorIdentity, DeckCardList],
   selector: 'app-deck-detail',
   styleUrl: './deck-detail.scss',
@@ -55,7 +57,9 @@ export class DeckDetail {
       return true;
     }
     const existingNames = new Set(
-      deck.cards.map((dc) => this.resolveIdentity(dc)?.name).filter((name): name is string => !!name),
+      deck.cards
+        .map((dc) => this.resolveIdentity(dc)?.name)
+        .filter((name): name is string => !!name),
     );
     return !existingNames.has(card.name);
   };
@@ -67,7 +71,9 @@ export class DeckDetail {
     }
 
     const commanderIdentity = this.commanderIdentity();
-    const cardIdentities = deck.cards.map((dc) => this.resolveIdentity(dc)).filter((c): c is DeckCardIdentity => !!c);
+    const cardIdentities = deck.cards
+      .map((dc) => this.resolveIdentity(dc))
+      .filter((c): c is DeckCardIdentity => !!c);
 
     const totalCount = (deck.commander ? 1 : 0) + deck.cards.length;
 
@@ -78,9 +84,13 @@ export class DeckDetail {
       }
       nameCounts.set(card.name, (nameCounts.get(card.name) ?? 0) + 1);
     }
-    const singletonViolations = [...nameCounts.entries()].filter(([, count]) => count > 1).map(([name]) => name);
+    const singletonViolations = [...nameCounts.entries()]
+      .filter(([, count]) => count > 1)
+      .map(([name]) => name);
 
-    const nonLegalCards = cardIdentities.filter((c) => c.commanderLegality !== 'legal').map((c) => c.name);
+    const nonLegalCards = cardIdentities
+      .filter((c) => c.commanderLegality !== 'legal')
+      .map((c) => c.name);
 
     const colorIdentityViolations = commanderIdentity
       ? cardIdentities
@@ -88,8 +98,12 @@ export class DeckDetail {
           .map((c) => c.name)
       : [];
 
-    const commanderEligible = commanderIdentity ? this.isCommanderEligible(commanderIdentity) : false;
-    const commanderLegal = commanderIdentity ? commanderIdentity.commanderLegality === 'legal' : false;
+    const commanderEligible = commanderIdentity
+      ? this.isCommanderEligible(commanderIdentity)
+      : false;
+    const commanderLegal = commanderIdentity
+      ? commanderIdentity.commanderLegality === 'legal'
+      : false;
 
     const isLegal =
       !!commanderIdentity &&
@@ -112,7 +126,9 @@ export class DeckDetail {
   });
 
   private resolveIdentity(dc: DeckCard): DeckCardIdentity | undefined {
-    return dc.source === 'owned' ? this.cardService.cards().find((c) => c.id === dc.cardEntryId) : dc.card;
+    return dc.source === 'owned'
+      ? this.cardService.cards().find((c) => c.id === dc.cardEntryId)
+      : dc.card;
   }
 
   setCommander(card: DeckCard): void {

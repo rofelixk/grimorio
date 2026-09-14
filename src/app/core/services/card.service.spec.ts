@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { mockCardEntryWithoutId } from '../testing/card.mocks';
+import { mockCardEntryWithoutId } from '@testing/card.mocks';
 import { CardService } from './card.service';
 
 const baseCard = mockCardEntryWithoutId();

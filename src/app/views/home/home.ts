@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
-import { DashboardPanel } from '../../shared/dashboard-panel/dashboard-panel';
-import { DeckList } from '../../shared/deck-list/deck-list';
-import { LocationChildren } from '../../shared/location-children/location-children';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { DashboardPanel, DeckList, LocationChildren } from '@shared';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DashboardPanel, LocationChildren, DeckList],
   selector: 'app-home',
   styleUrl: './home.scss',

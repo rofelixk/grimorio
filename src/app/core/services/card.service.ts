@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { CardEntry } from '../models/card.model';
+import { CardEntry } from '@models/card.model';
 
 @Injectable({ providedIn: 'root' })
 export class CardService {

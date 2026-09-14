@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { mockCardEntryWithoutId } from '../../core/testing/card.mocks';
-import { CardService } from '../../core/services/card.service';
-import { DeckCard } from '../../core/models/deck.model';
+import { mockCardEntryWithoutId } from '@testing/card.mocks';
+import { CardService } from '@services/card.service';
+import { DeckCard } from '@models/deck.model';
 import { DeckCardList } from './deck-card-list';
 
 describe('DeckCardList', () => {

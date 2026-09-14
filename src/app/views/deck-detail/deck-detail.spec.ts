@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { mockCardEntryWithoutId } from '../../core/testing/card.mocks';
-import { CardService } from '../../core/services/card.service';
-import { DeckService } from '../../core/services/deck.service';
-import { DeckCard } from '../../core/models/deck.model';
+import { mockCardEntryWithoutId } from '@testing/card.mocks';
+import { CardService } from '@services/card.service';
+import { DeckService } from '@services/deck.service';
+import { DeckCard } from '@models/deck.model';
 import { DeckDetail } from './deck-detail';
 
 describe('DeckDetail', () => {
@@ -56,9 +56,15 @@ describe('DeckDetail', () => {
 
   it('flags a color-identity violation once a commander is set', () => {
     const commander = cardService.add(commanderEntry());
-    deckService.setCommander(deckId, { id: commander.id, source: 'owned', cardEntryId: commander.id });
+    deckService.setCommander(deckId, {
+      id: commander.id,
+      source: 'owned',
+      cardEntryId: commander.id,
+    });
 
-    const redCard = cardService.add(mockCardEntryWithoutId({ name: 'Lightning Bolt', colorIdentity: ['R'] }));
+    const redCard = cardService.add(
+      mockCardEntryWithoutId({ name: 'Lightning Bolt', colorIdentity: ['R'] }),
+    );
     deckService.addCard(deckId, { id: redCard.id, source: 'owned', cardEntryId: redCard.id });
 
     expect(component.legality()?.colorIdentityViolations).toEqual(['Lightning Bolt']);
@@ -67,7 +73,11 @@ describe('DeckDetail', () => {
 
   it('flags a singleton violation for duplicate non-basic-land names', () => {
     const commander = cardService.add(commanderEntry());
-    deckService.setCommander(deckId, { id: commander.id, source: 'owned', cardEntryId: commander.id });
+    deckService.setCommander(deckId, {
+      id: commander.id,
+      source: 'owned',
+      cardEntryId: commander.id,
+    });
 
     const dupe = mockCardEntryWithoutId({ name: 'Sol Ring', colorIdentity: [] });
     const first = cardService.add(dupe);
@@ -80,7 +90,11 @@ describe('DeckDetail', () => {
 
   it('does not flag duplicate basic lands as singleton violations', () => {
     const commander = cardService.add(commanderEntry());
-    deckService.setCommander(deckId, { id: commander.id, source: 'owned', cardEntryId: commander.id });
+    deckService.setCommander(deckId, {
+      id: commander.id,
+      source: 'owned',
+      cardEntryId: commander.id,
+    });
 
     const forest = mockCardEntryWithoutId({ name: 'Forest', colorIdentity: [] });
     const first = cardService.add(forest);
@@ -93,9 +107,17 @@ describe('DeckDetail', () => {
 
   it('flags a commander that is not eligible', () => {
     const commander = cardService.add(
-      mockCardEntryWithoutId({ name: 'Not A Commander', canBeCommander: false, commanderLegality: 'legal' }),
+      mockCardEntryWithoutId({
+        name: 'Not A Commander',
+        canBeCommander: false,
+        commanderLegality: 'legal',
+      }),
     );
-    deckService.setCommander(deckId, { id: commander.id, source: 'owned', cardEntryId: commander.id });
+    deckService.setCommander(deckId, {
+      id: commander.id,
+      source: 'owned',
+      cardEntryId: commander.id,
+    });
 
     expect(component.legality()?.commanderEligible).toBe(false);
     expect(component.legality()?.isLegal).toBe(false);
@@ -103,11 +125,17 @@ describe('DeckDetail', () => {
 
   it('is legal once every check passes and the count reaches 100', () => {
     const commander = cardService.add(commanderEntry());
-    deckService.setCommander(deckId, { id: commander.id, source: 'owned', cardEntryId: commander.id });
+    deckService.setCommander(deckId, {
+      id: commander.id,
+      source: 'owned',
+      cardEntryId: commander.id,
+    });
 
     const cards: DeckCard[] = [];
     for (let i = 0; i < 99; i += 1) {
-      const entry = cardService.add(mockCardEntryWithoutId({ name: `Card ${i}`, colorIdentity: ['U'] }));
+      const entry = cardService.add(
+        mockCardEntryWithoutId({ name: `Card ${i}`, colorIdentity: ['U'] }),
+      );
       cards.push({ id: entry.id, source: 'owned', cardEntryId: entry.id });
     }
     for (const card of cards) {
@@ -121,7 +149,11 @@ describe('DeckDetail', () => {
 
   it('isAddable rejects a card already in the deck by name (not a basic land)', () => {
     const commander = cardService.add(commanderEntry());
-    deckService.setCommander(deckId, { id: commander.id, source: 'owned', cardEntryId: commander.id });
+    deckService.setCommander(deckId, {
+      id: commander.id,
+      source: 'owned',
+      cardEntryId: commander.id,
+    });
 
     const sameName = mockCardEntryWithoutId({ name: 'Sol Ring', colorIdentity: [] });
     const existing = cardService.add(sameName);
@@ -132,7 +164,11 @@ describe('DeckDetail', () => {
 
   it('isAddable allows a second basic land with the same name', () => {
     const commander = cardService.add(commanderEntry());
-    deckService.setCommander(deckId, { id: commander.id, source: 'owned', cardEntryId: commander.id });
+    deckService.setCommander(deckId, {
+      id: commander.id,
+      source: 'owned',
+      cardEntryId: commander.id,
+    });
 
     const forest = mockCardEntryWithoutId({ name: 'Forest', colorIdentity: [] });
     const existing = cardService.add(forest);

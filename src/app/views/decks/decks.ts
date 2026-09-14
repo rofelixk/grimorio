@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
-import { DeckList } from '../../shared/deck-list/deck-list';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { DeckList } from '@shared';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DeckList],
   selector: 'app-decks',
   styleUrl: './decks.scss',

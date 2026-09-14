@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { mockCardEntry } from '../../core/testing/card.mocks';
+import { mockCardEntry } from '@testing/card.mocks';
 import { CardList } from './card-list';
 
 describe('CardList', () => {

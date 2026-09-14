@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
-import { LocationChildren } from '../../shared/location-children/location-children';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LocationChildren } from '@shared';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [LocationChildren],
   selector: 'app-locations',
   styleUrl: './locations.scss',

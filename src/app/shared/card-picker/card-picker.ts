@@ -1,9 +1,18 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
-import { CardService } from '../../core/services/card.service';
-import { CardLookupResult, CardLookupService } from '../../core/services/card-lookup.service';
-import { DeckCard, DeckCardIdentity } from '../../core/models/deck.model';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { CardService } from '@services/card.service';
+import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
+import { DeckCard, DeckCardIdentity } from '@models/deck.model';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   selector: 'app-card-picker',
   styleUrl: './card-picker.scss',
@@ -71,7 +80,9 @@ export class CardPicker {
       const result = await this.cardLookup.lookup(setCode, collectorNumber);
       this.generated.set(result);
     } catch (err) {
-      this.lookupError.set(err instanceof Error ? err.message : 'Could not look up that card. Please try again.');
+      this.lookupError.set(
+        err instanceof Error ? err.message : 'Could not look up that card. Please try again.',
+      );
     } finally {
       this.generating.set(false);
     }

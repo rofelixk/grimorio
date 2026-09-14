@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { Deck, DeckCard } from '../models/deck.model';
+import { Deck, DeckCard } from '@models/deck.model';
 
 @Injectable({ providedIn: 'root' })
 export class DeckService {

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { SUPABASE_CLIENT } from '../supabase-client';
-import { CardEntry, CardFace, CardRarity, CommanderLegality, Color } from '../models/card.model';
+import { CardEntry, CardFace, CardRarity, CommanderLegality, Color } from '@models/card.model';
 
 export type CardLookupResult = Pick<
   CardEntry,
@@ -75,9 +75,13 @@ function normalizeCollectorNumber(collectorNumber: string): string {
 function mapRow(row: PrintingRow): CardLookupResult {
   const card = row.cards;
   const oracleText =
-    card.oracle_text ?? (card.card_faces ?? []).map((face) => (face as unknown as { oracle_text?: string }).oracle_text ?? '').join('\n');
+    card.oracle_text ??
+    (card.card_faces ?? [])
+      .map((face) => (face as unknown as { oracle_text?: string }).oracle_text ?? '')
+      .join('\n');
   const isLegendaryCreature = /Legendary/.test(card.type_line) && /Creature/.test(card.type_line);
-  const canBeCommander = isLegendaryCreature || oracleText.toLowerCase().includes('can be your commander');
+  const canBeCommander =
+    isLegendaryCreature || oracleText.toLowerCase().includes('can be your commander');
 
   return {
     name: card.name,
@@ -98,6 +102,10 @@ function mapFaces(faces: CardFaceRow[] | null): CardFace[] | undefined {
   if (!faces || faces.length < 2) {
     return undefined;
   }
-  const withImages = faces.filter((face): face is CardFaceRow & { image_url: string } => !!face.image_url);
-  return withImages.length > 0 ? withImages.map((face) => ({ name: face.name, imageUrl: face.image_url })) : undefined;
+  const withImages = faces.filter(
+    (face): face is CardFaceRow & { image_url: string } => !!face.image_url,
+  );
+  return withImages.length > 0
+    ? withImages.map((face) => ({ name: face.name, imageUrl: face.image_url }))
+    : undefined;
 }

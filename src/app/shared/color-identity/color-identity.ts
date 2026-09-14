@@ -1,9 +1,10 @@
-import { Component, input } from '@angular/core';
-import { Color } from '../../core/models/card.model';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Color } from '@models/card.model';
 
 const ALL_COLORS: Color[] = ['W', 'U', 'B', 'R', 'G'];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   selector: 'app-color-identity',
   styleUrl: './color-identity.scss',

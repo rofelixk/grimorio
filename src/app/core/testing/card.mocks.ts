@@ -1,5 +1,5 @@
-import { CardEntry } from '../models/card.model';
-import { CardLookupResult } from '../services/card-lookup.service';
+import { CardEntry } from '@models/card.model';
+import { CardLookupResult } from '@services/card-lookup.service';
 
 export function mockCardEntry(overrides: Partial<CardEntry> = {}): CardEntry {
   return {

@@ -1,7 +1,8 @@
-import { Component, input, output } from '@angular/core';
-import { CardEntry } from '../../core/models/card.model';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { CardEntry } from '@models/card.model';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   selector: 'app-card-list',
   styleUrl: './card-list.scss',

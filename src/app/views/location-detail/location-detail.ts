@@ -1,13 +1,12 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CardEntry } from '../../core/models/card.model';
-import { CardService } from '../../core/services/card.service';
-import { StorageLocationService } from '../../core/services/storage-location.service';
-import { AddCardForm } from '../../shared/add-card-form/add-card-form';
-import { CardList } from '../../shared/card-list/card-list';
-import { LocationChildren } from '../../shared/location-children/location-children';
+import { CardEntry } from '@models/card.model';
+import { CardService } from '@services/card.service';
+import { StorageLocationService } from '@services/storage-location.service';
+import { AddCardForm, CardList, LocationChildren } from '@shared';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, LocationChildren, CardList, AddCardForm],
   selector: 'app-location-detail',
   styleUrl: './location-detail.scss',

@@ -1,11 +1,12 @@
-import { Component, inject, output, signal } from '@angular/core';
-import { CardCondition, CardEntry, CardFinish } from '../../core/models/card.model';
-import { CardLookupResult, CardLookupService } from '../../core/services/card-lookup.service';
+import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import { CardCondition, CardEntry, CardFinish } from '@models/card.model';
+import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
 
 const FINISHES: CardFinish[] = ['nonfoil', 'foil', 'etched'];
 const CONDITIONS: CardCondition[] = ['NM', 'LP', 'MP', 'HP', 'DMG'];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   selector: 'app-add-card-form',
   styleUrl: './add-card-form.scss',
@@ -46,7 +47,9 @@ export class AddCardForm {
       const result = await this.cardLookup.lookup(setCode, collectorNumber);
       this.generated.set(result);
     } catch (err) {
-      this.lookupError.set(err instanceof Error ? err.message : 'Could not look up that card. Please try again.');
+      this.lookupError.set(
+        err instanceof Error ? err.message : 'Could not look up that card. Please try again.',
+      );
     } finally {
       this.generating.set(false);
     }

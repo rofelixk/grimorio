@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { StorageLocation, StorageLocationNode } from '../models/storage-location.model';
+import { StorageLocation, StorageLocationNode } from '@models/storage-location.model';
 
 function buildTree(locations: StorageLocation[]): StorageLocationNode[] {
   const nodesById = new Map<string, StorageLocationNode>(
@@ -47,7 +47,9 @@ export class StorageLocationService {
 
   update(id: string, patch: Partial<StorageLocation>): void {
     this.locationsSignal.update((locations) => {
-      const next = locations.map((location) => (location.id === id ? { ...location, ...patch } : location));
+      const next = locations.map((location) =>
+        location.id === id ? { ...location, ...patch } : location,
+      );
       this.persist(next);
       return next;
     });
