@@ -1,4 +1,5 @@
 import { CardEntry } from '../models/card.model';
+import { CardLookupResult } from '../services/card-lookup.service';
 
 export function mockCardEntry(overrides: Partial<CardEntry> = {}): CardEntry {
   return {
@@ -29,4 +30,21 @@ export function mockCardEntryWithoutId(overrides: Partial<CardEntry> = {}): Omit
   const { id, ...rest } = mockCardEntry(overrides);
   void id;
   return rest;
+}
+
+export function mockCardLookupResult(overrides: Partial<CardLookupResult> = {}): CardLookupResult {
+  const card = mockCardEntry(overrides);
+  return {
+    name: card.name,
+    scryfallId: card.scryfallId,
+    oracleId: card.oracleId,
+    setName: card.setName,
+    rarity: card.rarity,
+    commanderLegality: card.commanderLegality,
+    colorIdentity: card.colorIdentity,
+    typeLine: card.typeLine,
+    canBeCommander: card.canBeCommander,
+    imageUrl: card.imageUrl,
+    faces: card.faces,
+  };
 }

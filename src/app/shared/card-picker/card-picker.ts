@@ -70,8 +70,8 @@ export class CardPicker {
     try {
       const result = await this.cardLookup.lookup(setCode, collectorNumber);
       this.generated.set(result);
-    } catch {
-      this.lookupError.set('Could not look up that card. Please try again.');
+    } catch (err) {
+      this.lookupError.set(err instanceof Error ? err.message : 'Could not look up that card. Please try again.');
     } finally {
       this.generating.set(false);
     }

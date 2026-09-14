@@ -1,15 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CardLookupService } from '../../core/services/card-lookup.service';
+import { mockCardLookupResult } from '../../core/testing/card.mocks';
 import { AddCardForm } from './add-card-form';
 
 describe('AddCardForm', () => {
   let component: AddCardForm;
   let fixture: ComponentFixture<AddCardForm>;
+  let cardLookup: Pick<CardLookupService, 'lookup'>;
 
   beforeEach(async () => {
+    cardLookup = { lookup: vi.fn().mockResolvedValue(mockCardLookupResult()) };
+
     await TestBed.configureTestingModule({
       imports: [AddCardForm],
+      providers: [{ provide: CardLookupService, useValue: cardLookup }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddCardForm);
@@ -60,14 +65,13 @@ describe('AddCardForm', () => {
   });
 
   it('surfaces a lookup error and lets the form be retried', async () => {
-    const lookup = TestBed.inject(CardLookupService);
-    vi.spyOn(lookup, 'lookup').mockRejectedValueOnce(new Error('network down'));
+    vi.mocked(cardLookup.lookup).mockRejectedValueOnce(new Error('network down'));
 
     component.setCode.set('mh3');
     component.collectorNumber.set('161');
     await component.generate();
 
-    expect(component.lookupError()).toBe('Could not look up that card. Please try again.');
+    expect(component.lookupError()).toBe('network down');
     expect(component.generating()).toBe(false);
   });
 });

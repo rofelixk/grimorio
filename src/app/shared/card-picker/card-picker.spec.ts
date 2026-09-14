@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { mockCardEntryWithoutId } from '../../core/testing/card.mocks';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { mockCardEntryWithoutId, mockCardLookupResult } from '../../core/testing/card.mocks';
 import { CardService } from '../../core/services/card.service';
+import { CardLookupService } from '../../core/services/card-lookup.service';
 import { CardPicker } from './card-picker';
 import { DeckCard } from '../../core/models/deck.model';
 
@@ -14,6 +15,9 @@ describe('CardPicker', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [CardPicker],
+      providers: [
+        { provide: CardLookupService, useValue: { lookup: vi.fn().mockResolvedValue(mockCardLookupResult()) } },
+      ],
     }).compileComponents();
 
     cardService = TestBed.inject(CardService);

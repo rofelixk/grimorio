@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "sync:scryfall": "tsx --env-file=.env scripts/sync-scryfall.ts"
   },
   "private": true,
   "packageManager": "npm@11.19.0",
@@ -19,6 +20,7 @@
     "@angular/platform-browser": "^22.1.0",
     "@angular/router": "^22.1.0",
     "@capacitor/core": "^8.5.1",
+    "@supabase/supabase-js": "^2.116.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -28,10 +30,12 @@
     "@angular/compiler-cli": "^22.1.0",
     "@capacitor/cli": "^8.5.1",
     "@eslint/js": "^10.0.1",
+    "@types/node": "^26.5.1",
     "angular-eslint": "22.5.0",
     "eslint": "^10.9.1",
     "jsdom": "^28.1.0",
     "prettier": "^3.8.1",
+    "tsx": "^4.23.13",
     "typescript": "~6.0.2",
     "typescript-eslint": "8.69.0",
     "vitest": "^4.1.11"
