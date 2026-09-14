@@ -80,7 +80,9 @@ export class CardScanForm {
     this.ocrError.set(null);
     this.ocrText.set('');
     try {
-      const { createWorker, PSM } = await import('tesseract.js');
+      // tesseract.js's CJS entry re-exports a spread of a dynamic object, which esbuild
+      // can't statically analyze into named exports — only `default` is available here.
+      const { createWorker, PSM } = (await import('tesseract.js')).default;
       const worker = await createWorker('eng');
       try {
         await worker.setParameters({

@@ -10,8 +10,10 @@ const setParameters = vi.fn().mockResolvedValue(undefined);
 const createWorker = vi.fn().mockResolvedValue({ recognize, terminate, setParameters });
 
 vi.mock('tesseract.js', () => ({
-  createWorker: (...args: unknown[]) => createWorker(...args),
-  PSM: { SPARSE_TEXT: '11' },
+  default: {
+    createWorker: (...args: unknown[]) => createWorker(...args),
+    PSM: { SPARSE_TEXT: '11' },
+  },
 }));
 
 describe('guessSetAndCollector', () => {
