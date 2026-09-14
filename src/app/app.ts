@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthBar, NavBar } from '@shared';
+import { NavBar } from '@shared';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, AuthBar, NavBar],
+  imports: [RouterOutlet, NavBar],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',

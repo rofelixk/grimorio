@@ -1,7 +1,8 @@
-@if (!isHome()) {
-  <nav class="nav-bar">
+<nav class="nav-bar">
+  @if (!isHome()) {
     <a routerLink="/">Home</a>
     <a routerLink="/decks">Decks</a>
     <a routerLink="/locations">Locations</a>
-  </nav>
-}
+  }
+  <app-auth-control />
+</nav>

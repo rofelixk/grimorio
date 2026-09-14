@@ -5,11 +5,11 @@ import { AuthModal } from '@shared/auth-modal/auth-modal';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AuthModal],
-  selector: 'app-auth-bar',
-  styleUrl: './auth-bar.scss',
-  templateUrl: './auth-bar.html',
+  selector: 'app-auth-control',
+  styleUrl: './auth-control.scss',
+  templateUrl: './auth-control.html',
 })
-export class AuthBar {
+export class AuthControl {
   private readonly authService = inject(AuthService);
 
   readonly user = this.authService.user;

@@ -1,5 +1,5 @@
 export { AddCardForm } from './add-card-form/add-card-form';
-export { AuthBar } from './auth-bar/auth-bar';
+export { AuthControl } from './auth-control/auth-control';
 export { AuthModal } from './auth-modal/auth-modal';
 export { CardList } from './card-list/card-list';
 export { CardPicker } from './card-picker/card-picker';

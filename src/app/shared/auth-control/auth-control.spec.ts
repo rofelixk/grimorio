@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { User } from '@supabase/supabase-js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '@services/auth.service';
-import { AuthBar } from './auth-bar';
+import { AuthControl } from './auth-control';
 
 function mockUser(email: string): User {
   return {
@@ -16,9 +16,9 @@ function mockUser(email: string): User {
   } as User;
 }
 
-describe('AuthBar', () => {
-  let component: AuthBar;
-  let fixture: ComponentFixture<AuthBar>;
+describe('AuthControl', () => {
+  let component: AuthControl;
+  let fixture: ComponentFixture<AuthControl>;
   let authService: Pick<AuthService, 'user' | 'signOut'>;
   let user: ReturnType<typeof signal<User | null>>;
 
@@ -27,11 +27,11 @@ describe('AuthBar', () => {
     authService = { user, signOut: vi.fn().mockResolvedValue(undefined) };
 
     await TestBed.configureTestingModule({
-      imports: [AuthBar],
+      imports: [AuthControl],
       providers: [{ provide: AuthService, useValue: authService }],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AuthBar);
+    fixture = TestBed.createComponent(AuthControl);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,10 +1,10 @@
-<div class="auth-bar">
+<span class="auth-control">
   @if (user(); as u) {
     <span class="user-email">{{ u.email }}</span>
     <button type="button" (click)="signOut()">Sign out</button>
   } @else {
     <button type="button" (click)="showModal.set(true)">Sign in</button>
   }
-</div>
+</span>
 
 <app-auth-modal [open]="showModal()" (closed)="showModal.set(false)" />
