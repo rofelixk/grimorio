@@ -8,5 +8,30 @@
       "Bash(type .env)",
       "Bash(Get-Content .env)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/hooks/mark-plan-started.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/hooks/nudge-doc-review.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }

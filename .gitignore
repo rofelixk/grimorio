@@ -45,3 +45,6 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# Claude Code transient hook state
+.claude/docs/.plan-in-progress

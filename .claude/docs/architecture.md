@@ -1,0 +1,11 @@
+## Architecture
+
+- **Angular 22, standalone components, zoneless** (no `zone.js` dependency) — change detection relies on signals/explicit triggers, not zone patching. Bootstrapped in `src/main.ts` via `bootstrapApplication`.
+- **No UI component framework.** Ionic and Angular Material were both evaluated and removed; components and styles are hand-written (plain HTML/SCSS per component).
+- **`ChangeDetectionStrategy.OnPush`** is set on every component and is the schematic default for `ng generate component` (configured in `angular.json`). New components should keep it unless there's a specific reason not to.
+- **Path aliases**: `@models/*`, `@services/*`, `@testing/*` map to `src/app/core/{models,services,testing}/*`; `@shared` (bare) resolves to the `src/app/shared/index.ts` barrel, `@shared/*` to individual files under `src/app/shared/`. Configured in `tsconfig.json`. Use these instead of relative `../` imports when crossing into `core` or `shared` from elsewhere; within `shared` itself, cross-component imports use `@shared/deep-path` (not the barrel) to avoid circular imports through `index.ts`.
+- **Routing**: `src/app/app.routes.ts` is the single source of route definitions. Route-level ("page") components live under `src/app/views/<name>/`, one folder per view, each with its own `.ts`/`.html`/`.scss`/`.spec.ts`. `home` is the current example and is mounted at the root path (`''`).
+- **App shell**: `src/app/app.ts` is the root component; its template (`app.html`) is just `<router-outlet />`.
+- **Static assets** go under `public/assets/` and are served at `/assets/...` at runtime (configured via the `assets` glob in `angular.json`'s build target, which copies everything under `public/` to the app root).
+- **Capacitor** (`capacitor.config.ts`) wraps the built web app (`dist/grimorio/browser`, must match the `build` target's output path) for native targets. No native platforms (`android/`, `ios/`, `electron/`) have been added to the project yet — running `npx cap add <platform>` will generate them.
+- **Testing**: unit tests run through Angular CLI's `@angular/build:unit-test` builder, backed by Vitest (not Karma, not Jest) — this is Angular's current default runner and is wired into the same esbuild-based pipeline as `ng build`/`ng serve`.
