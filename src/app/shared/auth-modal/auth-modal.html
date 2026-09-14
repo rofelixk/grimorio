@@ -1,0 +1,47 @@
+<dialog #dialog class="auth-modal" (close)="onDialogClosed()">
+  <form (submit)="$event.preventDefault(); submit()">
+    <h2>{{ mode() === 'signUp' ? 'Sign up' : 'Sign in' }}</h2>
+
+    <label>
+      Email
+      <input
+        type="email"
+        [value]="email()"
+        (input)="email.set($any($event.target).value)"
+        autocomplete="email"
+      />
+    </label>
+    <label>
+      Password
+      <input
+        type="password"
+        [value]="password()"
+        (input)="password.set($any($event.target).value)"
+        autocomplete="current-password"
+      />
+    </label>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <div class="actions">
+      <button type="submit" [disabled]="submitting()">
+        @if (submitting()) {
+          {{ mode() === 'signUp' ? 'Signing up…' : 'Signing in…' }}
+        } @else {
+          {{ mode() === 'signUp' ? 'Sign up' : 'Sign in' }}
+        }
+      </button>
+      <button type="button" (click)="requestClose()">Cancel</button>
+    </div>
+
+    <p class="toggle-mode">
+      @if (mode() === 'signUp') {
+        Have an account? <a href="javascript:void(0)" (click)="toggleMode()">Sign in</a>
+      } @else {
+        Need an account? <a href="javascript:void(0)" (click)="toggleMode()">Sign up</a>
+      }
+    </p>
+  </form>
+</dialog>

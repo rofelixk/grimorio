@@ -1,0 +1,43 @@
+.auth-modal {
+  border: none;
+  border-radius: 8px;
+  padding: 1.5rem;
+  min-width: 280px;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  h2 {
+    margin: 0 0 1rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .error {
+    color: #c00;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .toggle-mode {
+    font-size: 0.85rem;
+    margin: 0;
+  }
+}

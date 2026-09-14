@@ -19,6 +19,12 @@
 - **Persistence pattern**: `CardService`, `StorageLocationService`, `DeckService` (`src/app/core/services/`) all follow the same shape — signal-backed in-memory state persisted to `localStorage` (`grimorio.cards`, `grimorio.locations`, `grimorio.decks` respectively), with full CRUD and `byId` computed lookups. New entity services should follow this convention.
 - **Card data source**: `CardLookupService` (`src/app/core/services/card-lookup.service.ts`) resolves a set code + collector number against a **Supabase**-hosted catalog (`printings` joined to `cards` tables; client in `src/app/core/supabase-client.ts`). There is no live Scryfall API integration and no price data modeled anywhere.
 
+## Auth
+
+`AuthService` (`src/app/core/services/auth.service.ts`) wraps Supabase Auth (`supabase.auth.*` on the existing `SUPABASE_CLIENT`, no extra package) with a signal-backed `session`/`user`, kept live via `onAuthStateChange`. Sign-in is entirely optional — no route guards, nothing currently restricts access based on auth state. `AuthBar` (`src/app/shared/auth-bar/`) renders the sign-in/sign-out control at the very top of every page (in `app.html`, above `NavBar`, unaffected by its Home-page link-hiding logic) and opens `AuthModal` (`src/app/shared/auth-modal/`) for email/password sign-in or sign-up. The Supabase project has "Confirm email" disabled, so sign-up logs the user in immediately rather than requiring an email click-through — re-enable once the app has a real deployed URL to redirect a confirmation link to.
+
+**Modals**: use the native `<dialog>` element (`showModal()`/`close()`), not a library — `AuthModal` is the reference pattern for any future modal.
+
 ## PWA
 
 `@angular/service-worker` (added via `ng add @angular/pwa`) makes the app installable as a standalone desktop/mobile app. `ngsw-config.json` (project root) configures asset/data caching; `public/manifest.webmanifest` declares the app identity/icons. The service worker is registered in `src/app/app.config.ts` via `provideServiceWorker(...)`, gated on `!isDevMode()` — it's inert under `ng serve` and only active in production builds, which emit `ngsw.json`/`ngsw-worker.js` into `dist/grimorio/browser`. Icons under `public/icons/` are placeholders from the schematic, not final artwork.

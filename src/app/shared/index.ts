@@ -1,4 +1,6 @@
 export { AddCardForm } from './add-card-form/add-card-form';
+export { AuthBar } from './auth-bar/auth-bar';
+export { AuthModal } from './auth-modal/auth-modal';
 export { CardList } from './card-list/card-list';
 export { CardPicker } from './card-picker/card-picker';
 export { CardScanCapture } from './card-scan-capture/card-scan-capture';
