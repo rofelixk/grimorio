@@ -48,3 +48,6 @@ Thumbs.db
 
 # Claude Code transient hook state
 .claude/docs/.plan-in-progress
+
+# Impeccable skill's downloaded platform binary (~15MB, re-fetched on first run)
+.claude/skills/impeccable/scripts/bin/
