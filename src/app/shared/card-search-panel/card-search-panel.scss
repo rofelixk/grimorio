@@ -1,5 +1,14 @@
 @use 'breakpoints' as bp;
 
+.sticky-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-bg);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
 .search-controls {
   display: flex;
   align-items: flex-start;
@@ -10,6 +19,7 @@
     display: flex;
     gap: var(--space-2);
     flex: 1 1 200px;
+    min-width: 0;
 
     input {
       flex: 1 1 auto;
@@ -84,9 +94,34 @@
   }
 }
 
+.results-sentinel {
+  height: 1px;
+}
+
 @include bp.mobile {
   .search-controls {
     flex-direction: column;
     align-items: stretch;
+
+    .input-area {
+      flex: 0 1 auto;
+      width: 100%;
+    }
+
+    select,
+    button,
+    app-card-scan-capture {
+      width: 100%;
+    }
+
+    select,
+    input,
+    button {
+      min-height: 44px;
+    }
+  }
+
+  .results {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

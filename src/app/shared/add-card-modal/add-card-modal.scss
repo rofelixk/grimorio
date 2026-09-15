@@ -1,35 +1,59 @@
 @use 'breakpoints' as bp;
 
 .add-card-modal {
+  flex-direction: column;
   border: none;
   border-radius: var(--radius-md);
-  padding: var(--space-5);
-  width: min(640px, 92vw);
-  max-height: 85vh;
+  padding: 0;
+  width: min(800px, 92vw);
+  max-height: 90vh;
   background: var(--color-bg);
   color: var(--color-text);
   box-shadow: var(--shadow-sm);
+
+  &[open] {
+    display: flex;
+  }
 
   &::backdrop {
     background: rgba(0, 0, 0, 0.5);
   }
 
   @include bp.mobile {
-    width: 96vw;
-    padding: var(--space-3);
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
   }
 }
 
 .modal-header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+
+  @include bp.mobile {
+    padding: var(--space-3) var(--space-3) var(--space-2);
+  }
 
   h2 {
     margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
     font-size: var(--font-size-lg);
+  }
+}
+
+.modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0 var(--space-5) var(--space-5);
+
+  @include bp.mobile {
+    padding: 0 var(--space-3) var(--space-3);
   }
 }
 
@@ -37,4 +61,6 @@
 .back-button {
   background: transparent;
   border: 1px solid var(--color-border);
+  min-height: 44px;
+  min-width: 44px;
 }

@@ -1,75 +1,80 @@
-<div class="search-controls">
-  <div class="input-area">
-    @if (searchMode() === 'name') {
-      <input
-        type="text"
-        [value]="nameQuery()"
-        (input)="nameQueryChanged.emit($any($event.target).value)"
-        placeholder="Sol Ring"
-      />
-    } @else {
-      <input
-        type="text"
-        [value]="setCodeInput()"
-        (input)="setCodeChanged.emit($any($event.target).value)"
-        placeholder="ex.: MH3"
-      />
-      <input
-        type="text"
-        [value]="collectorNumberInput()"
-        (input)="collectorNumberChanged.emit($any($event.target).value)"
-        placeholder="ex.: 161"
-      />
-    }
+<div class="sticky-toolbar">
+  <div class="search-controls">
+    <div class="input-area">
+      @if (searchMode() === 'name') {
+        <input
+          type="text"
+          [value]="nameQuery()"
+          (input)="nameQueryChanged.emit($any($event.target).value)"
+          placeholder="Sol Ring"
+        />
+      } @else {
+        <input
+          type="text"
+          [value]="setCodeInput()"
+          (input)="setCodeChanged.emit($any($event.target).value)"
+          placeholder="ex.: MH3"
+        />
+        <input
+          type="text"
+          [value]="collectorNumberInput()"
+          (input)="collectorNumberChanged.emit($any($event.target).value)"
+          placeholder="ex.: 161"
+        />
+      }
+    </div>
+
+    <select
+      [value]="searchMode()"
+      (change)="searchModeChanged.emit($any($event.target).value)"
+    >
+      <option value="name">Nome</option>
+      <option value="setCode">Set+Código</option>
+    </select>
+
+    <button
+      type="button"
+      class="btn-primary"
+      [disabled]="!canSearch() || searching()"
+      (click)="searchRequested.emit()"
+    >
+      @if (searching()) {
+        Buscando…
+      } @else {
+        Buscar
+      }
+    </button>
+
+    <app-card-scan-capture (frameCaptured)="cameraCaptured.emit($event)" />
   </div>
 
-  <select
-    [value]="searchMode()"
-    (change)="searchModeChanged.emit($any($event.target).value)"
-  >
-    <option value="name">Nome</option>
-    <option value="setCode">Set+Código</option>
-  </select>
+  @if (searchMode() === 'name') {
+    <p class="helper">Digite pelo menos 3 letras para buscar.</p>
+  }
 
-  <button
-    type="button"
-    class="btn-primary"
-    [disabled]="!canSearch() || searching()"
-    (click)="searchRequested.emit()"
-  >
-    @if (searching()) {
-      Buscando…
-    } @else {
-      Buscar
-    }
-  </button>
+  @if (ocrHelperMessage()) {
+    <p class="helper">{{ ocrHelperMessage() }}</p>
+  }
 
-  <app-card-scan-capture (frameCaptured)="cameraCaptured.emit($event)" />
+  @if (searchError()) {
+    <p class="error">{{ searchError() }}</p>
+  }
 </div>
-
-@if (searchMode() === 'name') {
-  <p class="helper">Digite pelo menos 3 letras para buscar.</p>
-}
-
-@if (ocrHelperMessage()) {
-  <p class="helper">{{ ocrHelperMessage() }}</p>
-}
-
-@if (searchError()) {
-  <p class="error">{{ searchError() }}</p>
-}
 
 @if (results().length > 0) {
   <ul class="results">
-    @for (result of results(); track result.scryfallId) {
+    @for (result of visibleResults(); track result.scryfallId) {
       <li>
-        <img [src]="result.imageUrl" [alt]="result.name" />
+        <img [src]="result.imageUrl" [alt]="result.name" loading="lazy" />
         <p class="name">{{ result.name }}</p>
         <p class="printing">{{ result.setCode }} #{{ result.collectorNumber }}</p>
         <button type="button" class="btn-primary" (click)="resultPicked.emit(result)">Adicionar</button>
       </li>
     }
   </ul>
+  @if (hasMore()) {
+    <div #sentinel class="results-sentinel"></div>
+  }
 } @else if (hasSearched() && !searching()) {
   <p class="empty">Nenhuma carta encontrada.</p>
 }

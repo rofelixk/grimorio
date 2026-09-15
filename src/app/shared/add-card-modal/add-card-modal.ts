@@ -169,7 +169,15 @@ export class AddCardModal {
     this.selected.set(null);
   }
 
+  private ignoreNextSearchClose = false;
+
   onSearchDialogNativeClose(): void {
+    // `closeAll()` closing this dialog programmatically also queues this same
+    // native `close` event — skip the echo so `cancel()` doesn't run twice.
+    if (this.ignoreNextSearchClose) {
+      this.ignoreNextSearchClose = false;
+      return;
+    }
     // Our own forward transition (picking a result) closes this dialog too, but by
     // then `selected` is already set — only treat this as a real cancel otherwise.
     if (this.selected() === null) {
@@ -226,7 +234,12 @@ export class AddCardModal {
   private closeAll(): void {
     const searchEl = this.searchDialog()?.nativeElement;
     const confirmEl = this.confirmDialog()?.nativeElement;
-    if (searchEl) closeDialog(searchEl);
+    if (searchEl) {
+      if (searchEl.open) {
+        this.ignoreNextSearchClose = true;
+      }
+      closeDialog(searchEl);
+    }
     if (confirmEl) closeDialog(confirmEl);
   }
 
