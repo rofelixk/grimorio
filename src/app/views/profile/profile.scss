@@ -1,0 +1,137 @@
+.profile-section {
+  max-width: 32rem;
+  margin: 0 0 var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  h2 {
+    margin: 0 0 var(--space-4);
+    font-size: var(--font-size-lg);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: var(--font-size-sm);
+  }
+
+  input {
+    font: inherit;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+  }
+
+  .helper {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+  }
+
+  .error {
+    margin: 0;
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+  }
+
+  .success {
+    margin: 0;
+    color: var(--color-accent);
+    font-size: var(--font-size-sm);
+  }
+}
+
+.field-static {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-4);
+
+  .field-label {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+}
+
+.danger-zone {
+  border-color: var(--color-danger);
+
+  h2 {
+    color: var(--color-danger);
+  }
+
+  p {
+    margin: 0 0 var(--space-3);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+}
+
+.delete-account-dialog {
+  width: min(420px, 92vw);
+  padding: var(--space-5);
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  h2 {
+    margin: 0 0 var(--space-2);
+  }
+
+  .one-line {
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: var(--font-size-sm);
+  }
+
+  input {
+    font: inherit;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+
+  .error {
+    margin: 0;
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+  }
+}

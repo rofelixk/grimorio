@@ -37,6 +37,10 @@
     background: var(--color-surface);
     color: var(--color-text);
   }
+
+  app-card-scan-capture {
+    display: none;
+  }
 }
 
 .helper {
@@ -112,6 +116,10 @@
     button,
     app-card-scan-capture {
       width: 100%;
+    }
+
+    app-card-scan-capture {
+      display: block;
     }
 
     select,

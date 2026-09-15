@@ -40,36 +40,55 @@ describe('AuthModal', () => {
     expect(component.mode()).toBe('signIn');
   });
 
-  it('requires an email and password before submitting', async () => {
+  it('requires an identifier and password before submitting', async () => {
     await component.submit();
 
-    expect(component.error()).toBe('Informe um email e uma senha.');
+    expect(component.error()).toBe('Informe um email ou nome de usuário e uma senha.');
     expect(authService.signIn).not.toHaveBeenCalled();
   });
 
-  it('calls signIn in sign-in mode with trimmed email', async () => {
-    component.email.set('  a@b.com  ');
-    component.password.set('secret');
-
+  it('requires an email and password before submitting in sign-up mode', async () => {
+    component.toggleMode();
     await component.submit();
 
-    expect(authService.signIn).toHaveBeenCalledWith('a@b.com', 'secret');
+    expect(component.error()).toBe('Informe um email e uma senha.');
     expect(authService.signUp).not.toHaveBeenCalled();
   });
 
-  it('calls signUp in sign-up mode', async () => {
-    component.toggleMode();
-    component.email.set('a@b.com');
+  it('calls signIn in sign-in mode with a trimmed identifier, which may be an email or username', async () => {
+    component.identifier.set('  rodrigo_gm  ');
     component.password.set('secret');
 
     await component.submit();
 
-    expect(authService.signUp).toHaveBeenCalledWith('a@b.com', 'secret');
+    expect(authService.signIn).toHaveBeenCalledWith('rodrigo_gm', 'secret');
+    expect(authService.signUp).not.toHaveBeenCalled();
+  });
+
+  it('calls signUp in sign-up mode, passing along the optional username', async () => {
+    component.toggleMode();
+    component.identifier.set('a@b.com');
+    component.password.set('secret');
+    component.username.set('rodrigo_gm');
+
+    await component.submit();
+
+    expect(authService.signUp).toHaveBeenCalledWith('a@b.com', 'secret', 'rodrigo_gm');
+  });
+
+  it('calls signUp with an empty username when none was given', async () => {
+    component.toggleMode();
+    component.identifier.set('a@b.com');
+    component.password.set('secret');
+
+    await component.submit();
+
+    expect(authService.signUp).toHaveBeenCalledWith('a@b.com', 'secret', '');
   });
 
   it('surfaces the error and keeps submitting false on failure', async () => {
     vi.mocked(authService.signIn).mockRejectedValueOnce(new Error('Invalid login credentials'));
-    component.email.set('a@b.com');
+    component.identifier.set('a@b.com');
     component.password.set('wrong');
 
     await component.submit();
@@ -79,7 +98,8 @@ describe('AuthModal', () => {
   });
 
   it('onDialogClosed resets form state and emits closed', () => {
-    component.email.set('a@b.com');
+    component.identifier.set('a@b.com');
+    component.username.set('rodrigo_gm');
     component.password.set('secret');
     component.error.set('oops');
     component.toggleMode();
@@ -89,7 +109,8 @@ describe('AuthModal', () => {
     component.onDialogClosed();
 
     expect(emitted).toBe(true);
-    expect(component.email()).toBe('');
+    expect(component.identifier()).toBe('');
+    expect(component.username()).toBe('');
     expect(component.password()).toBe('');
     expect(component.error()).toBeNull();
     expect(component.mode()).toBe('signIn');

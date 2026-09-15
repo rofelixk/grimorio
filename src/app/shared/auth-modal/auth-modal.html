@@ -3,21 +3,34 @@
     <h2>{{ mode() === 'signUp' ? 'Cadastrar' : 'Logar' }}</h2>
 
     <label>
-      Email
+      {{ mode() === 'signUp' ? 'Email' : 'Email ou nome de usuário' }}
       <input
-        type="email"
-        [value]="email()"
-        (input)="email.set($any($event.target).value)"
-        autocomplete="email"
+        [type]="mode() === 'signUp' ? 'email' : 'text'"
+        [value]="identifier()"
+        (input)="identifier.set($any($event.target).value)"
+        [attr.autocomplete]="mode() === 'signUp' ? 'email' : 'username'"
       />
     </label>
+
+    @if (mode() === 'signUp') {
+      <label>
+        Nome de usuário (opcional)
+        <input
+          type="text"
+          [value]="username()"
+          (input)="username.set($any($event.target).value)"
+          autocomplete="username"
+        />
+      </label>
+    }
+
     <label>
       Senha
       <input
         type="password"
         [value]="password()"
         (input)="password.set($any($event.target).value)"
-        autocomplete="current-password"
+        [attr.autocomplete]="mode() === 'signUp' ? 'new-password' : 'current-password'"
       />
     </label>
 

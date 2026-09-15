@@ -1,0 +1,131 @@
+<h1>Perfil</h1>
+
+<section class="profile-section">
+  <h2>Conta</h2>
+
+  <p class="field-static">
+    <span class="field-label">Email</span>
+    <span>{{ email() }}</span>
+  </p>
+
+  <form (submit)="$event.preventDefault(); saveUsername()">
+    <label>
+      Nome de usuário
+      <input
+        type="text"
+        [value]="username()"
+        (input)="username.set($any($event.target).value)"
+        autocomplete="username"
+      />
+    </label>
+
+    @if (usernameError()) {
+      <p class="error">{{ usernameError() }}</p>
+    }
+    @if (usernameSaved()) {
+      <p class="success">Nome de usuário atualizado.</p>
+    }
+
+    <div>
+      <button type="submit" class="btn-primary" [disabled]="usernameSaving()">
+        @if (usernameSaving()) {
+          Salvando…
+        } @else {
+          Salvar alterações
+        }
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="profile-section">
+  <h2>Senha</h2>
+
+  <form (submit)="$event.preventDefault(); changePassword()">
+    <label>
+      Senha atual
+      <input
+        type="password"
+        [value]="currentPassword()"
+        (input)="currentPassword.set($any($event.target).value)"
+        autocomplete="current-password"
+      />
+    </label>
+    <label>
+      Nova senha
+      <input
+        type="password"
+        [value]="newPassword()"
+        (input)="newPassword.set($any($event.target).value)"
+        autocomplete="new-password"
+      />
+    </label>
+    <label>
+      Confirmar nova senha
+      <input
+        type="password"
+        [value]="confirmPassword()"
+        (input)="confirmPassword.set($any($event.target).value)"
+        autocomplete="new-password"
+      />
+    </label>
+    <p class="helper">Mínimo de {{ minPasswordLength }} caracteres.</p>
+
+    @if (passwordError()) {
+      <p class="error">{{ passwordError() }}</p>
+    }
+    @if (passwordSaved()) {
+      <p class="success">Senha atualizada.</p>
+    }
+
+    <div>
+      <button type="submit" class="btn-primary" [disabled]="passwordSaving()">
+        @if (passwordSaving()) {
+          Atualizando…
+        } @else {
+          Atualizar senha
+        }
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="profile-section danger-zone">
+  <h2>Zona de perigo</h2>
+  <p>
+    Excluir sua conta remove permanentemente seus decks, sua coleção e todos os dados
+    associados.
+  </p>
+  <button type="button" class="btn-danger" (click)="openDeleteDialog()">Excluir conta</button>
+</section>
+
+<dialog #deleteDialog class="delete-account-dialog" (close)="onDeleteDialogClosed()">
+  <form (submit)="$event.preventDefault(); confirmDelete()">
+    <h2>Excluir conta</h2>
+    <p class="one-line">Essa ação é permanente e não pode ser desfeita.</p>
+
+    <label>
+      Digite <strong>{{ email() }}</strong> para confirmar
+      <input
+        type="text"
+        [value]="deleteConfirmText()"
+        (input)="deleteConfirmText.set($any($event.target).value)"
+      />
+    </label>
+
+    @if (deleteError()) {
+      <p class="error">{{ deleteError() }}</p>
+    }
+
+    <div class="actions">
+      <button type="button" (click)="closeDeleteDialog()">Cancelar</button>
+      <button type="submit" class="btn-danger" [disabled]="!canConfirmDelete() || deleting()">
+        @if (deleting()) {
+          Excluindo…
+        } @else {
+          Excluir conta
+        }
+      </button>
+    </div>
+  </form>
+</dialog>

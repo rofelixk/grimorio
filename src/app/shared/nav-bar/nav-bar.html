@@ -23,4 +23,13 @@
     <a routerLink="/decks" routerLinkActive="active" (click)="closeDrawer()">Decks</a>
     <a routerLink="/locations" routerLinkActive="active" (click)="closeDrawer()">Coleção</a>
   </section>
+  <!--
+    Mobile only (see nav-bar.scss's bp.wide rule) — on the wide/sidebar layout,
+    reaching the profile page is the account name/email link in the top bar
+    instead (see AuthControl), so this group is hidden there.
+  -->
+  <section class="drawer-group account-group">
+    <h2>Conta</h2>
+    <a routerLink="/profile" routerLinkActive="active" (click)="closeDrawer()">Perfil</a>
+  </section>
 </nav>

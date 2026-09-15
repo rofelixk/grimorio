@@ -27,7 +27,10 @@ export class AuthModal {
   private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
 
   readonly mode = signal<'signIn' | 'signUp'>('signIn');
-  readonly email = signal('');
+  // Email at sign-up (Supabase requires a real email); email-or-username at sign-in.
+  readonly identifier = signal('');
+  // Optional, sign-up only.
+  readonly username = signal('');
   readonly password = signal('');
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
@@ -52,10 +55,14 @@ export class AuthModal {
   }
 
   async submit(): Promise<void> {
-    const email = this.email().trim();
+    const identifier = this.identifier().trim();
     const password = this.password();
-    if (!email || !password) {
-      this.error.set('Informe um email e uma senha.');
+    if (!identifier || !password) {
+      this.error.set(
+        this.mode() === 'signUp'
+          ? 'Informe um email e uma senha.'
+          : 'Informe um email ou nome de usuário e uma senha.',
+      );
       return;
     }
 
@@ -63,9 +70,9 @@ export class AuthModal {
     this.error.set(null);
     try {
       if (this.mode() === 'signUp') {
-        await this.authService.signUp(email, password);
+        await this.authService.signUp(identifier, password, this.username());
       } else {
-        await this.authService.signIn(email, password);
+        await this.authService.signIn(identifier, password);
       }
       this.requestClose();
     } catch (err) {
@@ -81,7 +88,8 @@ export class AuthModal {
 
   onDialogClosed(): void {
     this.mode.set('signIn');
-    this.email.set('');
+    this.identifier.set('');
+    this.username.set('');
     this.password.set('');
     this.error.set(null);
     this.closed.emit();

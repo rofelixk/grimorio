@@ -121,4 +121,10 @@
     transform: none;
     border-right: 1px solid var(--color-border);
   }
+
+  // Reaching the profile page on the wide/sidebar layout is the account
+  // name/email link in the top bar (AuthControl) instead — see nav-bar.html.
+  .account-group {
+    display: none;
+  }
 }
