@@ -1,5 +1,5 @@
 .panel {
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-6);
 }
 
 .panel-header {
@@ -16,7 +16,7 @@
 .scroll-area {
   max-height: 16rem;
   overflow-y: auto;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   padding: 0.75rem;
 }
