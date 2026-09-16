@@ -29,11 +29,6 @@
             "type": "command",
             "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/hooks/nudge-doc-review.sh\"",
             "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "sh \"${CLAUDE_PROJECT_DIR}/.claude/hooks/kill-stale-dev-servers.sh\"",
-            "timeout": 10
           }
         ]
       }

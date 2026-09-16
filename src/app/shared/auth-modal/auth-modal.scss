@@ -425,22 +425,26 @@ input {
   flex: 1 1 auto;
   padding: var(--space-3) var(--space-4);
   font-size: var(--font-size-md);
-  // A subtle top-to-bottom sheen instead of a flat fill, and a quiet
-  // resting glow that only intensifies on hover/focus — kept static
-  // (no continuous pulse) so the one primary action stays calm rather
-  // than competing with the ring/ambient-glow/sparks for attention.
-  background: linear-gradient(180deg, var(--color-primary-hover), var(--color-primary));
+  // Same dark-surface family as .mode-switch-option's .active state
+  // (dark fill + colored glow-text) rather than a filled ember block, so
+  // it reads as kin to the mode buttons above it. Ember instead of their
+  // teal, plus a glowing border and resting box-shadow — quiet elsewhere
+  // in this form — is what still marks it as the primary action.
+  color: var(--color-primary);
+  background: var(--color-surface-raised);
+  border-color: var(--color-primary);
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(232, 121, 47, 0.6);
   box-shadow: var(--shadow-glow-primary);
-  // An inverse of the ember glow elsewhere: a dark halo around the label
-  // (in the button's own contrast color) instead of a bright one, reading
-  // like the text is etched into the hot ember rather than sitting on it.
-  text-shadow: 0 0 6px rgba(26, 16, 8, 0.7);
   transition:
     background var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-fast) var(--ease-standard);
 
   &:hover:not(:disabled),
   &:focus-visible {
+    color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
     box-shadow: var(--shadow-glow-primary-strong);
   }
 
