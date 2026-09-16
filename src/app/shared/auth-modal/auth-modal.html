@@ -1,60 +1,65 @@
-<dialog #dialog class="auth-modal" (close)="onDialogClosed()">
-  <form (submit)="$event.preventDefault(); submit()">
-    <h2>{{ mode() === 'signUp' ? 'Cadastrar' : 'Logar' }}</h2>
+<dialog #dialog class="auth-modal" aria-labelledby="auth-modal-title" (close)="onDialogClosed()">
+  <div class="modal-header">
+    <h2 id="auth-modal-title">{{ mode() === 'signUp' ? 'Cadastrar' : 'Logar' }}</h2>
+    <button type="button" class="close-button" (click)="requestClose()" aria-label="Fechar">✕</button>
+  </div>
 
-    <label>
-      {{ mode() === 'signUp' ? 'Email' : 'Email ou nome de usuário' }}
-      <input
-        [type]="mode() === 'signUp' ? 'email' : 'text'"
-        [value]="identifier()"
-        (input)="identifier.set($any($event.target).value)"
-        [attr.autocomplete]="mode() === 'signUp' ? 'email' : 'username'"
-      />
-    </label>
-
-    @if (mode() === 'signUp') {
+  <div class="modal-body">
+    <form (submit)="$event.preventDefault(); submit()">
       <label>
-        Nome de usuário (opcional)
+        {{ mode() === 'signUp' ? 'Email' : 'Email ou nome de usuário' }}
         <input
-          type="text"
-          [value]="username()"
-          (input)="username.set($any($event.target).value)"
-          autocomplete="username"
+          [type]="mode() === 'signUp' ? 'email' : 'text'"
+          [value]="identifier()"
+          (input)="identifier.set($any($event.target).value)"
+          [attr.autocomplete]="mode() === 'signUp' ? 'email' : 'username'"
         />
       </label>
-    }
 
-    <label>
-      Senha
-      <input
-        type="password"
-        [value]="password()"
-        (input)="password.set($any($event.target).value)"
-        [attr.autocomplete]="mode() === 'signUp' ? 'new-password' : 'current-password'"
-      />
-    </label>
-
-    @if (error()) {
-      <p class="error">{{ error() }}</p>
-    }
-
-    <div class="actions">
-      <button type="submit" [disabled]="submitting()">
-        @if (submitting()) {
-          {{ mode() === 'signUp' ? 'Cadastrando…' : 'Logando…' }}
-        } @else {
-          {{ mode() === 'signUp' ? 'Cadastrar' : 'Logar' }}
-        }
-      </button>
-      <button type="button" (click)="requestClose()">Cancelar</button>
-    </div>
-
-    <p class="toggle-mode">
       @if (mode() === 'signUp') {
-        Já tem uma conta? <a href="javascript:void(0)" (click)="toggleMode()">Logar</a>
-      } @else {
-        Não tem uma conta? <a href="javascript:void(0)" (click)="toggleMode()">Cadastrar</a>
+        <label>
+          Nome de usuário (opcional)
+          <input
+            type="text"
+            [value]="username()"
+            (input)="username.set($any($event.target).value)"
+            autocomplete="username"
+          />
+        </label>
       }
-    </p>
-  </form>
+
+      <label>
+        Senha
+        <input
+          type="password"
+          [value]="password()"
+          (input)="password.set($any($event.target).value)"
+          [attr.autocomplete]="mode() === 'signUp' ? 'new-password' : 'current-password'"
+        />
+      </label>
+
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" [disabled]="submitting()">
+          @if (submitting()) {
+            {{ mode() === 'signUp' ? 'Cadastrando…' : 'Logando…' }}
+          } @else {
+            {{ mode() === 'signUp' ? 'Cadastrar' : 'Logar' }}
+          }
+        </button>
+        <button type="button" (click)="requestClose()">Cancelar</button>
+      </div>
+
+      <p class="toggle-mode">
+        @if (mode() === 'signUp') {
+          Já tem uma conta? <a href="javascript:void(0)" (click)="toggleMode()">Logar</a>
+        } @else {
+          Não tem uma conta? <a href="javascript:void(0)" (click)="toggleMode()">Cadastrar</a>
+        }
+      </p>
+    </form>
+  </div>
 </dialog>

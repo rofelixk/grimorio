@@ -1,43 +1,128 @@
+@use 'breakpoints' as bp;
+
 .auth-modal {
+  flex-direction: column;
   border: none;
-  border-radius: 8px;
-  padding: 1.5rem;
-  min-width: 280px;
+  border-radius: var(--radius-md);
+  padding: 0;
+  width: min(400px, 92vw);
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+
+  &[open] {
+    display: flex;
+  }
 
   &::backdrop {
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  @include bp.mobile {
+    // Clears the native <dialog> UA centering/sizing (margin: auto and a
+    // max-width/max-height cap) that otherwise survives the overrides below.
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+  }
+}
+
+.modal-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+
+  @include bp.mobile {
+    padding: var(--space-3) var(--space-3) var(--space-2);
   }
 
   h2 {
-    margin: 0 0 1rem;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    font-size: 0.9rem;
-  }
-
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .error {
-    color: #c00;
-    font-size: 0.85rem;
     margin: 0;
+    font-size: var(--font-size-lg);
+  }
+}
+
+.modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 var(--space-5) var(--space-5);
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-raised) var(--color-bg);
+
+  &::-webkit-scrollbar {
+    width: 10px;
   }
 
-  .toggle-mode {
-    font-size: 0.85rem;
-    margin: 0;
+  &::-webkit-scrollbar-track {
+    background: var(--color-bg);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-surface-raised);
+    border: 2px solid var(--color-bg);
+    border-radius: var(--radius-sm);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border);
+  }
+
+  @include bp.mobile {
+    padding: 0 var(--space-3) var(--space-3);
+  }
+}
+
+.close-button {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  min-height: 44px;
+  min-width: 44px;
+  user-select: none;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+.toggle-mode {
+  font-size: var(--font-size-sm);
+  margin: 0;
+
+  a {
+    color: var(--color-accent);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-accent-hover);
+      text-decoration: underline;
+    }
   }
 }
