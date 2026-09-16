@@ -5,6 +5,7 @@ For this Angular + Capacitor project, these are the most applicable of the skill
 - `code-review` skill — review a diff/PR for bugs and cleanup opportunities.
 - `simplify` skill — post-change cleanup pass (reuse, simplification, efficiency).
 - `run` skill — launch the app and verify a UI change actually works in-browser.
+- `impeccable` skill — design/redesign/critique/audit/polish workflows against the project's `PRODUCT.md`/`DESIGN.md` system.
 - `doc-syncer` skill — update README/CLAUDE.md after a code change makes them stale.
 - `security-review` skill — run before merging security-sensitive changes (e.g. future auth/Supabase work).
 - `Explore` subagent — locate code across the repo for open-ended searches.

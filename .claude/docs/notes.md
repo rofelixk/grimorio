@@ -6,3 +6,7 @@ Dated, fact-based entries accumulated session-to-session go here — new depende
 
 - New `src/app/core/utils/` folder for framework-agnostic pure functions (first occupant: `card-ocr.util.ts`, OCR helpers used by card scanning).
 - Angular's Vitest builder does not support `vi.mock` on relative imports — if a util needs to be mocked in a component test, wrap it in a thin `providedIn: 'root'` service (e.g. `CardOcrService` wrapping `runCardOcr`) so it can be swapped via a TestBed provider instead.
+
+## 2026-09-15
+
+- New `src/styles/_forms.scss` global stylesheet partial: baseline styling for `input[type='text']` (dark surface background, token border/radius/padding), following the same global-tag-selector convention `_buttons.scss` already uses for `button`. Imported in `styles.scss` alongside `buttons`.
