@@ -1,22 +1,96 @@
 @use 'breakpoints' as bp;
 
 .add-card-modal {
+  position: relative;
   flex-direction: column;
   border: none;
   border-radius: var(--radius-md);
-  padding: 0;
+  // Left/right-only ring reveal — a "sideways portal" rather than
+  // auth-modal's full-perimeter ring, so only the side padding gap shows
+  // this dialog's own conic-gradient background. Same 2px width as
+  // auth-modal's ring, for a consistent border weight across both modals.
+  padding: 0 2px;
   width: min(800px, 92vw);
   max-height: 90vh;
-  background: var(--color-bg);
   color: var(--color-text);
-  box-shadow: var(--shadow-sm);
+  // .side-glow/.side-sparks bleed outside this box via negative inset;
+  // without an explicit overflow the dialog can turn itself into a scroll
+  // container to "reach" that overflowing content (same reasoning as
+  // auth-modal.scss).
+  overflow: visible;
+  // Layout containment: the glow/spark layers translate well outside this
+  // box (sideways bleed, spark travel), and without this, that overflowing,
+  // constantly-moving content was being counted toward the *page's* own
+  // scrollable area — the browser's scrollbar was flickering in and out as
+  // sparks animated. `contain: layout` isolates this element's descendants
+  // from affecting ancestor layout/scroll size while leaving painting (the
+  // actual visual bleed) untouched, unlike `overflow`/`contain: paint`,
+  // which would clip the glow instead of just containing its layout impact.
+  contain: layout;
+  // --cmp/--cmph/--cma/--cmah/--cmt: short aliases resolving
+  // --card-modal-primary/-accent/-tertiary (set by the host bindings in
+  // add-card-modal.ts from the user's saved theme colors) against the
+  // app's default brand colors — same convention as auth-modal's --mp/--ma.
+  --cmp: var(--card-modal-primary, var(--color-primary));
+  --cmph: var(--card-modal-primary-hover, var(--color-primary-hover));
+  --cma: var(--card-modal-accent, var(--cmp));
+  --cmah: var(--card-modal-accent-hover, var(--cmph));
+  --cmt: var(--card-modal-tertiary, var(--cma));
+  background: conic-gradient(
+    from var(--spin-angle),
+    var(--cmp),
+    var(--cma),
+    var(--cmt),
+    var(--cmp)
+  );
+  animation: spin-angle 10s linear infinite;
 
   &[open] {
     display: flex;
   }
 
+  // Fade-in on open only, via @starting-style — deliberately *not*
+  // symmetric with an animated close like auth-modal.scss's single dialog
+  // has. This component has two dialogs that can swap within the same
+  // effect() tick (search -> confirm and back), and each open <dialog> gets
+  // its own ::backdrop; an animated close would keep the outgoing dialog
+  // (and its 0.75-opacity backdrop) rendered alongside the incoming one for
+  // the transition's duration, stacking two 0.75 backdrops into something
+  // visibly darker. Closing instantly (no exit transition) guarantees only
+  // one backdrop is ever on screen at a time.
   &::backdrop {
     background: rgba(0, 0, 0, 0.75);
+    opacity: 1;
+    transition: opacity var(--duration-slow) var(--ease-standard);
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    transform var(--duration-slow) var(--ease-standard),
+    filter var(--duration-slow) var(--ease-standard);
+
+  @starting-style {
+    &[open] {
+      opacity: 0;
+      transform: scale(0.92);
+      filter: blur(6px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0.001s;
+    animation: none;
+
+    &::backdrop {
+      transition-duration: 0.001s;
+    }
   }
 
   @include bp.mobile {
@@ -31,16 +105,289 @@
     max-width: none;
     max-height: none;
     border-radius: 0;
+    // No room for a side portal to open on a full-bleed dialog.
+    padding: 0;
+    background: var(--color-bg);
+    animation: none;
+  }
+}
+
+// The modal's opaque face — a separate element from the dialog itself so it
+// sits inside the 2px side padding that reveals the ring, and fully covers
+// .side-glow/.side-sparks within its own bounds. That coverage needs an
+// explicit positive z-index, not just DOM order: .side-glow/.side-sparks are
+// position: absolute, which the flexbox spec excludes from being flex items,
+// so they paint in a later phase than .modal-surface (a real flex item)
+// regardless of markup order — exactly the auth-modal.scss precedent this
+// mirrors, and the fix for sparks previously showing on top of the modal's
+// own content instead of staying behind it.
+.modal-surface {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+
+  @include bp.mobile {
+    border-radius: 0;
+  }
+}
+
+// A blurred ambient glow confined to the left/right edges only — same
+// conic-gradient/gap-dimming recipe as auth-modal's .ambient-glow, masked
+// down to two side bands instead of a full ring. Diffusion (a long, gentle
+// falloff distance) matters more here than raw alpha — auth-modal's own
+// glow peaks at a fairly low 18-30% opacity but reads as a proper halo
+// because it fades out gradually over a wide area; a higher-alpha version
+// with a short falloff just reads as a solid stripe, not a glow.
+.side-glow {
+  position: absolute;
+  // A separate, narrow element per side (see .left/.right below) rather
+  // than one box spanning the whole dialog width — that was the only way
+  // to let each side taper at its own top/bottom independently. A single
+  // wide box with a vertical bleed tapers across its *entire* width,
+  // putting a faint glow under the header/toolbar too, not just at the two
+  // side columns.
+  top: -24px;
+  bottom: -24px;
+  width: 260px;
+  border-radius: 40px;
+  pointer-events: none;
+  filter: blur(40px);
+  background: conic-gradient(
+    from var(--spin-angle),
+    rgb(from var(--cmp) r g b / 95%) 0%,
+    rgb(from var(--cmp) r g b / calc(95% * var(--gap-a))) 8%,
+    rgb(from var(--cma) r g b / calc(80% * var(--gap-b))) 22%,
+    rgb(from var(--cma) r g b / calc(80% * var(--gap-c))) 38%,
+    rgb(from var(--cmt) r g b / 80%) 50%,
+    rgb(from var(--cmt) r g b / calc(80% * var(--gap-d))) 62%,
+    rgb(from var(--cmp) r g b / calc(95% * var(--gap-e))) 78%,
+    rgb(from var(--cmp) r g b / calc(95% * var(--gap-f))) 92%,
+    rgb(from var(--cmp) r g b / 95%) 100%
+  );
+  animation:
+    spin-angle 10s linear infinite,
+    flicker 4s ease-in-out infinite,
+    gap-a 8s ease-in-out infinite,
+    gap-b 10s ease-in-out infinite 1.5s,
+    gap-c 9s ease-in-out infinite 3s,
+    gap-d 12s ease-in-out infinite 4.5s,
+    gap-e 11s ease-in-out infinite 6s,
+    gap-f 14s ease-in-out infinite 2s;
+
+  @include bp.mobile {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+
+  // Extends 150px in from each edge (plenty to sit under the opaque
+  // .modal-surface, which starts just 2px in) and fades to transparent
+  // toward the outer bleed boundary — the inward edge needs no fade of its
+  // own since modal-surface already covers it. A second mask layer fades
+  // the top/bottom the same gentle way (border-radius alone draws a hard
+  // geometric edge that blur only partially softens); `intersect` combines
+  // both fades multiplicatively, so the corners taper away smoothly on
+  // both axes instead of stopping at a visible curve.
+  &.left {
+    left: -110px;
+    mask-image:
+      linear-gradient(to right, transparent 0%, black 45%, black 100%),
+      linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
+    mask-composite: intersect;
+  }
+
+  &.right {
+    right: -110px;
+    mask-image:
+      linear-gradient(to left, transparent 0%, black 45%, black 100%),
+      linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
+    mask-composite: intersect;
+  }
+}
+
+// Sparks fan out densely at the four corners (where the side color visibly
+// originates from), plus a few sparser ones along the middle of each side.
+// Each spark is anchored at a specific point (a corner class below sets its
+// position + base outward direction) rather than the dialog's true center,
+// then flies outward via auth-modal's exact `rotate(angle)
+// translateY(-radius)` mechanism — anchoring at the actual edge/corner point
+// means only a small radius is needed regardless of how wide the dialog is,
+// unlike auth-modal's center anchor (which relies on being a compact ~400px
+// modal for its sparks to ever reach the edge).
+//
+// Angle/distance/duration/delay are all derived from a per-spark seed (--i,
+// set inline per instance) through sin()/cos() — the same seeded
+// pseudo-random technique card-search-panel.scss uses for its result-card
+// spread, reused here instead of hand-authoring a neat, evenly-spaced fan
+// (which read as too mechanical/rigid). Each corner's sparks scatter across
+// a wide arc in essentially any outward direction rather than a tidy row of
+// angles.
+.side-sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  @include bp.mobile {
+    display: none;
+  }
+}
+
+.side-sparks .spark {
+  position: absolute;
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  // Unitless seed (a plain <number>, exactly like card-search-panel.scss's
+  // --seed) fed into sin()/cos(), which CSS treats as radians for a
+  // unitless argument — mixing a <number> with an <angle> in the same calc()
+  // (an earlier version added `--base-angle * 0.017453` in here) is a type
+  // error that silently invalidates the whole custom property, and every
+  // other property built from it, which is why the sparks vanished
+  // entirely. --seed-offset (a plain number per corner/edge below) keeps
+  // corners from sharing identical scatter patterns instead.
+  --seed: calc((var(--i, 0) + var(--seed-offset, 0)) * 12.9898);
+  // --angle uses its own multiplier (2.6) rather than sin(--seed) directly —
+  // --start/--end/--dur/--delay below all do the same for the same reason:
+  // sin() is flat near its own peaks/troughs, so two sparks whose seeds
+  // differ by only one --i step can land almost on top of each other in that
+  // region and always scatter toward the same angle (seen on corner-bl,
+  // whose --seed-offset happened to put both its sparks near a trough).
+  // Multiplying the seed before this particular sin() call samples a
+  // different, unrelated point on the curve, decorrelating the angle spread
+  // from the position/timing values without touching the seed itself.
+  //
+  // Clamped to --angle-min/--angle-max (unbounded by default, so mid-l/mid-r
+  // — whose narrow 30deg spread already stays clear of the boundary — are
+  // unaffected). The four corners override these below: a 75deg spread
+  // around a diagonal base-angle can swing past straight-up/straight-down
+  // (0deg/180deg, using this rotate()'s up=0/right=90/down=180/left=270
+  // convention) into the *other* side's half, which is the "sparks flying to
+  // the wrong side" bug — clamping keeps each corner's swing inside its own
+  // side's 180deg-wide half.
+  --angle-raw: calc(var(--base-angle, 0deg) + sin(var(--seed) * 2.6) * var(--spread, 75deg));
+  --angle: clamp(var(--angle-min, -720deg), var(--angle-raw), var(--angle-max, 1080deg));
+  --start: calc(14px + abs(sin(var(--seed) * 1.7)) * 20px);
+  --end: calc(110px + abs(cos(var(--seed) * 1.3)) * 110px);
+  --dur: calc(0.55s + abs(sin(var(--seed) * 2.3)) * 0.45s);
+  --delay: calc(abs(cos(var(--seed) * 1.9)) * 1.4s);
+  // Bright at the outward tip, fading to transparent at the anchored end —
+  // same convention as auth-modal's sparks. The element itself gets
+  // rotated by --angle before translating, so "up" in this gradient always
+  // ends up pointing away from the anchor point once rotated.
+  background: linear-gradient(to top, transparent, var(--cmp));
+  filter: drop-shadow(0 0 8px var(--cmp));
+  opacity: 0;
+  animation: spark-burst var(--dur) ease-out infinite;
+  animation-delay: var(--delay);
+
+  &:nth-child(3n + 2) {
+    background: linear-gradient(to top, transparent, var(--cma));
+    filter: drop-shadow(0 0 8px var(--cma));
+  }
+
+  &:nth-child(3n + 3) {
+    background: linear-gradient(to top, transparent, var(--cmt));
+    filter: drop-shadow(0 0 8px var(--cmt));
+  }
+
+  // Base outward direction + anchor point per corner/edge — the seeded
+  // sin() swing above scatters each spark's actual angle widely around it.
+  // --seed-offset just keeps each group's scatter pattern distinct.
+  // --angle-min/--angle-max keep each left corner's swing inside
+  // 180deg-360deg (left half) and each right corner's inside 0deg-180deg
+  // (right half), with a small buffer off the exact 0/180/360 boundary so a
+  // spark never grazes straight up/down and reads as crossing to the other
+  // side.
+  &.corner-tl {
+    top: 0;
+    left: 0;
+    --base-angle: 315deg;
+    --seed-offset: 0;
+    --angle-min: 200deg;
+    --angle-max: 355deg;
+  }
+
+  &.corner-bl {
+    top: 100%;
+    left: 0;
+    --base-angle: 225deg;
+    --seed-offset: 11;
+    --angle-min: 185deg;
+    --angle-max: 340deg;
+  }
+
+  &.corner-tr {
+    top: 0;
+    right: 0;
+    --base-angle: 45deg;
+    --seed-offset: 23;
+    --angle-min: 5deg;
+    --angle-max: 160deg;
+  }
+
+  &.corner-br {
+    top: 100%;
+    right: 0;
+    --base-angle: 135deg;
+    --seed-offset: 37;
+    --angle-min: 20deg;
+    --angle-max: 175deg;
+  }
+
+  &.mid-l {
+    left: 0;
+    --base-angle: 270deg;
+    --spread: 30deg;
+    --seed-offset: 51;
+  }
+
+  &.mid-r {
+    right: 0;
+    --base-angle: 90deg;
+    --spread: 30deg;
+    --seed-offset: 59;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes spark-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--start))) scaleY(0.6);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--end))) scaleY(1.3);
   }
 }
 
 // The search step's card spread wants more room to breathe than the
 // confirm/detail step (a single form column); widen just this dialog.
+// Also pinned to a fixed height (not just max-height) so it opens at full
+// size immediately with an empty results area, rather than hugging just the
+// toolbar's height until a search returns and the dialog jumps taller.
 .search-dialog {
   width: min(1500px, 94vw);
+  height: 90vh;
 
   @include bp.mobile {
     width: 100vw;
+    height: 100vh;
   }
 }
 

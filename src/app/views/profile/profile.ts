@@ -19,10 +19,15 @@ import { ColorThemePicker } from '@shared/color-theme-picker/color-theme-picker'
   selector: 'app-profile',
   styleUrl: './profile.scss',
   templateUrl: './profile.html',
+  host: {
+    '[style.--profile-primary]': 'themeService.roles().primary',
+    '[style.--profile-primary-hover]': 'themeService.roles().primaryHover',
+    '[style.--profile-accent]': 'themeService.roles().accent',
+  },
 })
 export class Profile {
   private readonly authService = inject(AuthService);
-  private readonly themeService = inject(ThemeService);
+  protected readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
 
   readonly minPasswordLength = 6;

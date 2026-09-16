@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { CardLookupResult } from '@services/card-lookup.service';
+import { getCardGlowColors } from '../../core/utils/card-color.util';
 import { CardScanCapture } from '../card-scan-capture/card-scan-capture';
 
 export type CardSearchMode = 'name' | 'setCode';
@@ -61,6 +62,13 @@ export class CardSearchPanel {
   readonly spreadSeed = signal(0);
 
   private readonly sentinel = viewChild<ElementRef<HTMLElement>>('sentinel');
+
+  // Each result's hover/focus glow follows its own color identity (see
+  // card-color.util.ts) instead of a single shared theme accent, since many
+  // differently-colored cards are on screen at once here.
+  glowColors(result: CardLookupResult): string[] {
+    return getCardGlowColors(result.colorIdentity);
+  }
 
   constructor() {
     effect(() => {

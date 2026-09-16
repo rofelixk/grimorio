@@ -4,30 +4,57 @@
   aria-labelledby="search-dialog-title"
   (close)="onSearchDialogNativeClose()"
 >
-  <div class="modal-header">
-    <h2 id="search-dialog-title">Buscar carta</h2>
-    <button type="button" class="close-button" (click)="cancel()" aria-label="Fechar">✕</button>
+  <div class="side-glow left" aria-hidden="true"></div>
+  <div class="side-glow right" aria-hidden="true"></div>
+  <div class="side-sparks" aria-hidden="true">
+    <!-- Small corner accents, angle/distance/timing all seeded via --i, see add-card-modal.scss -->
+    @for (i of [0, 1, 2]; track i) {
+      <span class="spark corner-tl" [style.--i]="i"></span>
+    }
+    @for (i of [0, 1, 2]; track i) {
+      <span class="spark corner-bl" [style.--i]="i"></span>
+    }
+    @for (i of [0, 1, 2]; track i) {
+      <span class="spark corner-tr" [style.--i]="i"></span>
+    }
+    @for (i of [0, 1, 2]; track i) {
+      <span class="spark corner-br" [style.--i]="i"></span>
+    }
+    <!-- Most of the activity lives along the sides, spread the full height -->
+    @for (i of [0, 1, 2, 3, 4, 5, 6, 7]; track i) {
+      <span class="spark mid-l" [style.top.%]="8 + i * 12" [style.--i]="i"></span>
+    }
+    @for (i of [0, 1, 2, 3, 4, 5, 6, 7]; track i) {
+      <span class="spark mid-r" [style.top.%]="8 + i * 12" [style.--i]="i"></span>
+    }
   </div>
 
-  <div class="modal-body">
-    <app-card-search-panel
-      [searchMode]="searchMode()"
-      [nameQuery]="nameQuery()"
-      [setCodeInput]="setCodeInput()"
-      [collectorNumberInput]="collectorNumberInput()"
-      [results]="filteredResults()"
-      [searching]="searching()"
-      [hasSearched]="hasSearched()"
-      [searchError]="searchError()"
-      [ocrHelperMessage]="ocrHelperMessage()"
-      (searchModeChanged)="setSearchMode($event)"
-      (nameQueryChanged)="nameQuery.set($event)"
-      (setCodeChanged)="setCodeInput.set($event)"
-      (collectorNumberChanged)="collectorNumberInput.set($event)"
-      (searchRequested)="runSearch()"
-      (cameraCaptured)="onCameraCaptured($event)"
-      (resultPicked)="pickResult($event)"
-    />
+  <div class="modal-surface">
+    <div class="modal-header">
+      <h2 id="search-dialog-title">Buscar carta</h2>
+      <button type="button" class="close-button" (click)="cancel()" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <app-card-search-panel
+        [searchMode]="searchMode()"
+        [nameQuery]="nameQuery()"
+        [setCodeInput]="setCodeInput()"
+        [collectorNumberInput]="collectorNumberInput()"
+        [results]="filteredResults()"
+        [searching]="searching()"
+        [hasSearched]="hasSearched()"
+        [searchError]="searchError()"
+        [ocrHelperMessage]="ocrHelperMessage()"
+        (searchModeChanged)="setSearchMode($event)"
+        (nameQueryChanged)="nameQuery.set($event)"
+        (setCodeChanged)="setCodeInput.set($event)"
+        (collectorNumberChanged)="collectorNumberInput.set($event)"
+        (searchRequested)="runSearch()"
+        (cameraCaptured)="onCameraCaptured($event)"
+        (resultPicked)="pickResult($event)"
+      />
+    </div>
   </div>
 </dialog>
 
@@ -36,30 +63,62 @@
   class="add-card-modal confirm-dialog"
   aria-labelledby="confirm-dialog-title"
   (close)="onConfirmDialogNativeClose()"
+  [style.--card-modal-primary]="cardGlow()[0]"
+  [style.--card-modal-primary-hover]="cardGlow()[0]"
+  [style.--card-modal-accent]="cardGlow()[1] || cardGlow()[0]"
+  [style.--card-modal-accent-hover]="cardGlow()[1] || cardGlow()[0]"
+  [style.--card-modal-tertiary]="cardGlow()[2] || cardGlow()[1] || cardGlow()[0]"
 >
-  @if (selected(); as candidate) {
-    <div class="modal-header">
-      <h2 id="confirm-dialog-title">{{ candidate.name }}</h2>
-      <button type="button" class="back-button" (click)="back()">Voltar</button>
-    </div>
+  <div class="side-glow left" aria-hidden="true"></div>
+  <div class="side-glow right" aria-hidden="true"></div>
+  <div class="side-sparks" aria-hidden="true">
+    <!-- Small corner accents, angle/distance/timing all seeded via --i, see add-card-modal.scss -->
+    @for (i of [0, 1]; track i) {
+      <span class="spark corner-tl" [style.--i]="i"></span>
+    }
+    @for (i of [0, 1]; track i) {
+      <span class="spark corner-bl" [style.--i]="i"></span>
+    }
+    @for (i of [0, 1]; track i) {
+      <span class="spark corner-tr" [style.--i]="i"></span>
+    }
+    @for (i of [0, 1]; track i) {
+      <span class="spark corner-br" [style.--i]="i"></span>
+    }
+    <!-- Most of the activity lives along the sides, spread the full height -->
+    @for (i of [0, 1, 2, 3, 4]; track i) {
+      <span class="spark mid-l" [style.top.%]="12 + i * 19" [style.--i]="i"></span>
+    }
+    @for (i of [0, 1, 2, 3, 4]; track i) {
+      <span class="spark mid-r" [style.top.%]="12 + i * 19" [style.--i]="i"></span>
+    }
+  </div>
 
-    <div class="modal-body">
-      <app-card-add-detail-panel
-        [candidate]="candidate"
-        [finish]="finish()"
-        [language]="language()"
-        [condition]="condition()"
-        [quantity]="quantity()"
-        [forSale]="forSale()"
-        [notes]="notes()"
-        (finishChanged)="finish.set($event)"
-        (languageChanged)="language.set($event)"
-        (conditionChanged)="condition.set($event)"
-        (quantityChanged)="quantity.set($event)"
-        (forSaleChanged)="forSale.set($event)"
-        (notesChanged)="notes.set($event)"
-        (confirm)="submit()"
-      />
+  @if (selected(); as candidate) {
+    <div class="modal-surface">
+      <div class="modal-header">
+        <h2 id="confirm-dialog-title">{{ candidate.name }}</h2>
+        <button type="button" class="back-button" (click)="back()">Voltar</button>
+      </div>
+
+      <div class="modal-body">
+        <app-card-add-detail-panel
+          [candidate]="candidate"
+          [finish]="finish()"
+          [language]="language()"
+          [condition]="condition()"
+          [quantity]="quantity()"
+          [forSale]="forSale()"
+          [notes]="notes()"
+          (finishChanged)="finish.set($event)"
+          (languageChanged)="language.set($event)"
+          (conditionChanged)="condition.set($event)"
+          (quantityChanged)="quantity.set($event)"
+          (forSaleChanged)="forSale.set($event)"
+          (notesChanged)="notes.set($event)"
+          (confirm)="submit()"
+        />
+      </div>
     </div>
   }
 </dialog>

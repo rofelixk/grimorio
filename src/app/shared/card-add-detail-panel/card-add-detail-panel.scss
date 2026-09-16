@@ -62,3 +62,24 @@
     }
   }
 }
+
+// Glow-style override (dark surface + colored border/text, not a filled
+// background) — same reasoning as Profile's buttons: a filled background
+// wouldn't stay readable against --color-primary-contrast for lighter
+// colors (white cards, silver 4c, gold 5c). --cmp/--cmph here resolve to
+// this specific card's own color identity, not the saved theme — see the
+// confirm-dialog override in add-card-modal.html/.ts.
+.btn-primary {
+  background: var(--color-surface-raised);
+  color: var(--cmp);
+  border-color: var(--cmp);
+  font-weight: bold;
+
+  // A brightness filter, not a swapped hover color: card-driven colors
+  // (see card-color.util.ts) don't come with a matching hover shade the
+  // way theme roles do, so this works for either source.
+  &:hover:not(:disabled),
+  &:focus-visible {
+    filter: brightness(1.15);
+  }
+}

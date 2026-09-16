@@ -78,33 +78,38 @@ app-card-scan-capture {
 // The bar's own `> *` rule above paints every direct child's background as
 // --color-surface (for the seam effect); .btn-primary needs its ember
 // background/contrast-text restated here or it gets silently overridden.
+// Colors route through --cmp/--cmph (set on the enclosing app-add-card-modal
+// host from the user's saved theme, see add-card-modal.scss) rather than the
+// static --color-primary tokens, so this CTA follows the theme.
 .search-bar .btn-primary {
   flex: 0 0 auto;
   border-radius: 0;
   border: none;
-  background: var(--color-primary);
+  background: var(--cmp, var(--color-primary));
   color: var(--color-primary-contrast);
   font-weight: bold;
   user-select: none;
 
   &:hover:not(:disabled) {
-    background: var(--color-primary-hover);
+    background: var(--cmph, var(--color-primary-hover));
   }
 }
 
 // The bar clips its segments with overflow:hidden to keep the shared
 // border-radius clean, so focus rings draw inward (outline-offset: -2px)
-// instead of being cropped at the edge. Ember stays reserved for the one
-// primary CTA (the search button) per the One Flame Rule; the mode
-// toggle and input are secondary controls and use Spectral Teal instead.
+// instead of being cropped at the edge. The primary theme color stays
+// reserved for the one primary CTA (the search button) per the One Flame
+// Rule; the mode toggle and input are secondary controls and use the
+// theme's accent role instead (falls back to Spectral Teal outside a
+// themed modal).
 .mode-toggle button:focus-visible,
 .search-field input:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--cma, var(--color-accent));
   outline-offset: -2px;
 }
 
 .search-bar .btn-primary:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--cmp, var(--color-primary));
   outline-offset: -2px;
 }
 
@@ -170,6 +175,7 @@ app-card-scan-capture {
   .result-card {
     all: unset;
     box-sizing: border-box;
+    position: relative;
     display: block;
     width: 100%;
     border: 1px solid transparent;
@@ -178,15 +184,48 @@ app-card-scan-capture {
     transition: border-color 0.18s ease, box-shadow 0.18s ease;
   }
 
+  // Hover/focus glows in this specific card's own color identity (see
+  // card-color.util.ts / the --card-glow-* bindings set per-<li> in the
+  // template) rather than a single shared theme accent — many
+  // differently-colored cards sit on screen at once here.
   li:hover .result-card,
   li:focus-within .result-card {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 16px rgba(232, 121, 47, 0.4);
+    border-color: var(--card-glow-1, var(--cma));
+    box-shadow: 0 0 16px rgb(from var(--card-glow-1, #e8792f) r g b / 40%);
   }
 
   .result-card:focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--card-glow-1, var(--cma));
     outline-offset: 2px;
+  }
+
+  // 2-3 color cards get a rotating ring cycling through their actual colors
+  // on hover/focus, same technique as auth-modal's glow ring (hollow border
+  // via mask-composite: exclude) — only shown for genuinely multicolor
+  // cards, not on every card at rest.
+  li.multicolor:hover .result-card::after,
+  li.multicolor:focus-within .result-card::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: calc(var(--radius-card) + 3px);
+    padding: 2px;
+    pointer-events: none;
+    background: conic-gradient(
+      from var(--spin-angle),
+      var(--card-glow-1),
+      var(--card-glow-2),
+      var(--card-glow-3, var(--card-glow-2)),
+      var(--card-glow-1)
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: spin-angle 4s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
   }
 
   // Scryfall/Supabase card art is a flat rectangular scan with its own

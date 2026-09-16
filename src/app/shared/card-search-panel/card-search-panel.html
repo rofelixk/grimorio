@@ -75,7 +75,13 @@
 @if (results().length > 0) {
   <ul class="results" [style.--search-seed]="spreadSeed()">
     @for (result of visibleResults(); track result.scryfallId; let i = $index) {
-      <li [style.--i]="i">
+      <li
+        [style.--i]="i"
+        [class.multicolor]="result.colorIdentity.length >= 2 && result.colorIdentity.length <= 3"
+        [style.--card-glow-1]="glowColors(result)[0]"
+        [style.--card-glow-2]="glowColors(result)[1]"
+        [style.--card-glow-3]="glowColors(result)[2]"
+      >
         <button
           type="button"
           class="result-card"

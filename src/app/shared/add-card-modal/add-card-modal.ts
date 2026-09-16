@@ -16,6 +16,8 @@ import { CardOcrService } from '@services/card-ocr.service';
 import { CardService } from '@services/card.service';
 import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
 import { DeckService } from '@services/deck.service';
+import { ThemeService } from '@services/theme.service';
+import { getCardGlowColors } from '../../core/utils/card-color.util';
 import { CardAddDetailPanel } from '../card-add-detail-panel/card-add-detail-panel';
 import { CardSearchMode, CardSearchPanel } from '../card-search-panel/card-search-panel';
 
@@ -25,12 +27,20 @@ import { CardSearchMode, CardSearchPanel } from '../card-search-panel/card-searc
   selector: 'app-add-card-modal',
   styleUrl: './add-card-modal.scss',
   templateUrl: './add-card-modal.html',
+  host: {
+    '[style.--card-modal-primary]': 'themeService.roles().primary',
+    '[style.--card-modal-primary-hover]': 'themeService.roles().primaryHover',
+    '[style.--card-modal-accent]': 'themeService.roles().accent',
+    '[style.--card-modal-accent-hover]': 'themeService.roles().accentHover',
+    '[style.--card-modal-tertiary]': 'themeService.roles().tertiary',
+  },
 })
 export class AddCardModal {
   private readonly cardLookup = inject(CardLookupService);
   private readonly cardService = inject(CardService);
   private readonly deckService = inject(DeckService);
   private readonly cardOcr = inject(CardOcrService);
+  protected readonly themeService = inject(ThemeService);
 
   readonly open = input(false);
   readonly context = input.required<'collection' | 'deck'>();
@@ -53,6 +63,16 @@ export class AddCardModal {
   readonly results = signal<CardLookupResult[]>([]);
   readonly ocrHelperMessage = signal<string | null>(null);
   readonly selected = signal<CardLookupResult | null>(null);
+
+  // Once a card is picked, the confirm step's whole ring/glow/spark/button
+  // treatment switches from the user's saved theme to this specific card's
+  // own color identity (see card-color.util.ts) — bound directly on the
+  // confirm dialog in the template, overriding the theme values this
+  // component's host otherwise sets for the search dialog.
+  readonly cardGlow = computed(() => {
+    const candidate = this.selected();
+    return candidate ? getCardGlowColors(candidate.colorIdentity) : [];
+  });
 
   readonly finish = signal<CardFinish | ''>('');
   readonly language = signal('');
