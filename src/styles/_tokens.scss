@@ -44,6 +44,10 @@
   --line-height-tight: 1.2;
   --line-height-normal: 1.5;
 
+  // Two-typeface system: display for card names/titles, sans for everything else.
+  --font-display: 'Grenze', Georgia, serif;
+  --font-sans: 'Karla', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
 
   // Shared <dialog>::backdrop color across auth-modal/add-card-modal/profile.

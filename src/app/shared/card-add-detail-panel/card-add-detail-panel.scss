@@ -4,56 +4,271 @@
 .detail {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  text-align: center;
-
-  img {
-    width: 100%;
-    max-width: 260px;
-    border-radius: var(--radius-md);
-  }
+  min-height: 0;
 }
 
-.physical-fields {
+.header {
+  flex: 0 0 auto;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: var(--space-3);
-  width: 100%;
-  text-align: left;
+  padding: var(--space-5) var(--space-5) var(--space-4);
 
-  label.checkbox-field {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  select,
-  input,
-  textarea {
-    font: inherit;
-    padding: var(--space-2);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    color: var(--color-text);
+  @include bp.mobile {
+    padding: var(--space-3) var(--space-3) var(--space-2);
   }
 }
 
-@include bp.mobile {
-  .physical-fields {
-    label {
-      width: 100%;
-    }
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
 
-    select,
-    input:not([type='checkbox']),
-    textarea {
-      width: 100%;
-      min-height: 44px;
-      box-sizing: border-box;
+  h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.625rem;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+
+    @include bp.mobile {
+      font-size: 1.375rem;
     }
+  }
+
+  .subline {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+}
+
+.back-button {
+  flex: 0 0 auto;
+  font: inherit;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.scroll-body {
+  @include m.modal-scroll-body;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+
+  @include bp.mobile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.art-wrapper {
+  position: relative;
+
+  @include bp.mobile {
+    align-self: center;
+    width: 210px;
+  }
+}
+
+.art-wrapper img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 488 / 680;
+  border-radius: var(--radius-md);
+}
+
+.flip-button {
+  position: absolute;
+  bottom: var(--space-2);
+  right: var(--space-2);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  background: rgba(20, 17, 15, 0.85);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) 0.625rem;
+  min-height: 44px;
+  cursor: pointer;
+
+  @include bp.mobile {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.left-column > label,
+.right-column label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+select,
+input,
+textarea {
+  font: inherit;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.right-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3) var(--space-4);
+}
+
+.checkbox-field,
+.notes-field {
+  grid-column: 1 / -1;
+}
+
+.stepper {
+  display: flex;
+  align-items: stretch;
+  gap: 0.375rem;
+
+  button {
+    flex: 0 0 auto;
+    width: 44px;
+    font: inherit;
+    font-size: 1.125rem;
+    line-height: 1;
+    color: var(--color-text);
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--cmp);
+    }
+  }
+
+  input {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+    color-scheme: dark;
+  }
+}
+
+// Specificity note: ".right-column label" above (class + element) outranks a
+// bare ".checkbox-field" (class only) despite coming first in the file — the
+// extra "label" qualifier here matches that specificity so this override
+// actually wins.
+.right-column label.checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.625rem var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  min-height: 44px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--cmp);
+  }
+
+  input[type='checkbox'] {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
+.checkbox-box {
+  position: relative;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox-glyph {
+  font: 700 11px/1 system-ui, sans-serif;
+  color: var(--cmp);
+  opacity: 0;
+}
+
+.checkbox-field:has(:checked) {
+  .checkbox-box {
+    background: var(--color-surface-raised);
+    border-color: var(--cmp);
+  }
+
+  .checkbox-glyph {
+    opacity: 1;
+  }
+}
+
+.notes-field textarea {
+  resize: vertical;
+}
+
+.action-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+
+  @include bp.mobile {
+    flex-direction: column-reverse;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+}
+
+.btn-secondary {
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  min-height: 44px;
+  cursor: pointer;
+
+  @include bp.mobile {
+    width: 100%;
   }
 }
 
@@ -68,4 +283,25 @@
 // way theme roles do, so this works for either source.
 .btn-primary {
   @include m.glow-button(var(--cmp));
+  padding: var(--space-2) var(--space-5);
+  min-height: 44px;
+
+  @include bp.mobile {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
+@include bp.mobile {
+  select,
+  input:not([type='checkbox']),
+  textarea {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+
+  .stepper input {
+    min-height: 44px;
+  }
 }

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Grimorio — card detail step: 2a (desktop) + 2d (mobile)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#0b0908;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#f2ede8}
+a{color:#3fc4d1}a:hover{color:#5ad3df}
+[data-scroll]{scrollbar-width:thin;scrollbar-color:#292320 #14110f}
+[data-scroll]::-webkit-scrollbar{width:10px}
+[data-scroll]::-webkit-scrollbar-track{background:#14110f}
+[data-scroll]::-webkit-scrollbar-thumb{background:#292320;border:2px solid #14110f;border-radius:4px}
+[data-scroll]::-webkit-scrollbar-thumb:hover{background:#3a332e}
+[data-stepper] button:hover,[data-check-row]:hover{border-color:#d3202a}
+@property --spin-angle{syntax:'<angle>';inherits:false;initial-value:0deg}
+@property --gap-a{syntax:'<number>';inherits:false;initial-value:1}
+@property --gap-b{syntax:'<number>';inherits:false;initial-value:1}
+@property --gap-c{syntax:'<number>';inherits:false;initial-value:1}
+@keyframes spin-angle{to{--spin-angle:360deg}}
+@keyframes flicker{0%,100%{opacity:.3}50%{opacity:.7}}
+@keyframes gap-a{0%,55%,100%{--gap-a:1}75%{--gap-a:.2}}
+@keyframes gap-b{0%,40%,100%{--gap-b:1}65%{--gap-b:.2}}
+@keyframes gap-c{0%,50%,100%{--gap-c:1}70%{--gap-c:.2}}
+@keyframes spark-burst{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--a)) translateY(calc(-1 * var(--s))) scaleY(.6)}25%{opacity:.5}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--a)) translateY(calc(-1 * var(--e))) scaleY(1)}}
+</style>
+</head>
+<body>
+<section style="padding:40px 44px 32px">
+  <p style="margin:0 0 20px;font:600 13px/1.4 system-ui,sans-serif;color:#f2ede8;max-width:900px">Grimorio — add-card confirm step (card detail). Two approved options: <strong>2a</strong> desktop (980px modal) and <strong>2d</strong> mobile full-bleed (390px). The dark frame around each is only the simulated backdrop/page, not part of the design. Spec: see README.md.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+<div id="2a" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(242,237,232,.55);max-width:1040px">
+        <a href="#2a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(255,255,255,.08);color:#f2ede8;border-radius:5px;text-decoration:none">2a</a>
+        <span>Split &amp; label — 980px wide: art left at 340px with print selector and flip under it, fields in a two-column grid, sticky action bar</span>
+      </div>
+      <div style="position:relative;width:1220px;padding:48px 120px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.08);border-radius:8px;overflow:hidden">
+        <div style="position:absolute;inset:0;background:#14110f;z-index:-1"></div>
+        <div style="position:relative;display:flex;flex-direction:column;padding:0 2px;width:980px;margin:0 auto;border-radius:8px;background:conic-gradient(from var(--spin-angle),rgb(from #d3202a r g b / 35%),rgb(from #d3202a r g b / 25%),rgb(from #d3202a r g b / 25%),rgb(from #d3202a r g b / 35%));animation:spin-angle 28s linear infinite">
+          <div aria-hidden="true" style="position:absolute;top:-24px;bottom:-24px;left:-110px;width:260px;border-radius:40px;pointer-events:none;filter:blur(26px);mask-image:linear-gradient(to right,transparent 0%,black 45%,black 100%),linear-gradient(to bottom,transparent 0%,black 25%,black 75%,transparent 100%);mask-composite:intersect;background:conic-gradient(from var(--spin-angle),rgb(from #d3202a r g b / 24%) 0%,rgb(from #d3202a r g b / calc(18% * var(--gap-b))) 30%,rgb(from #d3202a r g b / calc(24% * var(--gap-a))) 70%,rgb(from #d3202a r g b / 24%) 100%);animation:spin-angle 28s linear infinite,flicker 6s ease-in-out infinite,gap-a 8s ease-in-out infinite,gap-b 10s ease-in-out infinite 1.5s"></div>
+          <div aria-hidden="true" style="position:absolute;top:-24px;bottom:-24px;right:-110px;width:260px;border-radius:40px;pointer-events:none;filter:blur(26px);mask-image:linear-gradient(to left,transparent 0%,black 45%,black 100%),linear-gradient(to bottom,transparent 0%,black 25%,black 75%,transparent 100%);mask-composite:intersect;background:conic-gradient(from var(--spin-angle),rgb(from #d3202a r g b / 24%) 0%,rgb(from #d3202a r g b / calc(18% * var(--gap-c))) 30%,rgb(from #d3202a r g b / calc(24% * var(--gap-b))) 70%,rgb(from #d3202a r g b / 24%) 100%);animation:spin-angle 28s linear infinite,flicker 6s ease-in-out infinite,gap-b 10s ease-in-out infinite,gap-c 9s ease-in-out infinite 1.5s"></div>
+          <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none">
+            <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:0;left:0;--a:315.0deg;--s:14px;--e:220px;animation:spark-burst 0.70s ease-out infinite 5.60s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:0;left:0;--a:223.8deg;--s:32px;--e:111px;animation:spark-burst 0.85s ease-out infinite 3.66s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:0;right:0;--a:96.2deg;--s:29px;--e:150px;animation:spark-burst 0.98s ease-out infinite 1.69s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:0;right:0;--a:139.1deg;--s:24px;--e:220px;animation:spark-burst 1.08s ease-out infinite 4.04s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:20%;left:0;--a:213.2deg;--s:33px;--e:156px;animation:spark-burst 0.76s ease-out infinite 5.40s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:44%;left:0;--a:195.2deg;--s:31px;--e:191px;animation:spark-burst 1.09s ease-out infinite 2.59s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:68%;left:0;--a:221.5deg;--s:27px;--e:213px;animation:spark-burst 0.84s ease-out infinite 4.30s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:92%;left:0;--a:276.5deg;--s:22px;--e:220px;animation:spark-burst 1.06s ease-out infinite 4.42s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:20%;right:0;--a:147.6deg;--s:17px;--e:210px;animation:spark-burst 0.90s ease-out infinite 2.42s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:44%;right:0;--a:164.7deg;--s:16px;--e:184px;animation:spark-burst 1.02s ease-out infinite 5.45s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:68%;right:0;--a:137.5deg;--s:22px;--e:147px;animation:spark-burst 0.96s ease-out infinite 0.10s"></span>
+              <span style="position:absolute;width:2px;height:12px;border-radius:2px;opacity:0;background:linear-gradient(to top,transparent,#d3202a);filter:drop-shadow(0 0 2px #d3202a);top:92%;right:0;--a:82.3deg;--s:26px;--e:116px;animation:spark-burst 0.97s ease-out infinite 5.49s"></span>
+          </div>
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;min-height:0;border-radius:8px;background:#14110f;box-shadow:0 1px 3px rgba(0,0,0,.4);overflow:hidden">
+            <div style="flex:0 0 auto;display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;padding:1.5rem 1.5rem 1rem">
+              <div style="display:flex;flex-direction:column;gap:.25rem;min-width:0">
+                <h2 style="margin:0;font-size:1.25rem;line-height:1.2;overflow-wrap:anywhere">Lightning Bolt</h2>
+                <span style="font-size:.875rem;color:#a89e96">Instant · Modern Horizons 2 · #401</span>
+              </div>
+              <button type="button" style="font:inherit;color:#f2ede8;background:transparent;border:1px solid #3a332e;border-radius:4px;padding:.5rem .75rem;min-height:44px;cursor:pointer">Voltar</button>
+            </div>
+            <div data-scroll style="flex:1 1 auto;overflow-y:auto;padding:0 1.5rem 1.5rem">
+              <div style="display:grid;grid-template-columns:340px minmax(0,1fr);gap:2rem;align-items:start">
+                <div style="display:flex;flex-direction:column;gap:.75rem">
+                  <div style="position:relative">
+                    <div style="width:100%;aspect-ratio:488/680;border-radius:8px;background:repeating-linear-gradient(135deg,#1e1a17 0 8px,#241f1b 8px 16px);border:1px solid #3a332e;display:flex;align-items:center;justify-content:center;color:#a89e96;font:11px ui-monospace,Menlo,monospace">card image 340px</div>
+                    <button type="button" style="position:absolute;bottom:.5rem;right:.5rem;font:inherit;font-size:.875rem;color:#f2ede8;background:rgba(20,17,15,.85);border:1px solid #3a332e;border-radius:4px;padding:.5rem .625rem;min-height:44px;cursor:pointer">Virar carta</button>
+                  </div>
+                  <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Impressão
+                    <select style="font:inherit;padding:.5rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8"><option>MH2 · 401 · Modern Horizons 2</option><option>2XM · 129 · Double Masters</option><option>M10 · 146 · Magic 2010</option></select>
+                  </label>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem 1rem">
+                  <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Acabamento
+                    <select style="font:inherit;padding:.5rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8"><option>nonfoil (padrão)</option><option>foil</option><option>etched</option></select>
+                  </label>
+                  <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Condição
+                    <select style="font:inherit;padding:.5rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8"><option>NM (padrão)</option><option>LP</option><option>MP</option><option>HP</option><option>DMG</option></select>
+                  </label>
+                  <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Idioma
+                    <input type="text" placeholder="en (padrão)" style="font:inherit;padding:.5rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8">
+                  </label>
+                  <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Quantidade
+                    <div data-stepper style="display:flex;align-items:stretch;gap:.375rem">
+                      <button type="button" aria-label="Diminuir" data-step="-1" style="flex:0 0 auto;font:inherit;font-size:1.125rem;line-height:1;color:#f2ede8;background:#292320;border:1px solid #3a332e;border-radius:4px;width:44px;cursor:pointer" >−</button>
+                      <input type="number" min="1" value="1" data-qty style="flex:1 1 auto;min-width:0;font:inherit;text-align:center;padding:.5rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8;color-scheme:dark">
+                      <button type="button" aria-label="Aumentar" data-step="1" style="flex:0 0 auto;font:inherit;font-size:1.125rem;line-height:1;color:#f2ede8;background:#292320;border:1px solid #3a332e;border-radius:4px;width:44px;cursor:pointer" >+</button>
+                    </div>
+                  </label>
+                  <label style="grid-column:1/-1;display:flex;flex-direction:row;align-items:center;gap:.625rem;font-size:.875rem;padding:.625rem .75rem;background:#1e1a17;border:1px solid #3a332e;border-radius:4px;cursor:pointer;min-height:44px" >
+                    <span style="position:relative;flex:0 0 auto;width:18px;height:18px;border-radius:4px;border:1px solid #3a332e;background:#14110f;display:flex;align-items:center;justify-content:center">
+                      <input type="checkbox" data-check style="position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer">
+                      <span aria-hidden="true" style="font:700 11px/1 system-ui,sans-serif;color:#d3202a;opacity:0">✓</span>
+                    </span>
+                    <span>À venda</span>
+                  </label>
+                  <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Notas
+                    <textarea rows="3" style="font:inherit;padding:.5rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8;resize:vertical"></textarea>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div style="flex:0 0 auto;display:flex;align-items:center;justify-content:flex-end;gap:.75rem;padding:1rem 1.5rem;border-top:1px solid #3a332e;background:#14110f">
+              <button type="button" style="font:inherit;color:#f2ede8;background:#292320;border:1px solid #3a332e;border-radius:4px;padding:.5rem .75rem;min-height:44px;cursor:pointer">Adicionar e buscar outra</button>
+              <button type="button" style="font:inherit;background:#292320;color:#d3202a;border:1px solid #d3202a;border-radius:4px;padding:.5rem 1.25rem;min-height:44px;font-weight:bold;cursor:pointer">Adicionar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+<div id="2d" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(242,237,232,.55);max-width:430px">
+        <a href="#2d" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(255,255,255,.08);color:#f2ede8;border-radius:5px;text-decoration:none">2d</a>
+        <span>Mobile full-bleed — same structure as <a href="#2a">2a</a>, stacked: art + print selector, then the paired fields, À venda row, and a sticky footer</span>
+      </div>
+      <div style="width:430px;padding:20px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.08);border-radius:8px">
+        <div style="width:390px;height:780px;display:flex;flex-direction:column;background:#14110f;overflow:hidden">
+          <div style="flex:0 0 auto;display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;padding:.75rem .75rem .5rem">
+            <div style="display:flex;flex-direction:column;gap:.125rem;min-width:0">
+              <h2 style="margin:0;font-size:1.25rem;line-height:1.2;overflow-wrap:anywhere">Lightning Bolt</h2>
+              <span style="font-size:.875rem;color:#a89e96">Instant · Modern Horizons 2 · #401</span>
+            </div>
+            <button type="button" style="flex:0 0 auto;font:inherit;color:#f2ede8;background:transparent;border:1px solid #3a332e;border-radius:4px;padding:.5rem .625rem;min-height:44px;cursor:pointer">Voltar</button>
+          </div>
+          <div data-scroll style="flex:1 1 auto;overflow-y:auto;padding:0 .75rem .75rem;display:flex;flex-direction:column;gap:.75rem">
+            <div style="display:flex;flex-direction:column;gap:.75rem">
+              <div style="position:relative;align-self:center;width:210px">
+                <div style="width:100%;aspect-ratio:488/680;border-radius:8px;background:repeating-linear-gradient(135deg,#1e1a17 0 8px,#241f1b 8px 16px);border:1px solid #3a332e;display:flex;align-items:center;justify-content:center;color:#a89e96;font:10px ui-monospace,Menlo,monospace">card image 210px</div>
+                <button type="button" style="position:absolute;bottom:.5rem;left:50%;transform:translateX(-50%);font:inherit;font-size:.8125rem;color:#f2ede8;background:rgba(20,17,15,.88);border:1px solid #3a332e;border-radius:4px;padding:.5rem .625rem;min-height:44px;cursor:pointer">Virar carta</button>
+              </div>
+              <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Impressão
+                <select style="font:inherit;padding:.5rem .625rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8;color-scheme:dark;width:100%;min-height:44px"><option>MH2 · 401 · Modern Horizons 2</option><option>2XM · 129 · Double Masters</option><option>M10 · 146 · Magic 2010</option></select>
+              </label>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem .625rem">
+              <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Acabamento
+                <select style="font:inherit;padding:.5rem .625rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8;color-scheme:dark;width:100%;min-height:44px"><option>nonfoil</option><option>foil</option><option>etched</option></select>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Condição
+                <select style="font:inherit;padding:.5rem .625rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8;color-scheme:dark;width:100%;min-height:44px"><option>NM</option><option>LP</option><option>MP</option><option>HP</option><option>DMG</option></select>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Idioma
+                <input type="text" placeholder="en (padrão)" style="font:inherit;padding:.5rem .625rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8;color-scheme:dark;width:100%;min-height:44px">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Quantidade
+                <div data-stepper style="display:flex;align-items:stretch;gap:.25rem">
+                  <button type="button" aria-label="Diminuir" data-step="-1" style="flex:0 0 auto;font:inherit;font-size:1.125rem;line-height:1;color:#f2ede8;background:#292320;border:1px solid #3a332e;border-radius:4px;width:44px;min-height:44px;cursor:pointer" >−</button>
+                  <input type="number" min="1" value="1" data-qty style="flex:1 1 auto;min-width:0;font:inherit;text-align:center;padding:.5rem .25rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8;color-scheme:dark;min-height:44px">
+                  <button type="button" aria-label="Aumentar" data-step="1" style="flex:0 0 auto;font:inherit;font-size:1.125rem;line-height:1;color:#f2ede8;background:#292320;border:1px solid #3a332e;border-radius:4px;width:44px;min-height:44px;cursor:pointer" >+</button>
+                </div>
+              </label>
+            </div>
+            <label data-check-row style="display:flex;flex-direction:row;align-items:center;gap:.625rem;font-size:.875rem;padding:.625rem .75rem;background:#1e1a17;border:1px solid #3a332e;border-radius:4px;cursor:pointer;min-height:44px" >
+              <span style="position:relative;flex:0 0 auto;width:18px;height:18px;border-radius:4px;border:1px solid #3a332e;background:#14110f;display:flex;align-items:center;justify-content:center">
+                <input type="checkbox" data-check style="position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer">
+                <span aria-hidden="true" style="font:700 11px/1 system-ui,sans-serif;color:#d3202a;opacity:0">✓</span>
+              </span>
+              <span>À venda</span>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:.25rem;font-size:.875rem">Notas
+              <textarea rows="3" style="font:inherit;padding:.5rem .625rem;border-radius:4px;border:1px solid #3a332e;background:#1e1a17;color:#f2ede8;width:100%;resize:vertical"></textarea>
+            </label>
+          </div>
+          <div style="flex:0 0 auto;display:flex;flex-direction:column;gap:.5rem;padding:.75rem;border-top:1px solid #3a332e">
+            <button type="button" style="width:100%;font:inherit;background:#292320;color:#d3202a;border:1px solid #d3202a;border-radius:4px;padding:.75rem;min-height:48px;font-weight:bold;cursor:pointer">Adicionar</button>
+            <button type="button" style="width:100%;font:inherit;color:#f2ede8;background:transparent;border:1px solid #3a332e;border-radius:4px;padding:.625rem;min-height:44px;cursor:pointer">Adicionar e buscar outra</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<script>
+document.querySelectorAll('[data-stepper]').forEach(function (box) {
+  var input = box.querySelector('[data-qty]');
+  box.querySelectorAll('button[data-step]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var next = Math.max(1, (parseInt(input.value, 10) || 1) + parseInt(b.dataset.step, 10));
+      input.value = next;
+    });
+  });
+});
+document.querySelectorAll('[data-check]').forEach(function (cb) {
+  cb.addEventListener('change', function () {
+    var box = cb.parentElement;
+    var tick = box.querySelector('span');
+    box.style.borderColor = cb.checked ? '#d3202a' : '#3a332e';
+    box.style.background = cb.checked ? '#292320' : '#14110f';
+    tick.style.opacity = cb.checked ? '1' : '0';
+  });
+});
+</script>
+</body>
+</html>

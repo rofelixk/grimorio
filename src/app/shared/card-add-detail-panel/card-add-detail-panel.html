@@ -1,57 +1,88 @@
 <div class="detail">
-  <img [src]="candidate().imageUrl" [alt]="candidate().name" />
-
-  <div class="physical-fields">
-    <label>
-      Acabamento
-      <select [value]="finish()" (change)="finishChanged.emit($any($event.target).value)">
-        <option value="">nonfoil (padrão)</option>
-        @for (f of finishes; track f) {
-          <option [value]="f">{{ f }}</option>
-        }
-      </select>
-    </label>
-    <label>
-      Idioma
-      <input
-        type="text"
-        [value]="language()"
-        (input)="languageChanged.emit($any($event.target).value)"
-        placeholder="en (padrão)"
-      />
-    </label>
-    <label>
-      Condição
-      <select [value]="condition()" (change)="conditionChanged.emit($any($event.target).value)">
-        <option value="">NM (padrão)</option>
-        @for (c of conditions; track c) {
-          <option [value]="c">{{ c }}</option>
-        }
-      </select>
-    </label>
-    <label>
-      Quantidade
-      <input
-        type="number"
-        min="1"
-        [value]="quantity()"
-        (input)="quantityChanged.emit($any($event.target).value)"
-        placeholder="1 (padrão)"
-      />
-    </label>
-    <label class="checkbox-field">
-      <input
-        type="checkbox"
-        [checked]="forSale()"
-        (change)="forSaleChanged.emit($any($event.target).checked)"
-      />
-      À venda
-    </label>
-    <label>
-      Notas
-      <textarea [value]="notes()" (input)="notesChanged.emit($any($event.target).value)"></textarea>
-    </label>
+  <div class="header">
+    <div class="title-block">
+      <h2 id="confirm-dialog-title">{{ candidate().name }}</h2>
+      <span class="subline"
+        >{{ candidate().typeLine }} · {{ candidate().setName }} · #{{ candidate().collectorNumber }}</span
+      >
+    </div>
+    <button type="button" class="back-button" (click)="back.emit()">Voltar</button>
   </div>
 
-  <button type="button" class="btn-primary" (click)="confirm.emit()">Adicionar</button>
+  <div class="scroll-body">
+    <div class="grid">
+      <div class="left-column">
+        <div class="art-wrapper">
+          <img [src]="displayedFace().imageUrl" [alt]="displayedFace().name" />
+          @if ((candidate().faces?.length ?? 0) > 1) {
+            <button type="button" class="flip-button" (click)="flipFace()">Virar carta</button>
+          }
+        </div>
+        <label>
+          Impressão
+          <select disabled>
+            <option>{{ candidate().setCode }} · {{ candidate().collectorNumber }} · {{ candidate().setName }}</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="right-column">
+        <label>
+          Acabamento
+          <select [value]="finish()" (change)="finishChanged.emit($any($event.target).value)">
+            <option value="">nonfoil (padrão)</option>
+            @for (f of finishes; track f) {
+              <option [value]="f">{{ f }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Condição
+          <select [value]="condition()" (change)="conditionChanged.emit($any($event.target).value)">
+            <option value="">NM (padrão)</option>
+            @for (c of conditions; track c) {
+              <option [value]="c">{{ c }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Idioma
+          <input
+            type="text"
+            [value]="language()"
+            (input)="languageChanged.emit($any($event.target).value)"
+            placeholder="en (padrão)"
+          />
+        </label>
+        <label class="quantity-field">
+          Quantidade
+          <div class="stepper">
+            <button type="button" aria-label="Diminuir" (click)="decrementQuantity()">−</button>
+            <input
+              type="number"
+              min="1"
+              placeholder="1 (padrão)"
+              [value]="quantity()"
+              (input)="quantityChanged.emit($any($event.target).value)"
+            />
+            <button type="button" aria-label="Aumentar" (click)="incrementQuantity()">+</button>
+          </div>
+        </label>
+        <label class="checkbox-field">
+          <input type="checkbox" [checked]="forSale()" (change)="forSaleChanged.emit($any($event.target).checked)" />
+          <span class="checkbox-box"><span class="checkbox-glyph" aria-hidden="true">✓</span></span>
+          À venda
+        </label>
+        <label class="notes-field">
+          Notas
+          <textarea rows="3" [value]="notes()" (input)="notesChanged.emit($any($event.target).value)"></textarea>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button type="button" class="btn-secondary" (click)="confirmAndContinue.emit()">Adicionar e buscar outra</button>
+    <button type="button" class="btn-primary" (click)="confirm.emit()">Adicionar</button>
+  </div>
 </div>

@@ -90,29 +90,24 @@
 
   @if (selected(); as candidate) {
     <div class="modal-surface">
-      <div class="modal-header">
-        <h2 id="confirm-dialog-title">{{ candidate.name }}</h2>
-        <button type="button" class="back-button" (click)="back()">Voltar</button>
-      </div>
-
-      <div class="modal-body">
-        <app-card-add-detail-panel
-          [candidate]="candidate"
-          [finish]="finish()"
-          [language]="language()"
-          [condition]="condition()"
-          [quantity]="quantity()"
-          [forSale]="forSale()"
-          [notes]="notes()"
-          (finishChanged)="finish.set($event)"
-          (languageChanged)="language.set($event)"
-          (conditionChanged)="condition.set($event)"
-          (quantityChanged)="quantity.set($event)"
-          (forSaleChanged)="forSale.set($event)"
-          (notesChanged)="notes.set($event)"
-          (confirm)="submit()"
-        />
-      </div>
+      <app-card-add-detail-panel
+        [candidate]="candidate"
+        [finish]="finish()"
+        [language]="language()"
+        [condition]="condition()"
+        [quantity]="quantity()"
+        [forSale]="forSale()"
+        [notes]="notes()"
+        (finishChanged)="finish.set($event)"
+        (languageChanged)="language.set($event)"
+        (conditionChanged)="condition.set($event)"
+        (quantityChanged)="quantity.set($event)"
+        (forSaleChanged)="forSale.set($event)"
+        (notesChanged)="notes.set($event)"
+        (back)="back()"
+        (confirm)="submit()"
+        (confirmAndContinue)="submitAndContinue()"
+      />
     </div>
   }
 </dialog>

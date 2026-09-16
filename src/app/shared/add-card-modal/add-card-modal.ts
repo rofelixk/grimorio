@@ -152,6 +152,16 @@ export class AddCardModal {
         );
         this.results.set([result]);
       }
+
+      // A single unambiguous match skips the extra click straight to the
+      // confirm step, same as the OCR flow already does when it reads a
+      // card unambiguously. Checked against filteredResults() (not
+      // results()), so a deck-context search that filters its one match
+      // down to zero doesn't jump the user into a card the filter rejected.
+      const visible = this.filteredResults();
+      if (visible.length === 1) {
+        this.pickResult(visible[0]);
+      }
     } catch (err) {
       // Let a failed request be retried with the exact same input — only
       // a successful search should dedupe a repeat.
@@ -233,19 +243,38 @@ export class AddCardModal {
 
   submit(): void {
     const candidate = this.selected();
-    if (!candidate) {
+    if (!candidate || !this.insertCandidate(candidate)) {
       return;
     }
 
+    this.reset();
+    this.closeAll();
+    this.closed.emit();
+  }
+
+  // Same insert as submit(), but leaves the search dialog's state intact and
+  // returns to it instead of closing — lets the user add several cards from
+  // one search without re-searching each time.
+  submitAndContinue(): void {
+    const candidate = this.selected();
+    if (!candidate || !this.insertCandidate(candidate)) {
+      return;
+    }
+
+    this.resetPhysicalFields();
+    this.selected.set(null);
+  }
+
+  private insertCandidate(candidate: CardLookupResult): boolean {
     if (this.context() === 'deck') {
       const identity = this.toIdentity(candidate);
       const filterFn = this.filter();
       if (filterFn && !filterFn(identity)) {
-        return;
+        return false;
       }
       const deckId = this.deckId();
       if (!deckId) {
-        return;
+        return false;
       }
       this.deckService.addCard(deckId, {
         id: crypto.randomUUID(),
@@ -255,14 +284,11 @@ export class AddCardModal {
     } else {
       const locationId = this.locationId();
       if (!locationId) {
-        return;
+        return false;
       }
       this.cardService.add({ ...this.buildCardEntryPayload(candidate), locationId });
     }
-
-    this.reset();
-    this.closeAll();
-    this.closed.emit();
+    return true;
   }
 
   cancel(): void {

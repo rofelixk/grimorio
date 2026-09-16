@@ -55,6 +55,37 @@ describe('AddCardModal', () => {
     expect(component.hasSearched()).toBe(true);
   });
 
+  it('auto-picks a single unambiguous name search result', async () => {
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+
+    expect(component.selected()).toEqual(component.results()[0]);
+  });
+
+  it('does not auto-pick when a name search returns multiple results', async () => {
+    vi.mocked(cardLookup.searchByName).mockResolvedValueOnce([
+      mockCardLookupResult({ name: 'Sol Ring' }),
+      mockCardLookupResult({ name: 'Sol Ring (Alt)' }),
+    ]);
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+
+    expect(component.results().length).toBe(2);
+    expect(component.selected()).toBeNull();
+  });
+
+  it('does not auto-pick a single raw result that the deck filter rejects', async () => {
+    fixture.componentRef.setInput('context', 'deck');
+    fixture.componentRef.setInput('deckId', 'deck-1');
+    fixture.componentRef.setInput('filter', () => false);
+
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+
+    expect(component.results().length).toBe(1);
+    expect(component.selected()).toBeNull();
+  });
+
   it('runs a set+collector search and wraps the single result in a list', async () => {
     component.setSearchMode('setCode');
     component.setCodeInput.set('mh3');
@@ -63,6 +94,7 @@ describe('AddCardModal', () => {
 
     expect(cardLookup.lookup).toHaveBeenCalledWith('mh3', '161');
     expect(component.results().length).toBe(1);
+    expect(component.selected()).toEqual(component.results()[0]);
   });
 
   it('treats a "not found" lookup error as an empty result without a banner', async () => {
@@ -248,5 +280,71 @@ describe('AddCardModal', () => {
 
     expect(component.selected()).toBeNull();
     expect(component.nameQuery()).toBe('Sol Ring');
+  });
+
+  it('submitAndContinue() inserts the card and returns to the search step with its state intact', async () => {
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+    component.pickResult(component.results()[0]);
+    component.quantity.set('2');
+    component.forSale.set(true);
+
+    let closed = false;
+    component.closed.subscribe(() => (closed = true));
+    component.submitAndContinue();
+
+    expect(cardService.add).toHaveBeenCalledWith(
+      expect.objectContaining({ locationId: 'loc-1', quantity: 2, finish: 'nonfoil' }),
+    );
+    expect(closed).toBe(false);
+    expect(component.selected()).toBeNull();
+    expect(component.forSale()).toBe(false);
+    expect(component.quantity()).toBe('');
+    expect(component.nameQuery()).toBe('Sol Ring');
+    expect(component.results().length).toBe(1);
+    expect(component.searchMode()).toBe('name');
+    expect(component.hasSearched()).toBe(true);
+  });
+
+  it('submitAndContinue() still dedupes an identical repeat search afterward', async () => {
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+    component.pickResult(component.results()[0]);
+    component.submitAndContinue();
+
+    await component.runSearch();
+
+    expect(cardLookup.searchByName).toHaveBeenCalledTimes(1);
+  });
+
+  it('submitAndContinue() inserts a deck add as a freeBuild DeckCard', async () => {
+    fixture.componentRef.setInput('context', 'deck');
+    fixture.componentRef.setInput('deckId', 'deck-1');
+    fixture.componentRef.setInput('filter', () => true);
+
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+    component.pickResult(component.results()[0]);
+    component.submitAndContinue();
+
+    expect(deckService.addCard).toHaveBeenCalledWith(
+      'deck-1',
+      expect.objectContaining({ source: 'freeBuild' }),
+    );
+    expect(component.selected()).toBeNull();
+  });
+
+  it('does not submitAndContinue() a deck add that fails the filter (defense in depth)', async () => {
+    fixture.componentRef.setInput('context', 'deck');
+    fixture.componentRef.setInput('deckId', 'deck-1');
+    fixture.componentRef.setInput('filter', () => false);
+
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+    component.pickResult(component.results()[0]);
+    component.submitAndContinue();
+
+    expect(deckService.addCard).not.toHaveBeenCalled();
+    expect(component.selected()).not.toBeNull();
   });
 });

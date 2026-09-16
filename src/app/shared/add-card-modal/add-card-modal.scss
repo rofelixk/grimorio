@@ -309,6 +309,14 @@
   }
 }
 
+// Wide enough for the confirm step's two-column layout (340px art column +
+// a two-field-wide form column) without the search dialog's full breadth —
+// hugs its content height (no fixed height override) up to the base
+// max-height: 90vh above.
+.confirm-dialog {
+  width: min(980px, 92vw);
+}
+
 .modal-header {
   flex: 0 0 auto;
   display: flex;
@@ -325,6 +333,8 @@
     margin: 0;
     min-width: 0;
     overflow-wrap: anywhere;
+    font-family: var(--font-display);
+    font-weight: 600;
     font-size: var(--font-size-lg);
   }
 }

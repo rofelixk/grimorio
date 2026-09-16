@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CardCondition, CardFinish } from '@models/card.model';
+import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output } from '@angular/core';
+import { CardCondition, CardFace, CardFinish } from '@models/card.model';
 import { CardLookupResult } from '@services/card-lookup.service';
 
 const FINISHES: CardFinish[] = ['nonfoil', 'foil', 'etched'];
@@ -32,5 +32,34 @@ export class CardAddDetailPanel {
   readonly forSaleChanged = output<boolean>();
   readonly notesChanged = output<string>();
 
+  readonly back = output<void>();
   readonly confirm = output<void>();
+  readonly confirmAndContinue = output<void>();
+
+  readonly faceIndex = linkedSignal({ source: this.candidate, computation: () => 0 });
+
+  readonly displayedFace = computed<CardFace>(() => {
+    const candidate = this.candidate();
+    const faces = candidate.faces;
+    if (faces && faces.length > 1) {
+      return faces[this.faceIndex() % faces.length];
+    }
+    return { name: candidate.name, imageUrl: candidate.imageUrl };
+  });
+
+  flipFace(): void {
+    const faces = this.candidate().faces;
+    if (!faces || faces.length < 2) return;
+    this.faceIndex.update((i) => (i + 1) % faces.length);
+  }
+
+  decrementQuantity(): void {
+    const next = Math.max(1, (Number(this.quantity()) || 1) - 1);
+    this.quantityChanged.emit(String(next));
+  }
+
+  incrementQuantity(): void {
+    const next = Math.max(1, (Number(this.quantity()) || 1) + 1);
+    this.quantityChanged.emit(String(next));
+  }
 }
