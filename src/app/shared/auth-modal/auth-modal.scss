@@ -1,4 +1,5 @@
 @use 'breakpoints' as bp;
+@use 'modal' as m;
 
 .auth-modal {
   position: relative;
@@ -39,21 +40,14 @@
   --mt: var(--modal-tertiary, var(--ma));
   --mth: var(--modal-tertiary-hover, var(--mah));
   // 3-stop primary/accent/tertiary rotation.
-  background: conic-gradient(
-    from var(--spin-angle),
-    rgb(from var(--mp) r g b / 35%),
-    rgb(from var(--ma) r g b / 25%),
-    rgb(from var(--mt) r g b / 25%),
-    rgb(from var(--mp) r g b / 35%)
-  );
-  animation: spin-angle 28s linear infinite;
+  @include m.theme-ring(var(--mp), var(--ma), var(--mt));
 
   &[open] {
     display: flex;
   }
 
   &::backdrop {
-    background: rgba(0, 0, 0, 0.75);
+    background: var(--overlay-backdrop);
     opacity: 1;
     transition:
       opacity var(--duration-slow) var(--ease-standard),
@@ -92,28 +86,10 @@
   }
 
   @include bp.mobile {
-    // Clears the native <dialog> UA centering/sizing (margin: auto and a
-    // max-width/max-height cap) that otherwise survives the overrides below.
-    margin: 0;
-    width: 100vw;
-    height: 100vh;
-    max-width: none;
-    max-height: none;
-    border-radius: 0;
-    // No room for a ring/halo to breathe in on a full-bleed dialog.
-    padding: 0;
-    background: var(--color-bg);
-    animation: none;
+    @include m.dialog-mobile-fullbleed;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    transition-duration: 0.001s;
-    animation: none;
-
-    &::backdrop {
-      transition-duration: 0.001s;
-    }
-  }
+  @include m.dialog-reduced-motion;
 }
 
 // The modal's opaque face. A separate element from the dialog itself so it
@@ -127,20 +103,7 @@
 // attempt relied on DOM order alone for this reason and the glow ended up
 // painting over the modal's own content instead of staying behind it.)
 .modal-surface {
-  position: relative;
-  z-index: 1;
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  border-radius: var(--radius-md);
-  background: var(--color-bg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-
-  @include bp.mobile {
-    border-radius: 0;
-  }
+  @include m.modal-surface;
 }
 
 // A soft blurred halo behind the modal, rotating in lockstep with the ring
@@ -163,27 +126,7 @@
   filter: blur(26px);
   // Same --mp/--ma/--mt retinting as the ring above; --gap-a..f keep dimming
   // the same rotation positions as before, only the color per stop changed.
-  background: conic-gradient(
-    from var(--spin-angle),
-    rgb(from var(--mp) r g b / 24%) 0%,
-    rgb(from var(--mp) r g b / calc(24% * var(--gap-a))) 8%,
-    rgb(from var(--ma) r g b / calc(18% * var(--gap-b))) 22%,
-    rgb(from var(--ma) r g b / calc(18% * var(--gap-c))) 38%,
-    rgb(from var(--mt) r g b / 18%) 50%,
-    rgb(from var(--mt) r g b / calc(18% * var(--gap-d))) 62%,
-    rgb(from var(--mp) r g b / calc(24% * var(--gap-e))) 78%,
-    rgb(from var(--mp) r g b / calc(24% * var(--gap-f))) 92%,
-    rgb(from var(--mp) r g b / 24%) 100%
-  );
-  animation:
-    spin-angle 28s linear infinite,
-    flicker 6s ease-in-out infinite,
-    gap-a 8s ease-in-out infinite,
-    gap-b 10s ease-in-out infinite 1.5s,
-    gap-c 9s ease-in-out infinite 3s,
-    gap-d 12s ease-in-out infinite 4.5s,
-    gap-e 11s ease-in-out infinite 6s,
-    gap-f 14s ease-in-out infinite 2s;
+  @include m.theme-ambient-glow(var(--mp), var(--ma), var(--mt));
 
   @include bp.mobile {
     display: none;
@@ -212,21 +155,19 @@
   }
 }
 
+// Base dimensions/opacity/animation wiring live in the shared .spark rule
+// (_motion.scss) — this component only adds its center-anchor placement and
+// color-cycling. Uses the shared @keyframes spark-burst's defaults (peak
+// opacity 0.5, end scale 1) unmodified.
 .spark {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 2px;
-  height: 12px;
-  border-radius: 2px;
   // Cycles through all 3 roles (primary/accent/tertiary) across every group
   // of 3 sparks, not just primary/accent, so a full 3-color pick shows every
   // chosen color flying off the ring.
   background: linear-gradient(to top, transparent, var(--mp));
   filter: drop-shadow(0 0 2px var(--mp));
-  opacity: 0;
-  animation: spark-burst var(--dur) ease-out infinite;
-  animation-delay: var(--delay);
 
   &:nth-child(3n + 2) {
     background: linear-gradient(to top, transparent, var(--ma));
@@ -236,24 +177,6 @@
   &:nth-child(3n + 3) {
     background: linear-gradient(to top, transparent, var(--mt));
     filter: drop-shadow(0 0 2px var(--mt));
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
-@keyframes spark-burst {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--start))) scaleY(0.6);
-  }
-  25% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--end))) scaleY(1);
   }
 }
 
@@ -276,56 +199,13 @@
 }
 
 .modal-body {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0 var(--space-5) var(--space-5);
-
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-surface-raised) var(--color-bg);
-
-  &::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--color-bg);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--color-surface-raised);
-    border: 2px solid var(--color-bg);
-    border-radius: var(--radius-sm);
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--color-border);
-  }
-
-  @include bp.mobile {
-    padding: 0 var(--space-3) var(--space-3);
-  }
-}
-
-.close-button {
-  background: transparent;
-  border: none;
-  min-height: 44px;
-  min-width: 44px;
-  user-select: none;
+  @include m.modal-scroll-body;
 }
 
 form {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-}
-
-label {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  font-size: var(--font-size-sm);
 }
 
 .picker-label {
@@ -469,18 +349,15 @@ input {
 }
 
 .actions .btn-primary {
-  flex: 1 1 auto;
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--font-size-md);
   // Same dark-surface family as .mode-switch-option's .active state
   // (dark fill + colored glow-text) rather than a filled block, so it reads
   // as kin to the mode buttons above it. The glowing border/text plus a
   // resting box-shadow — quiet elsewhere in this form — is what still marks
   // it as the primary action. Colors route through --mp/--mph (see .auth-modal).
-  color: var(--mp);
-  background: var(--color-surface-raised);
-  border-color: var(--mp);
-  font-weight: bold;
+  @include m.glow-button(var(--mp), var(--mph));
+  flex: 1 1 auto;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-md);
   text-shadow: 0 0 8px rgb(from var(--mp) r g b / 60%);
   // Was var(--shadow-glow-primary), a token never defined in _tokens.scss
   // (only -strong exists) — silently rendered as nothing. Fixed in passing.
@@ -492,18 +369,10 @@ input {
 
   &:hover:not(:disabled),
   &:focus-visible {
-    color: var(--mph);
-    border-color: var(--mph);
     box-shadow: 0 0 20px rgb(from var(--mph) r g b / 50%);
   }
 
   &:focus-visible {
     outline: none;
   }
-}
-
-.error {
-  color: var(--color-danger);
-  font-size: var(--font-size-sm);
-  margin: 0;
 }

@@ -46,6 +46,9 @@
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
 
+  // Shared <dialog>::backdrop color across auth-modal/add-card-modal/profile.
+  --overlay-backdrop: rgba(0, 0, 0, 0.75);
+
   // Ember Glow — the Candlelight Rule: light comes from an accent-tinted
   // glow, never a neutral black shadow, for interactive elevation.
   --shadow-glow-primary-strong: 0 0 20px rgba(232, 121, 47, 0.5);

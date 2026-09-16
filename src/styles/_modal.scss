@@ -1,0 +1,161 @@
+@use 'breakpoints' as bp;
+
+// The modal's opaque face — a separate element from the dialog itself so it
+// sits inside the padding gap that reveals a themed ring/glow behind it, and
+// fully covers any absolutely-positioned glow/spark layers within its own
+// bounds. That coverage needs an explicit positive z-index, not just DOM
+// order: absolutely-positioned siblings are excluded from the "flex items
+// paint in DOM order" rule, so they'd otherwise paint in a later phase than
+// this element (a real flex item) regardless of markup order.
+@mixin modal-surface {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+
+  @include bp.mobile {
+    border-radius: 0;
+  }
+}
+
+// Scrollable modal body with a themed scrollbar — an untouched
+// browser-default scrollbar is the cheapest tell that a surface was
+// assembled, not built, per the design system's "browser surfaces carry the
+// design too" principle.
+@mixin modal-scroll-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 var(--space-5) var(--space-5);
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-raised) var(--color-bg);
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--color-bg);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-surface-raised);
+    border: 2px solid var(--color-bg);
+    border-radius: var(--radius-sm);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border);
+  }
+
+  @include bp.mobile {
+    padding: 0 var(--space-3) var(--space-3);
+  }
+}
+
+// Clears the native <dialog> UA centering/sizing (margin: auto and a
+// max-width/max-height cap) that otherwise survives width/height overrides.
+// No room for a ring/glow to breathe in on a full-bleed dialog, hence
+// padding: 0.
+@mixin dialog-mobile-fullbleed {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  padding: 0;
+  background: var(--color-bg);
+  animation: none;
+}
+
+@mixin dialog-reduced-motion($backdrop: true) {
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0.001s;
+    animation: none;
+
+    @if $backdrop {
+      &::backdrop {
+        transition-duration: 0.001s;
+      }
+    }
+  }
+}
+
+// A thin rotating ring: a conic-gradient used as the <dialog>'s own
+// background, revealed only through a padding gap around the opaque
+// .modal-surface inside it. 3-stop primary/accent/tertiary rotation, driven
+// by the animated --spin-angle custom property (see _motion.scss).
+@mixin theme-ring($p, $a, $t, $duration: 28s) {
+  background: conic-gradient(
+    from var(--spin-angle),
+    rgb(from #{$p} r g b / 35%),
+    rgb(from #{$a} r g b / 25%),
+    rgb(from #{$t} r g b / 25%),
+    rgb(from #{$p} r g b / 35%)
+  );
+  animation: spin-angle #{$duration} linear infinite;
+}
+
+// The blurred ambient-glow gradient: a 9-stop conic-gradient whose alpha
+// peaks (24%/18%) fade gradually so it reads as a proper halo, plus 6 spots
+// (--gap-a..f) that dim/recover on independent staggered timers so the
+// dimming reads as organic rather than a single visible pulse. Geometry
+// (inset/border-radius/mask-image) stays with each caller — auth-modal uses
+// this as a full ring, add-card-modal masks it into two side bands.
+@mixin theme-ambient-glow($p, $a, $t, $duration: 28s, $flicker-duration: 6s) {
+  background: conic-gradient(
+    from var(--spin-angle),
+    rgb(from #{$p} r g b / 24%) 0%,
+    rgb(from #{$p} r g b / calc(24% * var(--gap-a))) 8%,
+    rgb(from #{$a} r g b / calc(18% * var(--gap-b))) 22%,
+    rgb(from #{$a} r g b / calc(18% * var(--gap-c))) 38%,
+    rgb(from #{$t} r g b / 18%) 50%,
+    rgb(from #{$t} r g b / calc(18% * var(--gap-d))) 62%,
+    rgb(from #{$p} r g b / calc(24% * var(--gap-e))) 78%,
+    rgb(from #{$p} r g b / calc(24% * var(--gap-f))) 92%,
+    rgb(from #{$p} r g b / 24%) 100%
+  );
+  animation:
+    spin-angle #{$duration} linear infinite,
+    flicker #{$flicker-duration} ease-in-out infinite,
+    gap-a 8s ease-in-out infinite,
+    gap-b 10s ease-in-out infinite 1.5s,
+    gap-c 9s ease-in-out infinite 3s,
+    gap-d 12s ease-in-out infinite 4.5s,
+    gap-e 11s ease-in-out infinite 6s,
+    gap-f 14s ease-in-out infinite 2s;
+}
+
+// Glow-style .btn-primary override — dark surface + colored border/text
+// rather than a filled background, since a filled $color background
+// wouldn't stay readable against --color-primary-contrast for lighter
+// theme/card colors. Pass $hover when the color has a matching hover shade
+// (theme roles); omit it for card-driven colors (see card-color.util.ts),
+// which fall back to a brightness filter instead.
+@mixin glow-button($color, $hover: null) {
+  background: var(--color-surface-raised);
+  color: #{$color};
+  border-color: #{$color};
+  font-weight: bold;
+
+  @if $hover {
+    &:hover:not(:disabled),
+    &:focus-visible {
+      color: #{$hover};
+      border-color: #{$hover};
+    }
+  } @else {
+    &:hover:not(:disabled),
+    &:focus-visible {
+      filter: brightness(1.15);
+    }
+  }
+}

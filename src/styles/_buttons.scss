@@ -31,6 +31,15 @@ button,
   }
 }
 
+.close-button,
+.back-button {
+  background: transparent;
+  border: none;
+  min-height: 44px;
+  min-width: 44px;
+  user-select: none;
+}
+
 .btn-danger {
   background: var(--color-danger-bg);
   border-color: var(--color-danger);

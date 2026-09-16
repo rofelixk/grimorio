@@ -1,3 +1,5 @@
+@use 'modal' as m;
+
 :host {
   // Short aliases resolving --profile-primary/-accent (set by the host
   // bindings in profile.ts from the user's saved theme colors) against the
@@ -5,6 +7,7 @@
   --pp: var(--profile-primary, var(--color-primary));
   --pph: var(--profile-primary-hover, var(--color-primary-hover));
   --pa: var(--profile-accent, var(--pp));
+  --pah: var(--profile-accent-hover, var(--pph));
 }
 
 .profile-section {
@@ -20,15 +23,7 @@
   // filled --pp background wouldn't stay readable against
   // --color-primary-contrast for lighter palette colors (e.g. Branco).
   .btn-primary {
-    background: var(--color-surface-raised);
-    color: var(--pp);
-    border-color: var(--pp);
-
-    &:hover:not(:disabled),
-    &:focus-visible {
-      color: var(--pph);
-      border-color: var(--pph);
-    }
+    @include m.glow-button(var(--pp), var(--pph));
   }
 
   h2 {
@@ -41,13 +36,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-  }
-
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    font-size: var(--font-size-sm);
   }
 
   input {
@@ -63,12 +51,6 @@
     margin: 0;
     color: var(--color-text-muted);
     font-size: var(--font-size-xs);
-  }
-
-  .error {
-    margin: 0;
-    color: var(--color-danger);
-    font-size: var(--font-size-sm);
   }
 
   .success {
@@ -114,7 +96,7 @@
   box-shadow: var(--shadow-sm);
 
   &::backdrop {
-    background: rgba(0, 0, 0, 0.75);
+    background: var(--overlay-backdrop);
   }
 
   h2 {
@@ -133,13 +115,6 @@
     gap: var(--space-3);
   }
 
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    font-size: var(--font-size-sm);
-  }
-
   input {
     font: inherit;
     padding: var(--space-2) var(--space-3);
@@ -153,11 +128,5 @@
     display: flex;
     justify-content: flex-end;
     gap: var(--space-2);
-  }
-
-  .error {
-    margin: 0;
-    color: var(--color-danger);
-    font-size: var(--font-size-sm);
   }
 }

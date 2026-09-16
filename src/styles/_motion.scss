@@ -172,3 +172,40 @@
     animation-duration: 1.2s;
   }
 }
+
+// Shared "spark" base — a short glowing streak flying outward from a ring
+// via `rotate(--angle) translateY(-radius)`, used by both auth-modal (a
+// full ring, center-anchored) and add-card-modal (edge/corner-anchored).
+// Position/anchor and color vary per caller and stay local to each
+// component; only the shared dimensions/opacity/animation wiring live here.
+// --spark-peak-opacity/--spark-end-scale let a caller punch up the burst's
+// intensity (add-card-modal's larger dialog wants a brighter, longer-reaching
+// spark) without redeclaring the keyframe itself — this used to be two
+// separately-declared `@keyframes spark-burst` with the same name but
+// diverging values, a latent naming collision.
+.spark {
+  width: 2px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: spark-burst var(--dur) ease-out infinite;
+  animation-delay: var(--delay);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes spark-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--start))) scaleY(0.6);
+  }
+  25% {
+    opacity: var(--spark-peak-opacity, 0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--end))) scaleY(var(--spark-end-scale, 1));
+  }
+}
