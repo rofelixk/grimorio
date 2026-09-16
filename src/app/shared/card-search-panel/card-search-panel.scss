@@ -2,45 +2,110 @@
 
 .sticky-toolbar {
   position: sticky;
-  top: 0;
-  z-index: 1;
+  top: -1px;
+  // Above any result card's hover z-index, so a lifted card never renders
+  // on top of the search bar as it scrolls past underneath it.
+  z-index: 5;
   background: var(--color-bg);
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--color-border);
 }
 
-.search-controls {
+// Fused search bar: one outer border, 1px hairline seams between segments
+// (the gap shows through as --color-border, since each segment paints its
+// own --color-surface background over it) instead of separately-boxed
+// select/input/button controls.
+.search-bar {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 1px;
+  background: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 
-  .input-area {
-    display: flex;
-    gap: var(--space-2);
-    flex: 1 1 200px;
-    min-width: 0;
-
-    input {
-      flex: 1 1 auto;
-      min-width: 0;
-    }
+  > * {
+    background: var(--color-surface);
   }
+}
 
-  select,
-  input,
+.mode-toggle {
+  display: flex;
+  flex: 0 0 auto;
+
   button {
     font: inherit;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-border);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
     background: var(--color-surface);
-    color: var(--color-text);
-  }
+    border: none;
+    padding: 0 var(--space-3);
+    cursor: pointer;
+    user-select: none;
 
-  app-card-scan-capture {
-    display: none;
+    &.active {
+      color: var(--color-text);
+      font-weight: bold;
+      background: var(--color-surface-raised);
+    }
   }
+}
+
+.search-field {
+  flex: 1 1 200px;
+  display: flex;
+  gap: 1px;
+  min-width: 0;
+
+  input {
+    all: unset;
+    flex: 1 1 auto;
+    min-width: 0;
+    font: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    padding: 0 var(--space-3);
+    display: flex;
+    align-items: center;
+  }
+}
+
+app-card-scan-capture {
+  display: none;
+  flex: 0 0 auto;
+}
+
+// The bar's own `> *` rule above paints every direct child's background as
+// --color-surface (for the seam effect); .btn-primary needs its ember
+// background/contrast-text restated here or it gets silently overridden.
+.search-bar .btn-primary {
+  flex: 0 0 auto;
+  border-radius: 0;
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-weight: bold;
+  user-select: none;
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+  }
+}
+
+// The bar clips its segments with overflow:hidden to keep the shared
+// border-radius clean, so focus rings draw inward (outline-offset: -2px)
+// instead of being cropped at the edge. Ember stays reserved for the one
+// primary CTA (the search button) per the One Flame Rule; the mode
+// toggle and input are secondary controls and use Spectral Teal instead.
+.mode-toggle button:focus-visible,
+.search-field input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.search-bar .btn-primary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
 }
 
 .helper {
@@ -60,41 +125,80 @@
   margin: var(--space-3) 0 0;
 }
 
+// An overlapping, rotated jumble of card art — no chrome, no caption, the
+// image IS the card, exactly like cards tossed onto a table. `li` only
+// positions the card (a per-card pseudo-random offset/rotation via
+// transform, which doesn't affect grid track sizing, so neighbors can
+// visually spill into each other); `.result-card` is the invisible-at-rest
+// click target that gains the ember glow on hover/focus.
+//
+// The offset/rotation is seeded from `--i` (the @for loop's $index, set
+// inline as a style binding) through CSS's sin()/cos(): unlike a small
+// nth-child cycle, this never settles into a visible repeating pattern
+// across however many results a search returns.
 .results {
+  // Not one of DESIGN.md's two shape tokens (--radius-sm/--radius-md) —
+  // see the img comment below for why card art needs its own value.
+  --radius-card: 14px;
+
   list-style: none;
   padding: 0;
-  margin: var(--space-3) 0 0;
+  margin: var(--space-5) 0 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4) var(--space-2);
 
   li {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-1);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--space-2);
-    text-align: center;
+    // --search-seed (set once per search, see card-search-panel.ts) is
+    // mixed in so the spread's shape isn't pinned to array position —
+    // otherwise slot 0 always looked identical search after search.
+    --seed: calc((var(--i, 0) + var(--search-seed, 0)) * 12.9898);
+    position: relative;
+    transform:
+      translateX(calc(sin(var(--seed)) * 8%))
+      translateY(calc(cos(var(--seed) * 1.37) * 28px))
+      rotate(calc(sin(var(--seed) * 2.1) * 4deg));
+    transition: transform 0.18s ease, z-index 0.18s ease;
+
+    &:hover,
+    &:focus-within {
+      transform: translate(0, -6px) rotate(0deg) scale(1.04);
+      z-index: 2;
+    }
   }
 
-  img {
+  .result-card {
+    all: unset;
+    box-sizing: border-box;
+    display: block;
     width: 100%;
-    max-width: 200px;
-    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
   }
 
-  .name {
-    font-weight: bold;
-    margin: 0;
+  li:hover .result-card,
+  li:focus-within .result-card {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 16px rgba(232, 121, 47, 0.4);
   }
 
-  .printing {
-    color: var(--color-text-muted);
-    font-size: var(--font-size-xs);
-    margin: 0;
+  .result-card:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  // Scryfall/Supabase card art is a flat rectangular scan with its own
+  // (much smaller) printed corner radius baked in — clipping at the
+  // system's --radius-md left a sliver of the scan's white background
+  // showing at each corner, so card art crops at a wider, purpose-tuned
+  // radius instead of reusing the app's two shape tokens.
+  img {
+    display: block;
+    width: 100%;
+    border-radius: var(--radius-card);
+    pointer-events: none;
   }
 }
 
@@ -102,34 +206,66 @@
   height: 1px;
 }
 
+@include bp.wide {
+  .results {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
 @include bp.mobile {
-  .search-controls {
-    flex-direction: column;
-    align-items: stretch;
+  .search-bar {
+    flex-wrap: wrap;
+  }
 
-    .input-area {
-      flex: 0 1 auto;
-      width: 100%;
-    }
+  .mode-toggle {
+    flex: 1 1 100%;
 
-    select,
-    button,
-    app-card-scan-capture {
-      width: 100%;
-    }
-
-    app-card-scan-capture {
-      display: block;
-    }
-
-    select,
-    input,
     button {
+      flex: 1 1 0;
       min-height: 44px;
     }
   }
 
+  .search-field {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+
+  app-card-scan-capture {
+    display: block;
+  }
+
+  .search-bar .btn-primary {
+    min-height: 44px;
+  }
+
+  // Single column, still image-only: full-width card art stacked with a
+  // decorative peeking sliver behind each one for the "stack" feel, no
+  // rotation/overlap that would risk mis-taps on a touchscreen.
   .results {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+
+    li {
+      margin-top: 0;
+      transform: none;
+
+      &:hover,
+      &:focus-within {
+        transform: none;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 10px -10px -14px 18px;
+        background: var(--color-surface-raised);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        transform: rotate(2.5deg);
+        z-index: -1;
+      }
+    }
   }
 }

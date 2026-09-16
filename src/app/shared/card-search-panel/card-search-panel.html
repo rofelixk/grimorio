@@ -1,6 +1,25 @@
 <div class="sticky-toolbar">
-  <div class="search-controls">
-    <div class="input-area">
+  <div class="search-bar">
+    <div class="mode-toggle" role="group" aria-label="Modo de busca">
+      <button
+        type="button"
+        [attr.aria-pressed]="searchMode() === 'name'"
+        [class.active]="searchMode() === 'name'"
+        (click)="searchModeChanged.emit('name')"
+      >
+        Nome
+      </button>
+      <button
+        type="button"
+        [attr.aria-pressed]="searchMode() === 'setCode'"
+        [class.active]="searchMode() === 'setCode'"
+        (click)="searchModeChanged.emit('setCode')"
+      >
+        Set + Código
+      </button>
+    </div>
+
+    <div class="search-field">
       @if (searchMode() === 'name') {
         <input
           type="text"
@@ -24,13 +43,7 @@
       }
     </div>
 
-    <select
-      [value]="searchMode()"
-      (change)="searchModeChanged.emit($any($event.target).value)"
-    >
-      <option value="name">Nome</option>
-      <option value="setCode">Set+Código</option>
-    </select>
+    <app-card-scan-capture (frameCaptured)="cameraCaptured.emit($event)" />
 
     <button
       type="button"
@@ -44,8 +57,6 @@
         Buscar
       }
     </button>
-
-    <app-card-scan-capture (frameCaptured)="cameraCaptured.emit($event)" />
   </div>
 
   @if (searchMode() === 'name') {
@@ -62,13 +73,17 @@
 </div>
 
 @if (results().length > 0) {
-  <ul class="results">
-    @for (result of visibleResults(); track result.scryfallId) {
-      <li>
-        <img [src]="result.imageUrl" [alt]="result.name" loading="lazy" />
-        <p class="name">{{ result.name }}</p>
-        <p class="printing">{{ result.setCode }} #{{ result.collectorNumber }}</p>
-        <button type="button" class="btn-primary" (click)="resultPicked.emit(result)">Adicionar</button>
+  <ul class="results" [style.--search-seed]="spreadSeed()">
+    @for (result of visibleResults(); track result.scryfallId; let i = $index) {
+      <li [style.--i]="i">
+        <button
+          type="button"
+          class="result-card"
+          [attr.aria-label]="'Adicionar ' + result.name + ' (' + result.setCode + ' #' + result.collectorNumber + ')'"
+          (click)="resultPicked.emit(result)"
+        >
+          <img [src]="result.imageUrl" [alt]="result.name" loading="lazy" />
+        </button>
       </li>
     }
   </ul>

@@ -53,12 +53,20 @@ export class CardSearchPanel {
   readonly visibleResults = computed(() => this.results().slice(0, this.visibleCount()));
   readonly hasMore = computed(() => this.visibleCount() < this.results().length);
 
+  // Offsets the per-card --i seed (see card-search-panel.scss) by a fresh
+  // amount on every new search, so the staggered spread's shape isn't
+  // pinned to array position — otherwise slot 0 always got the exact same
+  // rotation/offset search after search, regardless of which card landed
+  // there.
+  readonly spreadSeed = signal(0);
+
   private readonly sentinel = viewChild<ElementRef<HTMLElement>>('sentinel');
 
   constructor() {
     effect(() => {
       this.results(); // a new search (new array reference) resets the visible window
       this.visibleCount.set(RESULTS_PAGE_SIZE);
+      this.spreadSeed.set(Math.random() * 1000);
     });
 
     effect((onCleanup) => {

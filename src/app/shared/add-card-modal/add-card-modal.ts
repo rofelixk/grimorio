@@ -97,11 +97,27 @@ export class AddCardModal {
     });
   }
 
+  // Guards against firing the same lookup twice in a row (e.g. a double
+  // click, or hitting Buscar again with unchanged input) — set right
+  // before the actual request so a genuinely new query always goes
+  // through, and cleared in reset() so a fresh session isn't blocked by
+  // the previous one's last query.
+  private lastSearchKey: string | null = null;
+
   setSearchMode(mode: CardSearchMode): void {
     this.searchMode.set(mode);
   }
 
   async runSearch(): Promise<void> {
+    const searchKey =
+      this.searchMode() === 'name'
+        ? `name:${this.nameQuery().trim()}`
+        : `setCode:${this.setCodeInput().trim()}:${this.collectorNumberInput().trim()}`;
+    if (searchKey === this.lastSearchKey) {
+      return;
+    }
+    this.lastSearchKey = searchKey;
+
     this.searchError.set(null);
     this.searching.set(true);
     try {
@@ -116,6 +132,9 @@ export class AddCardModal {
         this.results.set([result]);
       }
     } catch (err) {
+      // Let a failed request be retried with the exact same input — only
+      // a successful search should dedupe a repeat.
+      this.lastSearchKey = null;
       this.results.set([]);
       const message =
         err instanceof Error ? err.message : 'Não foi possível buscar cartas. Tente novamente.';
@@ -244,6 +263,7 @@ export class AddCardModal {
   }
 
   private reset(): void {
+    this.lastSearchKey = null;
     this.searchMode.set('name');
     this.nameQuery.set('');
     this.setCodeInput.set('');

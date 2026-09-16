@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "src/app/shared/card-search-panel/card-search-panel.html"
+        ],
+        "createdAt": "2026-09-15T22:57:27.088Z",
+        "reason": "dynamic Angular [src] binding to real card-art URL (result.imageUrl), not a static/placeholder src; static analysis can't resolve the runtime value"
+      }
+    ]
+  }
+}

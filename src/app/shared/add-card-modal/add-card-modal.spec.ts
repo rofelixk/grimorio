@@ -86,6 +86,47 @@ describe('AddCardModal', () => {
     expect(component.searchError()).toBe('network down');
   });
 
+  it('skips a repeat search for the exact same query', async () => {
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+    await component.runSearch();
+
+    expect(cardLookup.searchByName).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs the search again once the query actually changes', async () => {
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+    component.nameQuery.set('Lightning Bolt');
+    await component.runSearch();
+
+    expect(cardLookup.searchByName).toHaveBeenCalledTimes(2);
+    expect(cardLookup.searchByName).toHaveBeenNthCalledWith(2, 'Lightning Bolt');
+  });
+
+  it('does not dedupe across search modes even with matching text', async () => {
+    component.setSearchMode('setCode');
+    component.setCodeInput.set('MH3');
+    component.collectorNumberInput.set('161');
+    await component.runSearch();
+
+    component.setSearchMode('name');
+    component.nameQuery.set('MH3');
+    await component.runSearch();
+
+    expect(cardLookup.lookup).toHaveBeenCalledTimes(1);
+    expect(cardLookup.searchByName).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows retrying the identical query after a failed search', async () => {
+    vi.mocked(cardLookup.searchByName).mockRejectedValueOnce(new Error('network down'));
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+    await component.runSearch();
+
+    expect(cardLookup.searchByName).toHaveBeenCalledTimes(2);
+  });
+
   it('filters results by the deck color-identity predicate in deck context', async () => {
     fixture.componentRef.setInput('context', 'deck');
     fixture.componentRef.setInput('deckId', 'deck-1');
