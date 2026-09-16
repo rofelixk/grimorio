@@ -1,21 +1,72 @@
 @use 'breakpoints' as bp;
 
 .auth-modal {
+  position: relative;
   flex-direction: column;
   border: none;
-  border-radius: var(--radius-md);
-  padding: 0;
+  // The ring is this element's own background, visible through the 2px
+  // padding around .modal-surface — see the comment below.
+  border-radius: calc(var(--radius-md) + 2px);
+  padding: 2px;
   width: min(400px, 92vw);
-  background: var(--color-bg);
   color: var(--color-text);
-  box-shadow: var(--shadow-sm);
+  // .ambient-glow/.sparks bleed outside this box via negative inset;
+  // without an explicit overflow the dialog can turn itself into a scroll
+  // container to "reach" that overflowing content, showing native
+  // scrollbars around the whole modal.
+  overflow: visible;
+  // A thin rotating ember/teal ring: a conic-gradient used directly as
+  // this element's own background, revealed only through the 2px padding
+  // gap around the opaque .modal-surface inside it (border-radius clips a
+  // box's own background automatically, so the ring's outer corners come
+  // out rounded for free, no separate element or clipping trick needed).
+  // Driven by the animated --spin-angle custom property (see _motion.scss)
+  // rather than transform-rotating a box, since transforming .auth-modal
+  // itself would spin its actual content too.
+  background: conic-gradient(from var(--spin-angle), rgba(232, 121, 47, 0.35), rgba(63, 196, 209, 0.25), rgba(232, 121, 47, 0.35));
+  animation: spin-angle 28s linear infinite;
 
   &[open] {
     display: flex;
   }
 
   &::backdrop {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.75);
+    opacity: 1;
+    transition:
+      opacity var(--duration-slow) var(--ease-standard),
+      display var(--duration-slow) var(--ease-standard) allow-discrete,
+      overlay var(--duration-slow) var(--ease-standard) allow-discrete;
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  // Entrance/exit motion — fade + scale + blur-in, the standard recipe for
+  // animating a native <dialog>'s open/close via @starting-style.
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    transform var(--duration-slow) var(--ease-standard),
+    filter var(--duration-slow) var(--ease-standard),
+    overlay var(--duration-slow) var(--ease-standard) allow-discrete,
+    display var(--duration-slow) var(--ease-standard) allow-discrete;
+
+  &:not([open]) {
+    opacity: 0;
+    transform: scale(0.92);
+    filter: blur(6px);
+  }
+
+  @starting-style {
+    &[open] {
+      opacity: 0;
+      transform: scale(0.92);
+      filter: blur(6px);
+    }
   }
 
   @include bp.mobile {
@@ -27,6 +78,150 @@
     max-width: none;
     max-height: none;
     border-radius: 0;
+    // No room for a ring/halo to breathe in on a full-bleed dialog.
+    padding: 0;
+    background: var(--color-bg);
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0.001s;
+    animation: none;
+
+    &::backdrop {
+      transition-duration: 0.001s;
+    }
+  }
+}
+
+// The modal's opaque face. A separate element from the dialog itself so it
+// sits inside the 2px padding that reveals the ring, and so it fully
+// covers .ambient-glow/.sparks within its own bounds. That coverage needs
+// an explicit positive z-index, not just DOM order: .ambient-glow/.sparks
+// are position: absolute, which the flexbox spec excludes from being flex
+// items — so they don't get the "flex items paint in DOM order" treatment
+// .modal-surface gets as a real flex item, and instead paint in a *later*
+// phase than plain flex items regardless of markup order. (An earlier
+// attempt relied on DOM order alone for this reason and the glow ended up
+// painting over the modal's own content instead of staying behind it.)
+.modal-surface {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+
+  @include bp.mobile {
+    border-radius: 0;
+  }
+}
+
+// A soft blurred halo behind the modal, rotating in lockstep with the ring
+// (same --spin-angle animation/duration, started at the same moment) and
+// breathing via the shared "flicker" pulse. Six spots on the gradient
+// (--gap-a..f) also dim and recover on their own slow, staggered timers —
+// heavily blurred, this reads as faint patches of the halo thinning and
+// returning rather than a fixed pattern, since the dimming is independent
+// of (and much slower than) the rotation itself.
+.ambient-glow {
+  position: absolute;
+  inset: -32px;
+  pointer-events: none;
+  // Large enough to round the box's narrower (width) axis into a soft
+  // stadium shape while staying rectangular along its taller axis — this
+  // echoes the modal's own tall-rectangle silhouette. A circular mask (an
+  // earlier approach) ignores the box's proportions entirely and always
+  // reads as a circle, which looks odd behind a visibly rectangular modal.
+  border-radius: 70px;
+  filter: blur(26px);
+  background: conic-gradient(
+    from var(--spin-angle),
+    rgba(232, 121, 47, 0.24) 0%,
+    rgba(232, 121, 47, calc(0.24 * var(--gap-a))) 8%,
+    rgba(232, 121, 47, calc(0.24 * var(--gap-b))) 22%,
+    rgba(232, 121, 47, calc(0.24 * var(--gap-c))) 38%,
+    rgba(63, 196, 209, 0.18) 50%,
+    rgba(63, 196, 209, calc(0.18 * var(--gap-d))) 62%,
+    rgba(63, 196, 209, calc(0.18 * var(--gap-e))) 78%,
+    rgba(63, 196, 209, calc(0.18 * var(--gap-f))) 92%,
+    rgba(232, 121, 47, 0.24) 100%
+  );
+  animation:
+    spin-angle 28s linear infinite,
+    flicker 6s ease-in-out infinite,
+    gap-a 8s ease-in-out infinite,
+    gap-b 10s ease-in-out infinite 1.5s,
+    gap-c 9s ease-in-out infinite 3s,
+    gap-d 12s ease-in-out infinite 4.5s,
+    gap-e 11s ease-in-out infinite 6s,
+    gap-f 14s ease-in-out infinite 2s;
+
+  @include bp.mobile {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+// Sparks — a nod to the MTG "spark" that ignites a planeswalker: the ring
+// as a sparkler wheel, throwing off short glowing streaks that fly outward
+// from its edge at varied angles/distances/timings, fading as they travel.
+// Each spark sits at the modal's center (top/left: 50%) and is placed
+// around the ring by `rotate(angle) translateY(-radius)` — rotating first
+// moves it along a circle, and because translateY comes after the rotate
+// in the same transform, it travels along that now-rotated local axis, so
+// growing --start to --end over the animation reads as outward motion.
+.sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  @include bp.mobile {
+    display: none;
+  }
+}
+
+.spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  border-radius: 2px;
+  background: linear-gradient(to top, transparent, var(--color-primary));
+  filter: drop-shadow(0 0 2px var(--color-primary));
+  opacity: 0;
+  animation: spark-burst var(--dur) ease-out infinite;
+  animation-delay: var(--delay);
+
+  &:nth-child(3n + 1) {
+    background: linear-gradient(to top, transparent, var(--color-accent));
+    filter: drop-shadow(0 0 2px var(--color-accent));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes spark-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--start))) scaleY(0.6);
+  }
+  25% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--end))) scaleY(1);
   }
 }
 
@@ -82,7 +277,7 @@
 
 .close-button {
   background: transparent;
-  border: 1px solid var(--color-border);
+  border: none;
   min-height: 44px;
   min-width: 44px;
   user-select: none;
@@ -101,28 +296,161 @@ label {
   font-size: var(--font-size-sm);
 }
 
+input:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--ring-accent);
+}
+
+input {
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+// The CSS grid-rows accordion trick — animates a block's height without
+// knowing its content height in advance and without JS measurement, so the
+// sign-up-only field and the loading spinner both grow/shrink smoothly
+// instead of popping in and out.
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  // Even at zero height this is still a flex child of `form`, so its
+  // surrounding `gap` still applies on both sides of it — without this,
+  // a collapsed field leaves *two* gaps (one on each side of an invisible
+  // item) where every other pair of fields only has one, reading as an
+  // uneven double-size gap. Canceling one gap's worth here while collapsed
+  // brings it back to a single normal gap; the compensation returns to 0
+  // once expanded, when the field's real content provides its own spacing.
+  margin-top: calc(var(--space-4) * -1);
+  transition:
+    grid-template-rows var(--duration-base) var(--ease-standard),
+    margin-top var(--duration-base) var(--ease-standard);
+
+  &.expanded {
+    grid-template-rows: 1fr;
+    margin-top: 0;
+  }
+}
+
+.collapse-inner {
+  overflow: hidden;
+  min-height: 0;
+  visibility: hidden;
+
+  .expanded > & {
+    visibility: visible;
+  }
+}
+
+.spinner-row {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--space-2);
+
+  .spinner {
+    // The collapsed wrapper clips this to zero height, but a continuously
+    // animating, rotating element can still leak a stray pixel through
+    // that clip in some engines — pausing it while hidden (on top of the
+    // visibility:hidden above) avoids that instead of relying on clipping
+    // alone.
+    animation-play-state: paused;
+  }
+
+  .expanded & .spinner {
+    animation-play-state: running;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collapse {
+    transition-duration: 0.001s;
+  }
+}
+
+.mode-switch {
+  display: flex;
+  gap: 1px;
+  background: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.mode-switch-option {
+  flex: 1 1 0;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: none;
+  border-radius: 0;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    text-shadow var(--duration-fast) var(--ease-standard);
+
+  &:hover:not(.active) {
+    color: var(--color-text);
+  }
+
+  &.active {
+    color: var(--color-accent);
+    font-weight: bold;
+    background: var(--color-surface-raised);
+    text-shadow: 0 0 8px rgba(63, 196, 209, 0.6);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--ring-accent);
+    position: relative;
+    z-index: 1;
+  }
+
+  @include bp.mobile {
+    min-height: 44px;
+  }
+}
+
 .actions {
   display: flex;
   gap: var(--space-2);
+}
+
+.actions .btn-primary {
+  flex: 1 1 auto;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-md);
+  // A subtle top-to-bottom sheen instead of a flat fill, and a quiet
+  // resting glow that only intensifies on hover/focus — kept static
+  // (no continuous pulse) so the one primary action stays calm rather
+  // than competing with the ring/ambient-glow/sparks for attention.
+  background: linear-gradient(180deg, var(--color-primary-hover), var(--color-primary));
+  box-shadow: var(--shadow-glow-primary);
+  // An inverse of the ember glow elsewhere: a dark halo around the label
+  // (in the button's own contrast color) instead of a bright one, reading
+  // like the text is etched into the hot ember rather than sitting on it.
+  text-shadow: 0 0 6px rgba(26, 16, 8, 0.7);
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    box-shadow: var(--shadow-glow-primary-strong);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
 }
 
 .error {
   color: var(--color-danger);
   font-size: var(--font-size-sm);
   margin: 0;
-}
-
-.toggle-mode {
-  font-size: var(--font-size-sm);
-  margin: 0;
-
-  a {
-    color: var(--color-accent);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-accent-hover);
-      text-decoration: underline;
-    }
-  }
 }

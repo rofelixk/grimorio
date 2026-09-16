@@ -1,0 +1,174 @@
+:root {
+  // Shared easing/duration vocabulary — names the 0.18s-0.2s-ish timing
+  // already used ad hoc in card-search-panel.scss/nav-bar.scss.
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 0.18s;
+  --duration-base: 0.24s;
+  --duration-slow: 0.5s;
+}
+
+// Lets a conic-gradient's own rotation be driven by an animated custom
+// property, instead of transform-rotating an oversized box (which needs
+// careful sizing so its corners never enter view, and reveals a hard edge
+// wherever it isn't fully masked). `background: conic-gradient(from
+// var(--spin-angle), ...)` on any element then sweeps smoothly on its own.
+@property --spin-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes spin-angle {
+  to {
+    --spin-angle: 360deg;
+  }
+}
+
+// Lets a handful of spots on a rotating gradient (the ambient-glow) dim
+// and recover smoothly on their own independent, staggered timers — used
+// as an alpha multiplier via calc(baseAlpha * var(--gap-a)) on a gradient
+// color stop, so that spot's brightness drifts up and down over time
+// instead of sitting at a fixed value. Six slots, each with a different
+// duration/delay/dip-timing, keeps them from ever dipping in sync, which
+// is what reads as organic rather than a single visible pulse.
+@property --gap-a {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --gap-b {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --gap-c {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --gap-d {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --gap-e {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --gap-f {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@keyframes gap-a {
+  0%,
+  55%,
+  100% {
+    --gap-a: 1;
+  }
+  75% {
+    --gap-a: 0.2;
+  }
+}
+
+@keyframes gap-b {
+  0%,
+  40%,
+  100% {
+    --gap-b: 1;
+  }
+  65% {
+    --gap-b: 0.2;
+  }
+}
+
+@keyframes gap-c {
+  0%,
+  50%,
+  100% {
+    --gap-c: 1;
+  }
+  70% {
+    --gap-c: 0.2;
+  }
+}
+
+@keyframes gap-d {
+  0%,
+  35%,
+  100% {
+    --gap-d: 1;
+  }
+  58% {
+    --gap-d: 0.2;
+  }
+}
+
+@keyframes gap-e {
+  0%,
+  45%,
+  100% {
+    --gap-e: 1;
+  }
+  68% {
+    --gap-e: 0.2;
+  }
+}
+
+@keyframes gap-f {
+  0%,
+  30%,
+  100% {
+    --gap-f: 1;
+  }
+  52% {
+    --gap-f: 0.2;
+  }
+}
+
+// "Candlelight breathing" — a wide, slow ambient pulse for anything meant
+// to read as a light source rather than a static glow. The swing needs to
+// be large to actually register as breathing rather than a static glow
+// with a slight shimmer.
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// Reusable CSS-only loading spinner — a rotating ring via the
+// border/border-top-color trick, sized/colored via currentColor/font-size.
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: spin 0.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    // Slowed rather than stopped — a frozen ring reads as broken, not loading.
+    animation-duration: 1.2s;
+  }
+}

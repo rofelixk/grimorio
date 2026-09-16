@@ -49,9 +49,13 @@ export class AuthModal {
     });
   }
 
-  toggleMode(): void {
-    this.mode.set(this.mode() === 'signIn' ? 'signUp' : 'signIn');
+  setMode(mode: 'signIn' | 'signUp'): void {
+    this.mode.set(mode);
     this.error.set(null);
+  }
+
+  toggleMode(): void {
+    this.setMode(this.mode() === 'signIn' ? 'signUp' : 'signIn');
   }
 
   async submit(): Promise<void> {

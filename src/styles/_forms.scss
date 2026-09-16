@@ -16,4 +16,18 @@ input[type='password'] {
     cursor: not-allowed;
     opacity: 0.5;
   }
+
+  // Chromium ignores a plain `background` on an autofilled input and
+  // paints its own light highlight instead — this is the standard
+  // override: an inset box-shadow large enough to fully cover the field
+  // paints over that highlight, and a very long background-color
+  // transition delay prevents it flashing back on subsequent renders.
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-text);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface) inset;
+    box-shadow: 0 0 0 1000px var(--color-surface) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
 }
