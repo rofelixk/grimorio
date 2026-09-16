@@ -36,12 +36,15 @@
   --cma: var(--card-modal-accent, var(--cmp));
   --cmah: var(--card-modal-accent-hover, var(--cmph));
   --cmt: var(--card-modal-tertiary, var(--cma));
+  // Same alpha levels as auth-modal's ring (35%/25%/25%) — this was
+  // previously a fully opaque gradient, meaningfully brighter than
+  // auth-modal's ring for no intentional reason.
   background: conic-gradient(
     from var(--spin-angle),
-    var(--cmp),
-    var(--cma),
-    var(--cmt),
-    var(--cmp)
+    rgb(from var(--cmp) r g b / 35%),
+    rgb(from var(--cma) r g b / 25%),
+    rgb(from var(--cmt) r g b / 25%),
+    rgb(from var(--cmp) r g b / 35%)
   );
   animation: spin-angle 10s linear infinite;
 
@@ -158,18 +161,25 @@
   width: 260px;
   border-radius: 40px;
   pointer-events: none;
-  filter: blur(40px);
+  // Same blur radius as auth-modal's .ambient-glow — the wider spread this
+  // component needs (a full-height band vs. a compact halo, see the width/
+  // mask setup below) comes from that band's own size, not from blurring it
+  // any softer than auth-modal's.
+  filter: blur(26px);
+  // Same alpha levels as auth-modal's .ambient-glow (24%/18% peaks) — this
+  // was previously boosted to 95%/80%, much brighter than auth-modal for no
+  // intentional reason.
   background: conic-gradient(
     from var(--spin-angle),
-    rgb(from var(--cmp) r g b / 95%) 0%,
-    rgb(from var(--cmp) r g b / calc(95% * var(--gap-a))) 8%,
-    rgb(from var(--cma) r g b / calc(80% * var(--gap-b))) 22%,
-    rgb(from var(--cma) r g b / calc(80% * var(--gap-c))) 38%,
-    rgb(from var(--cmt) r g b / 80%) 50%,
-    rgb(from var(--cmt) r g b / calc(80% * var(--gap-d))) 62%,
-    rgb(from var(--cmp) r g b / calc(95% * var(--gap-e))) 78%,
-    rgb(from var(--cmp) r g b / calc(95% * var(--gap-f))) 92%,
-    rgb(from var(--cmp) r g b / 95%) 100%
+    rgb(from var(--cmp) r g b / 24%) 0%,
+    rgb(from var(--cmp) r g b / calc(24% * var(--gap-a))) 8%,
+    rgb(from var(--cma) r g b / calc(18% * var(--gap-b))) 22%,
+    rgb(from var(--cma) r g b / calc(18% * var(--gap-c))) 38%,
+    rgb(from var(--cmt) r g b / 18%) 50%,
+    rgb(from var(--cmt) r g b / calc(18% * var(--gap-d))) 62%,
+    rgb(from var(--cmp) r g b / calc(24% * var(--gap-e))) 78%,
+    rgb(from var(--cmp) r g b / calc(24% * var(--gap-f))) 92%,
+    rgb(from var(--cmp) r g b / 24%) 100%
   );
   animation:
     spin-angle 10s linear infinite,
@@ -243,8 +253,12 @@
 
 .side-sparks .spark {
   position: absolute;
-  width: 3px;
-  height: 18px;
+  // Same stick dimensions as auth-modal's .spark — this component keeps
+  // sparks visible on its much larger dialogs via a longer travel distance
+  // (--start/--end below) and a higher spark count per edge, not via a
+  // bigger spark itself.
+  width: 2px;
+  height: 12px;
   border-radius: 2px;
   // Unitless seed (a plain <number>, exactly like card-search-panel.scss's
   // --seed) fed into sin()/cos(), which CSS treats as radians for a
@@ -284,19 +298,20 @@
   // rotated by --angle before translating, so "up" in this gradient always
   // ends up pointing away from the anchor point once rotated.
   background: linear-gradient(to top, transparent, var(--cmp));
-  filter: drop-shadow(0 0 8px var(--cmp));
+  // Same drop-shadow spread as auth-modal's sparks (2px).
+  filter: drop-shadow(0 0 2px var(--cmp));
   opacity: 0;
   animation: spark-burst var(--dur) ease-out infinite;
   animation-delay: var(--delay);
 
   &:nth-child(3n + 2) {
     background: linear-gradient(to top, transparent, var(--cma));
-    filter: drop-shadow(0 0 8px var(--cma));
+    filter: drop-shadow(0 0 2px var(--cma));
   }
 
   &:nth-child(3n + 3) {
     background: linear-gradient(to top, transparent, var(--cmt));
-    filter: drop-shadow(0 0 8px var(--cmt));
+    filter: drop-shadow(0 0 2px var(--cmt));
   }
 
   // Base outward direction + anchor point per corner/edge — the seeded
