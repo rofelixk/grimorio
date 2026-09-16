@@ -17,13 +17,14 @@ import { CardService } from '@services/card.service';
 import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
 import { DeckService } from '@services/deck.service';
 import { ThemeService } from '@services/theme.service';
+import { SparkRerollDirective } from '@shared/spark-reroll/spark-reroll.directive';
 import { getCardGlowColors } from '../../core/utils/card-color.util';
 import { CardAddDetailPanel } from '../card-add-detail-panel/card-add-detail-panel';
 import { CardSearchMode, CardSearchPanel } from '../card-search-panel/card-search-panel';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardSearchPanel, CardAddDetailPanel],
+  imports: [CardSearchPanel, CardAddDetailPanel, SparkRerollDirective],
   selector: 'app-add-card-modal',
   styleUrl: './add-card-modal.scss',
   templateUrl: './add-card-modal.html',

@@ -14,3 +14,4 @@ export { DeckList } from './deck-list/deck-list';
 export { EntityList } from './entity-list/entity-list';
 export { LocationChildren } from './location-children/location-children';
 export { NavBar } from './nav-bar/nav-bar';
+export { SparkRerollDirective } from './spark-reroll/spark-reroll.directive';

@@ -40,8 +40,10 @@
   --cmth: var(--card-modal-tertiary-hover, var(--cmah));
   // Same alpha levels as auth-modal's ring (35%/25%/25%) — this was
   // previously a fully opaque gradient, meaningfully brighter than
-  // auth-modal's ring for no intentional reason.
-  @include m.theme-ring(var(--cmp), var(--cma), var(--cmt), 10s);
+  // auth-modal's ring for no intentional reason. Same 28s rotation speed
+  // as auth-modal too (was previously a much faster 10s spin for no
+  // intentional reason, standardized to auth-modal's pace).
+  @include m.theme-ring(var(--cmp), var(--cma), var(--cmt));
 
   &[open] {
     display: flex;
@@ -134,8 +136,9 @@
   filter: blur(26px);
   // Same alpha levels as auth-modal's .ambient-glow (24%/18% peaks) — this
   // was previously boosted to 95%/80%, much brighter than auth-modal for no
-  // intentional reason.
-  @include m.theme-ambient-glow(var(--cmp), var(--cma), var(--cmt), 10s, 4s);
+  // intentional reason. Same rotation/flicker pace as auth-modal too (was
+  // previously 10s/4s, standardized to auth-modal's 28s/6s).
+  @include m.theme-ambient-glow(var(--cmp), var(--cma), var(--cmt));
 
   @include bp.mobile {
     display: none;
@@ -197,35 +200,14 @@
   }
 }
 
-// Base dimensions/opacity/animation wiring live in the shared .spark rule
-// (_motion.scss) — sparks visible on this much larger dialog come from a
-// longer travel distance (--start/--end below) and a higher spark count per
-// edge, not from a bigger spark. --spark-peak-opacity/--spark-end-scale
-// punch up the shared @keyframes spark-burst's defaults (auth-modal's
-// gentler 0.5/1) to this component's brighter 1/1.3.
+// Seed/angle/start/end/dur/delay math, plus the runtime reroll on each
+// animation loop (SparkRerollDirective, applied in the template), live in
+// the shared .spark rule (_motion.scss) — this component only tunes the
+// per-corner/edge anchor angle and clamp range below, and relies on the
+// shared rule's default start/end radius (14-34px / 110-220px), which is
+// what this larger dialog's edge/corner anchoring was already tuned for.
 .side-sparks .spark {
   position: absolute;
-  --spark-peak-opacity: 1;
-  --spark-end-scale: 1.3;
-  // Unitless seed (a plain <number>, exactly like card-search-panel.scss's
-  // --seed) fed into sin()/cos(), which CSS treats as radians for a
-  // unitless argument — mixing a <number> with an <angle> in the same calc()
-  // (an earlier version added `--base-angle * 0.017453` in here) is a type
-  // error that silently invalidates the whole custom property, and every
-  // other property built from it, which is why the sparks vanished
-  // entirely. --seed-offset (a plain number per corner/edge below) keeps
-  // corners from sharing identical scatter patterns instead.
-  --seed: calc((var(--i, 0) + var(--seed-offset, 0)) * 12.9898);
-  // --angle uses its own multiplier (2.6) rather than sin(--seed) directly —
-  // --start/--end/--dur/--delay below all do the same for the same reason:
-  // sin() is flat near its own peaks/troughs, so two sparks whose seeds
-  // differ by only one --i step can land almost on top of each other in that
-  // region and always scatter toward the same angle (seen on corner-bl,
-  // whose --seed-offset happened to put both its sparks near a trough).
-  // Multiplying the seed before this particular sin() call samples a
-  // different, unrelated point on the curve, decorrelating the angle spread
-  // from the position/timing values without touching the seed itself.
-  //
   // Clamped to --angle-min/--angle-max (unbounded by default, so mid-l/mid-r
   // — whose narrow 30deg spread already stays clear of the boundary — are
   // unaffected). The four corners override these below: a 75deg spread
@@ -234,12 +216,6 @@
   // convention) into the *other* side's half, which is the "sparks flying to
   // the wrong side" bug — clamping keeps each corner's swing inside its own
   // side's 180deg-wide half.
-  --angle-raw: calc(var(--base-angle, 0deg) + sin(var(--seed) * 2.6) * var(--spread, 75deg));
-  --angle: clamp(var(--angle-min, -720deg), var(--angle-raw), var(--angle-max, 1080deg));
-  --start: calc(14px + abs(sin(var(--seed) * 1.7)) * 20px);
-  --end: calc(110px + abs(cos(var(--seed) * 1.3)) * 110px);
-  --dur: calc(0.55s + abs(sin(var(--seed) * 2.3)) * 0.45s);
-  --delay: calc(abs(cos(var(--seed) * 1.9)) * 1.4s);
   // Bright at the outward tip, fading to transparent at the anchored end —
   // same convention as auth-modal's sparks. The element itself gets
   // rotated by --angle before translating, so "up" in this gradient always
@@ -260,17 +236,18 @@
 
   // Base outward direction + anchor point per corner/edge — the seeded
   // sin() swing above scatters each spark's actual angle widely around it.
-  // --seed-offset just keeps each group's scatter pattern distinct.
-  // --angle-min/--angle-max keep each left corner's swing inside
-  // 180deg-360deg (left half) and each right corner's inside 0deg-180deg
-  // (right half), with a small buffer off the exact 0/180/360 boundary so a
-  // spark never grazes straight up/down and reads as crossing to the other
-  // side.
+  // --group-seed just keeps each group's scatter/timing pattern distinct
+  // (fixed forever — see _motion.scss for why timing can't be part of the
+  // runtime-rerollable seed). --angle-min/--angle-max keep each left
+  // corner's swing inside 180deg-360deg (left half) and each right corner's
+  // inside 0deg-180deg (right half), with a small buffer off the exact
+  // 0/180/360 boundary so a spark never grazes straight up/down and reads
+  // as crossing to the other side.
   &.corner-tl {
     top: 0;
     left: 0;
     --base-angle: 315deg;
-    --seed-offset: 0;
+    --group-seed: 0;
     --angle-min: 200deg;
     --angle-max: 355deg;
   }
@@ -279,7 +256,7 @@
     top: 100%;
     left: 0;
     --base-angle: 225deg;
-    --seed-offset: 11;
+    --group-seed: 11;
     --angle-min: 185deg;
     --angle-max: 340deg;
   }
@@ -288,7 +265,7 @@
     top: 0;
     right: 0;
     --base-angle: 45deg;
-    --seed-offset: 23;
+    --group-seed: 23;
     --angle-min: 5deg;
     --angle-max: 160deg;
   }
@@ -297,7 +274,7 @@
     top: 100%;
     right: 0;
     --base-angle: 135deg;
-    --seed-offset: 37;
+    --group-seed: 37;
     --angle-min: 20deg;
     --angle-max: 175deg;
   }
@@ -306,14 +283,14 @@
     left: 0;
     --base-angle: 270deg;
     --spread: 30deg;
-    --seed-offset: 51;
+    --group-seed: 51;
   }
 
   &.mid-r {
     right: 0;
     --base-angle: 90deg;
     --spread: 30deg;
-    --seed-offset: 59;
+    --group-seed: 59;
   }
 }
 

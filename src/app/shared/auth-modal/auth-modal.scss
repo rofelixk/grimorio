@@ -155,14 +155,25 @@
   }
 }
 
-// Base dimensions/opacity/animation wiring live in the shared .spark rule
-// (_motion.scss) — this component only adds its center-anchor placement and
-// color-cycling. Uses the shared @keyframes spark-burst's defaults (peak
-// opacity 0.5, end scale 1) unmodified.
+// Seed/angle/start/end/dur/delay math, and the runtime reroll on each
+// animation loop (SparkRerollDirective, applied in the template), live in
+// the shared .spark rule (_motion.scss) — this component only adds its
+// center-anchor placement, color-cycling, and the two overrides below.
+// Uses the shared @keyframes spark-burst's defaults (peak opacity 0.5, end
+// scale 1) unmodified.
 .spark {
   position: absolute;
   top: 50%;
   left: 50%;
+  // A full circle (rather than the shared rule's default 75deg spread
+  // around a fixed base-angle, meant for add-card-modal's edge-anchored
+  // sparks) and a larger travel radius, since this ring is a compact ~400px
+  // modal viewed from its own center rather than a wide dialog's edge.
+  --spread: 180deg;
+  --start-base: 178px;
+  --start-range: 22px;
+  --end-base: 250px;
+  --end-range: 28px;
   // Cycles through all 3 roles (primary/accent/tertiary) across every group
   // of 3 sparks, not just primary/accent, so a full 3-color pick shows every
   // chosen color flying off the ring.

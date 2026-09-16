@@ -10,10 +10,10 @@
     <!-- 20 sparks total, same count as auth-modal's ring, just redistributed
          across two side columns instead of a full perimeter: 1 per corner,
          8 per side spread along the full height. -->
-    <span class="spark corner-tl" [style.--i]="0"></span>
-    <span class="spark corner-bl" [style.--i]="0"></span>
-    <span class="spark corner-tr" [style.--i]="0"></span>
-    <span class="spark corner-br" [style.--i]="0"></span>
+    <span class="spark corner-tl" appSparkReroll [style.--i]="0"></span>
+    <span class="spark corner-bl" appSparkReroll [style.--i]="0"></span>
+    <span class="spark corner-tr" appSparkReroll [style.--i]="0"></span>
+    <span class="spark corner-br" appSparkReroll [style.--i]="0"></span>
     <!-- Position (top%, evenly spread) is paired with a shuffled seed index
          rather than the matching one — with both walking 0-7 in lockstep,
          each spark's --seed only differs from its vertical neighbor's by one
@@ -21,10 +21,10 @@
          steady amount from spark to spark and read as a sweep marching up
          the side rather than independent, scattered activity. -->
     @for (pos of [[8, 5], [20, 1], [32, 6], [44, 2], [56, 7], [68, 0], [80, 4], [92, 3]]; track pos[0]) {
-      <span class="spark mid-l" [style.top.%]="pos[0]" [style.--i]="pos[1]"></span>
+      <span class="spark mid-l" appSparkReroll [style.top.%]="pos[0]" [style.--i]="pos[1]"></span>
     }
     @for (pos of [[8, 2], [20, 7], [32, 0], [44, 5], [56, 1], [68, 4], [80, 3], [92, 6]]; track pos[0]) {
-      <span class="spark mid-r" [style.top.%]="pos[0]" [style.--i]="pos[1]"></span>
+      <span class="spark mid-r" appSparkReroll [style.top.%]="pos[0]" [style.--i]="pos[1]"></span>
     }
   </div>
 
@@ -74,17 +74,17 @@
     <!-- 20 sparks total, same count as auth-modal's ring, just redistributed
          across two side columns instead of a full perimeter: 1 per corner,
          8 per side spread along the full height. -->
-    <span class="spark corner-tl" [style.--i]="0"></span>
-    <span class="spark corner-bl" [style.--i]="0"></span>
-    <span class="spark corner-tr" [style.--i]="0"></span>
-    <span class="spark corner-br" [style.--i]="0"></span>
+    <span class="spark corner-tl" appSparkReroll [style.--i]="0"></span>
+    <span class="spark corner-bl" appSparkReroll [style.--i]="0"></span>
+    <span class="spark corner-tr" appSparkReroll [style.--i]="0"></span>
+    <span class="spark corner-br" appSparkReroll [style.--i]="0"></span>
     <!-- See the search dialog above for why position and seed use separate,
          shuffled index sequences instead of walking 0-7 together. -->
     @for (pos of [[8, 6], [20, 3], [32, 1], [44, 7], [56, 4], [68, 0], [80, 2], [92, 5]]; track pos[0]) {
-      <span class="spark mid-l" [style.top.%]="pos[0]" [style.--i]="pos[1]"></span>
+      <span class="spark mid-l" appSparkReroll [style.top.%]="pos[0]" [style.--i]="pos[1]"></span>
     }
     @for (pos of [[8, 0], [20, 4], [32, 2], [44, 6], [56, 1], [68, 5], [80, 7], [92, 3]]; track pos[0]) {
-      <span class="spark mid-r" [style.top.%]="pos[0]" [style.--i]="pos[1]"></span>
+      <span class="spark mid-r" appSparkReroll [style.top.%]="pos[0]" [style.--i]="pos[1]"></span>
     }
   </div>
 

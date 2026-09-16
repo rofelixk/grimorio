@@ -12,10 +12,11 @@ import {
 import { AuthService } from '@services/auth.service';
 import { ThemeService } from '@services/theme.service';
 import { ColorThemePicker } from '@shared/color-theme-picker/color-theme-picker';
+import { SparkRerollDirective } from '@shared/spark-reroll/spark-reroll.directive';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ColorThemePicker],
+  imports: [ColorThemePicker, SparkRerollDirective],
   selector: 'app-auth-modal',
   styleUrl: './auth-modal.scss',
   templateUrl: './auth-modal.html',
@@ -28,6 +29,12 @@ export class AuthModal {
   readonly closed = output<void>();
 
   private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
+
+  // One per spark in the ring (see auth-modal.html) — index alone (via --i)
+  // is enough for the shared seed formula in _motion.scss to scatter each
+  // spark's initial angle/timing distinctly; SparkRerollDirective takes over
+  // from there on each animation loop.
+  protected readonly sparkIndices = Array.from({ length: 20 }, (_, i) => i);
 
   readonly mode = signal<'signIn' | 'signUp'>('signIn');
   // Email at sign-up (Supabase requires a real email); email-or-username at sign-in.

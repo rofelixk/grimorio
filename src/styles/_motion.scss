@@ -177,7 +177,8 @@
 // via `rotate(--angle) translateY(-radius)`, used by both auth-modal (a
 // full ring, center-anchored) and add-card-modal (edge/corner-anchored).
 // Position/anchor and color vary per caller and stay local to each
-// component; only the shared dimensions/opacity/animation wiring live here.
+// component; the seeded path/timing math and the opacity/animation wiring
+// live here so both components compute a spark's path the same way.
 // --spark-peak-opacity/--spark-end-scale let a caller punch up the burst's
 // intensity (add-card-modal's larger dialog wants a brighter, longer-reaching
 // spark) without redeclaring the keyframe itself — this used to be two
@@ -188,6 +189,45 @@
   height: 12px;
   border-radius: 2px;
   opacity: 0;
+  // Unitless seeds (plain <number>s) fed into sin()/cos(), which CSS treats
+  // as radians for a unitless argument. Split into two seeds rather than
+  // one:
+  //
+  // --timing-seed (--i, this spark's index, and --group-seed, a fixed
+  // per-corner/edge constant — both set inline/in SCSS once and never
+  // touched again) drives --dur/--delay, which feed directly into this
+  // element's own `animation` shorthand. --dur/--delay must stay constant
+  // for the element's whole lifetime: mutating a custom property that
+  // drives an *already-running* animation's own duration/delay is handled
+  // inconsistently across engines (observed as sparks suddenly firing at
+  // wildly wrong speed) — so nothing that changes at runtime may feed
+  // --timing-seed.
+  //
+  // --position-seed additionally folds in --seed-offset, which
+  // SparkRerollDirective *does* reroll on each animationiteration, so a
+  // spark's path (not its pace) changes on its next burst instead of
+  // repeating forever. That's safe because --angle/--start/--end are only
+  // read inside the keyframe's own 0%/100% transforms, not the animation's
+  // timing.
+  --timing-seed: calc((var(--i, 0) + var(--group-seed, 0)) * 12.9898);
+  --position-seed: calc((var(--i, 0) + var(--group-seed, 0) + var(--seed-offset, 0)) * 12.9898);
+  // Each derived value uses its own multiplier rather than sampling its seed
+  // directly — sin()/cos() are flat near their own peaks/troughs, so values
+  // built from the same multiplier would clump whenever two sparks' seeds
+  // happened to land in the same flat region. Distinct multipliers
+  // decorrelate angle/start/end/dur/delay from each other.
+  //
+  // --base-angle/--spread/--angle-min/--angle-max, and the start/end base +
+  // range, are the per-component tuning knobs: auth-modal's full-ring sparks
+  // override --spread to 180deg (a full circle) and use a larger start/end
+  // radius; add-card-modal's edge/corner sparks clamp --angle-min/max to
+  // stay within their own side's half and keep the smaller default radius.
+  --angle-raw: calc(var(--base-angle, 0deg) + sin(var(--position-seed) * 2.6) * var(--spread, 75deg));
+  --angle: clamp(var(--angle-min, -3600deg), var(--angle-raw), var(--angle-max, 3600deg));
+  --start: calc(var(--start-base, 14px) + abs(sin(var(--position-seed) * 1.7)) * var(--start-range, 20px));
+  --end: calc(var(--end-base, 110px) + abs(cos(var(--position-seed) * 1.3)) * var(--end-range, 110px));
+  --dur: calc(0.7s + abs(sin(var(--timing-seed) * 2.3)) * 0.4s);
+  --delay: calc(abs(cos(var(--timing-seed) * 1.9)) * 5.6s);
   animation: spark-burst var(--dur) ease-out infinite;
   animation-delay: var(--delay);
 
