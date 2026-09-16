@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '@services/auth.service';
@@ -6,10 +7,15 @@ import { AuthModal } from './auth-modal';
 describe('AuthModal', () => {
   let component: AuthModal;
   let fixture: ComponentFixture<AuthModal>;
-  let authService: Pick<AuthService, 'signIn' | 'signUp'>;
+  let authService: Pick<AuthService, 'user' | 'signIn' | 'signUp'>;
 
   beforeEach(async () => {
-    authService = { signIn: vi.fn().mockResolvedValue(undefined), signUp: vi.fn().mockResolvedValue(undefined) };
+    localStorage.clear();
+    authService = {
+      user: signal(null),
+      signIn: vi.fn().mockResolvedValue(undefined),
+      signUp: vi.fn().mockResolvedValue(undefined),
+    };
 
     await TestBed.configureTestingModule({
       imports: [AuthModal],
@@ -73,7 +79,7 @@ describe('AuthModal', () => {
 
     await component.submit();
 
-    expect(authService.signUp).toHaveBeenCalledWith('a@b.com', 'secret', 'rodrigo_gm');
+    expect(authService.signUp).toHaveBeenCalledWith('a@b.com', 'secret', 'rodrigo_gm', ['R', 'U']);
   });
 
   it('calls signUp with an empty username when none was given', async () => {
@@ -83,7 +89,7 @@ describe('AuthModal', () => {
 
     await component.submit();
 
-    expect(authService.signUp).toHaveBeenCalledWith('a@b.com', 'secret', '');
+    expect(authService.signUp).toHaveBeenCalledWith('a@b.com', 'secret', '', ['R', 'U']);
   });
 
   it('surfaces the error and keeps submitting false on failure', async () => {

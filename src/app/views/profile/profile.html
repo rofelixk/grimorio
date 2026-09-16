@@ -90,6 +90,31 @@
   </form>
 </section>
 
+<section class="profile-section">
+  <h2>Tema</h2>
+  <div class="theme-body">
+    <p class="helper">Escolha até 3 cores para personalizar a tela de login.</p>
+    <app-color-theme-picker />
+
+    @if (themeError()) {
+      <p class="error">{{ themeError() }}</p>
+    }
+    @if (themeSaved()) {
+      <p class="success">Tema salvo.</p>
+    }
+
+    <div>
+      <button type="button" class="btn-primary" [disabled]="themeSaving()" (click)="saveTheme()">
+        @if (themeSaving()) {
+          Salvando…
+        } @else {
+          Salvar tema
+        }
+      </button>
+    </div>
+  </div>
+</section>
+
 <section class="profile-section danger-zone">
   <h2>Zona de perigo</h2>
   <p>

@@ -10,16 +10,19 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@services/auth.service';
+import { ThemeService } from '@services/theme.service';
+import { ColorThemePicker } from '@shared/color-theme-picker/color-theme-picker';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [ColorThemePicker],
   selector: 'app-profile',
   styleUrl: './profile.scss',
   templateUrl: './profile.html',
 })
 export class Profile {
   private readonly authService = inject(AuthService);
+  private readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
 
   readonly minPasswordLength = 6;
@@ -30,6 +33,10 @@ export class Profile {
   readonly usernameSaving = signal(false);
   readonly usernameError = signal<string | null>(null);
   readonly usernameSaved = signal(false);
+
+  readonly themeSaving = signal(false);
+  readonly themeError = signal<string | null>(null);
+  readonly themeSaved = signal(false);
 
   readonly currentPassword = signal('');
   readonly newPassword = signal('');
@@ -80,6 +87,21 @@ export class Profile {
       this.usernameError.set(err instanceof Error ? err.message : 'Algo deu errado. Tente novamente.');
     } finally {
       this.usernameSaving.set(false);
+    }
+  }
+
+  async saveTheme(): Promise<void> {
+    this.themeError.set(null);
+    this.themeSaved.set(false);
+
+    this.themeSaving.set(true);
+    try {
+      await this.themeService.saveToAccount();
+      this.themeSaved.set(true);
+    } catch (err) {
+      this.themeError.set(err instanceof Error ? err.message : 'Algo deu errado. Tente novamente.');
+    } finally {
+      this.themeSaving.set(false);
     }
   }
 

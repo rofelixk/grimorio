@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-09-15T22:57:27.088Z",
         "reason": "dynamic Angular [src] binding to real card-art URL (result.imageUrl), not a static/placeholder src; static analysis can't resolve the runtime value"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "src/app/shared/color-theme-picker/color-theme-picker.html"
+        ],
+        "createdAt": "2026-09-16T14:19:34.494Z",
+        "reason": "dynamic [src] binds to real downloaded mana SVGs (public/assets/mana/{W,U,B,R,G}.svg), hook can't resolve runtime-interpolated paths"
       }
     ]
   }

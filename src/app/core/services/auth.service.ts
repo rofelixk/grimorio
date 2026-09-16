@@ -1,5 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Session } from '@supabase/supabase-js';
+import { Color } from '@models/card.model';
 import { SUPABASE_CLIENT } from '../supabase-client';
 
 // Username support (project hyzbkxraanzhdyhtnadf) is backed by a public.profiles table
@@ -21,6 +22,12 @@ export class AuthService {
   readonly username = computed(
     () => (this.user()?.user_metadata?.['username'] as string | undefined) ?? '',
   );
+  // Cross-device sync for the auth-modal theme picker's picks — undefined means the
+  // account has never saved a preference (a pre-existing account, or a fresh sign-up
+  // that didn't pass any), distinct from an empty array, which ThemeService never sends.
+  readonly themeColors = computed(
+    () => this.user()?.user_metadata?.['themeColors'] as Color[] | undefined,
+  );
   // What to show for this account anywhere space is tight (e.g. the nav bar) —
   // the username when set, falling back to email.
   readonly displayName = computed(() => this.username() || this.user()?.email || '');
@@ -41,12 +48,19 @@ export class AuthService {
     return this.initialSession;
   }
 
-  async signUp(email: string, password: string, username?: string): Promise<void> {
+  async signUp(email: string, password: string, username?: string, themeColors?: Color[]): Promise<void> {
     const trimmedUsername = username?.trim();
+    const data: Record<string, unknown> = {};
+    if (trimmedUsername) {
+      data['username'] = trimmedUsername;
+    }
+    if (themeColors && themeColors.length > 0) {
+      data['themeColors'] = themeColors;
+    }
     const { error } = await this.supabase.auth.signUp({
       email,
       password,
-      ...(trimmedUsername ? { options: { data: { username: trimmedUsername } } } : {}),
+      ...(Object.keys(data).length > 0 ? { options: { data } } : {}),
     });
     if (error) {
       throw new Error(this.isUsernameTakenError(error) ? 'Nome de usuário já está em uso.' : error.message);
@@ -85,6 +99,13 @@ export class AuthService {
     const { error } = await this.supabase.auth.updateUser({ data: { username } });
     if (error) {
       throw new Error(this.isUsernameTakenError(error) ? 'Nome de usuário já está em uso.' : error.message);
+    }
+  }
+
+  async updateThemeColors(themeColors: Color[]): Promise<void> {
+    const { error } = await this.supabase.auth.updateUser({ data: { themeColors } });
+    if (error) {
+      throw new Error(error.message);
     }
   }
 

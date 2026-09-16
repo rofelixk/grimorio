@@ -7,6 +7,7 @@ export { CardPicker } from './card-picker/card-picker';
 export { CardScanCapture } from './card-scan-capture/card-scan-capture';
 export { CardSearchPanel } from './card-search-panel/card-search-panel';
 export { ColorIdentity } from './color-identity/color-identity';
+export { ColorThemePicker } from './color-theme-picker/color-theme-picker';
 export { DashboardPanel } from './dashboard-panel/dashboard-panel';
 export { DeckCardList } from './deck-card-list/deck-card-list';
 export { DeckList } from './deck-list/deck-list';

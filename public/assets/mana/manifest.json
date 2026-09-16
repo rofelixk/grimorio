@@ -1,0 +1,862 @@
+[
+  {
+    "symbol": "{T}",
+    "file": "T.svg",
+    "english": "tap this permanent",
+    "colors": [],
+    "represents_mana": false,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{Q}",
+    "file": "Q.svg",
+    "english": "untap this permanent",
+    "colors": [],
+    "represents_mana": false,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{E}",
+    "file": "E.svg",
+    "english": "an energy counter",
+    "colors": [],
+    "represents_mana": false,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{P}",
+    "file": "P.svg",
+    "english": "modal budget pawprint",
+    "colors": [],
+    "represents_mana": false,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{PW}",
+    "file": "PW.svg",
+    "english": "planeswalker",
+    "colors": [],
+    "represents_mana": false,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{CHAOS}",
+    "file": "CHAOS.svg",
+    "english": "chaos",
+    "colors": [],
+    "represents_mana": false,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{A}",
+    "file": "A.svg",
+    "english": "an acorn counter",
+    "colors": [],
+    "represents_mana": false,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{TK}",
+    "file": "TK.svg",
+    "english": "a ticket counter",
+    "colors": [],
+    "represents_mana": false,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{X}",
+    "file": "X.svg",
+    "english": "X generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{Y}",
+    "file": "Y.svg",
+    "english": "Y generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{Z}",
+    "file": "Z.svg",
+    "english": "Z generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{0}",
+    "file": "0.svg",
+    "english": "zero mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{½}",
+    "file": "HALF.svg",
+    "english": "one-half generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{1}",
+    "file": "1.svg",
+    "english": "one generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{2}",
+    "file": "2.svg",
+    "english": "two generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{3}",
+    "file": "3.svg",
+    "english": "three generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{4}",
+    "file": "4.svg",
+    "english": "four generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{5}",
+    "file": "5.svg",
+    "english": "five generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{6}",
+    "file": "6.svg",
+    "english": "six generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{7}",
+    "file": "7.svg",
+    "english": "seven generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{8}",
+    "file": "8.svg",
+    "english": "eight generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{9}",
+    "file": "9.svg",
+    "english": "nine generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{10}",
+    "file": "10.svg",
+    "english": "ten generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{11}",
+    "file": "11.svg",
+    "english": "eleven generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{12}",
+    "file": "12.svg",
+    "english": "twelve generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{13}",
+    "file": "13.svg",
+    "english": "thirteen generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{14}",
+    "file": "14.svg",
+    "english": "fourteen generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{15}",
+    "file": "15.svg",
+    "english": "fifteen generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{16}",
+    "file": "16.svg",
+    "english": "sixteen generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{17}",
+    "file": "17.svg",
+    "english": "seventeen generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{18}",
+    "file": "18.svg",
+    "english": "eighteen generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{19}",
+    "file": "19.svg",
+    "english": "nineteen generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{20}",
+    "file": "20.svg",
+    "english": "twenty generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{100}",
+    "file": "100.svg",
+    "english": "one hundred generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{1000000}",
+    "file": "1000000.svg",
+    "english": "one million generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{∞}",
+    "file": "INFINITY.svg",
+    "english": "infinite generic mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{W/U}",
+    "file": "WU.svg",
+    "english": "one white or blue mana",
+    "colors": [
+      "W",
+      "U"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{W/B}",
+    "file": "WB.svg",
+    "english": "one white or black mana",
+    "colors": [
+      "W",
+      "B"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{B/R}",
+    "file": "BR.svg",
+    "english": "one black or red mana",
+    "colors": [
+      "B",
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{B/G}",
+    "file": "BG.svg",
+    "english": "one black or green mana",
+    "colors": [
+      "B",
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{U/B}",
+    "file": "UB.svg",
+    "english": "one blue or black mana",
+    "colors": [
+      "U",
+      "B"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{U/R}",
+    "file": "UR.svg",
+    "english": "one blue or red mana",
+    "colors": [
+      "U",
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{R/G}",
+    "file": "RG.svg",
+    "english": "one red or green mana",
+    "colors": [
+      "R",
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{R/W}",
+    "file": "RW.svg",
+    "english": "one red or white mana",
+    "colors": [
+      "W",
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{G/W}",
+    "file": "GW.svg",
+    "english": "one green or white mana",
+    "colors": [
+      "W",
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{G/U}",
+    "file": "GU.svg",
+    "english": "one green or blue mana",
+    "colors": [
+      "U",
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{B/G/P}",
+    "file": "BGP.svg",
+    "english": "one black mana, one green mana, or 2 life",
+    "colors": [
+      "B",
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{B/R/P}",
+    "file": "BRP.svg",
+    "english": "one black mana, one red mana, or 2 life",
+    "colors": [
+      "B",
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{G/U/P}",
+    "file": "GUP.svg",
+    "english": "one green mana, one blue mana, or 2 life",
+    "colors": [
+      "U",
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{G/W/P}",
+    "file": "GWP.svg",
+    "english": "one green mana, one white mana, or 2 life",
+    "colors": [
+      "W",
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{R/G/P}",
+    "file": "RGP.svg",
+    "english": "one red mana, one green mana, or 2 life",
+    "colors": [
+      "R",
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{R/W/P}",
+    "file": "RWP.svg",
+    "english": "one red mana, one white mana, or 2 life",
+    "colors": [
+      "W",
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{U/B/P}",
+    "file": "UBP.svg",
+    "english": "one blue mana, one black mana, or 2 life",
+    "colors": [
+      "U",
+      "B"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{U/R/P}",
+    "file": "URP.svg",
+    "english": "one blue mana, one red mana, or 2 life",
+    "colors": [
+      "U",
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{W/B/P}",
+    "file": "WBP.svg",
+    "english": "one white mana, one black mana, or 2 life",
+    "colors": [
+      "W",
+      "B"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{W/U/P}",
+    "file": "WUP.svg",
+    "english": "one white mana, one blue mana, or 2 life",
+    "colors": [
+      "W",
+      "U"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{C/W}",
+    "file": "CW.svg",
+    "english": "one colorless mana or one white mana",
+    "colors": [
+      "W"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{C/U}",
+    "file": "CU.svg",
+    "english": "one colorless mana or one blue mana",
+    "colors": [
+      "U"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{C/B}",
+    "file": "CB.svg",
+    "english": "one colorless mana or one black mana",
+    "colors": [
+      "B"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{C/R}",
+    "file": "CR.svg",
+    "english": "one colorless mana or one red mana",
+    "colors": [
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{C/G}",
+    "file": "CG.svg",
+    "english": "one colorless mana or one green mana",
+    "colors": [
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{2/W}",
+    "file": "2W.svg",
+    "english": "two generic mana or one white mana",
+    "colors": [
+      "W"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{2/U}",
+    "file": "2U.svg",
+    "english": "two generic mana or one blue mana",
+    "colors": [
+      "U"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{2/B}",
+    "file": "2B.svg",
+    "english": "two generic mana or one black mana",
+    "colors": [
+      "B"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{2/R}",
+    "file": "2R.svg",
+    "english": "two generic mana or one red mana",
+    "colors": [
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{2/G}",
+    "file": "2G.svg",
+    "english": "two generic mana or one green mana",
+    "colors": [
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": true,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{H}",
+    "file": "H.svg",
+    "english": "one colored mana or two life",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{W/P}",
+    "file": "WP.svg",
+    "english": "one white mana or two life",
+    "colors": [
+      "W"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{U/P}",
+    "file": "UP.svg",
+    "english": "one blue mana or two life",
+    "colors": [
+      "U"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{B/P}",
+    "file": "BP.svg",
+    "english": "one black mana or two life",
+    "colors": [
+      "B"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{R/P}",
+    "file": "RP.svg",
+    "english": "one red mana or two life",
+    "colors": [
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{G/P}",
+    "file": "GP.svg",
+    "english": "one green mana or two life",
+    "colors": [
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{C/P}",
+    "file": "CP.svg",
+    "english": "one colorless mana or two life",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": true
+  },
+  {
+    "symbol": "{HW}",
+    "file": "HW.svg",
+    "english": "one-half white mana",
+    "colors": [
+      "W"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{HR}",
+    "file": "HR.svg",
+    "english": "one-half red mana",
+    "colors": [
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{W}",
+    "file": "W.svg",
+    "english": "one white mana",
+    "colors": [
+      "W"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{U}",
+    "file": "U.svg",
+    "english": "one blue mana",
+    "colors": [
+      "U"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{B}",
+    "file": "B.svg",
+    "english": "one black mana",
+    "colors": [
+      "B"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{R}",
+    "file": "R.svg",
+    "english": "one red mana",
+    "colors": [
+      "R"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{G}",
+    "file": "G.svg",
+    "english": "one green mana",
+    "colors": [
+      "G"
+    ],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{C}",
+    "file": "C.svg",
+    "english": "one colorless mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{S}",
+    "file": "S.svg",
+    "english": "one snow mana",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{L}",
+    "file": "L.svg",
+    "english": "one mana from a legendary source",
+    "colors": [],
+    "represents_mana": true,
+    "hybrid": false,
+    "phyrexian": false
+  },
+  {
+    "symbol": "{D}",
+    "file": "D.svg",
+    "english": "one potential land drop",
+    "colors": [],
+    "represents_mana": false,
+    "hybrid": false,
+    "phyrexian": false
+  }
+]

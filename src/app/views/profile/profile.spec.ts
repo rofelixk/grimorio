@@ -20,15 +20,21 @@ function mockUser(email: string): User {
 describe('Profile', () => {
   let component: Profile;
   let fixture: ComponentFixture<Profile>;
-  let authService: Pick<AuthService, 'user' | 'username' | 'updateUsername' | 'updatePassword' | 'deleteAccount'>;
+  let authService: Pick<
+    AuthService,
+    'user' | 'username' | 'themeColors' | 'updateUsername' | 'updatePassword' | 'updateThemeColors' | 'deleteAccount'
+  >;
   let router: Router;
 
   beforeEach(async () => {
+    localStorage.clear();
     authService = {
       user: signal(mockUser('rodrigo@exemplo.com')),
       username: signal('rodrigo_gm'),
+      themeColors: signal(undefined),
       updateUsername: vi.fn().mockResolvedValue(undefined),
       updatePassword: vi.fn().mockResolvedValue(undefined),
+      updateThemeColors: vi.fn().mockResolvedValue(undefined),
       deleteAccount: vi.fn().mockResolvedValue(undefined),
     };
 
@@ -102,6 +108,25 @@ describe('Profile', () => {
     expect(component.currentPassword()).toBe('');
     expect(component.newPassword()).toBe('');
     expect(component.confirmPassword()).toBe('');
+  });
+
+  it('saveTheme delegates to AuthService via ThemeService and marks it saved', async () => {
+    vi.mocked(authService.updateThemeColors).mockClear();
+
+    await component.saveTheme();
+
+    expect(authService.updateThemeColors).toHaveBeenCalledWith(['R', 'U']);
+    expect(component.themeSaved()).toBe(true);
+  });
+
+  it('saveTheme surfaces the error and does not mark it saved on failure', async () => {
+    vi.mocked(authService.updateThemeColors).mockClear();
+    vi.mocked(authService.updateThemeColors).mockRejectedValueOnce(new Error('boom'));
+
+    await component.saveTheme();
+
+    expect(component.themeError()).toBe('boom');
+    expect(component.themeSaved()).toBe(false);
   });
 
   it('canConfirmDelete is only true once the typed text matches the account email', () => {

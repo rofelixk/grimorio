@@ -15,15 +15,37 @@
   // container to "reach" that overflowing content, showing native
   // scrollbars around the whole modal.
   overflow: visible;
-  // A thin rotating ember/teal ring: a conic-gradient used directly as
-  // this element's own background, revealed only through the 2px padding
-  // gap around the opaque .modal-surface inside it (border-radius clips a
-  // box's own background automatically, so the ring's outer corners come
-  // out rounded for free, no separate element or clipping trick needed).
-  // Driven by the animated --spin-angle custom property (see _motion.scss)
-  // rather than transform-rotating a box, since transforming .auth-modal
-  // itself would spin its actual content too.
-  background: conic-gradient(from var(--spin-angle), rgba(232, 121, 47, 0.35), rgba(63, 196, 209, 0.25), rgba(232, 121, 47, 0.35));
+  // A thin rotating ring: a conic-gradient used directly as this element's
+  // own background, revealed only through the 2px padding gap around the
+  // opaque .modal-surface inside it (border-radius clips a box's own
+  // background automatically, so the ring's outer corners come out rounded
+  // for free, no separate element or clipping trick needed). Driven by the
+  // animated --spin-angle custom property (see _motion.scss) rather than
+  // transform-rotating a box, since transforming .auth-modal itself would
+  // spin its actual content too.
+  //
+  // --mp/--ma/--mt: short aliases resolving --modal-primary/-accent/-tertiary
+  // (set by the template from the user's chosen theme colors) against the
+  // app's default brand colors, so every rule below can retint without
+  // repeating the fallback chain. --mt falls back to --ma, not --mp, so a
+  // 2-color theme still reads as a coherent primary/accent pairing.
+  --mp: var(--modal-primary, var(--color-primary));
+  --mph: var(--modal-primary-hover, var(--color-primary-hover));
+  // Falls back to primary, not a separate white/cyan default — with only 1
+  // theme color picked, a leftover second color read as though it were
+  // itself selected. 1 pick now means the whole modal reads as that 1 color.
+  --ma: var(--modal-accent, var(--mp));
+  --mah: var(--modal-accent-hover, var(--mph));
+  --mt: var(--modal-tertiary, var(--ma));
+  --mth: var(--modal-tertiary-hover, var(--mah));
+  // 3-stop primary/accent/tertiary rotation.
+  background: conic-gradient(
+    from var(--spin-angle),
+    rgb(from var(--mp) r g b / 35%),
+    rgb(from var(--ma) r g b / 25%),
+    rgb(from var(--mt) r g b / 25%),
+    rgb(from var(--mp) r g b / 35%)
+  );
   animation: spin-angle 28s linear infinite;
 
   &[open] {
@@ -139,17 +161,19 @@
   // reads as a circle, which looks odd behind a visibly rectangular modal.
   border-radius: 70px;
   filter: blur(26px);
+  // Same --mp/--ma/--mt retinting as the ring above; --gap-a..f keep dimming
+  // the same rotation positions as before, only the color per stop changed.
   background: conic-gradient(
     from var(--spin-angle),
-    rgba(232, 121, 47, 0.24) 0%,
-    rgba(232, 121, 47, calc(0.24 * var(--gap-a))) 8%,
-    rgba(232, 121, 47, calc(0.24 * var(--gap-b))) 22%,
-    rgba(232, 121, 47, calc(0.24 * var(--gap-c))) 38%,
-    rgba(63, 196, 209, 0.18) 50%,
-    rgba(63, 196, 209, calc(0.18 * var(--gap-d))) 62%,
-    rgba(63, 196, 209, calc(0.18 * var(--gap-e))) 78%,
-    rgba(63, 196, 209, calc(0.18 * var(--gap-f))) 92%,
-    rgba(232, 121, 47, 0.24) 100%
+    rgb(from var(--mp) r g b / 24%) 0%,
+    rgb(from var(--mp) r g b / calc(24% * var(--gap-a))) 8%,
+    rgb(from var(--ma) r g b / calc(18% * var(--gap-b))) 22%,
+    rgb(from var(--ma) r g b / calc(18% * var(--gap-c))) 38%,
+    rgb(from var(--mt) r g b / 18%) 50%,
+    rgb(from var(--mt) r g b / calc(18% * var(--gap-d))) 62%,
+    rgb(from var(--mp) r g b / calc(24% * var(--gap-e))) 78%,
+    rgb(from var(--mp) r g b / calc(24% * var(--gap-f))) 92%,
+    rgb(from var(--mp) r g b / 24%) 100%
   );
   animation:
     spin-angle 28s linear infinite,
@@ -195,15 +219,23 @@
   width: 2px;
   height: 12px;
   border-radius: 2px;
-  background: linear-gradient(to top, transparent, var(--color-primary));
-  filter: drop-shadow(0 0 2px var(--color-primary));
+  // Cycles through all 3 roles (primary/accent/tertiary) across every group
+  // of 3 sparks, not just primary/accent, so a full 3-color pick shows every
+  // chosen color flying off the ring.
+  background: linear-gradient(to top, transparent, var(--mp));
+  filter: drop-shadow(0 0 2px var(--mp));
   opacity: 0;
   animation: spark-burst var(--dur) ease-out infinite;
   animation-delay: var(--delay);
 
-  &:nth-child(3n + 1) {
-    background: linear-gradient(to top, transparent, var(--color-accent));
-    filter: drop-shadow(0 0 2px var(--color-accent));
+  &:nth-child(3n + 2) {
+    background: linear-gradient(to top, transparent, var(--ma));
+    filter: drop-shadow(0 0 2px var(--ma));
+  }
+
+  &:nth-child(3n + 3) {
+    background: linear-gradient(to top, transparent, var(--mt));
+    filter: drop-shadow(0 0 2px var(--mt));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -294,6 +326,11 @@ label {
   flex-direction: column;
   gap: var(--space-1);
   font-size: var(--font-size-sm);
+}
+
+.picker-label {
+  font-size: var(--font-size-sm);
+  margin: var(--space-3) 0 var(--space-1);
 }
 
 input:focus-visible {
@@ -398,10 +435,20 @@ input {
   }
 
   &.active {
-    color: var(--color-accent);
     font-weight: bold;
     background: var(--color-surface-raised);
-    text-shadow: 0 0 8px rgba(63, 196, 209, 0.6);
+  }
+
+  // Logar uses --ma, Cadastrar uses --mt — a full 3-color pick gives the
+  // two tabs visually distinct active states.
+  &.signin.active {
+    color: var(--ma);
+    text-shadow: 0 0 8px rgb(from var(--ma) r g b / 60%);
+  }
+
+  &.signup.active {
+    color: var(--mt);
+    text-shadow: 0 0 8px rgb(from var(--mt) r g b / 60%);
   }
 
   &:focus-visible {
@@ -426,16 +473,18 @@ input {
   padding: var(--space-3) var(--space-4);
   font-size: var(--font-size-md);
   // Same dark-surface family as .mode-switch-option's .active state
-  // (dark fill + colored glow-text) rather than a filled ember block, so
-  // it reads as kin to the mode buttons above it. Ember instead of their
-  // teal, plus a glowing border and resting box-shadow — quiet elsewhere
-  // in this form — is what still marks it as the primary action.
-  color: var(--color-primary);
+  // (dark fill + colored glow-text) rather than a filled block, so it reads
+  // as kin to the mode buttons above it. The glowing border/text plus a
+  // resting box-shadow — quiet elsewhere in this form — is what still marks
+  // it as the primary action. Colors route through --mp/--mph (see .auth-modal).
+  color: var(--mp);
   background: var(--color-surface-raised);
-  border-color: var(--color-primary);
+  border-color: var(--mp);
   font-weight: bold;
-  text-shadow: 0 0 8px rgba(232, 121, 47, 0.6);
-  box-shadow: var(--shadow-glow-primary);
+  text-shadow: 0 0 8px rgb(from var(--mp) r g b / 60%);
+  // Was var(--shadow-glow-primary), a token never defined in _tokens.scss
+  // (only -strong exists) — silently rendered as nothing. Fixed in passing.
+  box-shadow: 0 0 20px rgb(from var(--mp) r g b / 35%);
   transition:
     background var(--duration-fast) var(--ease-standard),
     border-color var(--duration-fast) var(--ease-standard),
@@ -443,9 +492,9 @@ input {
 
   &:hover:not(:disabled),
   &:focus-visible {
-    color: var(--color-primary-hover);
-    border-color: var(--color-primary-hover);
-    box-shadow: var(--shadow-glow-primary-strong);
+    color: var(--mph);
+    border-color: var(--mph);
+    box-shadow: 0 0 20px rgb(from var(--mph) r g b / 50%);
   }
 
   &:focus-visible {

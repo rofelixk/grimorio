@@ -10,16 +10,19 @@ import {
   viewChild,
 } from '@angular/core';
 import { AuthService } from '@services/auth.service';
+import { ThemeService } from '@services/theme.service';
+import { ColorThemePicker } from '@shared/color-theme-picker/color-theme-picker';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [ColorThemePicker],
   selector: 'app-auth-modal',
   styleUrl: './auth-modal.scss',
   templateUrl: './auth-modal.html',
 })
 export class AuthModal {
   private readonly authService = inject(AuthService);
+  protected readonly themeService = inject(ThemeService);
 
   readonly open = input(false);
   readonly closed = output<void>();
@@ -74,7 +77,7 @@ export class AuthModal {
     this.error.set(null);
     try {
       if (this.mode() === 'signUp') {
-        await this.authService.signUp(identifier, password, this.username());
+        await this.authService.signUp(identifier, password, this.username(), this.themeService.colors());
       } else {
         await this.authService.signIn(identifier, password);
       }

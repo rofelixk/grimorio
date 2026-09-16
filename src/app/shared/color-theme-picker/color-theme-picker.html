@@ -1,0 +1,19 @@
+<div class="color-theme-picker" role="group" aria-label="Escolher cores do tema">
+  @for (color of colorOrder; track color) {
+    <button
+      type="button"
+      class="swatch"
+      [style.--swatch-color]="palette[color].base"
+      [class.selected]="isSelected(color)"
+      [attr.aria-pressed]="isSelected(color)"
+      [attr.aria-label]="palette[color].label"
+      [disabled]="
+        (!isSelected(color) && themeService.colors().length >= maxColors) ||
+        (isSelected(color) && themeService.colors().length <= 1)
+      "
+      (click)="toggle(color)"
+    >
+      <img [src]="'/assets/mana/' + color + '.svg'" alt="" />
+    </button>
+  }
+</div>

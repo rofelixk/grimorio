@@ -1,0 +1,75 @@
+:host {
+  display: block;
+}
+
+.color-theme-picker {
+  display: flex;
+  gap: var(--space-2);
+  // Real padding (not offset by a matching negative margin) for the
+  // selection ring's box-shadow, which extends ~2px beyond the swatch.
+  // A negative-margin "reclaim the space" trick doesn't survive here: this
+  // is the last child inside auth-modal's .collapse-inner, whose height is
+  // auto-sized to the normal-flow box before overflow: hidden clips it, so
+  // anything spilling out via negative margin gets clipped right back.
+  padding: 3px;
+}
+
+.swatch {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 2px;
+  border: 2px solid transparent;
+  background: var(--color-surface);
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+
+  img {
+    width: 100%;
+    height: 100%;
+    // The mana symbols already carry their own full-color print colors, not
+    // idle/greyed until picked, so an unpicked swatch dims via opacity
+    // instead of rendering in some desaturated placeholder state.
+    opacity: 0.55;
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+
+  &:hover:not(:disabled) {
+    transform: scale(1.08);
+
+    img {
+      opacity: 0.8;
+    }
+  }
+
+  &.selected {
+    // Two thin rings — a gap in --color-bg, then the swatch's own color
+    // (--swatch-color, bound per-button in the template) — read as "on"
+    // without a heavy glow or a third border ring competing with it.
+    box-shadow: 0 0 0 1px var(--color-bg), 0 0 0 2px var(--swatch-color);
+
+    img {
+      opacity: 1;
+    }
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--ring-accent);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+
+    &:not(.selected) {
+      opacity: 0.5;
+    }
+  }
+}

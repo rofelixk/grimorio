@@ -1,4 +1,15 @@
-<dialog #dialog class="auth-modal" aria-labelledby="auth-modal-title" (close)="onDialogClosed()">
+<dialog
+  #dialog
+  class="auth-modal"
+  aria-labelledby="auth-modal-title"
+  (close)="onDialogClosed()"
+  [style.--modal-primary]="themeService.roles().primary"
+  [style.--modal-primary-hover]="themeService.roles().primaryHover"
+  [style.--modal-accent]="themeService.roles().accent"
+  [style.--modal-accent-hover]="themeService.roles().accentHover"
+  [style.--modal-tertiary]="themeService.roles().tertiary"
+  [style.--modal-tertiary-hover]="themeService.roles().tertiaryHover"
+>
   <div class="ambient-glow" aria-hidden="true"></div>
   <div class="sparks" aria-hidden="true">
     <span class="spark" style="--angle: 2deg; --start: 178px; --end: 250px; --dur: 0.8s; --delay: 0s"></span>
@@ -32,8 +43,8 @@
     <div class="modal-body">
       <form (submit)="$event.preventDefault(); submit()">
         <div class="mode-switch" role="group" aria-label="Alternar entre logar e cadastrar">
-          <button type="button" class="mode-switch-option" [class.active]="mode() === 'signIn'" [attr.aria-pressed]="mode() === 'signIn'" [disabled]="submitting()" (click)="setMode('signIn')">Logar</button>
-          <button type="button" class="mode-switch-option" [class.active]="mode() === 'signUp'" [attr.aria-pressed]="mode() === 'signUp'" [disabled]="submitting()" (click)="setMode('signUp')">Cadastrar</button>
+          <button type="button" class="mode-switch-option signin" [class.active]="mode() === 'signIn'" [attr.aria-pressed]="mode() === 'signIn'" [disabled]="submitting()" (click)="setMode('signIn')">Logar</button>
+          <button type="button" class="mode-switch-option signup" [class.active]="mode() === 'signUp'" [attr.aria-pressed]="mode() === 'signUp'" [disabled]="submitting()" (click)="setMode('signUp')">Cadastrar</button>
         </div>
 
         <label>
@@ -57,6 +68,9 @@
                 autocomplete="username"
               />
             </label>
+
+            <p class="picker-label">Identidade (escolha até 3)</p>
+            <app-color-theme-picker />
           </div>
         </div>
 
