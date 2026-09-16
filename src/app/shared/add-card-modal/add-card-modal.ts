@@ -76,7 +76,7 @@ export class AddCardModal {
   });
 
   readonly finish = signal<CardFinish | ''>('');
-  readonly language = signal('');
+  readonly language = signal('en');
   readonly condition = signal<CardCondition | ''>('');
   readonly quantity = signal('');
   readonly forSale = signal(false);
@@ -332,7 +332,7 @@ export class AddCardModal {
 
   private resetPhysicalFields(): void {
     this.finish.set('');
-    this.language.set('');
+    this.language.set('en');
     this.condition.set('');
     this.quantity.set('');
     this.forSale.set(false);
