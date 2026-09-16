@@ -215,6 +215,12 @@ export class AddCardModal {
     this.selected.set(result);
   }
 
+  // Unlike pickResult(), switching printing mid-confirm shouldn't discard
+  // finish/language/condition/quantity/notes the user already entered.
+  onPrintingSelected(result: CardLookupResult): void {
+    this.selected.set(result);
+  }
+
   back(): void {
     this.selected.set(null);
   }

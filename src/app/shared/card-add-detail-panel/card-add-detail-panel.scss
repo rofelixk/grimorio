@@ -90,10 +90,11 @@
 }
 
 .art-wrapper img {
+  --radius-card: 18px;
   display: block;
   width: 100%;
   aspect-ratio: 488 / 680;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-card);
 }
 
 .flip-button {

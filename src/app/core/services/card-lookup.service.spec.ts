@@ -289,3 +289,87 @@ describe('CardLookupService.searchByName', () => {
     );
   });
 });
+
+describe('CardLookupService.listPrintings', () => {
+  let service: CardLookupService;
+  let eqOracleId: ReturnType<typeof vi.fn>;
+  let orderFirst: ReturnType<typeof vi.fn>;
+  let orderSecond: ReturnType<typeof vi.fn>;
+
+  function row(overrides: {
+    name: string;
+    scryfall_id: string;
+    set_code: string;
+    collector_number: string;
+  }) {
+    return {
+      scryfall_id: overrides.scryfall_id,
+      oracle_id: 'oracle-sol-ring',
+      set_code: overrides.set_code,
+      set_name: 'Some Set',
+      collector_number: overrides.collector_number,
+      rarity: 'common',
+      image_url: null,
+      cards: {
+        name: overrides.name,
+        type_line: 'Artifact',
+        oracle_text: null,
+        color_identity: [],
+        commander_legality: 'legal',
+        card_faces: null,
+      },
+    };
+  }
+
+  beforeEach(() => {
+    orderSecond = vi.fn();
+    orderFirst = vi.fn(() => ({ order: orderSecond }));
+    eqOracleId = vi.fn(() => ({ order: orderFirst }));
+    const supabaseStub = {
+      from: () => ({
+        select: () => ({
+          eq: eqOracleId,
+        }),
+      }),
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: SUPABASE_CLIENT, useValue: supabaseStub }],
+    });
+    service = TestBed.inject(CardLookupService);
+  });
+
+  it('queries every printing by oracle_id, ordered by set and collector number', async () => {
+    orderSecond.mockResolvedValue({ data: [], error: null });
+
+    await service.listPrintings('oracle-sol-ring');
+
+    expect(eqOracleId).toHaveBeenCalledWith('oracle_id', 'oracle-sol-ring');
+    expect(orderFirst).toHaveBeenCalledWith('set_code');
+    expect(orderSecond).toHaveBeenCalledWith('collector_number');
+  });
+
+  it('returns every printing without deduping by name', async () => {
+    orderSecond.mockResolvedValue({
+      data: [
+        row({ name: 'Sol Ring', scryfall_id: 'scry-early', set_code: 'lea', collector_number: '1' }),
+        row({ name: 'Sol Ring', scryfall_id: 'scry-late', set_code: 'mh3', collector_number: '250' }),
+      ],
+      error: null,
+    });
+
+    const result = await service.listPrintings('oracle-sol-ring');
+
+    expect(result).toHaveLength(2);
+    expect(result.map((r) => r.scryfallId)).toEqual(['scry-early', 'scry-late']);
+  });
+
+  it('throws a generic error on failure', async () => {
+    orderSecond.mockResolvedValue({ data: null, error: { code: '500', message: 'network down' } });
+
+    await expect(service.listPrintings('oracle-sol-ring')).rejects.toThrow(
+      'Não foi possível acessar o banco de dados de cartas. Verifique sua conexão e tente novamente.',
+    );
+  });
+});

@@ -20,8 +20,12 @@
         </div>
         <label>
           Impressão
-          <select disabled>
-            <option>{{ candidate().setCode }} · {{ candidate().collectorNumber }} · {{ candidate().setName }}</option>
+          <select [value]="candidate().scryfallId" (change)="onPrintingChange($any($event.target).value)">
+            @for (option of printingOptions(); track option.scryfallId) {
+              <option [value]="option.scryfallId">
+                {{ option.setCode }} · {{ option.collectorNumber }} · {{ option.setName }}
+              </option>
+            }
           </select>
         </label>
       </div>
@@ -47,12 +51,11 @@
         </label>
         <label>
           Idioma
-          <input
-            type="text"
-            [value]="language()"
-            (input)="languageChanged.emit($any($event.target).value)"
-            placeholder="en (padrão)"
-          />
+          <select [value]="language()" (change)="languageChanged.emit($any($event.target).value)">
+            @for (l of languages; track l.code) {
+              <option [value]="l.code">{{ l.label }}</option>
+            }
+          </select>
         </label>
         <label class="quantity-field">
           Quantidade

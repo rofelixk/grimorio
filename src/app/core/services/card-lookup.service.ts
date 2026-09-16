@@ -106,6 +106,23 @@ export class CardLookupService {
     }
     return deduped;
   }
+
+  async listPrintings(oracleId: string): Promise<CardLookupResult[]> {
+    const { data, error } = await this.supabase
+      .from('printings')
+      .select(
+        'scryfall_id, oracle_id, set_code, set_name, collector_number, rarity, image_url, cards(name, type_line, oracle_text, color_identity, commander_legality, card_faces)',
+      )
+      .eq('oracle_id', oracleId)
+      .order('set_code')
+      .order('collector_number');
+
+    if (error) {
+      throw new Error('Não foi possível acessar o banco de dados de cartas. Verifique sua conexão e tente novamente.');
+    }
+
+    return ((data ?? []) as unknown as PrintingRow[]).map(mapRow);
+  }
 }
 
 // Cards are often printed with zero-padded collector numbers (e.g. "0001"),

@@ -189,6 +189,21 @@ describe('AddCardModal', () => {
     expect(component.results().length).toBe(1);
   });
 
+  it('switches the selected printing without resetting physical fields already entered', async () => {
+    component.nameQuery.set('Sol Ring');
+    await component.runSearch();
+    component.pickResult(component.results()[0]);
+    component.quantity.set('3');
+    component.forSale.set(true);
+
+    const otherPrinting = mockCardLookupResult({ scryfallId: 'scry-other', setCode: 'LEA' });
+    component.onPrintingSelected(otherPrinting);
+
+    expect(component.selected()).toEqual(otherPrinting);
+    expect(component.quantity()).toBe('3');
+    expect(component.forSale()).toBe(true);
+  });
+
   it('submits a collection add and resets/closes afterward', async () => {
     component.nameQuery.set('Sol Ring');
     await component.runSearch();

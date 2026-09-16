@@ -1,16 +1,21 @@
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardLookupResult } from '@testing/card.mocks';
+import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
 import { CardAddDetailPanel } from './card-add-detail-panel';
 
 describe('CardAddDetailPanel', () => {
   let fixture: ComponentFixture<CardAddDetailPanel>;
   let component: CardAddDetailPanel;
+  let listPrintings: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
+    listPrintings = vi.fn().mockResolvedValue([]);
+
     await TestBed.configureTestingModule({
       imports: [CardAddDetailPanel],
+      providers: [{ provide: CardLookupService, useValue: { listPrintings } }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CardAddDetailPanel);
@@ -59,16 +64,65 @@ describe('CardAddDetailPanel', () => {
     expect(component.displayedFace().name).toBe('Other card');
   });
 
-  it('renders the Impressão select as disabled with the current printing as its only option', () => {
+  it('renders the current printing as the only Impressão option while sibling printings load', () => {
     const candidate = mockCardLookupResult({ setCode: 'MH3', collectorNumber: '161', setName: 'Modern Horizons 3' });
     fixture.componentRef.setInput('candidate', candidate);
     fixture.detectChanges();
 
     const select = fixture.debugElement.query(By.css('.left-column select'));
-    expect(select.nativeElement.disabled).toBe(true);
+    expect(select.nativeElement.disabled).toBe(false);
     const options = select.nativeElement.querySelectorAll('option');
     expect(options.length).toBe(1);
     expect(options[0].textContent).toContain('MH3 · 161 · Modern Horizons 3');
+  });
+
+  it('populates the Impressão select with every printing fetched by oracleId', async () => {
+    const candidate = mockCardLookupResult({
+      scryfallId: 'scry-mh3',
+      setCode: 'MH3',
+      collectorNumber: '161',
+      setName: 'Modern Horizons 3',
+    });
+    const sibling = mockCardLookupResult({
+      scryfallId: 'scry-lea',
+      setCode: 'LEA',
+      collectorNumber: '1',
+      setName: 'Limited Edition Alpha',
+    });
+    listPrintings.mockResolvedValue([sibling, candidate]);
+
+    fixture.componentRef.setInput('candidate', candidate);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(listPrintings).toHaveBeenCalledWith(candidate.oracleId);
+    const select = fixture.debugElement.query(By.css('.left-column select'));
+    const options: HTMLOptionElement[] = Array.from(select.nativeElement.querySelectorAll('option'));
+    expect(options.map((o) => o.textContent?.trim())).toEqual([
+      'LEA · 1 · Limited Edition Alpha',
+      'MH3 · 161 · Modern Horizons 3',
+    ]);
+  });
+
+  it('emits printingSelected with the matching printing when a different option is picked', async () => {
+    const candidate = mockCardLookupResult({ scryfallId: 'scry-mh3', setCode: 'MH3' });
+    const sibling = mockCardLookupResult({ scryfallId: 'scry-lea', setCode: 'LEA' });
+    listPrintings.mockResolvedValue([sibling, candidate]);
+
+    fixture.componentRef.setInput('candidate', candidate);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    let emitted: CardLookupResult | undefined;
+    component.printingSelected.subscribe((value) => (emitted = value));
+
+    const select = fixture.debugElement.query(By.css('.left-column select'));
+    select.nativeElement.value = 'scry-lea';
+    select.nativeElement.dispatchEvent(new Event('change'));
+
+    expect(emitted).toEqual(sibling);
   });
 
   it('clamps the quantity stepper at a minimum of 1', () => {

@@ -1,6 +1,8 @@
 .card-list {
   list-style: none;
   padding: 0;
+  max-height: 55dvh;
+    overflow: hidden scroll;
 
   li {
     display: flex;
