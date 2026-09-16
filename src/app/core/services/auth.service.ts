@@ -2,16 +2,15 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Session } from '@supabase/supabase-js';
 import { SUPABASE_CLIENT } from '../supabase-client';
 
-// PENDING SUPABASE MIGRATION (not yet applied as of 2026-09-15, blocked by a Supabase
-// maintenance window — retry via `mcp__Supabase__apply_migration` on project
-// hyzbkxraanzhdyhtnadf): a case-insensitive unique index on auth.users' username
-// metadata field, plus two SECURITY DEFINER RPCs this service calls —
+// Username support (project hyzbkxraanzhdyhtnadf) is backed by a public.profiles table
+// (id references auth.users, cascades on delete), not a direct index on auth.users —
+// the connecting role doesn't own that table. A trigger on auth.users
+// (insert/update of raw_user_meta_data) keeps profiles.username in sync, enforced
+// unique case-insensitively. Two SECURITY DEFINER RPCs read/write through it:
 // `delete_current_user()` (see deleteAccount) and `email_for_identifier(identifier text)`
-// (see resolveEmail). Until that migration lands: deleteAccount() and signIn() with a
-// username (as opposed to an email) both reject at runtime with a Postgres/GoTrue error.
-// Plain email sign-in, sign-up, and password change are unaffected. Before applying,
-// check collections_user_id_fkey/decks_user_id_fkey's ON DELETE behavior against
-// auth.users — a row already exists in `collections`.
+// (see resolveEmail). Note: decks_user_id_fkey is still ON DELETE NO ACTION (unlike
+// collections_user_id_fkey's CASCADE) — deleteAccount() will fail for a user with decks
+// until that's fixed, deferred until the decks/collections schema is redone.
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly supabase = inject(SUPABASE_CLIENT);
@@ -26,9 +25,20 @@ export class AuthService {
   // the username when set, falling back to email.
   readonly displayName = computed(() => this.username() || this.user()?.email || '');
 
+  private readonly initialSession: Promise<void>;
+
   constructor() {
-    this.supabase.auth.getSession().then(({ data }) => this.sessionSignal.set(data.session));
+    this.initialSession = this.supabase.auth
+      .getSession()
+      .then(({ data }) => this.sessionSignal.set(data.session));
     this.supabase.auth.onAuthStateChange((_event, session) => this.sessionSignal.set(session));
+  }
+
+  // Resolves once the session from getSession() has been applied to the `session`
+  // signal — lets the auth guard await the real session instead of racing its still-null
+  // initial value on a fresh page load (e.g. a direct link/refresh into /profile).
+  whenReady(): Promise<void> {
+    return this.initialSession;
   }
 
   async signUp(email: string, password: string, username?: string): Promise<void> {

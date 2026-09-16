@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@services/auth.service';
 
@@ -36,6 +45,22 @@ export class Profile {
   readonly canConfirmDelete = computed(
     () => this.deleteConfirmText().trim().length > 0 && this.deleteConfirmText().trim() === this.email(),
   );
+
+  // Signing out from anywhere (e.g. the nav bar) while this page is open leaves it
+  // showing a now-meaningless empty account view — send the user back to Home instead.
+  // Only reacts to a signed-in -> signed-out transition, not an already-signed-out
+  // page load, since there's no route guard keeping signed-out users off this route.
+  private wasSignedIn = this.authService.user() !== null;
+
+  constructor() {
+    effect(() => {
+      const signedIn = this.authService.user() !== null;
+      if (this.wasSignedIn && !signedIn) {
+        this.router.navigateByUrl('/');
+      }
+      this.wasSignedIn = signedIn;
+    });
+  }
 
   async saveUsername(): Promise<void> {
     this.usernameError.set(null);
