@@ -98,8 +98,18 @@ h1 {
   }
 }
 
-.cta-desktop {
+.import-link {
   margin-left: auto;
+  color: var(--color-accent);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.cta-desktop {
   min-height: 44px;
   padding: var(--space-2) var(--space-5);
   box-shadow: var(--shadow-glow-primary-strong);

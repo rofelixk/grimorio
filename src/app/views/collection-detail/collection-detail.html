@@ -36,7 +36,11 @@
         </div>
       </dl>
 
-      <button type="button" class="btn-primary cta-desktop" (click)="showAddModal.set(true)">
+      <a class="import-link" routerLink="/collection/import" [queryParams]="{ locationId: loc.id }">
+        Importar CSV
+      </a>
+
+      <button type="button" class="btn-primary cta-desktop" (click)="startAddCard()">
         Adicionar carta
       </button>
     </div>
@@ -85,11 +89,12 @@
     [viewMode]="viewMode()"
     [filterQuery]="filterQuery()"
     (remove)="removeCard($event)"
-    (addRequested)="showAddModal.set(true)"
+    (addRequested)="startAddCard()"
     (filterCleared)="clearFilter()"
+    (cardSelected)="editCard($event)"
   />
 
-  <button type="button" class="btn-primary cta-mobile" (click)="showAddModal.set(true)">
+  <button type="button" class="btn-primary cta-mobile" (click)="startAddCard()">
     Adicionar carta
   </button>
 
@@ -97,7 +102,8 @@
     [open]="showAddModal()"
     context="collection"
     [locationId]="loc.id"
-    (closed)="showAddModal.set(false)"
+    [editingCard]="editingCard()"
+    (closed)="closeAddModal()"
   />
 
   <app-location-modal

@@ -40,6 +40,7 @@ export class CollectionDetail {
   readonly showAddModal = signal(false);
   readonly showLocationModal = signal(false);
   readonly editingLocation = signal<StorageLocation | null>(null);
+  readonly editingCard = signal<CardEntry | null>(null);
 
   readonly filterQuery = signal('');
   readonly sortBy = signal<SortOption>('recent');
@@ -113,6 +114,21 @@ export class CollectionDetail {
 
   removeCard(id: string): void {
     this.cardService.remove(id);
+  }
+
+  editCard(card: CardEntry): void {
+    this.editingCard.set(card);
+    this.showAddModal.set(true);
+  }
+
+  startAddCard(): void {
+    this.editingCard.set(null);
+    this.showAddModal.set(true);
+  }
+
+  closeAddModal(): void {
+    this.showAddModal.set(false);
+    this.editingCard.set(null);
   }
 
   openLocationModal(): void {

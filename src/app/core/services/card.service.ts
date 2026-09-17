@@ -26,6 +26,16 @@ export class CardService {
     return entry;
   }
 
+  addMany(cards: Omit<CardEntry, 'id'>[]): CardEntry[] {
+    const entries = cards.map((card) => ({ ...card, id: crypto.randomUUID() }));
+    this.cardsSignal.update((existing) => {
+      const next = [...existing, ...entries];
+      this.persist(next);
+      return next;
+    });
+    return entries;
+  }
+
   update(id: string, patch: Partial<CardEntry>): void {
     this.cardsSignal.update((cards) => {
       const next = cards.map((card) => (card.id === id ? { ...card, ...patch } : card));

@@ -9,7 +9,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { CardCondition, CardFace, CardFinish } from '@models/card.model';
+import { CardCondition, CardEntry, CardFace, CardFinish } from '@models/card.model';
 import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
 
 const FINISHES: CardFinish[] = ['nonfoil', 'foil', 'etched'];
@@ -42,7 +42,8 @@ export class CardAddDetailPanel {
   readonly conditions = CONDITIONS;
   readonly languages = LANGUAGES;
 
-  readonly candidate = input.required<CardLookupResult>();
+  readonly candidate = input.required<CardLookupResult | CardEntry>();
+  readonly isEditing = input(false);
 
   readonly finish = input<CardFinish | ''>('');
   readonly language = input('en');
@@ -61,6 +62,7 @@ export class CardAddDetailPanel {
   readonly back = output<void>();
   readonly confirm = output<void>();
   readonly confirmAndContinue = output<void>();
+  readonly remove = output<void>();
 
   readonly printingSelected = output<CardLookupResult>();
 

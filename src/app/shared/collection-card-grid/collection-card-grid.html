@@ -18,6 +18,10 @@
         [style.--card-glow-1]="glowColors(card)[0]"
         [style.--card-glow-2]="glowColors(card)[1]"
         [style.--card-glow-3]="glowColors(card)[2]"
+        role="button"
+        tabindex="0"
+        (click)="selectCard(card)"
+        (keydown.enter)="selectCard(card)"
       >
         <div class="cell">
           @if (card.quantity > 1) {
@@ -31,7 +35,13 @@
 } @else {
   <ul class="card-rows">
     @for (card of cards(); track card.id) {
-      <li [style.--card-glow-1]="glowColors(card)[0]">
+      <li
+        [style.--card-glow-1]="glowColors(card)[0]"
+        role="button"
+        tabindex="0"
+        (click)="selectCard(card)"
+        (keydown.enter)="selectCard(card)"
+      >
         <img [src]="card.imageUrl" [alt]="card.name" loading="lazy" />
         <div class="info">
           <strong>{{ card.name }}</strong>
@@ -41,7 +51,7 @@
           >
         </div>
         <span class="qty">{{ card.quantity }}×</span>
-        <button type="button" (click)="removeCard(card.id)">Remover</button>
+        <button type="button" (click)="$event.stopPropagation(); removeCard(card.id)">Remover</button>
       </li>
     }
   </ul>

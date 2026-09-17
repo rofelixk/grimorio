@@ -54,6 +54,7 @@
   li {
     --seed: calc((var(--i, 0) + var(--grid-seed, 0)) * 12.9898);
     position: relative;
+    cursor: pointer;
     transform: translateX(calc(sin(var(--seed)) * 8%))
       translateY(calc(cos(var(--seed) * 1.37) * 28px)) rotate(calc(sin(var(--seed) * 2.1) * 4deg));
     transition:
@@ -178,6 +179,7 @@ img {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+    cursor: pointer;
   }
 
   img {

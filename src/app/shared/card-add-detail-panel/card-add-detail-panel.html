@@ -6,7 +6,9 @@
         >{{ candidate().typeLine }} · {{ candidate().setName }} · #{{ candidate().collectorNumber }}</span
       >
     </div>
-    <button type="button" class="back-button" (click)="back.emit()">Voltar</button>
+    <button type="button" class="back-button" (click)="back.emit()">
+      {{ isEditing() ? 'Cancelar' : 'Voltar' }}
+    </button>
   </div>
 
   <div class="scroll-body">
@@ -85,7 +87,15 @@
   </div>
 
   <div class="action-bar">
-    <button type="button" class="btn-secondary" (click)="confirmAndContinue.emit()">Adicionar e buscar outra</button>
-    <button type="button" class="btn-primary" (click)="confirm.emit()">Adicionar</button>
+    @if (isEditing()) {
+      <button type="button" class="btn-danger remove-button" (click)="remove.emit()">Remover carta</button>
+    } @else {
+      <button type="button" class="btn-secondary" (click)="confirmAndContinue.emit()">
+        Adicionar e buscar outra
+      </button>
+    }
+    <button type="button" class="btn-primary" (click)="confirm.emit()">
+      {{ isEditing() ? 'Salvar alterações' : 'Adicionar' }}
+    </button>
   </div>
 </div>

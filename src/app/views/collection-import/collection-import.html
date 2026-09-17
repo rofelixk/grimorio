@@ -1,0 +1,92 @@
+<header class="import-header">
+  <a routerLink="/collection">Coleção</a>
+  <h1>Importar coleção</h1>
+  <p class="subtitle">Importe suas cartas de um export CSV da Archidekt ou da LigaMagic.</p>
+  @if (presetLocation(); as loc) {
+    <p class="preset-location">Importando para: <strong>{{ loc.name }}</strong></p>
+  }
+</header>
+
+@switch (step()) {
+  @case ('upload') {
+    <section class="panel">
+      <label class="file-drop" for="import-file">
+        <span>Escolha um arquivo CSV</span>
+        <input id="import-file" type="file" accept=".csv" (change)="onFileSelected($event)" />
+      </label>
+      @if (parseError()) {
+        <p class="error">{{ parseError() }}</p>
+      }
+    </section>
+  }
+  @case ('location') {
+    <section class="panel">
+      <p class="preview">
+        {{ rows().length }} carta(s) encontradas
+        @if (source(); as src) {
+          <span class="badge">{{ src === 'archidekt' ? 'Archidekt' : 'LigaMagic' }}</span>
+        }
+      </p>
+
+      <label for="import-location">Local de armazenamento para todo o lote</label>
+      <select id="import-location" (change)="selectLocation($any($event.target).value)">
+        <option value="">Selecione um local…</option>
+        @for (option of locationOptions(); track option.id) {
+          <option [value]="option.id">{{ option.label }}</option>
+        }
+      </select>
+
+      <div class="actions">
+        <button type="button" (click)="restart()">Cancelar</button>
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="!selectedLocationId()"
+          (click)="startImport()"
+        >
+          Importar
+        </button>
+      </div>
+    </section>
+  }
+  @case ('progress') {
+    <section class="panel progress">
+      <span class="spinner"></span>
+      <p>Buscando as cartas no catálogo…</p>
+    </section>
+  }
+  @case ('results') {
+    <section class="panel results">
+      <p class="summary">
+        {{ added().length }} carta(s) nova(s) importada(s), {{ updated().length }} quantidade(s)
+        atualizada(s).
+      </p>
+
+      @if (unresolved().length > 0) {
+        <h2>Não resolvidas ({{ unresolved().length }})</h2>
+        <ul class="unresolved-list">
+          @for (entry of unresolved(); track entry.row) {
+            <li>
+              <span class="name">{{ entry.row.name || '(sem nome)' }}</span>
+              <span class="reason">{{ entry.reason === 'ambiguous' ? 'ambígua' : 'não encontrada' }}</span>
+              <div class="row-actions">
+                <button type="button" (click)="resolveRow(entry.row)">Resolver</button>
+                <button type="button" (click)="skipRow(entry.row)">Ignorar</button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+
+      <button type="button" class="btn-primary" (click)="restart()">Nova importação</button>
+    </section>
+
+    <app-add-card-modal
+      [open]="resolvingRow() !== null"
+      context="collection"
+      [locationId]="selectedLocationId() ?? undefined"
+      [prefillName]="resolvingRow()?.name ?? ''"
+      (closed)="closeResolveModal()"
+    />
+  }
+}

@@ -48,6 +48,10 @@ export class AddCardModal {
   readonly filter = input<(card: DeckCardIdentity) => boolean>();
   readonly locationId = input<string>();
   readonly deckId = input<string>();
+  readonly editingCard = input<CardEntry | null>(null);
+  readonly prefillName = input('');
+
+  readonly isEditing = computed(() => this.editingCard() !== null);
 
   readonly closed = output<void>();
 
@@ -63,7 +67,7 @@ export class AddCardModal {
   readonly searchError = signal<string | null>(null);
   readonly results = signal<CardLookupResult[]>([]);
   readonly ocrHelperMessage = signal<string | null>(null);
-  readonly selected = signal<CardLookupResult | null>(null);
+  readonly selected = signal<CardLookupResult | CardEntry | null>(null);
 
   // Once a card is picked, the confirm step's whole ring/glow/spark/button
   // treatment switches from the user's saved theme to this specific card's
@@ -114,6 +118,31 @@ export class AddCardModal {
       } else {
         closeDialog(confirmEl);
         showDialogModal(searchEl);
+      }
+    });
+
+    effect(() => {
+      const editing = this.editingCard();
+      if (editing && this.open()) {
+        this.selected.set(editing);
+        this.finish.set(editing.finish);
+        this.language.set(editing.language);
+        this.condition.set(editing.condition);
+        this.quantity.set(String(editing.quantity));
+        this.forSale.set(editing.forSale);
+        this.notes.set(editing.notes ?? '');
+      }
+    });
+
+    // Used by the CSV import's unresolved-rows list, which opens this modal
+    // for manual resolution — runs the name search exactly once per open
+    // cycle (hasSearched guards the repeat) so it lands straight on results
+    // instead of an empty search box.
+    effect(() => {
+      const name = this.prefillName();
+      if (name && this.open() && this.selected() === null && !this.hasSearched()) {
+        this.nameQuery.set(name);
+        this.runSearch();
       }
     });
   }
@@ -222,6 +251,10 @@ export class AddCardModal {
   }
 
   back(): void {
+    if (this.isEditing()) {
+      this.cancel();
+      return;
+    }
     this.selected.set(null);
   }
 
@@ -249,7 +282,11 @@ export class AddCardModal {
 
   submit(): void {
     const candidate = this.selected();
-    if (!candidate || !this.insertCandidate(candidate)) {
+    if (!candidate) {
+      return;
+    }
+    const ok = this.isEditing() ? this.updateCandidate(candidate) : this.insertCandidate(candidate);
+    if (!ok) {
       return;
     }
 
@@ -269,6 +306,26 @@ export class AddCardModal {
 
     this.resetPhysicalFields();
     this.selected.set(null);
+  }
+
+  private updateCandidate(candidate: CardLookupResult | CardEntry): boolean {
+    const editing = this.editingCard();
+    if (!editing) {
+      return false;
+    }
+    this.cardService.update(editing.id, this.buildCardEntryPayload(candidate));
+    return true;
+  }
+
+  removeCard(): void {
+    const editing = this.editingCard();
+    if (!editing) {
+      return;
+    }
+    this.cardService.remove(editing.id);
+    this.reset();
+    this.closeAll();
+    this.closed.emit();
   }
 
   private insertCandidate(candidate: CardLookupResult): boolean {
@@ -343,7 +400,9 @@ export class AddCardModal {
     return { ...result, finish: this.finish() || 'nonfoil' };
   }
 
-  private buildCardEntryPayload(candidate: CardLookupResult): Omit<CardEntry, 'id' | 'locationId'> {
+  private buildCardEntryPayload(
+    candidate: CardLookupResult | CardEntry,
+  ): Omit<CardEntry, 'id' | 'locationId'> {
     return {
       ...candidate,
       finish: this.finish() || 'nonfoil',

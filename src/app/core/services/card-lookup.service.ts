@@ -51,6 +51,55 @@ const NAME_SEARCH_LIMIT = 200;
 export class CardLookupService {
   private readonly supabase = inject(SUPABASE_CLIENT);
 
+  // For CSV import batches: one query for every Scryfall ID in the batch
+  // instead of one query per row. Keyed by scryfall_id; a hit is anything the
+  // query returned, so a miss is simply absent from the map.
+  async lookupManyByScryfallIds(scryfallIds: string[]): Promise<Map<string, CardLookupResult>> {
+    if (scryfallIds.length === 0) {
+      return new Map();
+    }
+
+    const { data, error } = await this.supabase
+      .from('printings')
+      .select(
+        'scryfall_id, oracle_id, set_code, set_name, collector_number, rarity, image_url, cards(name, type_line, oracle_text, color_identity, commander_legality, card_faces)',
+      )
+      .in('scryfall_id', scryfallIds);
+
+    if (error || !data) {
+      return new Map();
+    }
+
+    const results = (data as unknown as PrintingRow[]).map(mapRow);
+    return new Map(results.map((result) => [result.scryfallId, result]));
+  }
+
+  // For CSV import batches without a Scryfall ID: one query per distinct set
+  // code (rows are grouped by set code by the caller) covering every
+  // collector number in that set at once, rather than one query per row.
+  async lookupManyBySetCode(
+    setCode: string,
+    collectorNumbers: string[],
+  ): Promise<CardLookupResult[]> {
+    if (collectorNumbers.length === 0) {
+      return [];
+    }
+
+    const { data, error } = await this.supabase
+      .from('printings')
+      .select(
+        'scryfall_id, oracle_id, set_code, set_name, collector_number, rarity, image_url, cards(name, type_line, oracle_text, color_identity, commander_legality, card_faces)',
+      )
+      .eq('set_code', setCode.trim().toLowerCase())
+      .in('collector_number', collectorNumbers.map(normalizeCollectorNumber));
+
+    if (error || !data) {
+      return [];
+    }
+
+    return (data as unknown as PrintingRow[]).map(mapRow);
+  }
+
   async lookup(setCode: string, collectorNumber: string): Promise<CardLookupResult> {
     const { data, error } = await this.supabase
       .from('printings')
@@ -129,7 +178,7 @@ export class CardLookupService {
 // but Scryfall stores them without the padding (e.g. "1") — strip leading
 // zeros before querying, but only when followed by another digit, so
 // non-numeric/suffixed numbers (e.g. "007a", or "0" itself) are preserved.
-function normalizeCollectorNumber(collectorNumber: string): string {
+export function normalizeCollectorNumber(collectorNumber: string): string {
   return collectorNumber.trim().replace(/^0+(?=\d)/, '');
 }
 

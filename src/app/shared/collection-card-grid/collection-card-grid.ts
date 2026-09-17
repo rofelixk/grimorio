@@ -19,6 +19,7 @@ export class CollectionCardGrid {
   readonly remove = output<string>();
   readonly addRequested = output<void>();
   readonly filterCleared = output<void>();
+  readonly cardSelected = output<CardEntry>();
 
   // Set once (not rerolled on every filter keystroke) so the scatter spread
   // doesn't visibly jitter while typing — only the array's contents/order
@@ -35,5 +36,9 @@ export class CollectionCardGrid {
 
   removeCard(id: string): void {
     this.remove.emit(id);
+  }
+
+  selectCard(card: CardEntry): void {
+    this.cardSelected.emit(card);
   }
 }

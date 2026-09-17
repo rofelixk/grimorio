@@ -92,6 +92,7 @@
     <div class="modal-surface">
       <app-card-add-detail-panel
         [candidate]="candidate"
+        [isEditing]="isEditing()"
         [finish]="finish()"
         [language]="language()"
         [condition]="condition()"
@@ -107,6 +108,7 @@
         (back)="back()"
         (confirm)="submit()"
         (confirmAndContinue)="submitAndContinue()"
+        (remove)="removeCard()"
         (printingSelected)="onPrintingSelected($event)"
       />
     </div>
