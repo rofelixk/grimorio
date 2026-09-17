@@ -2,24 +2,24 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { StorageLocationService } from '@services/storage-location.service';
-import { LocationDetail } from './location-detail';
+import { CollectionDetail } from './collection-detail';
 
-describe('LocationDetail', () => {
-  let component: LocationDetail;
-  let fixture: ComponentFixture<LocationDetail>;
+describe('CollectionDetail', () => {
+  let component: CollectionDetail;
+  let fixture: ComponentFixture<CollectionDetail>;
   let locationsService: StorageLocationService;
 
   beforeEach(async () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
-      imports: [LocationDetail],
+      imports: [CollectionDetail],
       providers: [provideRouter([])],
     }).compileComponents();
 
     locationsService = TestBed.inject(StorageLocationService);
     const location = locationsService.add({ name: 'Box 1', parentId: null });
 
-    fixture = TestBed.createComponent(LocationDetail);
+    fixture = TestBed.createComponent(CollectionDetail);
     fixture.componentRef.setInput('id', location.id);
     component = fixture.componentInstance;
     await fixture.whenStable();

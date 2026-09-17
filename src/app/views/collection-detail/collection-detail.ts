@@ -2,16 +2,16 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { RouterLink } from '@angular/router';
 import { CardService } from '@services/card.service';
 import { StorageLocationService } from '@services/storage-location.service';
-import { AddCardModal, CardList, LocationChildren } from '@shared';
+import { AddCardModal, CardList, CollectionChildren } from '@shared';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, LocationChildren, CardList, AddCardModal],
-  selector: 'app-location-detail',
-  styleUrl: './location-detail.scss',
-  templateUrl: './location-detail.html',
+  imports: [RouterLink, CollectionChildren, CardList, AddCardModal],
+  selector: 'app-collection-detail',
+  styleUrl: './collection-detail.scss',
+  templateUrl: './collection-detail.html',
 })
-export class LocationDetail {
+export class CollectionDetail {
   private readonly locationsService = inject(StorageLocationService);
   private readonly cardService = inject(CardService);
 

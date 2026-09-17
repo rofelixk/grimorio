@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { Locations } from './locations';
+import { Collection } from './collection';
 
-describe('Locations', () => {
-  let component: Locations;
-  let fixture: ComponentFixture<Locations>;
+describe('Collection', () => {
+  let component: Collection;
+  let fixture: ComponentFixture<Collection>;
 
   beforeEach(async () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
-      imports: [Locations],
+      imports: [Collection],
       providers: [provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Locations);
+    fixture = TestBed.createComponent(Collection);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

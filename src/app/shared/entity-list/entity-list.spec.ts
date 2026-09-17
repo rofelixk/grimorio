@@ -15,7 +15,7 @@ describe('EntityList', () => {
 
     fixture = TestBed.createComponent(EntityList);
     fixture.componentRef.setInput('items', []);
-    fixture.componentRef.setInput('routePrefix', '/locations');
+    fixture.componentRef.setInput('routePrefix', '/collection');
     component = fixture.componentInstance;
   });
 

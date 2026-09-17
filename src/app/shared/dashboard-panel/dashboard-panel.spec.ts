@@ -14,8 +14,8 @@ describe('DashboardPanel', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardPanel);
-    fixture.componentRef.setInput('title', 'Locations');
-    fixture.componentRef.setInput('viewAllLink', '/locations');
+    fixture.componentRef.setInput('title', 'Collection');
+    fixture.componentRef.setInput('viewAllLink', '/collection');
     component = fixture.componentInstance;
   });
 

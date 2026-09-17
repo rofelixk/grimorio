@@ -5,11 +5,11 @@ import { EntityList } from '@shared/entity-list/entity-list';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [EntityList],
-  selector: 'app-location-children',
-  styleUrl: './location-children.scss',
-  templateUrl: './location-children.html',
+  selector: 'app-collection-children',
+  styleUrl: './collection-children.scss',
+  templateUrl: './collection-children.html',
 })
-export class LocationChildren {
+export class CollectionChildren {
   private readonly locationsService = inject(StorageLocationService);
 
   readonly parentId = input.required<string | null>();

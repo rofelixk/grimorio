@@ -1,9 +1,9 @@
 @if (location(); as loc) {
   <nav class="breadcrumb">
-    <a routerLink="/locations">Coleção</a>
+    <a routerLink="/collection">Coleção</a>
     @for (crumb of breadcrumb(); track crumb.id) {
       <span> / </span>
-      <a [routerLink]="['/locations', crumb.id]">{{ crumb.name }}</a>
+      <a [routerLink]="['/collection', crumb.id]">{{ crumb.name }}</a>
     }
   </nav>
 
@@ -11,7 +11,7 @@
 
   <section>
     <h2>Sublocais</h2>
-    <app-location-children [parentId]="loc.id" />
+    <app-collection-children [parentId]="loc.id" />
   </section>
 
   <section>
@@ -28,5 +28,5 @@
   </section>
 } @else {
   <p>Local não encontrado.</p>
-  <a routerLink="/locations">Voltar à coleção</a>
+  <a routerLink="/collection">Voltar à coleção</a>
 }

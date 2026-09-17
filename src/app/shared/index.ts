@@ -12,6 +12,6 @@ export { DashboardPanel } from './dashboard-panel/dashboard-panel';
 export { DeckCardList } from './deck-card-list/deck-card-list';
 export { DeckList } from './deck-list/deck-list';
 export { EntityList } from './entity-list/entity-list';
-export { LocationChildren } from './location-children/location-children';
+export { CollectionChildren } from './collection-children/collection-children';
 export { NavBar } from './nav-bar/nav-bar';
 export { SparkRerollDirective } from './spark-reroll/spark-reroll.directive';
