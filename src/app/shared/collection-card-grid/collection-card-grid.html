@@ -1,0 +1,48 @@
+@if (cards().length === 0 && filterQuery().trim() === '') {
+  <div class="empty-state">
+    <h3>Nenhuma carta aqui ainda.</h3>
+    <p>Adicione a primeira carta deste local — ou crie um sublocal para organizar por divisória.</p>
+    <button type="button" class="btn-primary" (click)="addRequested.emit()">Adicionar carta</button>
+  </div>
+} @else if (cards().length === 0) {
+  <div class="empty-state">
+    <h3>Nenhuma carta corresponde a "{{ filterQuery() }}".</h3>
+    <button type="button" (click)="filterCleared.emit()">Limpar filtro</button>
+  </div>
+} @else if (viewMode() === 'grid') {
+  <ul class="card-grid" [style.--grid-seed]="gridSeed()">
+    @for (card of cards(); track card.id; let i = $index) {
+      <li
+        [style.--i]="i"
+        [class.multicolor]="isMulticolor(card)"
+        [style.--card-glow-1]="glowColors(card)[0]"
+        [style.--card-glow-2]="glowColors(card)[1]"
+        [style.--card-glow-3]="glowColors(card)[2]"
+      >
+        <div class="cell">
+          @if (card.quantity > 1) {
+            <span class="qty-badge">{{ card.quantity }}×</span>
+          }
+          <img [src]="card.imageUrl" [alt]="card.name" loading="lazy" />
+        </div>
+      </li>
+    }
+  </ul>
+} @else {
+  <ul class="card-rows">
+    @for (card of cards(); track card.id) {
+      <li [style.--card-glow-1]="glowColors(card)[0]">
+        <img [src]="card.imageUrl" [alt]="card.name" loading="lazy" />
+        <div class="info">
+          <strong>{{ card.name }}</strong>
+          <span
+            >{{ card.setCode }} #{{ card.collectorNumber }} · {{ card.finish }} ·
+            {{ card.condition }}</span
+          >
+        </div>
+        <span class="qty">{{ card.quantity }}×</span>
+        <button type="button" (click)="removeCard(card.id)">Remover</button>
+      </li>
+    }
+  </ul>
+}

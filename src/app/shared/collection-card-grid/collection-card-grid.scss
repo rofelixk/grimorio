@@ -1,0 +1,215 @@
+@use 'breakpoints' as bp;
+@use 'modal' as m;
+
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @include m.themed-scrollbar;
+}
+
+.empty-state {
+  max-width: 32rem;
+  margin: var(--space-6) auto;
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    margin: 0 0 var(--space-2);
+  }
+
+  p {
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-4);
+  }
+}
+
+// Grade view: an overlapping, rotated jumble of card art, ported from
+// card-search-panel.scss's .results treatment (see notes there for the
+// seeded sin()/cos() rationale) — this view reuses that exact spread
+// instead of a calm grid, plus a quantity badge layered on top. Image only,
+// no caption/actions — the art IS the card, same as card-search-panel.
+.card-grid {
+  // Not one of the system's two shape tokens (--radius-sm/--radius-md) —
+  // card art needs its own value, same as card-search-panel.
+  --radius-card: 14px;
+
+  list-style: none;
+  margin: 0;
+  // Extra top padding (vs. the sides/bottom) so the seeded scatter's upward
+  // translateY plus the hover lift/glow don't clip against the scroll
+  // container's top edge — see the li seed transform below.
+  padding: var(--space-6) var(--space-2) var(--space-6);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4) var(--space-2);
+
+  li {
+    --seed: calc((var(--i, 0) + var(--grid-seed, 0)) * 12.9898);
+    position: relative;
+    transform: translateX(calc(sin(var(--seed)) * 8%))
+      translateY(calc(cos(var(--seed) * 1.37) * 28px)) rotate(calc(sin(var(--seed) * 2.1) * 4deg));
+    transition:
+      transform 0.18s ease,
+      z-index 0.18s ease;
+
+    &:hover {
+      transform: translate(0, -6px) rotate(0deg) scale(1.04);
+      z-index: 2;
+    }
+  }
+
+  @include bp.wide {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+.cell {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: var(--radius-card);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+li:hover .cell {
+  border-color: var(--card-glow-1, var(--color-accent));
+  box-shadow: 0 0 16px rgb(from var(--card-glow-1, #e8792f) r g b / 40%);
+}
+
+// Multicolor cards get a rotating ring cycling through their actual colors
+// on hover instead of the plain border-color/box-shadow above, so neither
+// can stay: the ambient box-shadow is pinned to a single hue (--card-glow-1)
+// and, at full strength, washed out the ring's other colors so the card
+// visually read as one solid glow instead of cycling — the ::after ring
+// below sits flush where the border would otherwise be (inset -1px, same
+// 1px weight) and is left to speak for the card's colors on its own.
+li.multicolor:hover .cell {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+li.multicolor:hover .cell::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--radius-card) + 1px);
+  padding: 1px;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--spin-angle),
+    var(--card-glow-1),
+    var(--card-glow-2),
+    var(--card-glow-3, var(--card-glow-2)),
+    var(--card-glow-1)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-angle 4s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 488 / 680;
+  object-fit: cover;
+  border-radius: var(--radius-card);
+  pointer-events: none;
+}
+
+.qty-badge {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 1;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  background: rgb(from var(--color-bg) r g b / 85%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+@include bp.mobile {
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+
+    li {
+      transform: none;
+
+      &:hover {
+        transform: none;
+      }
+    }
+  }
+}
+
+// List view — reuses today's card-list row shape/info.
+.card-rows {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2) var(--space-2) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 44px;
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  img {
+    width: 52px;
+    aspect-ratio: 488 / 680;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    flex: 0 0 auto;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1 1 auto;
+
+    strong {
+      font-family: var(--font-display);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    span {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
+  }
+
+  .qty {
+    flex: 0 0 auto;
+    font-weight: 700;
+    color: var(--card-glow-1, var(--color-accent));
+  }
+}

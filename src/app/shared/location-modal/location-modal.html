@@ -1,0 +1,51 @@
+<dialog
+  #dialog
+  class="location-modal"
+  aria-labelledby="location-modal-title"
+  (close)="onNativeClose()"
+>
+  <div class="modal-surface">
+    <div class="modal-header">
+      <h2 id="location-modal-title">
+        @if (isRename()) {
+          Renomear local
+        } @else {
+          Novo sublocal em "{{ parentName() }}"
+        }
+      </h2>
+      <button type="button" class="close-button" (click)="closed.emit()" aria-label="Fechar">
+        ✕
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form (submit)="$event.preventDefault(); submit()">
+        <label>
+          Nome do local
+          <input
+            type="text"
+            [value]="name()"
+            (input)="name.set($any($event.target).value)"
+            placeholder="ex.: Divisória A"
+            maxlength="60"
+            autofocus
+          />
+        </label>
+        @if (error(); as message) {
+          <p class="error">{{ message }}</p>
+        }
+      </form>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" (click)="closed.emit()">Cancelar</button>
+      <button type="button" class="btn-primary" (click)="submit()">
+        @if (isRename()) {
+          Salvar
+        } @else {
+          Criar local
+        }
+      </button>
+    </div>
+  </div>
+</dialog>

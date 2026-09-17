@@ -59,4 +59,9 @@
 
   // Focus ring — a soft glow-style ring rather than a hard outline.
   --ring-accent: 0 0 0 3px rgba(63, 196, 209, 0.25);
+
+  // Fixed nav-bar height — the app shell (.app-layout) is pinned to 100dvh
+  // and .app-shell fills the remainder, so this must be authoritative
+  // rather than left to derive from padding/line-height.
+  --nav-bar-height: 3.5rem;
 }

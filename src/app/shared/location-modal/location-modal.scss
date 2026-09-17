@@ -1,0 +1,85 @@
+@use 'breakpoints' as bp;
+@use 'modal' as m;
+
+.location-modal {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0;
+  width: min(28rem, 92vw);
+  color: var(--color-text);
+  background: transparent;
+
+  &::backdrop {
+    background: var(--overlay-backdrop);
+  }
+
+  &[open] {
+    display: flex;
+  }
+
+  @include m.dialog-reduced-motion;
+
+  @include bp.mobile {
+    @include m.dialog-mobile-fullbleed;
+  }
+}
+
+.modal-surface {
+  @include m.modal-surface;
+}
+
+.modal-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+
+  @include bp.mobile {
+    padding: var(--space-3) var(--space-3) var(--space-2);
+  }
+
+  h2 {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+  }
+}
+
+.modal-body {
+  @include m.modal-scroll-body;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}
+
+.modal-actions {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+
+  button {
+    min-height: 44px;
+  }
+
+  @include bp.mobile {
+    flex-direction: column-reverse;
+    padding: var(--space-3);
+
+    button {
+      width: 100%;
+      min-height: 48px;
+    }
+  }
+}

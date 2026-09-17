@@ -1,0 +1,27 @@
+<ul class="location-strip">
+  @for (child of visibleChildren(); track child.id) {
+    <li class="plate" [style.--accent]="accentFor(child.id)">
+      <a [routerLink]="['/collection', child.id]">
+        <span class="name">{{ child.name }}</span>
+        <span class="count">{{ countFor(child.id) }} cartas</span>
+      </a>
+    </li>
+  }
+
+  @if (isOverflowing() && !stripExpanded()) {
+    <li class="plate plate--more">
+      <button type="button" (click)="expand()">+{{ hiddenCount() }} mais</button>
+    </li>
+  } @else if (children().length === 0) {
+    <li class="plate plate--add plate--first">
+      <button type="button" (click)="addRequested.emit()">+ Criar o primeiro sublocal</button>
+    </li>
+  } @else {
+    <li class="plate plate--add">
+      <button type="button" (click)="addRequested.emit()">
+        <span class="label-wide">+ Novo</span>
+        <span class="label-mobile">+ Local</span>
+      </button>
+    </li>
+  }
+</ul>

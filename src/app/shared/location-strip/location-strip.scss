@@ -1,0 +1,131 @@
+@use 'breakpoints' as bp;
+@use 'modal' as m;
+
+.location-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-2);
+  max-height: calc(2 * (2.75rem + var(--space-2)) + var(--space-2));
+  overflow-y: auto;
+
+  @include m.themed-scrollbar;
+}
+
+// Plate anatomy: shared by every cell (a real sublocation, the overflow
+// toggle, or the add cell).
+.plate {
+  position: relative;
+  min-height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: linear-gradient(180deg, var(--color-surface-raised) 0%, var(--color-surface) 100%);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--accent, var(--color-primary));
+  }
+
+  a,
+  button {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.15rem;
+    width: 100%;
+    min-height: 44px;
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+    cursor: pointer;
+  }
+
+  a:hover,
+  a:focus-visible,
+  button:hover,
+  button:focus-visible {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 18px -4px rgb(from var(--color-primary) r g b / 55%);
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.count {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.plate--add,
+.plate--more {
+  &::before {
+    display: none;
+  }
+
+  button {
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  &:hover,
+  &:focus-within {
+    border-color: var(--color-primary);
+  }
+}
+
+.plate--first {
+  grid-column: span 2;
+}
+
+.label-mobile {
+  display: none;
+}
+
+@include bp.mobile {
+  .location-strip {
+    display: flex;
+    overflow: auto hidden;
+    max-height: none;
+    padding-bottom: var(--space-2);
+  }
+
+  .plate {
+    flex: 0 0 auto;
+    width: 9.5rem;
+  }
+
+  .plate--first {
+    grid-column: auto;
+    width: auto;
+    flex: 1 1 auto;
+  }
+
+  .label-wide {
+    display: none;
+  }
+
+  .label-mobile {
+    display: inline;
+  }
+}

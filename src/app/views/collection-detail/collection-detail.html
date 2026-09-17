@@ -1,31 +1,113 @@
 @if (location(); as loc) {
-  <nav class="breadcrumb">
-    <a routerLink="/collection">Coleção</a>
-    @for (crumb of breadcrumb(); track crumb.id) {
-      <span> / </span>
-      <a [routerLink]="['/collection', crumb.id]">{{ crumb.name }}</a>
-    }
-  </nav>
+  <header class="ember-header">
+    <nav class="breadcrumb">
+      <a routerLink="/collection">Coleção</a>
+      @for (crumb of breadcrumb(); track crumb.id; let last = $last) {
+        <span class="sep">/</span>
+        @if (last) {
+          <span class="current">{{ crumb.name }}</span>
+        } @else {
+          <a [routerLink]="['/collection', crumb.id]">{{ crumb.name }}</a>
+        }
+      }
+    </nav>
 
-  <h1>{{ loc.name }}</h1>
+    <p class="eyebrow">Local de armazenamento</p>
 
-  <section>
-    <h2>Sublocais</h2>
-    <app-collection-children [parentId]="loc.id" />
-  </section>
+    <div class="title-row">
+      <h1>{{ loc.name }}</h1>
 
-  <section>
-    <h2>Cartas aqui</h2>
-    <app-card-list [cards]="cardsHere()" (remove)="removeCard($event)" />
+      <dl class="stats">
+        <div class="stat">
+          <dt>Cartas</dt>
+          <dd>{{ stats().total }}</dd>
+        </div>
+        <div class="stat">
+          <dt>Únicas</dt>
+          <dd>{{ stats().unique }}</dd>
+        </div>
+        <div class="stat">
+          <dt>Sublocais</dt>
+          <dd>{{ stats().sublocs }}</dd>
+        </div>
+        <div class="stat">
+          <dt>À venda</dt>
+          <dd>{{ stats().forSale }}</dd>
+        </div>
+      </dl>
 
-    <button type="button" class="btn-primary" (click)="showAddModal.set(true)">Adicionar carta</button>
-    <app-add-card-modal
-      [open]="showAddModal()"
-      context="collection"
-      [locationId]="loc.id"
-      (closed)="showAddModal.set(false)"
+      <button type="button" class="btn-primary cta-desktop" (click)="showAddModal.set(true)">
+        Adicionar carta
+      </button>
+    </div>
+  </header>
+
+  <app-location-strip [parentId]="loc.id" (addRequested)="openLocationModal()" />
+
+  <div class="toolbar">
+    <input
+      type="text"
+      [value]="filterQuery()"
+      (input)="setFilterQuery($any($event.target).value)"
+      [placeholder]="'Procurar entre as ' + stats().unique + ' cartas daqui…'"
     />
-  </section>
+
+    <select [value]="sortBy()" (change)="setSortBy($any($event.target).value)">
+      <option value="recent">Adicionadas por último</option>
+      <option value="name">Nome A–Z</option>
+      <option value="set">Set</option>
+      <option value="quantity">Quantidade</option>
+      <option value="color">Cor</option>
+    </select>
+
+    <div class="view-toggle" role="group" aria-label="Modo de visualização">
+      <button
+        type="button"
+        [class.active]="viewMode() === 'grid'"
+        [attr.aria-pressed]="viewMode() === 'grid'"
+        (click)="setViewMode('grid')"
+      >
+        Grade
+      </button>
+      <button
+        type="button"
+        [class.active]="viewMode() === 'list'"
+        [attr.aria-pressed]="viewMode() === 'list'"
+        (click)="setViewMode('list')"
+      >
+        Lista
+      </button>
+    </div>
+  </div>
+
+  <app-collection-card-grid
+    [cards]="visibleCards()"
+    [viewMode]="viewMode()"
+    [filterQuery]="filterQuery()"
+    (remove)="removeCard($event)"
+    (addRequested)="showAddModal.set(true)"
+    (filterCleared)="clearFilter()"
+  />
+
+  <button type="button" class="btn-primary cta-mobile" (click)="showAddModal.set(true)">
+    Adicionar carta
+  </button>
+
+  <app-add-card-modal
+    [open]="showAddModal()"
+    context="collection"
+    [locationId]="loc.id"
+    (closed)="showAddModal.set(false)"
+  />
+
+  <app-location-modal
+    [open]="showLocationModal()"
+    [parentId]="loc.id"
+    [parentName]="loc.name"
+    [location]="editingLocation()"
+    (saved)="onLocationSaved($event)"
+    (closed)="closeLocationModal()"
+  />
 } @else {
   <p>Local não encontrado.</p>
   <a routerLink="/collection">Voltar à coleção</a>

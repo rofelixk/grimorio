@@ -24,21 +24,21 @@
   }
 }
 
-// Scrollable modal body with a themed scrollbar — an untouched
+// A themed scrollbar for any scroll container — an untouched
 // browser-default scrollbar is the cheapest tell that a surface was
 // assembled, not built, per the design system's "browser surfaces carry the
-// design too" principle.
-@mixin modal-scroll-body {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0 var(--space-5) var(--space-5);
-
+// design too" principle. $axis picks which dimension gets the visible
+// scrollbar sized (10px); the other stays at the browser's thin default.
+@mixin themed-scrollbar($axis: vertical) {
   scrollbar-width: thin;
   scrollbar-color: var(--color-surface-raised) var(--color-bg);
 
   &::-webkit-scrollbar {
-    width: 10px;
+    @if $axis == vertical {
+      width: 10px;
+    } @else {
+      height: 10px;
+    }
   }
 
   &::-webkit-scrollbar-track {
@@ -54,6 +54,16 @@
   &::-webkit-scrollbar-thumb:hover {
     background: var(--color-border);
   }
+}
+
+// Scrollable modal body with a themed scrollbar.
+@mixin modal-scroll-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 var(--space-5) var(--space-5);
+
+  @include themed-scrollbar;
 
   @include bp.mobile {
     padding: 0 var(--space-3) var(--space-3);

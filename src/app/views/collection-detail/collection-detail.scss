@@ -1,14 +1,276 @@
-.breadcrumb {
-  margin-bottom: 1rem;
-  color: #666;
+@use 'breakpoints' as bp;
+
+// This view opts out of .app-shell's global overflow-y:auto default (see
+// app.scss) — only the card grid below scrolls, everything else here is a
+// fixed grid row.
+:host {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.add-mode-toggle {
-  display: flex;
-  gap: 0.5rem;
-  margin: 1rem 0 0.5rem;
+.ember-header {
+  padding: var(--space-2) var(--space-5) var(--space-3);
+  background: radial-gradient(
+    120% 100% at 8% 0%,
+    rgb(from var(--color-primary) r g b / 16%) 0%,
+    transparent 58%
+  );
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
 
-  button.active {
-    font-weight: bold;
+.breadcrumb {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+
+  a {
+    color: var(--color-accent);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .sep {
+    margin: 0 0.3em;
+  }
+
+  .current {
+    color: var(--color-text);
+  }
+}
+
+.eyebrow {
+  display: none;
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+}
+
+.title-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--font-size-2xl);
+  line-height: 1.1;
+  text-shadow: 0 0 24px rgb(from var(--color-primary) r g b / 35%);
+}
+
+.stats {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-5);
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+
+  dt {
+    order: 2;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    order: 1;
+    margin: 0;
+    font-family: var(--font-display);
+    color: var(--color-primary);
+  }
+}
+
+.cta-desktop {
+  margin-left: auto;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-5);
+  box-shadow: var(--shadow-glow-primary-strong);
+}
+
+.cta-mobile {
+  display: none;
+}
+
+app-location-strip {
+  padding: var(--space-3) var(--space-5);
+}
+
+// Fused hairline-seam toolbar — same recipe as card-search-panel's
+// .search-bar: a 1px border-colored gap between opaque segments reads as a
+// hairline seam instead of separately-boxed controls.
+.toolbar {
+  display: flex;
+  gap: 1px;
+  align-items: stretch;
+  background: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin: 0 var(--space-5) var(--space-3);
+
+  > * {
+    background: var(--color-surface);
+  }
+
+  input {
+    all: unset;
+    flex: 1 1 auto;
+    min-width: 0;
+    font: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    padding: 0 var(--space-3);
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  select {
+    font: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: none;
+    padding: 0 var(--space-3);
+    min-height: 44px;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  .view-toggle button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+}
+
+.view-toggle {
+  display: flex;
+
+  button {
+    all: unset;
+    box-sizing: border-box;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 var(--space-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+
+    &.active {
+      background: var(--color-surface-raised);
+      color: var(--color-text);
+      font-weight: bold;
+    }
+  }
+}
+
+app-collection-card-grid {
+  padding: 0 var(--space-5);
+}
+
+@include bp.wide {
+  .ember-header {
+    padding: var(--space-2) var(--space-5) var(--space-3);
+  }
+}
+
+@include bp.mobile {
+  .ember-header {
+    padding: var(--space-4) var(--space-4) var(--space-5);
+    background: radial-gradient(
+      130% 100% at 10% 0%,
+      rgb(from var(--color-primary) r g b / 18%) 0%,
+      transparent 58%
+    );
+    background-color: var(--color-bg);
+  }
+
+  .eyebrow {
+    display: block;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  .title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .stats {
+    gap: var(--space-5);
+  }
+
+  .stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+
+    dt,
+    dd {
+      order: initial;
+    }
+  }
+
+  .cta-desktop {
+    display: none;
+  }
+
+  .cta-mobile {
+    display: block;
+    margin: 0 var(--space-3) var(--space-3);
+    min-height: 48px;
+    box-shadow: var(--shadow-glow-primary-strong);
+  }
+
+  app-location-strip {
+    padding: var(--space-3) var(--space-3) 0;
+  }
+
+  .toolbar {
+    flex-wrap: wrap;
+    margin: var(--space-3) var(--space-3);
+
+    input {
+      flex: 1 1 100%;
+    }
+
+    select {
+      flex: 1 1 auto;
+    }
+
+    .view-toggle {
+      flex: 1 1 auto;
+
+      button {
+        flex: 1 1 0;
+      }
+    }
+  }
+
+  app-collection-card-grid {
+    padding: 0 var(--space-3);
   }
 }

@@ -36,3 +36,25 @@ export function getCardGlowColors(colorIdentity: Color[]): string[] {
   }
   return colorIdentity.map((color) => MTG_PRINT_COLORS[color]);
 }
+
+// The pool a storage location's accent bar is picked from: the five MTG
+// color-identity pip colors plus the app's two theme roles, so location
+// plates read as part of the same palette as card glows without needing
+// their own color field on the StorageLocation model.
+const LOCATION_ACCENT_POOL: readonly string[] = [
+  ...Object.values(MTG_PRINT_COLORS),
+  'var(--color-primary)',
+  'var(--color-accent)',
+];
+
+// Deterministic hash (djb2) of a location's id into a stable index into
+// LOCATION_ACCENT_POOL — same id always yields the same accent color,
+// with no color stored on the location itself.
+export function getLocationAccent(id: string): string {
+  let hash = 5381;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 33) ^ id.charCodeAt(i);
+  }
+  const index = Math.abs(hash) % LOCATION_ACCENT_POOL.length;
+  return LOCATION_ACCENT_POOL[index];
+}

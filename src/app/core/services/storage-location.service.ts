@@ -79,4 +79,28 @@ export class StorageLocationService {
       return path;
     });
   }
+
+  childrenOf(parentId: string | null) {
+    return computed(() => this.locations().filter((location) => location.parentId === parentId));
+  }
+
+  descendantIds(id: string) {
+    return computed(() => {
+      const childrenByParent = new Map<string | null, StorageLocation[]>();
+      for (const location of this.locations()) {
+        const siblings = childrenByParent.get(location.parentId) ?? [];
+        siblings.push(location);
+        childrenByParent.set(location.parentId, siblings);
+      }
+
+      const ids: string[] = [];
+      const stack = [...(childrenByParent.get(id) ?? [])];
+      while (stack.length > 0) {
+        const location = stack.pop()!;
+        ids.push(location.id);
+        stack.push(...(childrenByParent.get(location.id) ?? []));
+      }
+      return ids;
+    });
+  }
 }
