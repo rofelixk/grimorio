@@ -1,0 +1,61 @@
+<div class="filters">
+  <p>Resultados</p>
+  <button
+    type="button"
+    class="chip"
+    [attr.aria-pressed]="locationFilter() === null"
+    (click)="filterChange.emit(null)"
+  >
+    Todos os locais
+  </button>
+  @for (chip of chips(); track chip.id) {
+    <button
+      type="button"
+      class="chip"
+      [attr.aria-pressed]="locationFilter() === chip.id"
+      (click)="filterChange.emit(chip.id)"
+    >
+      {{ chip.name }} · {{ chip.count }}
+    </button>
+  }
+  <button type="button" class="back-link" (click)="back.emit()">Voltar aos locais</button>
+</div>
+
+<div class="scroller">
+  @if (rows().length === 0) {
+    <div class="empty">
+      <p>Nenhuma carta encontrada para "{{ query() }}".</p>
+      <p>Confira a grafia ou busque pelo set e número do coletor.</p>
+    </div>
+  } @else {
+    <ul class="results">
+      @for (row of rows(); track row.card.id) {
+        <li>
+          <a class="result" [routerLink]="['/collection', row.locationId]">
+            @if (row.card.imageUrl) {
+              <img class="scan" [src]="row.card.imageUrl" [alt]="row.card.name" />
+            } @else {
+              <span class="scan placeholder">sem<br />scan</span>
+            }
+            <span class="result-main">
+              <b>{{ row.card.name }}</b>
+              <span>
+                {{ row.card.setCode }} · {{ row.card.collectorNumber }} · {{ row.card.finish }} ·
+                {{ row.card.condition }}
+              </span>
+            </span>
+            <span class="result-where">
+              <span class="micro">Local</span>
+              <b>{{ row.locationPath }}</b>
+            </span>
+            <span class="qty" [style.color]="row.printColor">{{ row.card.quantity }}×</span>
+          </a>
+        </li>
+      }
+    </ul>
+    <p class="note">
+      Abra um resultado para editar quantidade, condição ou mover de local. Para adicionar cartas
+      novas, entre no local onde elas vão ficar.
+    </p>
+  }
+</div>

@@ -9,8 +9,10 @@
       <h2 id="location-modal-title">
         @if (isRename()) {
           Renomear local
-        } @else {
+        } @else if (parentName()) {
           Novo sublocal em "{{ parentName() }}"
+        } @else {
+          Novo local
         }
       </h2>
       <button type="button" class="close-button" (click)="closed.emit()" aria-label="Fechar">

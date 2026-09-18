@@ -1,3 +1,38 @@
-<h1>Coleção</h1>
+<app-collection-header
+  [totalCards]="totalCards()"
+  [totalLocations]="totalLocations()"
+  [totalSublocations]="totalSublocations()"
+  [query]="query()"
+  [hint]="hint()"
+  (queryChange)="onQueryChange($event)"
+  (submitted)="onSubmit()"
+  (cleared)="onClearOrBack()"
+  (createLocation)="openCreateLocationModal()"
+/>
 
-<app-collection-children [parentId]="null" />
+@if (mode() === 'locations') {
+  <app-location-plate-list
+    [locations]="rootLocations()"
+    [openLocationId]="openLocationId()"
+    (togglePlate)="toggleLocation($event)"
+    (createSublocation)="openCreateSublocationModal($event)"
+    (locationDeleted)="deleteLocation($event)"
+  />
+} @else {
+  <app-search-results-list
+    [rows]="filteredRows()"
+    [chips]="locationChips()"
+    [locationFilter]="locationFilter()"
+    [query]="submittedQuery()"
+    (filterChange)="locationFilter.set($event)"
+    (back)="onClearOrBack()"
+  />
+}
+
+<app-location-modal
+  [open]="showLocationModal()"
+  [parentId]="createParentId()"
+  [parentName]="createParentName()"
+  (saved)="closeLocationModal()"
+  (closed)="closeLocationModal()"
+/>

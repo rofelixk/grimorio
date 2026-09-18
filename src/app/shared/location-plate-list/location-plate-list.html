@@ -1,0 +1,13 @@
+<div class="scroller">
+  @for (location of locations(); track location.id) {
+    <app-location-plate
+      [node]="location"
+      [open]="openLocationId() === location.id"
+      (togglePlate)="togglePlate.emit(location.id)"
+      (createSublocation)="createSublocation.emit(location.id)"
+      (locationDeleted)="locationDeleted.emit($event)"
+    />
+  } @empty {
+    <p class="empty">Nenhum local ainda. Crie o primeiro com "+ Criar local".</p>
+  }
+</div>

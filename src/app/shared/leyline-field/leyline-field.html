@@ -1,0 +1,13 @@
+<span class="ley" aria-hidden="true">
+  <span class="ley-orbit ley-o1"><i></i></span>
+  <span class="ley-orbit ley-o2"><i></i></span>
+  <span class="fil fil-1"></span>
+  <span class="fil fil-2"></span>
+  <span class="ley-core"></span>
+  <span class="sparks">
+    @for (i of sparkIndices; track i) {
+      <span class="spark" appSparkReroll [style.--i]="i"></span>
+    }
+  </span>
+</span>
+<span class="scrim" aria-hidden="true"></span>

@@ -1,0 +1,11 @@
+// This view opts out of .app-shell's global overflow-y:auto default (see
+// app.scss) — the header stays fixed and only the body below it (the
+// plate list or the results list) scrolls. Same pattern as
+// collection-detail.scss.
+:host {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}

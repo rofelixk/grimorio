@@ -1,0 +1,219 @@
+// Layered ambient field: two tilted orbit rings sweeping at different
+// speeds, arc filaments that trace and burn out, a pulsing/color-cycling
+// core, and outward-flying sparks — all anchored to a single zero-size
+// point so every layer stays in registration. Keyframes live in
+// _motion.scss alongside the app's other cross-component animations.
+:host {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  // --collection-header-*: set by CollectionHeader's host binding from the
+  // user's chosen identity colors, inherited down through the DOM as plain
+  // custom properties. --lt falls back to --la, not --lp, so a 2-color
+  // identity still reads as a coherent primary/accent field.
+  --lp: var(--collection-header-primary, var(--color-primary));
+  --la: var(--collection-header-accent, var(--lp));
+  --lt: var(--collection-header-tertiary, var(--la));
+
+  // Generic names so the shared core-color-cycle keyframe (_motion.scss)
+  // can be reused by other components instead of hardcoding this
+  // component's own --lp/--la/--lt aliases.
+  --identity-primary: var(--lp);
+  --identity-accent: var(--la);
+  --identity-tertiary: var(--lt);
+}
+
+// Anchored near the header's own top-left corner — where it's clipped by
+// this component's overflow:hidden ancestor (see collection-header.scss),
+// right where that edge meets the topbar/drawer — so the (now much larger)
+// core/rings read as bleeding out from behind that chrome rather than
+// sitting in open space mid-header.
+.ley {
+  position: absolute;
+  left: 4%;
+  top: 6%;
+  width: 0;
+  height: 0;
+}
+
+.ley-orbit {
+  position: absolute;
+  border-radius: 50%;
+
+  > i {
+    position: absolute;
+    inset: 0;
+    display: block;
+    border-radius: 50%;
+    border: 1px solid transparent;
+  }
+}
+
+.ley-o1 {
+  left: -320px;
+  top: -320px;
+  width: 640px;
+  height: 640px;
+  transform: rotate(-23deg) scaleY(0.34);
+
+  > i {
+    border-top-color: rgb(from var(--la) r g b / 95%);
+    border-right-color: rgb(from var(--la) r g b / 40%);
+    animation: arc-sweep 30s linear infinite;
+  }
+}
+
+.ley-o2 {
+  left: -230px;
+  top: -230px;
+  width: 460px;
+  height: 460px;
+  transform: rotate(16deg) scaleY(0.4);
+
+  > i {
+    border-width: 0.75px;
+    border-top-color: rgb(from var(--lt) r g b / 92%);
+    border-left-color: rgb(from var(--lt) r g b / 40%);
+    animation: arc-sweep 22s linear infinite reverse;
+  }
+}
+
+// Trimmed from 4 filaments to 2 (accent + tertiary) and slowed down — the
+// original 4-arc/3.6s cycle read as too busy. Primary still shows up via
+// ley-core's color cycle and the stat trio, so nothing goes unrepresented.
+.fil {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  animation: filament-trace 6s var(--ease-standard) infinite;
+}
+
+.fil-1 {
+  --fa: 8deg;
+  left: -190px;
+  top: -190px;
+  width: 380px;
+  height: 380px;
+  border-top-color: rgb(from var(--la) r g b / 100%);
+  filter: drop-shadow(0 0 6px rgb(from var(--la) r g b / 80%));
+}
+
+.fil-2 {
+  --fa: 112deg;
+  left: -150px;
+  top: -150px;
+  width: 300px;
+  height: 300px;
+  border-top-color: rgb(from var(--lt) r g b / 100%);
+  filter: drop-shadow(0 0 6px rgb(from var(--lt) r g b / 80%));
+  animation-delay: 3s;
+}
+
+// Roughly 2.3x the original diameter and much more heavily blurred, so
+// only a soft, diffuse portion of it ever reads clearly — the rest fades
+// into the header's own clipped edge instead of showing a hard circle.
+// --core-color is a typed custom property (see _motion.scss's @property
+// declaration) so it can be smoothly animated between the three identity
+// roles rather than snapping between them.
+.ley-core {
+  position: absolute;
+  left: -160px;
+  top: -160px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  filter: blur(20px);
+  --core-color: var(--lp);
+  background: radial-gradient(
+    circle,
+    #fff4e6 0%,
+    var(--core-color) 22%,
+    rgb(from var(--lt) r g b / 28%) 48%,
+    transparent 70%
+  );
+  animation:
+    core-pulse 8s var(--ease-standard) infinite,
+    core-color-cycle 10s linear infinite;
+}
+
+// Sparks flying outward from the ley origin — same base recipe as
+// auth-modal/add-card-modal's rings (seed/angle/timing math and the
+// spark-burst keyframe live in _motion.scss's shared .spark rule;
+// SparkRerollDirective, applied in the template, rerolls each spark's path
+// on every loop so they don't read as a fixed, repeating pattern). Unlike
+// the modal's ring, .ley is a zero-size anchor point rather than a real
+// box, so each spark's own top/left just needs to be the origin (0, 0)
+// instead of the modal's 50%/50% center — and the travel distances go much
+// farther, since this field has a whole header (and beyond) to reach into
+// rather than a ~400px dialog.
+.sparks {
+  position: absolute;
+}
+
+.spark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  // Confines every spark to a narrow 60° cone pointing down-and-right of
+  // the ley origin (see .ley above) — everywhere else (up, left, and even
+  // straight down or straight right) exits the header's clipped edge
+  // almost immediately, or heads back over the drawer/topbar. rotate(0deg)
+  // points "up" and rotate() runs clockwise, so base-angle 120deg / spread
+  // 30deg covers 90deg (straight right) through 150deg (steep down-right)
+  // only.
+  --base-angle: 120deg;
+  --spread: 30deg;
+  // Reaches nearly across a full viewport width — this field has the whole
+  // screen to travel into, not just its own header.
+  --start-base: 60px;
+  --start-range: 30px;
+  --end-base: 1400px;
+  --end-range: 400px;
+  // The shared rule's 0.7-1.1s duration read as a flicker at this scale —
+  // sparks traveling this much farther need to stay on screen much longer
+  // to actually be seen. Reuses the shared rule's own --timing-seed so the
+  // per-spark variation still comes from the same seed formula, just
+  // stretched. --spark-peak-opacity brightens the burst to stay legible
+  // over the longer travel (same knob add-card-modal uses for its larger
+  // dialog, see _motion.scss).
+  --dur: calc(14s + abs(sin(var(--timing-seed) * 2.3)) * 8s);
+  --spark-peak-opacity: 0.75;
+  background: linear-gradient(to top, transparent, var(--lp));
+  filter: drop-shadow(0 0 2px var(--lp));
+
+  &:nth-child(3n + 2) {
+    background: linear-gradient(to top, transparent, var(--la));
+    filter: drop-shadow(0 0 2px var(--la));
+  }
+
+  &:nth-child(3n + 3) {
+    background: linear-gradient(to top, transparent, var(--lt));
+    filter: drop-shadow(0 0 2px var(--lt));
+  }
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgb(from var(--color-bg) r g b / 30%) 0%,
+    rgb(from var(--color-bg) r g b / 72%) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  // .spark's own reduced-motion handling lives in _motion.scss's shared rule.
+  .ley-orbit > i,
+  .fil,
+  .ley-core {
+    animation: none;
+  }
+
+  .fil {
+    opacity: 0.55;
+  }
+}

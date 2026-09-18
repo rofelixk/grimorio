@@ -38,6 +38,15 @@
         ],
         "createdAt": "2026-09-17T14:20:33.712Z",
         "reason": "user confirmed: 3px left accent bar is a deliberate element of the approved Collection Detail redesign plan (plate anatomy spec), not an accidental AI-default side-tab"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "src/app/shared/search-results-list/search-results-list.html"
+        ],
+        "createdAt": "2026-09-18T00:31:36.694Z",
+        "reason": "img src is a real data-bound card scan URL (row.card.imageUrl), only rendered when truthy; dashed placeholder is the separate else-branch fallback"
       }
     ]
   }

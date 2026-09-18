@@ -4,19 +4,14 @@ import { CardEntry } from '@models/card.model';
 import { StorageLocation } from '@models/storage-location.model';
 import { CardService } from '@services/card.service';
 import { StorageLocationService } from '@services/storage-location.service';
+import { ThemeService } from '@services/theme.service';
 import { AddCardModal, CollectionCardGrid, LocationModal, LocationStrip } from '@shared';
 import { CollectionViewMode } from '../../shared/collection-card-grid/collection-card-grid';
+import { matchesCardQuery } from '../../core/utils/text-search.util';
 
 type SortOption = 'recent' | 'name' | 'set' | 'quantity' | 'color';
 
 const VIEW_MODE_STORAGE_KEY = 'grimorio.collectionDetail.viewMode';
-
-function normalize(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase();
-}
 
 function loadViewMode(): CollectionViewMode {
   const raw = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
@@ -29,11 +24,17 @@ function loadViewMode(): CollectionViewMode {
   selector: 'app-collection-detail',
   styleUrl: './collection-detail.scss',
   templateUrl: './collection-detail.html',
+  host: {
+    '[style.--detail-primary]': 'themeService.roles().primary',
+    '[style.--detail-accent]': 'themeService.roles().accent',
+    '[style.--detail-tertiary]': 'themeService.roles().tertiary',
+  },
 })
 export class CollectionDetail {
   private readonly locationsService = inject(StorageLocationService);
   private readonly cardService = inject(CardService);
   private readonly router = inject(Router);
+  protected readonly themeService = inject(ThemeService);
 
   readonly id = input.required<string>();
 
@@ -65,17 +66,12 @@ export class CollectionDetail {
   });
 
   readonly filteredCards = computed(() => {
-    const query = normalize(this.filterQuery().trim());
+    const query = this.filterQuery().trim();
     const cards = this.cardsHere();
     if (query === '') {
       return cards;
     }
-    return cards.filter(
-      (card) =>
-        normalize(card.name).includes(query) ||
-        normalize(card.setCode).includes(query) ||
-        normalize(card.collectorNumber).includes(query),
-    );
+    return cards.filter((card) => matchesCardQuery(card, query));
   });
 
   readonly visibleCards = computed(() => {

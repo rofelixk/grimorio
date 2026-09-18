@@ -59,4 +59,26 @@ describe('CardService', () => {
 
     expect(reloaded.cards().length).toBe(1);
   });
+
+  describe('search', () => {
+    it('returns no matches under 3 characters, even if it would otherwise match', () => {
+      service.add(mockCardEntryWithoutId({ name: 'Sol Ring' }));
+
+      expect(service.search('so')).toEqual([]);
+    });
+
+    it('matches by name, set code or collector number across the whole collection', () => {
+      const sol = service.add(mockCardEntryWithoutId({ name: 'Sol Ring', setCode: 'LTC' }));
+      service.add(mockCardEntryWithoutId({ name: 'Lightning Bolt', setCode: 'LEA' }));
+
+      expect(service.search('sol')).toEqual([sol]);
+      expect(service.search('ltc')).toEqual([sol]);
+    });
+
+    it('is diacritic- and case-insensitive', () => {
+      const sol = service.add(mockCardEntryWithoutId({ name: 'Sol Ring' }));
+
+      expect(service.search('SÓL')).toEqual([sol]);
+    });
+  });
 });

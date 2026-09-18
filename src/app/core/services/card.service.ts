@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { CardEntry } from '@models/card.model';
+import { matchesCardQuery } from '../utils/text-search.util';
 
 @Injectable({ providedIn: 'root' })
 export class CardService {
@@ -54,5 +55,16 @@ export class CardService {
 
   byId(id: string) {
     return computed(() => this.cards().find((card) => card.id === id));
+  }
+
+  // Collection-wide search by name/set/collector number, used by the
+  // /collection root view's search bar — under 3 characters returns no
+  // matches rather than the whole collection.
+  search(query: string): CardEntry[] {
+    const trimmed = query.trim();
+    if (trimmed.length < 3) {
+      return [];
+    }
+    return this.cards().filter((card) => matchesCardQuery(card, trimmed));
   }
 }

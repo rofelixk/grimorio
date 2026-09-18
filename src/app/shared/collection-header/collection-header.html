@@ -1,0 +1,35 @@
+<app-leyline-field />
+
+<div class="vh-row">
+  <h1>Coleção</h1>
+  <div class="stats">
+    <div class="stat">
+      <b>{{ totalCardsLabel() }}</b>
+      <span>Cartas</span>
+    </div>
+    <div class="stat">
+      <b>{{ totalLocations() }}</b>
+      <span>Locais</span>
+    </div>
+    <div class="stat">
+      <b>{{ totalSublocations() }}</b>
+      <span>Sublocais</span>
+    </div>
+    <button type="button" class="btn-glow" (click)="createLocation.emit()">+ Criar local</button>
+  </div>
+</div>
+
+<form class="vh-bar" (submit)="$event.preventDefault(); submitted.emit()">
+  <input
+    type="search"
+    [value]="query()"
+    (input)="queryChange.emit($any($event.target).value)"
+    placeholder="Buscar carta, set ou número — em toda a coleção"
+    aria-label="Buscar carta"
+  />
+  @if (query().length > 0) {
+    <button type="button" class="ghost" (click)="cleared.emit()">Limpar</button>
+  }
+  <button type="submit">Buscar</button>
+</form>
+<p class="vh-hint">{{ hint() }}</p>

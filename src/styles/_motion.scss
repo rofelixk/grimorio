@@ -249,3 +249,74 @@
     transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--end))) scaleY(var(--spark-end-scale, 1));
   }
 }
+
+// Leyline field keyframes (collection header's ambient background) — a
+// sweep for the two orbit rings, a trace-and-burn-out cycle for the arc
+// filaments, and a breathing pulse for the core (its color-cycling
+// keyframe is further below; the outward-flying sparks reuse the shared
+// .spark/spark-burst rule instead of a keyframe of their own). A sweep
+// must not ease, so arc-sweep is driven with `linear` at its call site
+// rather than --ease-standard.
+@keyframes arc-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes filament-trace {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--fa, 0deg)) scale(0.82);
+  }
+  22% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--fa, 0deg) + 26deg)) scale(1.22);
+  }
+}
+
+@keyframes core-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.94);
+  }
+  44% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+// Typed so the browser can smoothly interpolate between actual color
+// values (an untyped custom property can only ever snap between them) —
+// drives an element through all of the user's chosen identity colors
+// instead of a static blend of just two of them. Not leyline-specific
+// despite the name (kept for the leyline core, its first use site) —
+// reads --identity-primary/-accent/-tertiary, which any component can
+// define locally (aliased to its own theme-role bindings) to reuse this
+// same cycle; see collection-header.scss (leyline core) and
+// collection-detail.scss (header glow) for the two current call sites.
+@property --core-color {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #e8792f;
+}
+
+@keyframes core-color-cycle {
+  0%,
+  100% {
+    --core-color: var(--identity-primary);
+  }
+  33% {
+    --core-color: var(--identity-accent);
+  }
+  66% {
+    --core-color: var(--identity-tertiary);
+  }
+}
+

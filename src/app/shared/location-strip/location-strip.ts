@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
 import { CardService } from '@services/card.service';
 import { StorageLocationService } from '@services/storage-location.service';
 import { getLocationAccent } from '../../core/utils/card-color.util';
+import { countCardsInLocations } from '../../core/utils/location-cards.util';
 
 const MAX_VISIBLE_ROWS = 2;
 const DESKTOP_COLUMNS = 6;
@@ -57,11 +58,7 @@ export class LocationStrip {
 
   countFor(id: string): number {
     const descendantIds = this.locationsService.descendantIds(id)();
-    const ids = new Set([id, ...descendantIds]);
-    return this.cardService
-      .cards()
-      .filter((card) => ids.has(card.locationId))
-      .reduce((total, card) => total + card.quantity, 0);
+    return countCardsInLocations(this.cardService.cards(), [id, ...descendantIds]);
   }
 
   expand(): void {
