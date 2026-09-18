@@ -5,6 +5,7 @@ export interface StorageLocation {
   name: string;
   parentId: string | null;
   color?: Color;
+  updatedAt: string;
 }
 
 export interface StorageLocationNode extends StorageLocation {

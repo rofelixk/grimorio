@@ -1,10 +1,12 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { CardEntry } from '@models/card.model';
+import { Tombstone } from '@models/tombstone.model';
 import { matchesCardQuery } from '../utils/text-search.util';
 
 @Injectable({ providedIn: 'root' })
 export class CardService {
   private readonly storageKey = 'grimorio.cards';
+  private readonly tombstonesKey = 'grimorio.cards.tombstones';
   private readonly cardsSignal = signal<CardEntry[]>(this.load());
   readonly cards = this.cardsSignal.asReadonly();
 
@@ -17,8 +19,8 @@ export class CardService {
     localStorage.setItem(this.storageKey, JSON.stringify(cards));
   }
 
-  add(card: Omit<CardEntry, 'id'>): CardEntry {
-    const entry: CardEntry = { ...card, id: crypto.randomUUID() };
+  add(card: Omit<CardEntry, 'id' | 'updatedAt'>): CardEntry {
+    const entry: CardEntry = { ...card, id: crypto.randomUUID(), updatedAt: new Date().toISOString() };
     this.cardsSignal.update((cards) => {
       const next = [...cards, entry];
       this.persist(next);
@@ -27,8 +29,9 @@ export class CardService {
     return entry;
   }
 
-  addMany(cards: Omit<CardEntry, 'id'>[]): CardEntry[] {
-    const entries = cards.map((card) => ({ ...card, id: crypto.randomUUID() }));
+  addMany(cards: Omit<CardEntry, 'id' | 'updatedAt'>[]): CardEntry[] {
+    const now = new Date().toISOString();
+    const entries = cards.map((card) => ({ ...card, id: crypto.randomUUID(), updatedAt: now }));
     this.cardsSignal.update((existing) => {
       const next = [...existing, ...entries];
       this.persist(next);
@@ -39,7 +42,9 @@ export class CardService {
 
   update(id: string, patch: Partial<CardEntry>): void {
     this.cardsSignal.update((cards) => {
-      const next = cards.map((card) => (card.id === id ? { ...card, ...patch } : card));
+      const next = cards.map((card) =>
+        card.id === id ? { ...card, ...patch, updatedAt: new Date().toISOString() } : card,
+      );
       this.persist(next);
       return next;
     });
@@ -51,6 +56,7 @@ export class CardService {
       this.persist(next);
       return next;
     });
+    this.addTombstone(id);
   }
 
   byId(id: string) {
@@ -66,5 +72,32 @@ export class CardService {
       return [];
     }
     return this.cards().filter((card) => matchesCardQuery(card, trimmed));
+  }
+
+  // Sync-only: tombstones let SyncService tell a locally-deleted id apart
+  // from one that simply never existed on this device, so a pull doesn't
+  // resurrect something this device deliberately removed.
+  getTombstones(): Tombstone[] {
+    const raw = localStorage.getItem(this.tombstonesKey);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  clearTombstones(ids: string[]): void {
+    const remaining = this.getTombstones().filter((tombstone) => !ids.includes(tombstone.id));
+    localStorage.setItem(this.tombstonesKey, JSON.stringify(remaining));
+  }
+
+  // Sync-only: applies an already-reconciled result verbatim — no id
+  // generation, no updatedAt restamping, no tombstone side effects — since
+  // SyncService has already decided what the merged local state should be.
+  applySyncResult(merged: CardEntry[]): void {
+    this.cardsSignal.set(merged);
+    this.persist(merged);
+  }
+
+  private addTombstone(id: string): void {
+    const tombstones = this.getTombstones().filter((tombstone) => tombstone.id !== id);
+    tombstones.push({ id, deletedAt: new Date().toISOString() });
+    localStorage.setItem(this.tombstonesKey, JSON.stringify(tombstones));
   }
 }

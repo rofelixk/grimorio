@@ -2,7 +2,7 @@ import { CardEntry } from './card.model';
 
 export type DeckCardIdentity = Omit<
   CardEntry,
-  'id' | 'quantity' | 'condition' | 'locationId' | 'forSale' | 'notes' | 'language'
+  'id' | 'quantity' | 'condition' | 'locationId' | 'forSale' | 'notes' | 'language' | 'updatedAt'
 >;
 
 export type DeckCard =

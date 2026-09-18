@@ -31,4 +31,5 @@ export interface CardEntry {
   imageUrl: string;
   faces?: CardFace[];
   notes?: string;
+  updatedAt: string;
 }

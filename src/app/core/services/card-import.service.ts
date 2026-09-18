@@ -197,7 +197,7 @@ export class CardImportService {
       }
     }
 
-    const toAdd: Omit<CardEntry, 'id'>[] = [];
+    const toAdd: Omit<CardEntry, 'id' | 'updatedAt'>[] = [];
     const updated: CardEntry[] = [];
 
     for (const { row, card } of matched) {

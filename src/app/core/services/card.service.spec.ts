@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntryWithoutId } from '@testing/card.mocks';
 import { CardService } from './card.service';
 
@@ -12,6 +12,10 @@ describe('CardService', () => {
     localStorage.clear();
     TestBed.configureTestingModule({});
     service = TestBed.inject(CardService);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('starts empty when nothing is persisted', () => {
@@ -41,6 +45,41 @@ describe('CardService', () => {
 
     expect(service.cards()).toEqual([]);
     expect(JSON.parse(localStorage.getItem('grimorio.cards')!)).toEqual([]);
+  });
+
+  it('stamps updatedAt on add and bumps it on update', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+    const added = service.add(baseCard);
+    expect(added.updatedAt).toBe('2026-01-01T00:00:00.000Z');
+
+    vi.setSystemTime(new Date('2026-01-02T00:00:00.000Z'));
+    service.update(added.id, { quantity: 2 });
+
+    expect(service.byId(added.id)()!.updatedAt).toBe('2026-01-02T00:00:00.000Z');
+    vi.useRealTimers();
+  });
+
+  it('records a tombstone on remove and lets it be cleared', () => {
+    const added = service.add(baseCard);
+
+    service.remove(added.id);
+
+    expect(service.getTombstones().map((t) => t.id)).toEqual([added.id]);
+
+    service.clearTombstones([added.id]);
+
+    expect(service.getTombstones()).toEqual([]);
+  });
+
+  it('applySyncResult replaces state verbatim without touching tombstones', () => {
+    const added = service.add(baseCard);
+    service.remove(added.id);
+
+    service.applySyncResult([added]);
+
+    expect(service.cards()).toEqual([added]);
+    expect(service.getTombstones().map((t) => t.id)).toEqual([added.id]);
   });
 
   it('finds a card by id', () => {

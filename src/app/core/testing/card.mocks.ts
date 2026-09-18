@@ -22,6 +22,7 @@ export function mockCardEntry(overrides: Partial<CardEntry> = {}): CardEntry {
     locationId: 'loc-1',
     forSale: false,
     imageUrl: 'https://cards.scryfall.io/normal/front/9/0/909a52bc-53f6-4654-9db7-e8f48333d765.jpg',
+    updatedAt: '2026-01-01T00:00:00.000Z',
     ...overrides,
   };
 }

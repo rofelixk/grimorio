@@ -402,7 +402,7 @@ export class AddCardModal {
 
   private buildCardEntryPayload(
     candidate: CardLookupResult | CardEntry,
-  ): Omit<CardEntry, 'id' | 'locationId'> {
+  ): Omit<CardEntry, 'id' | 'locationId' | 'updatedAt'> {
     return {
       ...candidate,
       finish: this.finish() || 'nonfoil',

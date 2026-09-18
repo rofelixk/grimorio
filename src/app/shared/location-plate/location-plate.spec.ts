@@ -28,6 +28,7 @@ function cardPayload(overrides: Partial<CardEntry> = {}): Omit<CardEntry, 'id'> 
     locationId: '',
     forSale: false,
     imageUrl: '',
+    updatedAt: '2026-01-01T00:00:00.000Z',
     ...overrides,
   };
 }
@@ -36,7 +37,7 @@ function cardPayload(overrides: Partial<CardEntry> = {}): Omit<CardEntry, 'id'> 
 class BlankComponent {}
 
 function nodeFor(id: string, name: string, children: StorageLocationNode[] = []): StorageLocationNode {
-  return { id, name, parentId: null, children };
+  return { id, name, parentId: null, children, updatedAt: '2026-01-01T00:00:00.000Z' };
 }
 
 describe('LocationPlate', () => {

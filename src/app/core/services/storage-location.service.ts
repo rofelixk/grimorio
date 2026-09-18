@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { StorageLocation, StorageLocationNode } from '@models/storage-location.model';
+import { Tombstone } from '@models/tombstone.model';
 
 function buildTree(locations: StorageLocation[]): StorageLocationNode[] {
   const nodesById = new Map<string, StorageLocationNode>(
@@ -22,6 +23,7 @@ function buildTree(locations: StorageLocation[]): StorageLocationNode[] {
 @Injectable({ providedIn: 'root' })
 export class StorageLocationService {
   private readonly storageKey = 'grimorio.locations';
+  private readonly tombstonesKey = 'grimorio.locations.tombstones';
   private readonly locationsSignal = signal<StorageLocation[]>(this.load());
   readonly locations = this.locationsSignal.asReadonly();
   readonly tree = computed(() => buildTree(this.locations()));
@@ -35,8 +37,12 @@ export class StorageLocationService {
     localStorage.setItem(this.storageKey, JSON.stringify(locations));
   }
 
-  add(location: Omit<StorageLocation, 'id'>): StorageLocation {
-    const entry: StorageLocation = { ...location, id: crypto.randomUUID() };
+  add(location: Omit<StorageLocation, 'id' | 'updatedAt'>): StorageLocation {
+    const entry: StorageLocation = {
+      ...location,
+      id: crypto.randomUUID(),
+      updatedAt: new Date().toISOString(),
+    };
     this.locationsSignal.update((locations) => {
       const next = [...locations, entry];
       this.persist(next);
@@ -48,7 +54,7 @@ export class StorageLocationService {
   update(id: string, patch: Partial<StorageLocation>): void {
     this.locationsSignal.update((locations) => {
       const next = locations.map((location) =>
-        location.id === id ? { ...location, ...patch } : location,
+        location.id === id ? { ...location, ...patch, updatedAt: new Date().toISOString() } : location,
       );
       this.persist(next);
       return next;
@@ -61,6 +67,7 @@ export class StorageLocationService {
       this.persist(next);
       return next;
     });
+    this.addTombstone(id);
   }
 
   byId(id: string) {
@@ -102,5 +109,32 @@ export class StorageLocationService {
       }
       return ids;
     });
+  }
+
+  // Sync-only: tombstones let SyncService tell a locally-deleted id apart
+  // from one that simply never existed on this device, so a pull doesn't
+  // resurrect something this device deliberately removed.
+  getTombstones(): Tombstone[] {
+    const raw = localStorage.getItem(this.tombstonesKey);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  clearTombstones(ids: string[]): void {
+    const remaining = this.getTombstones().filter((tombstone) => !ids.includes(tombstone.id));
+    localStorage.setItem(this.tombstonesKey, JSON.stringify(remaining));
+  }
+
+  // Sync-only: applies an already-reconciled result verbatim — no id
+  // generation, no updatedAt restamping, no tombstone side effects — since
+  // SyncService has already decided what the merged local state should be.
+  applySyncResult(merged: StorageLocation[]): void {
+    this.locationsSignal.set(merged);
+    this.persist(merged);
+  }
+
+  private addTombstone(id: string): void {
+    const tombstones = this.getTombstones().filter((tombstone) => tombstone.id !== id);
+    tombstones.push({ id, deletedAt: new Date().toISOString() });
+    localStorage.setItem(this.tombstonesKey, JSON.stringify(tombstones));
   }
 }

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StorageLocationService } from './storage-location.service';
 
 describe('StorageLocationService', () => {
@@ -56,5 +56,43 @@ describe('StorageLocationService', () => {
 
     expect(service.byId(added.id)()).toEqual(added);
     expect(service.byId('missing')()).toBeUndefined();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('stamps updatedAt on add and bumps it on update', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+    const added = service.add({ name: 'Box 1', parentId: null });
+    expect(added.updatedAt).toBe('2026-01-01T00:00:00.000Z');
+
+    vi.setSystemTime(new Date('2026-01-02T00:00:00.000Z'));
+    service.update(added.id, { name: 'Box 1 (renamed)' });
+
+    expect(service.byId(added.id)()!.updatedAt).toBe('2026-01-02T00:00:00.000Z');
+  });
+
+  it('records a tombstone on remove and lets it be cleared', () => {
+    const added = service.add({ name: 'Box 1', parentId: null });
+
+    service.remove(added.id);
+
+    expect(service.getTombstones().map((t) => t.id)).toEqual([added.id]);
+
+    service.clearTombstones([added.id]);
+
+    expect(service.getTombstones()).toEqual([]);
+  });
+
+  it('applySyncResult replaces state verbatim without touching tombstones', () => {
+    const added = service.add({ name: 'Box 1', parentId: null });
+    service.remove(added.id);
+
+    service.applySyncResult([added]);
+
+    expect(service.locations()).toEqual([added]);
+    expect(service.getTombstones().map((t) => t.id)).toEqual([added.id]);
   });
 });
