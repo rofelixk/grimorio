@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { CardEntry, CardFace } from '@models/card.model';
 import { StorageLocation } from '@models/storage-location.model';
 import { AuthService } from '@services/auth.service';
@@ -50,6 +50,12 @@ export interface SyncResult {
   cardsPulled: number;
   cardsDeletedRemote: number;
 }
+
+export type SyncStatus = 'fresh' | 'stale' | 'syncing' | 'error';
+
+const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function locationToRow(location: StorageLocation, userId: string): StorageLocationRow {
   return {
@@ -134,13 +140,66 @@ export class SyncService {
   private readonly cardService = inject(CardService);
   private readonly locationService = inject(StorageLocationService);
 
-  private readonly lastSyncedAtSignal = signal<string | null>(null);
+  private readonly storageKey = 'grimorio.lastSyncedAt';
+  private readonly lastSyncedAtSignal = signal<string | null>(localStorage.getItem(this.storageKey));
   readonly lastSyncedAt = this.lastSyncedAtSignal.asReadonly();
+
+  private readonly phaseSignal = signal<'idle' | 'syncing' | 'error'>('idle');
+  // Ticks hourly so `status`/`staleLabel` recompute in a tab left open across
+  // a day boundary, instead of only re-deriving on the next sync/reload.
+  private readonly nowSignal = signal(Date.now());
+
+  readonly status = computed<SyncStatus>(() => {
+    const phase = this.phaseSignal();
+    if (phase === 'syncing' || phase === 'error') {
+      return phase;
+    }
+    const last = this.lastSyncedAtSignal();
+    if (!last) {
+      return 'stale';
+    }
+    const age = this.nowSignal() - new Date(last).getTime();
+    return age < STALE_THRESHOLD_MS ? 'fresh' : 'stale';
+  });
+
+  readonly staleLabel = computed<string>(() => {
+    const last = this.lastSyncedAtSignal();
+    if (!last) {
+      return 'Nunca sincronizado · Sincronizar';
+    }
+    const ageDays = Math.floor((this.nowSignal() - new Date(last).getTime()) / DAY_MS);
+    if (ageDays <= 1) {
+      return 'Há 1 dia · Sincronizar';
+    }
+    if (ageDays <= 6) {
+      return `Há ${ageDays} dias · Sincronizar`;
+    }
+    return 'Há semanas · Sincronizar';
+  });
+
+  constructor() {
+    setInterval(() => this.nowSignal.set(Date.now()), HOUR_MS);
+  }
 
   // Manually triggered only — no automatic/background sync. Locations are
   // reconciled and pushed before cards since card_entries.location_id has a
   // foreign key into storage_locations.
   async sync(): Promise<SyncResult> {
+    this.phaseSignal.set('syncing');
+    try {
+      const result = await this.performSync();
+      const syncedAt = new Date().toISOString();
+      this.lastSyncedAtSignal.set(syncedAt);
+      localStorage.setItem(this.storageKey, syncedAt);
+      this.phaseSignal.set('idle');
+      return result;
+    } catch (e) {
+      this.phaseSignal.set('error');
+      throw e;
+    }
+  }
+
+  private async performSync(): Promise<SyncResult> {
     const userId = this.auth.user()?.id;
     if (!userId) {
       throw new Error('Sync requires a signed-in account.');
@@ -148,8 +207,6 @@ export class SyncService {
 
     const { locationsPushed, locationsPulled, locationsDeletedRemote } = await this.syncLocations(userId);
     const { cardsPushed, cardsPulled, cardsDeletedRemote } = await this.syncCards(userId);
-
-    this.lastSyncedAtSignal.set(new Date().toISOString());
 
     return {
       locationsPushed,

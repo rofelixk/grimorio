@@ -9,7 +9,9 @@
   >
     ☰
   </button>
-  <a routerLink="/" class="brand" (click)="closeDrawer()">Grimorio</a>
+  <app-brand-mark (click)="closeDrawer()" />
+  <app-sync-indicator />
+  <span class="chrome-divider"></span>
   <app-auth-control />
 </header>
 
@@ -19,9 +21,13 @@
 
 <nav id="nav-drawer" class="drawer" [class.open]="drawerOpen()">
   <section class="drawer-group">
-    <h2>Acervo</h2>
-    <a routerLink="/decks" routerLinkActive="active" (click)="closeDrawer()">Decks</a>
-    <a routerLink="/collection" routerLinkActive="active" (click)="closeDrawer()">Coleção</a>
+    <span class="group-heading"><h2>Acervo</h2><i class="rule"></i></span>
+    <a routerLink="/decks" routerLinkActive="active" (click)="closeDrawer()"
+      >Decks<b class="count">{{ decksCount() }}</b></a
+    >
+    <a routerLink="/collection" routerLinkActive="active" (click)="closeDrawer()"
+      >Coleção<b class="count">{{ collectionCount() }}</b></a
+    >
   </section>
   <!--
     Mobile only (see nav-bar.scss's bp.wide rule) — on the wide/sidebar layout,

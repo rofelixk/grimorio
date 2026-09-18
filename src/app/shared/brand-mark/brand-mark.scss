@@ -1,0 +1,53 @@
+:host {
+  display: block;
+
+  // Local aliases the inlined SVG's var(--role-primary)/var(--role-accent)
+  // resolve against — see architecture.md's theme-role retinting convention.
+  --role-primary: var(--brand-mark-primary, var(--color-primary));
+  --role-accent: var(--brand-mark-accent, var(--color-accent));
+}
+
+.lockup {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 2.25rem;
+  padding: 0 var(--space-2) 0 1.6rem;
+  text-decoration: none;
+}
+
+.seal {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 50%;
+  margin-top: -18px;
+  width: 36px;
+  height: 36px;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.arc {
+  transform-origin: 24px 24px;
+  animation: arc-sweep 10s linear infinite;
+}
+
+.wordmark {
+  position: relative;
+  z-index: 3;
+  font: 600 1.375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--color-text);
+  text-shadow: 0 0 9px #1a1715;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arc {
+    animation: none;
+  }
+}
