@@ -35,7 +35,12 @@ describe('CardService', () => {
 
     service.update(added.id, { quantity: 4, forSale: true });
 
-    expect(service.cards()[0]).toEqual({ ...added, quantity: 4, forSale: true });
+    expect(service.cards()[0]).toEqual({
+      ...added,
+      quantity: 4,
+      forSale: true,
+      updatedAt: service.cards()[0].updatedAt,
+    });
   });
 
   it('removes a card', () => {
