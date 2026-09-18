@@ -2,30 +2,125 @@
 @use 'modal' as m;
 
 .location-modal {
+  position: relative;
+  flex-direction: column;
   border: none;
-  border-radius: var(--radius-md);
-  padding: 0;
+  // The ring is this element's own background, visible through the 2px
+  // padding around .modal-surface — see auth-modal.scss for the full
+  // rationale (background-clip-via-border-radius trick).
+  border-radius: calc(var(--radius-md) + 2px);
+  padding: 2px;
   width: min(28rem, 92vw);
   color: var(--color-text);
-  background: transparent;
+  overflow: visible;
 
-  &::backdrop {
-    background: var(--overlay-backdrop);
-  }
+  // --mp/--mph: this modal only ever has one accent color (the location's
+  // own picked WUBRG color, bound via location-modal.ts's host metadata),
+  // not a primary/accent/tertiary set — so the same value feeds all 3 slots
+  // of theme-ring/theme-ambient-glow below instead of 3 distinct roles like
+  // auth-modal's --mp/--ma/--mt. See architecture.md's "Theme-role
+  // retinting convention".
+  --mp: var(--modal-primary, var(--color-primary));
+  --mph: color-mix(in srgb, var(--mp) 85%, white);
+  @include m.theme-ring(var(--mp), var(--mp), var(--mp));
 
   &[open] {
     display: flex;
   }
 
-  @include m.dialog-reduced-motion;
+  &::backdrop {
+    background: var(--overlay-backdrop);
+    opacity: 1;
+    transition:
+      opacity var(--duration-slow) var(--ease-standard),
+      display var(--duration-slow) var(--ease-standard) allow-discrete,
+      overlay var(--duration-slow) var(--ease-standard) allow-discrete;
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    transform var(--duration-slow) var(--ease-standard),
+    filter var(--duration-slow) var(--ease-standard),
+    overlay var(--duration-slow) var(--ease-standard) allow-discrete,
+    display var(--duration-slow) var(--ease-standard) allow-discrete;
+
+  &:not([open]) {
+    opacity: 0;
+    transform: scale(0.92);
+    filter: blur(6px);
+  }
+
+  @starting-style {
+    &[open] {
+      opacity: 0;
+      transform: scale(0.92);
+      filter: blur(6px);
+    }
+  }
 
   @include bp.mobile {
     @include m.dialog-mobile-fullbleed;
   }
+
+  @include m.dialog-reduced-motion;
 }
 
 .modal-surface {
   @include m.modal-surface;
+}
+
+.ambient-glow {
+  position: absolute;
+  inset: -32px;
+  pointer-events: none;
+  border-radius: 70px;
+  filter: blur(26px);
+  @include m.theme-ambient-glow(var(--mp), var(--mp), var(--mp));
+
+  @include bp.mobile {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  @include bp.mobile {
+    display: none;
+  }
+}
+
+// Only one color here, so unlike auth-modal's .spark there's no per-child
+// nth-child override needed — every spark already reads --mp.
+.spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  --spread: 180deg;
+  // Shorter travel and a slower burn than auth-modal's ring (--dur
+  // overridden here too, per _motion.scss's per-caller override surface)
+  // so the sparks read as a gentle drift rather than a fast shower —
+  // more fitting for a modal opened this frequently.
+  --start-base: 164px;
+  --start-range: 19px;
+  --end-base: 220px;
+  --end-range: 24px;
+  --dur: calc(0.95s + abs(sin(var(--timing-seed) * 2.3)) * 0.45s);
+  background: linear-gradient(to top, transparent, var(--mp));
+  filter: drop-shadow(0 0 2px var(--mp));
 }
 
 .modal-header {
@@ -60,6 +155,11 @@
   }
 }
 
+.picker-label {
+  font-size: var(--font-size-sm);
+  margin: 0 0 var(--space-1);
+}
+
 .modal-actions {
   flex: 0 0 auto;
   display: flex;
@@ -71,6 +171,27 @@
 
   button {
     min-height: 44px;
+  }
+
+  .btn-primary {
+    @include m.glow-button(var(--mp), var(--mph));
+    text-shadow: 0 0 8px rgb(from var(--mp) r g b / 60%);
+    box-shadow: 0 0 20px rgb(from var(--mp) r g b / 35%);
+    transition:
+      background var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      text-shadow var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-fast) var(--ease-standard);
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+      box-shadow: 0 0 20px rgb(from var(--mph) r g b / 50%);
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
   }
 
   @include bp.mobile {

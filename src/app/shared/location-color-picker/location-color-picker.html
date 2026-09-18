@@ -1,0 +1,16 @@
+<div class="location-color-picker" role="radiogroup" aria-label="Escolher a cor do local">
+  @for (color of colorOrder; track color) {
+    <button
+      type="button"
+      class="swatch"
+      role="radio"
+      [style.--swatch-color]="palette[color]"
+      [class.selected]="isSelected(color)"
+      [attr.aria-checked]="isSelected(color)"
+      [attr.aria-label]="labels[color]"
+      (click)="select(color)"
+    >
+      <img [src]="'/assets/mana/' + color + '.svg'" alt="" />
+    </button>
+  }
+</div>

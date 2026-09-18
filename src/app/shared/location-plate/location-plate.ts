@@ -4,7 +4,7 @@ import { StorageLocationNode } from '@models/storage-location.model';
 import { CardService } from '@services/card.service';
 import { StorageLocationService } from '@services/storage-location.service';
 import { ThemeService } from '@services/theme.service';
-import { getLocationAccent } from '../../core/utils/card-color.util';
+import { getLocationAccent, MTG_PRINT_COLORS } from '../../core/utils/card-color.util';
 import { countCardsInLocations } from '../../core/utils/location-cards.util';
 
 const MAX_CHIPS = 3;
@@ -42,7 +42,10 @@ export class LocationPlate {
   // stays stable across re-renders. Same idiom as LeylineField.
   protected readonly sparkIndices = Array.from({ length: 9 }, (_, i) => i);
 
-  readonly pip = computed(() => getLocationAccent(this.node().id));
+  readonly pip = computed(() => {
+    const color = this.node().color;
+    return color ? MTG_PRINT_COLORS[color] : getLocationAccent(this.node().id);
+  });
 
   readonly totalCards = computed(() => this.countSubtree(this.node().id));
 

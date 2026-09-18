@@ -1,12 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { StorageLocationService } from '@services/storage-location.service';
+import { ThemeService } from '@services/theme.service';
 import { LocationModal } from './location-modal';
 
 describe('LocationModal', () => {
   let component: LocationModal;
   let fixture: ComponentFixture<LocationModal>;
   let locationsService: StorageLocationService;
+  let themeService: ThemeService;
 
   beforeEach(async () => {
     localStorage.clear();
@@ -15,6 +17,7 @@ describe('LocationModal', () => {
     }).compileComponents();
 
     locationsService = TestBed.inject(StorageLocationService);
+    themeService = TestBed.inject(ThemeService);
     fixture = TestBed.createComponent(LocationModal);
     component = fixture.componentInstance;
   });
@@ -36,6 +39,33 @@ describe('LocationModal', () => {
 
     expect(saved).toBeTruthy();
     expect(locationsService.locations().some((loc) => loc.name === 'Divisória A')).toBe(true);
+  });
+
+  it('defaults a new location color to the user current primary theme color', () => {
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('parentId', null);
+    fixture.detectChanges();
+
+    setName('Divisória A');
+    component.submit();
+
+    const primary = themeService.colors()[0];
+    expect(locationsService.locations().find((loc) => loc.name === 'Divisória A')?.color).toBe(
+      primary,
+    );
+  });
+
+  it('keeps an existing location color when renaming', () => {
+    const existing = locationsService.add({ name: 'Divisória A', parentId: null, color: 'G' });
+
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('location', existing);
+    fixture.detectChanges();
+
+    setName('Divisória B');
+    component.submit();
+
+    expect(locationsService.locations().find((loc) => loc.id === existing.id)?.color).toBe('G');
   });
 
   it('blocks submit and shows an error for an empty name', () => {

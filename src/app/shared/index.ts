@@ -16,6 +16,7 @@ export { DeckList } from './deck-list/deck-list';
 export { EntityList } from './entity-list/entity-list';
 export { CollectionChildren } from './collection-children/collection-children';
 export { LeylineField } from './leyline-field/leyline-field';
+export { LocationColorPicker } from './location-color-picker/location-color-picker';
 export { LocationModal } from './location-modal/location-modal';
 export { LocationPlate } from './location-plate/location-plate';
 export { LocationPlateList } from './location-plate-list/location-plate-list';

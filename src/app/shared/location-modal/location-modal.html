@@ -4,6 +4,13 @@
   aria-labelledby="location-modal-title"
   (close)="onNativeClose()"
 >
+  <div class="ambient-glow" aria-hidden="true"></div>
+  <div class="sparks" aria-hidden="true">
+    @for (i of sparkIndices; track i) {
+      <span class="spark" appSparkReroll [style.--i]="i"></span>
+    }
+  </div>
+
   <div class="modal-surface">
     <div class="modal-header">
       <h2 id="location-modal-title">
@@ -33,6 +40,12 @@
             autofocus
           />
         </label>
+
+        <div>
+          <p class="picker-label">Cor</p>
+          <app-location-color-picker [selected]="color()" (selectedChange)="color.set($event)" />
+        </div>
+
         @if (error(); as message) {
           <p class="error">{{ message }}</p>
         }
