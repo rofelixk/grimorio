@@ -11,13 +11,7 @@
 />
 
 @if (mode() === 'locations') {
-  <app-location-plate-list
-    [locations]="rootLocations()"
-    [openLocationId]="openLocationId()"
-    (togglePlate)="toggleLocation($event)"
-    (createSublocation)="openCreateSublocationModal($event)"
-    (locationDeleted)="deleteLocation($event)"
-  />
+  <app-location-plate-list [locations]="rootLocations()" />
 } @else {
   <app-search-results-list
     [rows]="filteredRows()"

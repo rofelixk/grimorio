@@ -10,7 +10,10 @@
   min-height: 0;
   height: 100%;
   overflow: auto;
-  padding: var(--space-4) var(--space-5) var(--space-6);
+  // Left padding is wider than the other sides — location-plate's edge
+  // sparks fly leftward out of each row and need clearance from the scroll
+  // container's own edge, or they'd clip.
+  padding: var(--space-4) var(--space-5) var(--space-6) 3.25rem;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);

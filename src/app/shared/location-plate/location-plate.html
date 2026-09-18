@@ -1,61 +1,39 @@
-<section class="plate">
-  <div class="plate-head">
-    <span class="pip" [style.background]="pip()" [style.box-shadow]="'0 0 10px ' + pip()"></span>
-
-    <a class="plate-name" [routerLink]="['/collection', node().id]">
-      <b>{{ node().name }}</b>
-      @if (subNames()) {
-        <span>{{ subNames() }}</span>
+<div
+  class="plate"
+  role="link"
+  tabindex="0"
+  [style.--pip]="pip()"
+  [attr.aria-label]="node().name + ', ' + totalCards() + ' cartas'"
+  (click)="open()"
+  (keydown)="onKeydown($event)"
+>
+  <span class="edge" aria-hidden="true">
+    <span class="edge-bar"></span>
+    <span class="edge-wash"></span>
+    <span class="sparks">
+      @for (i of sparkIndices; track i) {
+        <span class="spark-edge" [style.--i]="i"></span>
       }
-    </a>
-
-    <span class="plate-count">
-      <b>{{ totalCards() }}</b>
-      <span class="micro">cartas</span>
     </span>
-    <span class="micro plate-subs">{{ node().children.length }} sublocais</span>
+  </span>
 
-    <button
-      type="button"
-      class="plate-delete"
-      [attr.aria-label]="'Excluir ' + node().name"
-      (click)="locationDeleted.emit(node().id)"
-    >
-      ✕
-    </button>
+  <span class="col-main">
+    <b class="name">{{ node().name }}</b>
+    <span class="chips">
+      @for (chip of chips().shown; track chip.id) {
+        <a class="chip" [routerLink]="['/collection', chip.id]" (click)="$event.stopPropagation()">
+          <span class="chip-name">{{ chip.name }}</span>
+          <span class="chip-count">{{ chip.count }}</span>
+        </a>
+      }
+      @if (chips().overflowLabel) {
+        <span class="chip-overflow">{{ chips().overflowLabel }}</span>
+      }
+    </span>
+  </span>
 
-    <button
-      type="button"
-      class="plate-toggle"
-      [attr.aria-expanded]="open()"
-      [attr.aria-controls]="'sub-' + node().id"
-      (click)="togglePlate.emit()"
-    >
-      <span class="chev">{{ open() ? '▾' : '▸' }}</span>
-    </button>
-  </div>
-
-  <div class="collapse" [class.expanded]="open()">
-    <div class="collapse-inner" [id]="'sub-' + node().id" [attr.inert]="open() ? null : ''">
-      <div class="subgrid">
-        @for (child of node().children; track child.id) {
-          <div class="sub">
-            <a class="sub-link" [routerLink]="['/collection', child.id]">
-              <b>{{ child.name }}</b>
-              <span>{{ countFor(child.id) }} cartas</span>
-            </a>
-            <button
-              type="button"
-              class="sub-delete"
-              [attr.aria-label]="'Excluir ' + child.name"
-              (click)="locationDeleted.emit(child.id)"
-            >
-              ✕
-            </button>
-          </div>
-        }
-        <button type="button" class="sub-new" (click)="createSublocation.emit()">+ Sublocal</button>
-      </div>
-    </div>
-  </div>
-</section>
+  <span class="plate-count">
+    <b>{{ totalCards() }}</b>
+    <span class="micro">cartas</span>
+  </span>
+</div>

@@ -31,7 +31,6 @@ export class Collection {
   readonly query = signal('');
   readonly submittedQuery = signal('');
   readonly mode = signal<Mode>('locations');
-  readonly openLocationId = signal<string | null>(null);
   readonly locationFilter = signal<string | null>(null);
 
   readonly showLocationModal = signal(false);
@@ -121,28 +120,12 @@ export class Collection {
     this.locationFilter.set(null);
   }
 
-  toggleLocation(id: string): void {
-    this.openLocationId.set(this.openLocationId() === id ? null : id);
-  }
-
   openCreateLocationModal(): void {
     this.createParentId.set(null);
     this.showLocationModal.set(true);
   }
 
-  openCreateSublocationModal(parentId: string): void {
-    this.createParentId.set(parentId);
-    this.showLocationModal.set(true);
-  }
-
   closeLocationModal(): void {
     this.showLocationModal.set(false);
-  }
-
-  deleteLocation(id: string): void {
-    this.locationsService.remove(id);
-    if (this.openLocationId() === id) {
-      this.openLocationId.set(null);
-    }
   }
 }
