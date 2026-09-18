@@ -51,6 +51,13 @@
   }
 }
 
+// Orbits + filaments are deliberately spread across primary/accent/tertiary
+// (not just accent/tertiary) — --lt falls back to --la when only 2 colors
+// are picked, so any layer keyed to tertiary alone would just silently
+// duplicate whatever's keyed to accent, and primary would never appear
+// anywhere in the ring layer at all. Assigning at least one orbit/filament
+// to --lp directly guarantees a 2-color pick shows both chosen colors here,
+// not just the one that happens to win the accent/tertiary fallback.
 .ley-o1 {
   left: -320px;
   top: -320px;
@@ -59,8 +66,8 @@
   transform: rotate(-23deg) scaleY(0.34);
 
   > i {
-    border-top-color: rgb(from var(--la) r g b / 95%);
-    border-right-color: rgb(from var(--la) r g b / 40%);
+    border-top-color: rgb(from var(--lp) r g b / 95%);
+    border-right-color: rgb(from var(--lp) r g b / 40%);
     animation: arc-sweep 30s linear infinite;
   }
 }
@@ -74,15 +81,14 @@
 
   > i {
     border-width: 0.75px;
-    border-top-color: rgb(from var(--lt) r g b / 92%);
-    border-left-color: rgb(from var(--lt) r g b / 40%);
+    border-top-color: rgb(from var(--la) r g b / 92%);
+    border-left-color: rgb(from var(--la) r g b / 40%);
     animation: arc-sweep 22s linear infinite reverse;
   }
 }
 
-// Trimmed from 4 filaments to 2 (accent + tertiary) and slowed down — the
-// original 4-arc/3.6s cycle read as too busy. Primary still shows up via
-// ley-core's color cycle and the stat trio, so nothing goes unrepresented.
+// Trimmed from 4 filaments to 2 and slowed down — the original 4-arc/3.6s
+// cycle read as too busy.
 .fil {
   position: absolute;
   border-radius: 50%;
@@ -96,8 +102,8 @@
   top: -190px;
   width: 380px;
   height: 380px;
-  border-top-color: rgb(from var(--la) r g b / 100%);
-  filter: drop-shadow(0 0 6px rgb(from var(--la) r g b / 80%));
+  border-top-color: rgb(from var(--lt) r g b / 100%);
+  filter: drop-shadow(0 0 6px rgb(from var(--lt) r g b / 80%));
 }
 
 .fil-2 {
@@ -106,8 +112,8 @@
   top: -150px;
   width: 300px;
   height: 300px;
-  border-top-color: rgb(from var(--lt) r g b / 100%);
-  filter: drop-shadow(0 0 6px rgb(from var(--lt) r g b / 80%));
+  border-top-color: rgb(from var(--lp) r g b / 100%);
+  filter: drop-shadow(0 0 6px rgb(from var(--lp) r g b / 80%));
   animation-delay: 3s;
 }
 
