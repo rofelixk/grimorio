@@ -9,17 +9,15 @@
   z-index: 0;
   pointer-events: none;
 
-  // --collection-header-*: set by CollectionHeader's host binding from the
-  // user's chosen identity colors, inherited down through the DOM as plain
-  // custom properties. --lt falls back to --la, not --lp, so a 2-color
-  // identity still reads as a coherent primary/accent field.
+  // --lp/--la/--lt: theme-role short aliases, inherited from
+  // CollectionHeader's own host binding as plain custom properties (see
+  // architecture.md's "Theme-role retinting convention" for the
+  // fallback-chain rules). --identity-*: generic names the shared
+  // core-color-cycle keyframe (_motion.scss) reads instead of hardcoding
+  // this component's own prefix.
   --lp: var(--collection-header-primary, var(--color-primary));
   --la: var(--collection-header-accent, var(--lp));
   --lt: var(--collection-header-tertiary, var(--la));
-
-  // Generic names so the shared core-color-cycle keyframe (_motion.scss)
-  // can be reused by other components instead of hardcoding this
-  // component's own --lp/--la/--lt aliases.
   --identity-primary: var(--lp);
   --identity-accent: var(--la);
   --identity-tertiary: var(--lt);

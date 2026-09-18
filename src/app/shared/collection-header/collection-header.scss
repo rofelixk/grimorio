@@ -8,11 +8,8 @@
   border-bottom: 1px solid var(--color-border);
   background-color: var(--color-bg);
 
-  // --chp/--cha/--cht: short aliases for the identity colors bound onto this
-  // host from theme.service.ts (see the host: bindings in collection-header.ts),
-  // falling back down the chain to the app's default brand colors. --cht falls
-  // back to --cha, not --chp, so a 2-color identity still reads as a coherent
-  // primary/accent pairing.
+  // --chp/--cha/--cht: theme-role short aliases (see architecture.md's
+  // "Theme-role retinting convention" for the fallback-chain rules).
   --chp: var(--collection-header-primary, var(--color-primary));
   --chph: var(--collection-header-primary-hover, var(--color-primary-hover));
   --cha: var(--collection-header-accent, var(--chp));

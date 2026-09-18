@@ -25,16 +25,11 @@
   // transform-rotating a box, since transforming .auth-modal itself would
   // spin its actual content too.
   //
-  // --mp/--ma/--mt: short aliases resolving --modal-primary/-accent/-tertiary
-  // (set by the template from the user's chosen theme colors) against the
-  // app's default brand colors, so every rule below can retint without
-  // repeating the fallback chain. --mt falls back to --ma, not --mp, so a
-  // 2-color theme still reads as a coherent primary/accent pairing.
+  // --mp/--ma/--mt: theme-role short aliases — the reference implementation
+  // of the convention documented in architecture.md ("Theme-role retinting
+  // convention"). See there for the fallback-chain rules this relies on.
   --mp: var(--modal-primary, var(--color-primary));
   --mph: var(--modal-primary-hover, var(--color-primary-hover));
-  // Falls back to primary, not a separate white/cyan default — with only 1
-  // theme color picked, a leftover second color read as though it were
-  // itself selected. 1 pick now means the whole modal reads as that 1 color.
   --ma: var(--modal-accent, var(--mp));
   --mah: var(--modal-accent-hover, var(--mph));
   --mt: var(--modal-tertiary, var(--ma));

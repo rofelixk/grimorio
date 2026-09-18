@@ -10,13 +10,10 @@
   min-height: 0;
   overflow: hidden;
 
-  // --detail-*: set by this component's own host binding from the user's
-  // chosen identity colors (see collection-detail.ts), falling back down
-  // the chain to the app's default brand colors. --cdt falls back to
-  // --cda, not --cdp, so a 2-color identity still reads as a coherent
-  // primary/accent pairing. --identity-*: generic names the shared
-  // core-color-cycle keyframe (_motion.scss) reads — same mechanism the
-  // leyline field uses for its own core.
+  // --cdp/--cda/--cdt: theme-role short aliases (see architecture.md's
+  // "Theme-role retinting convention"). --identity-*: generic names the
+  // shared core-color-cycle keyframe (_motion.scss) reads instead of a
+  // specific consumer's own prefix — same bridge leyline-field.scss uses.
   --cdp: var(--detail-primary, var(--color-primary));
   --cda: var(--detail-accent, var(--cdp));
   --cdt: var(--detail-tertiary, var(--cda));
