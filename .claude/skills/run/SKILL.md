@@ -61,6 +61,15 @@ points — use a `shots/` subfolder in the scratchpad and **Read** the PNGs
 back to actually look at them (a passing selector wait doesn't prove the
 page rendered correctly).
 
+## Verifying UI changes
+
+Check at both mobile (390×844) and desktop (1440×900) viewports — wait for
+`networkidle` plus ~500ms so lazy-loaded card images are settled before
+screenshotting, and check that modals still close and buttons don't wrap at
+either width. This catches the class of regression (CSS specificity losses,
+`display:flex` overriding a close path, overflow clipping a ring) that a
+screenshot at only one viewport, or taken too early, misses.
+
 ## Gotchas hit so far
 
 - No `chromium-cli` in this environment — don't spend time looking for
