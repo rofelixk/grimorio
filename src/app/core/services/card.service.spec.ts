@@ -1,6 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntryWithoutId } from '@testing/card.mocks';
+import { resetGrimorioDbForTests } from '../db/grimorio-db';
+import { getAllFromStore } from '../db/entity-store';
+import { CardEntry } from '@models/card.model';
 import { CardService } from './card.service';
 
 const baseCard = mockCardEntryWithoutId();
@@ -8,13 +11,18 @@ const baseCard = mockCardEntryWithoutId();
 describe('CardService', () => {
   let service: CardService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear();
+    await resetGrimorioDbForTests();
     TestBed.configureTestingModule({});
     service = TestBed.inject(CardService);
+    await service.whenReady();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Ensure any write left pending by a test that didn't await it lands before
+    // the next test's beforeEach deletes and recreates the database.
+    await service.flush();
     vi.useRealTimers();
   });
 
@@ -22,12 +30,12 @@ describe('CardService', () => {
     expect(service.cards()).toEqual([]);
   });
 
-  it('adds a card and persists it to localStorage', () => {
+  it('adds a card and persists it to IndexedDB', async () => {
     const added = service.add(baseCard);
 
     expect(service.cards()).toEqual([added]);
-    const raw = localStorage.getItem('grimorio.cards');
-    expect(JSON.parse(raw!)).toEqual([added]);
+    await service.flush();
+    expect(await getAllFromStore<CardEntry>('cards')).toEqual([added]);
   });
 
   it('updates a card in place', () => {
@@ -43,13 +51,14 @@ describe('CardService', () => {
     });
   });
 
-  it('removes a card', () => {
+  it('removes a card', async () => {
     const added = service.add(baseCard);
 
     service.remove(added.id);
 
     expect(service.cards()).toEqual([]);
-    expect(JSON.parse(localStorage.getItem('grimorio.cards')!)).toEqual([]);
+    await service.flush();
+    expect(await getAllFromStore<CardEntry>('cards')).toEqual([]);
   });
 
   it('stamps updatedAt on add and bumps it on update', () => {
@@ -65,26 +74,28 @@ describe('CardService', () => {
     vi.useRealTimers();
   });
 
-  it('records a tombstone on remove and lets it be cleared', () => {
+  it('records a tombstone on remove and lets it be cleared', async () => {
     const added = service.add(baseCard);
 
     service.remove(added.id);
+    await service.flush();
 
-    expect(service.getTombstones().map((t) => t.id)).toEqual([added.id]);
+    expect((await service.getTombstones()).map((t) => t.id)).toEqual([added.id]);
 
-    service.clearTombstones([added.id]);
+    await service.clearTombstones([added.id]);
 
-    expect(service.getTombstones()).toEqual([]);
+    expect(await service.getTombstones()).toEqual([]);
   });
 
-  it('applySyncResult replaces state verbatim without touching tombstones', () => {
+  it('applySyncResult replaces state verbatim without touching tombstones', async () => {
     const added = service.add(baseCard);
     service.remove(added.id);
+    await service.flush();
 
     service.applySyncResult([added]);
 
     expect(service.cards()).toEqual([added]);
-    expect(service.getTombstones().map((t) => t.id)).toEqual([added.id]);
+    expect((await service.getTombstones()).map((t) => t.id)).toEqual([added.id]);
   });
 
   it('finds a card by id', () => {
@@ -94,12 +105,14 @@ describe('CardService', () => {
     expect(service.byId('missing')()).toBeUndefined();
   });
 
-  it('reloads persisted cards on a fresh service instance', () => {
+  it('reloads persisted cards on a fresh service instance', async () => {
     service.add(baseCard);
+    await service.flush();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
     const reloaded = TestBed.inject(CardService);
+    await reloaded.whenReady();
 
     expect(reloaded.cards().length).toBe(1);
   });

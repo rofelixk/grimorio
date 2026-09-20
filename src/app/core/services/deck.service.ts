@@ -1,19 +1,38 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { Deck, DeckCard } from '@models/deck.model';
+import { getAllFromStore, replaceStore } from '../db/entity-store';
 
 @Injectable({ providedIn: 'root' })
 export class DeckService {
-  private readonly storageKey = 'grimorio.decks';
-  private readonly decksSignal = signal<Deck[]>(this.load());
+  private readonly decksSignal = signal<Deck[]>([]);
   readonly decks = this.decksSignal.asReadonly();
 
-  private load(): Deck[] {
-    const raw = localStorage.getItem(this.storageKey);
-    return raw ? JSON.parse(raw) : [];
+  private readonly readyPromise: Promise<void>;
+  private writeQueue: Promise<unknown> = Promise.resolve();
+
+  constructor() {
+    this.readyPromise = this.hydrate();
+  }
+
+  private async hydrate(): Promise<void> {
+    const decks = await getAllFromStore<Deck>('decks');
+    this.decksSignal.set(decks);
+  }
+
+  // Resolves once this service's initial IndexedDB read has landed in the signal.
+  whenReady(): Promise<void> {
+    return this.readyPromise;
+  }
+
+  // Resolves once every write enqueued so far has landed in IndexedDB.
+  flush(): Promise<void> {
+    return this.writeQueue.then(() => undefined);
   }
 
   private persist(decks: Deck[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(decks));
+    this.writeQueue = this.writeQueue
+      .then(() => replaceStore('decks', decks))
+      .catch((e) => console.error('Grimorio: failed to persist decks.', e));
   }
 
   private update(id: string, patch: (deck: Deck) => Deck): void {

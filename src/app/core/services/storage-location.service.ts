@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { StorageLocation, StorageLocationNode } from '@models/storage-location.model';
 import { Tombstone } from '@models/tombstone.model';
+import { clearTombstones, getAllFromStore, getTombstonesFor, putTombstone, replaceStore } from '../db/entity-store';
 
 function buildTree(locations: StorageLocation[]): StorageLocationNode[] {
   const nodesById = new Map<string, StorageLocationNode>(
@@ -22,19 +23,40 @@ function buildTree(locations: StorageLocation[]): StorageLocationNode[] {
 
 @Injectable({ providedIn: 'root' })
 export class StorageLocationService {
-  private readonly storageKey = 'grimorio.locations';
-  private readonly tombstonesKey = 'grimorio.locations.tombstones';
-  private readonly locationsSignal = signal<StorageLocation[]>(this.load());
+  private readonly locationsSignal = signal<StorageLocation[]>([]);
   readonly locations = this.locationsSignal.asReadonly();
   readonly tree = computed(() => buildTree(this.locations()));
 
-  private load(): StorageLocation[] {
-    const raw = localStorage.getItem(this.storageKey);
-    return raw ? JSON.parse(raw) : [];
+  private readonly readyPromise: Promise<void>;
+  private writeQueue: Promise<unknown> = Promise.resolve();
+
+  constructor() {
+    this.readyPromise = this.hydrate();
+  }
+
+  private async hydrate(): Promise<void> {
+    const locations = await getAllFromStore<StorageLocation>('locations');
+    this.locationsSignal.set(locations);
+  }
+
+  // Resolves once this service's initial IndexedDB read has landed in the signal.
+  whenReady(): Promise<void> {
+    return this.readyPromise;
+  }
+
+  // Resolves once every write enqueued so far has landed in IndexedDB.
+  flush(): Promise<void> {
+    return this.writeQueue.then(() => undefined);
+  }
+
+  private enqueueWrite(fn: () => Promise<unknown>): void {
+    this.writeQueue = this.writeQueue
+      .then(fn)
+      .catch((e) => console.error('Grimorio: failed to persist locations.', e));
   }
 
   private persist(locations: StorageLocation[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(locations));
+    this.enqueueWrite(() => replaceStore('locations', locations));
   }
 
   add(location: Omit<StorageLocation, 'id' | 'updatedAt'>): StorageLocation {
@@ -114,14 +136,12 @@ export class StorageLocationService {
   // Sync-only: tombstones let SyncService tell a locally-deleted id apart
   // from one that simply never existed on this device, so a pull doesn't
   // resurrect something this device deliberately removed.
-  getTombstones(): Tombstone[] {
-    const raw = localStorage.getItem(this.tombstonesKey);
-    return raw ? JSON.parse(raw) : [];
+  getTombstones(): Promise<Tombstone[]> {
+    return getTombstonesFor('locations');
   }
 
-  clearTombstones(ids: string[]): void {
-    const remaining = this.getTombstones().filter((tombstone) => !ids.includes(tombstone.id));
-    localStorage.setItem(this.tombstonesKey, JSON.stringify(remaining));
+  clearTombstones(ids: string[]): Promise<void> {
+    return clearTombstones('locations', ids);
   }
 
   // Sync-only: applies an already-reconciled result verbatim — no id
@@ -133,8 +153,6 @@ export class StorageLocationService {
   }
 
   private addTombstone(id: string): void {
-    const tombstones = this.getTombstones().filter((tombstone) => tombstone.id !== id);
-    tombstones.push({ id, deletedAt: new Date().toISOString() });
-    localStorage.setItem(this.tombstonesKey, JSON.stringify(tombstones));
+    this.enqueueWrite(() => putTombstone('locations', { id, deletedAt: new Date().toISOString() }));
   }
 }

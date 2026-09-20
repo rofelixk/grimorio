@@ -1,14 +1,23 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { resetGrimorioDbForTests } from '../db/grimorio-db';
 import { StorageLocationService } from './storage-location.service';
 
 describe('StorageLocationService', () => {
   let service: StorageLocationService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear();
+    await resetGrimorioDbForTests();
     TestBed.configureTestingModule({});
     service = TestBed.inject(StorageLocationService);
+    await service.whenReady();
+  });
+
+  afterEach(async () => {
+    // Ensure any write left pending by a test that didn't await it lands before
+    // the next test's beforeEach deletes and recreates the database.
+    await service.flush();
   });
 
   it('starts empty when nothing is persisted', () => {
@@ -16,11 +25,17 @@ describe('StorageLocationService', () => {
     expect(service.tree()).toEqual([]);
   });
 
-  it('adds a location and persists it to localStorage', () => {
+  it('adds a location and persists it to IndexedDB', async () => {
     const added = service.add({ name: 'Box 1', parentId: null });
 
     expect(service.locations()).toEqual([added]);
-    expect(JSON.parse(localStorage.getItem('grimorio.locations')!)).toEqual([added]);
+    await service.flush();
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const reloaded = TestBed.inject(StorageLocationService);
+    await reloaded.whenReady();
+    expect(reloaded.locations()).toEqual([added]);
   });
 
   it('builds a nested tree from flat parentId references', () => {
@@ -74,25 +89,27 @@ describe('StorageLocationService', () => {
     expect(service.byId(added.id)()!.updatedAt).toBe('2026-01-02T00:00:00.000Z');
   });
 
-  it('records a tombstone on remove and lets it be cleared', () => {
+  it('records a tombstone on remove and lets it be cleared', async () => {
     const added = service.add({ name: 'Box 1', parentId: null });
 
     service.remove(added.id);
+    await service.flush();
 
-    expect(service.getTombstones().map((t) => t.id)).toEqual([added.id]);
+    expect((await service.getTombstones()).map((t) => t.id)).toEqual([added.id]);
 
-    service.clearTombstones([added.id]);
+    await service.clearTombstones([added.id]);
 
-    expect(service.getTombstones()).toEqual([]);
+    expect(await service.getTombstones()).toEqual([]);
   });
 
-  it('applySyncResult replaces state verbatim without touching tombstones', () => {
+  it('applySyncResult replaces state verbatim without touching tombstones', async () => {
     const added = service.add({ name: 'Box 1', parentId: null });
     service.remove(added.id);
+    await service.flush();
 
     service.applySyncResult([added]);
 
     expect(service.locations()).toEqual([added]);
-    expect(service.getTombstones().map((t) => t.id)).toEqual([added.id]);
+    expect((await service.getTombstones()).map((t) => t.id)).toEqual([added.id]);
   });
 });

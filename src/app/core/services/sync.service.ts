@@ -6,6 +6,7 @@ import { CardService } from '@services/card.service';
 import { StorageLocationService } from '@services/storage-location.service';
 import { reconcileEntities } from '../utils/sync-reconcile.util';
 import { SUPABASE_CLIENT } from '../supabase-client';
+import { getMeta, setMeta } from '../db/entity-store';
 
 interface StorageLocationRow {
   id: string;
@@ -140,8 +141,7 @@ export class SyncService {
   private readonly cardService = inject(CardService);
   private readonly locationService = inject(StorageLocationService);
 
-  private readonly storageKey = 'grimorio.lastSyncedAt';
-  private readonly lastSyncedAtSignal = signal<string | null>(localStorage.getItem(this.storageKey));
+  private readonly lastSyncedAtSignal = signal<string | null>(null);
   readonly lastSyncedAt = this.lastSyncedAtSignal.asReadonly();
 
   private readonly phaseSignal = signal<'idle' | 'syncing' | 'error'>('idle');
@@ -179,6 +179,15 @@ export class SyncService {
 
   constructor() {
     setInterval(() => this.nowSignal.set(Date.now()), HOUR_MS);
+    getMeta<string>('lastSyncedAt')
+      .then((value) => {
+        if (value) {
+          this.lastSyncedAtSignal.set(value);
+        }
+      })
+      .catch(() => {
+        // IndexedDB unavailable/blocked on startup — fall back to the default null state.
+      });
   }
 
   // Manually triggered only — no automatic/background sync. Locations are
@@ -190,7 +199,7 @@ export class SyncService {
       const result = await this.performSync();
       const syncedAt = new Date().toISOString();
       this.lastSyncedAtSignal.set(syncedAt);
-      localStorage.setItem(this.storageKey, syncedAt);
+      await setMeta('lastSyncedAt', syncedAt);
       this.phaseSignal.set('idle');
       return result;
     } catch (e) {
@@ -204,6 +213,8 @@ export class SyncService {
     if (!userId) {
       throw new Error('Sync requires a signed-in account.');
     }
+
+    await Promise.all([this.locationService.flush(), this.cardService.flush()]);
 
     const { locationsPushed, locationsPulled, locationsDeletedRemote } = await this.syncLocations(userId);
     const { cardsPushed, cardsPulled, cardsDeletedRemote } = await this.syncCards(userId);
@@ -231,7 +242,7 @@ export class SyncService {
 
     const remote = (data as StorageLocationRow[]).map(locationFromRow);
     const local = this.locationService.locations();
-    const tombstones = this.locationService.getTombstones();
+    const tombstones = await this.locationService.getTombstones();
 
     const { merged, toUpsertRemote, toDeleteRemoteIds, tombstonesToClear } = reconcileEntities(
       local,
@@ -259,7 +270,7 @@ export class SyncService {
     }
 
     this.locationService.applySyncResult(merged);
-    this.locationService.clearTombstones(tombstonesToClear);
+    await this.locationService.clearTombstones(tombstonesToClear);
 
     const localIds = new Set(local.map((location) => location.id));
     return {
@@ -279,7 +290,7 @@ export class SyncService {
 
     const remote = (data as CardEntryRow[]).map(cardFromRow);
     const local = this.cardService.cards();
-    const tombstones = this.cardService.getTombstones();
+    const tombstones = await this.cardService.getTombstones();
 
     const { merged, toUpsertRemote, toDeleteRemoteIds, tombstonesToClear } = reconcileEntities(
       local,
@@ -304,7 +315,7 @@ export class SyncService {
     }
 
     this.cardService.applySyncResult(merged);
-    this.cardService.clearTombstones(tombstonesToClear);
+    await this.cardService.clearTombstones(tombstonesToClear);
 
     const localIds = new Set(local.map((card) => card.id));
     return {
