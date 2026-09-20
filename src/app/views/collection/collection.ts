@@ -9,7 +9,7 @@ import {
   LocationPlateList,
   SearchResultsList,
 } from '@shared';
-import { COLORLESS_GLOW, getCardGlowColors } from '../../core/utils/card-color.util';
+import { COLORLESS_GLOW, getCardGlowColors } from '@utils/card-color.util';
 
 type Mode = 'locations' | 'results';
 

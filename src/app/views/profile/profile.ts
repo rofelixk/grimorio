@@ -11,7 +11,7 @@ import {
 import { Router } from '@angular/router';
 import { AuthService } from '@services/auth.service';
 import { ThemeService } from '@services/theme.service';
-import { ColorThemePicker } from '@shared/color-theme-picker/color-theme-picker';
+import { ColorThemePicker } from '@shared/effects/color-theme-picker/color-theme-picker';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

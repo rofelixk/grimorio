@@ -6,8 +6,8 @@ import { CardService } from '@services/card.service';
 import { StorageLocationService } from '@services/storage-location.service';
 import { ThemeService } from '@services/theme.service';
 import { AddCardModal, CollectionCardGrid, LocationModal, LocationStrip } from '@shared';
-import { CollectionViewMode } from '../../shared/collection-card-grid/collection-card-grid';
-import { matchesCardQuery } from '../../core/utils/text-search.util';
+import { CollectionViewMode } from '../../shared/cards/collection-card-grid/collection-card-grid';
+import { matchesCardQuery } from '@utils/text-search.util';
 
 type SortOption = 'recent' | 'name' | 'set' | 'quantity' | 'color';
 

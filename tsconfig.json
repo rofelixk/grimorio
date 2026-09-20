@@ -17,6 +17,7 @@
       "@models/*": ["./src/app/core/models/*"],
       "@services/*": ["./src/app/core/services/*"],
       "@testing/*": ["./src/app/core/testing/*"],
+      "@utils/*": ["./src/app/core/utils/*"],
       "@shared": ["./src/app/shared/index.ts"],
       "@shared/*": ["./src/app/shared/*"]
     }

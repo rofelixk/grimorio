@@ -4,7 +4,7 @@ import { StorageLocation } from '@models/storage-location.model';
 import { CardEntry } from '@models/card.model';
 import { StorageLocationService } from '@services/storage-location.service';
 import { CardImportService, MatchedRow, UnresolvedRow } from '@services/card-import.service';
-import { ImportRow, ImportSource } from '../../core/utils/card-import.util';
+import { ImportRow, ImportSource } from '@utils/card-import.util';
 import { AddCardModal } from '@shared';
 
 interface LocationOption {
