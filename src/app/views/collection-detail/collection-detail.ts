@@ -8,10 +8,10 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { CardEntry, CardCondition, CardFinish, CardRarity, Color } from '@models/card.model';
 import { StorageLocation } from '@models/storage-location.model';
-import { CardFilterService } from '@services/card-filter.service';
+import { CardFilters, CardFilterService } from '@services/card-filter.service';
 import { CardService } from '@services/card.service';
 import { StorageLocationService } from '@services/storage-location.service';
 import { ThemeService } from '@services/theme.service';
@@ -58,6 +58,21 @@ export class CollectionDetail {
       this.filterService.panelOpen.set(false);
       this.filterService.reset();
       this.hydrateFiltersFromQueryParams();
+    });
+
+    // Write direction: reflect the current filters into the URL's query params.
+    // This does not persist to localStorage - the URL is the only place filter
+    // state is externalized. `replaceUrl: true` keeps filter tweaks out of
+    // browser history and does not change `this.id()`, so this settles after
+    // one pass rather than looping with the hydration effect above.
+    effect(() => {
+      const queryParams = serializeFiltersToQueryParams(this.filterService.filters());
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams,
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
     });
 
     inject(DestroyRef).onDestroy(() => {
@@ -241,6 +256,21 @@ export class CollectionDetail {
       this.filterService.panelOpen.set(true);
     }
   }
+}
+
+function serializeFiltersToQueryParams(f: CardFilters): Params {
+  const cor = COLOR_LETTERS.filter((c) => f.colors.includes(c)).join('') + (f.colorless ? 'C' : '');
+
+  return {
+    cor: cor === '' ? null : cor,
+    match: f.colorMatch === 'exact' ? 'exata' : null,
+    venda: f.forSale ? '1' : null,
+    raridade: f.rarity || null,
+    acabamento: f.finish || null,
+    condicao: f.condition || null,
+    set: f.setCode || null,
+    tipo: f.type || null,
+  };
 }
 
 function compareColor(a: CardEntry, b: CardEntry): number {
