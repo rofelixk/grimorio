@@ -20,115 +20,110 @@
 
 <div id="collection-filters-body" class="filters-body" [class.open]="filterService.panelOpen()" [attr.inert]="!filterService.panelOpen() ? '' : null">
   <div class="inner">
-    <section class="filter-group">
-      <span class="group-label">Identidade de cor</span>
-      <div class="pips">
-        @for (pip of colorPips; track pip.code) {
+    @if (filterService.panelOpen()) {
+      <div class="filters-summary">
+        <span class="result-count">
+          @if (filterService.isActive()) {
+            {{ resultCount() }} de {{ totalCount() }} cartas
+          } @else {
+            {{ totalCount() }} cartas
+          }
+        </span>
+        @if (filterService.isActive()) {
+          <button type="button" class="clear-btn" (click)="filterService.reset()">Limpar</button>
+        }
+      </div>
+
+      <section class="filter-group">
+        <span class="group-label">Identidade de cor</span>
+        <div class="pips">
+          @for (pip of colorPips; track pip.code) {
+            <button
+              type="button"
+              class="pip"
+              [class.selected]="isColorSelected(pip.code)"
+              [style.--pip-color]="pip.print"
+              [title]="pip.label"
+              (click)="toggleColor(pip.code)"
+            >
+              <img [src]="'assets/mana/' + pip.code + '.svg'" alt="" />
+            </button>
+          }
           <button
             type="button"
             class="pip"
-            [class.selected]="isColorSelected(pip.code)"
-            [style.--pip-color]="pip.print"
-            [title]="pip.label"
-            (click)="toggleColor(pip.code)"
+            [class.selected]="filterService.filters().colorless"
+            [style.--pip-color]="colorlessPrint"
+            title="Incolor"
+            (click)="toggleColorless()"
           >
-            <img [src]="'assets/mana/' + pip.code + '.svg'" alt="" />
+            <img src="assets/mana/C.svg" alt="" />
           </button>
-        }
-        <button
-          type="button"
-          class="pip"
-          [class.selected]="filterService.filters().colorless"
-          [style.--pip-color]="colorlessPrint"
-          title="Incolor"
-          (click)="toggleColorless()"
-        >
-          <img src="assets/mana/C.svg" alt="" />
-        </button>
+        </div>
+
+        <div class="view-toggle">
+          <button type="button" [class.active]="filterService.filters().colorMatch === 'any'" (click)="setColorMatch('any')">
+            Qualquer
+          </button>
+          <button type="button" [class.active]="filterService.filters().colorMatch === 'exact'" (click)="setColorMatch('exact')">
+            Exata
+          </button>
+        </div>
+      </section>
+
+      <button type="button" class="for-sale-toggle" [class.active]="filterService.filters().forSale" (click)="toggleForSale()">
+        À venda
+      </button>
+
+      <div class="dropdowns">
+        <app-filter-select
+          label="Raridade"
+          placeholder="Todas as raridades"
+          [values]="filterService.filters().rarity"
+          [options]="optionMap().rarity"
+          [open]="filterService.openMenu() === 'rarity'"
+          (toggled)="toggleMenu('rarity')"
+          (closeRequested)="closeMenu('rarity')"
+          (picked)="toggleField('rarity', $event)"
+          (cleared)="clearField('rarity')"
+        />
+
+        <app-filter-select
+          label="Acabamento"
+          placeholder="Todos"
+          [values]="filterService.filters().finish"
+          [options]="optionMap().finish"
+          [open]="filterService.openMenu() === 'finish'"
+          (toggled)="toggleMenu('finish')"
+          (closeRequested)="closeMenu('finish')"
+          (picked)="toggleField('finish', $event)"
+          (cleared)="clearField('finish')"
+        />
+
+        <app-filter-select
+          label="Condição"
+          placeholder="Todas"
+          [values]="filterService.filters().condition"
+          [options]="optionMap().condition"
+          [open]="filterService.openMenu() === 'condition'"
+          (toggled)="toggleMenu('condition')"
+          (closeRequested)="closeMenu('condition')"
+          (picked)="toggleField('condition', $event)"
+          (cleared)="clearField('condition')"
+        />
+
+        <app-filter-select
+          label="Tipo"
+          placeholder="Todos os tipos"
+          [values]="filterService.filters().type"
+          [options]="optionMap().type"
+          [open]="filterService.openMenu() === 'type'"
+          (toggled)="toggleMenu('type')"
+          (closeRequested)="closeMenu('type')"
+          (picked)="toggleField('type', $event)"
+          (cleared)="clearField('type')"
+        />
       </div>
-
-      <div class="view-toggle">
-        <button type="button" [class.active]="filterService.filters().colorMatch === 'any'" (click)="setColorMatch('any')">
-          Qualquer
-        </button>
-        <button type="button" [class.active]="filterService.filters().colorMatch === 'exact'" (click)="setColorMatch('exact')">
-          Exata
-        </button>
-      </div>
-    </section>
-
-    <button type="button" class="for-sale-toggle" [class.active]="filterService.filters().forSale" (click)="toggleForSale()">
-      Só à venda
-    </button>
-
-    <div class="dropdowns">
-      <app-filter-select
-        label="Raridade"
-        placeholder="Todas as raridades"
-        [value]="filterService.filters().rarity"
-        [options]="optionMap().rarity"
-        [open]="filterService.openMenu() === 'rarity'"
-        (toggled)="toggleMenu('rarity')"
-        (closeRequested)="closeMenu()"
-        (picked)="pickField('rarity', $event)"
-      />
-
-      <app-filter-select
-        label="Acabamento"
-        placeholder="Todos"
-        [value]="filterService.filters().finish"
-        [options]="optionMap().finish"
-        [open]="filterService.openMenu() === 'finish'"
-        (toggled)="toggleMenu('finish')"
-        (closeRequested)="closeMenu()"
-        (picked)="pickField('finish', $event)"
-      />
-
-      <app-filter-select
-        label="Condição"
-        placeholder="Todas"
-        [value]="filterService.filters().condition"
-        [options]="optionMap().condition"
-        [open]="filterService.openMenu() === 'condition'"
-        (toggled)="toggleMenu('condition')"
-        (closeRequested)="closeMenu()"
-        (picked)="pickField('condition', $event)"
-      />
-
-      <app-filter-select
-        label="Set"
-        placeholder="Todos os sets"
-        [value]="filterService.filters().setCode"
-        [options]="optionMap().setCode"
-        [open]="filterService.openMenu() === 'setCode'"
-        (toggled)="toggleMenu('setCode')"
-        (closeRequested)="closeMenu()"
-        (picked)="pickField('setCode', $event)"
-      />
-
-      <app-filter-select
-        label="Tipo"
-        placeholder="Todos os tipos"
-        [value]="filterService.filters().type"
-        [options]="optionMap().type"
-        [open]="filterService.openMenu() === 'type'"
-        (toggled)="toggleMenu('type')"
-        (closeRequested)="closeMenu()"
-        (picked)="pickField('type', $event)"
-      />
-    </div>
-
-    <footer class="filters-footer">
-      <span class="result-count">
-        @if (filterService.isActive()) {
-          {{ resultCount() }} de {{ totalCount() }} cartas
-        } @else {
-          {{ totalCount() }} cartas
-        }
-      </span>
-      @if (filterService.isActive()) {
-        <button type="button" class="clear-btn" (click)="filterService.reset()">Limpar</button>
-      }
-    </footer>
+    }
   </div>
 </div>

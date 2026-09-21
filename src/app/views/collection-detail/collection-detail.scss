@@ -120,7 +120,7 @@ h1 {
     order: 1;
     margin: 0;
     font-family: var(--font-display);
-    color: var(--color-primary);
+    color: var(--cdp);
   }
 }
 
@@ -148,7 +148,7 @@ h1 {
 .cta-mobile {
   @include m.glow-button(var(--cdp));
   text-shadow: 0 0 8px rgb(from var(--cdp) r g b / 60%);
-  box-shadow: var(--shadow-glow-primary-strong);
+  box-shadow: 0 0 20px rgb(from var(--cdp) r g b / 50%);
 }
 
 .cta-desktop {

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { CardFilters, CardFilterService, applyCardFilters } from '@services/card-filter.service';
-import { CardRarity, Color } from '@models/card.model';
+import { CardFilters, CardFilterService, ListField, applyCardFilters } from '@services/card-filter.service';
+import { CardEntry, CardRarity, Color } from '@models/card.model';
 import { CardService } from '@services/card.service';
 import { ThemeService } from '@services/theme.service';
 import { COLORLESS_GLOW, MTG_PRINT_COLORS } from '@utils/card-color.util';
@@ -10,11 +10,8 @@ interface OptionMap {
   rarity: FilterOption[];
   finish: FilterOption[];
   condition: FilterOption[];
-  setCode: FilterOption[];
   type: FilterOption[];
 }
-
-type DropdownField = 'rarity' | 'finish' | 'condition' | 'setCode' | 'type';
 
 const RARITY_GEMS: Partial<Record<CardRarity, { code: string; tint: string }>> = {
   common: { code: 'C', tint: '#a89e96' },
@@ -51,6 +48,19 @@ const CONDITION_OPTIONS = [
   { value: 'MP', label: 'MP — Moderadamente Jogada' },
   { value: 'HP', label: 'HP — Muito Jogada' },
   { value: 'DMG', label: 'DMG — Danificada' },
+];
+
+// finish/condition are both plain "one static option list, tallied by
+// equality" fields (unlike rarity, which folds in dynamic RARITY_EXTRA
+// entries and per-value gem art, or type, which matches by substring) —
+// driven through one shared loop below instead of a copy-pasted block each.
+const SIMPLE_LIST_FIELDS: {
+  field: 'finish' | 'condition';
+  options: { value: string; label: string }[];
+  allLabel: string;
+}[] = [
+  { field: 'finish', options: FINISH_OPTIONS, allLabel: 'Todos' },
+  { field: 'condition', options: CONDITION_OPTIONS, allLabel: 'Todas' },
 ];
 
 // value = the English typeLine substring applyCardFilters's `type`
@@ -102,17 +112,32 @@ export class CollectionFilters {
     this.cardService.cards().filter((card) => card.locationId === this.locationId()),
   );
 
-  // One computed producing the whole option map for all 5 dropdowns at
-  // once — each option's count runs applyCardFilters over cardsHere()
-  // with every OTHER active filter held as-is and only this field
-  // swapped to that option's value. Memoised here rather than recomputed
-  // per-option-per-render, since that would rerun applyCardFilters 30+
-  // times on every keystroke/toggle.
+  // One computed producing the whole option map for all 4 dropdowns at
+  // once — each option's count reflects that single value on its own
+  // (ignoring whatever else is already picked in the same field) while
+  // every OTHER active filter is held as-is, so an option's number stays
+  // stable no matter what else in that same dropdown is selected.
+  // Memoised here rather than recomputed per-option-per-render, since
+  // that would rerun applyCardFilters dozens of times on every
+  // keystroke/toggle. Per field, one applyCardFilters pass computes the
+  // subset matching every OTHER filter (this field cleared), then each
+  // option's count comes from tallying that subset instead of re-running
+  // the whole filter chain per option value.
   protected readonly optionMap = computed<OptionMap>(() => {
     const cards = this.cardsHere();
     const filters = this.filterService.filters();
-    const countFor = (field: DropdownField, value: string): number =>
-      applyCardFilters(cards, { ...filters, [field]: value } as CardFilters).length;
+
+    const subsetFor = (field: ListField): CardEntry[] =>
+      applyCardFilters(cards, { ...filters, [field]: [] } as CardFilters);
+
+    const tally = (subset: CardEntry[], accessor: (card: CardEntry) => string): Map<string, number> => {
+      const counts = new Map<string, number>();
+      for (const card of subset) {
+        const key = accessor(card);
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      }
+      return counts;
+    };
 
     const rarityValues = [...RARITY_BASE];
     for (const extra of RARITY_EXTRA) {
@@ -121,42 +146,42 @@ export class CollectionFilters {
       }
     }
 
+    const raritySubset = subsetFor('rarity');
+    const rarityCounts = tally(raritySubset, (c) => c.rarity);
     const rarity: FilterOption[] = [
-      { value: '', label: 'Todas as raridades', count: countFor('rarity', '') },
+      { value: '', label: 'Todas as raridades', count: raritySubset.length },
       ...rarityValues.map((o) => ({
         value: o.value,
         label: o.label,
-        count: countFor('rarity', o.value),
+        count: rarityCounts.get(o.value) ?? 0,
         gem: RARITY_GEMS[o.value],
       })),
     ];
 
-    const finish: FilterOption[] = [
-      { value: '', label: 'Todos', count: countFor('finish', '') },
-      ...FINISH_OPTIONS.map((o) => ({ value: o.value, label: o.label, count: countFor('finish', o.value) })),
-    ];
+    const [finish, condition] = SIMPLE_LIST_FIELDS.map(({ field, options, allLabel }) => {
+      const subset = subsetFor(field);
+      const counts = tally(subset, (c) => c[field]);
+      const list: FilterOption[] = [
+        { value: '', label: allLabel, count: subset.length },
+        ...options.map((o) => ({ value: o.value, label: o.label, count: counts.get(o.value) ?? 0 })),
+      ];
+      return list;
+    });
 
-    const condition: FilterOption[] = [
-      { value: '', label: 'Todas', count: countFor('condition', '') },
-      ...CONDITION_OPTIONS.map((o) => ({
+    // Type matching is substring-based (typeLine.includes), not equality, so
+    // it can't be tallied via a single Map the way the other fields are —
+    // it still benefits from the shared subset, computed once above.
+    const typeSubset = subsetFor('type');
+    const type: FilterOption[] = [
+      { value: '', label: 'Todos os tipos', count: typeSubset.length },
+      ...TYPE_OPTIONS.map((o) => ({
         value: o.value,
         label: o.label,
-        count: countFor('condition', o.value),
+        count: typeSubset.filter((c) => c.typeLine.toLowerCase().includes(o.value.toLowerCase())).length,
       })),
     ];
 
-    const setCodes = Array.from(new Set(cards.map((c) => c.setCode))).sort((a, b) => a.localeCompare(b));
-    const setCode: FilterOption[] = [
-      { value: '', label: 'Todos os sets', count: countFor('setCode', '') },
-      ...setCodes.map((code) => ({ value: code, label: code.toUpperCase(), count: countFor('setCode', code) })),
-    ];
-
-    const type: FilterOption[] = [
-      { value: '', label: 'Todos os tipos', count: countFor('type', '') },
-      ...TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label, count: countFor('type', o.value) })),
-    ];
-
-    return { rarity, finish, condition, setCode, type };
+    return { rarity, finish, condition, type };
   });
 
   readonly totalCount = computed(() => this.cardsHere().length);
@@ -186,16 +211,27 @@ export class CollectionFilters {
     this.filterService.setField('forSale', !this.filterService.filters().forSale);
   }
 
-  toggleMenu(field: DropdownField): void {
+  toggleMenu(field: ListField): void {
     this.filterService.openMenu.update((current) => (current === field ? '' : field));
   }
 
-  closeMenu(): void {
-    this.filterService.openMenu.set('');
+  // Only closes the menu that requested it — a FilterSelect's dismiss
+  // listener can fire with a stale `open` input (it reads a signal input,
+  // which only refreshes on that component's next change-detection pass,
+  // not synchronously within the same click-bubble that opened a sibling
+  // menu), so an unconditional set('') here can clobber a menu that was
+  // just opened by the same click.
+  closeMenu(field: ListField): void {
+    this.filterService.openMenu.update((current) => (current === field ? '' : current));
   }
 
-  pickField(field: DropdownField, value: string): void {
-    this.filterService.setField(field, value as CardFilters[DropdownField]);
-    this.filterService.openMenu.set('');
+  // Multi-select: picking a row toggles it without closing the dropdown,
+  // so more than one option can be chosen in a row.
+  toggleField(field: ListField, value: string): void {
+    this.filterService.toggleListOption(field, value);
+  }
+
+  clearField(field: ListField): void {
+    this.filterService.clearListField(field);
   }
 }

@@ -47,6 +47,7 @@ button,
 
   &:hover:not(:disabled) {
     background: var(--color-danger);
+    border-color: var(--color-danger);
     color: #fff;
   }
 }

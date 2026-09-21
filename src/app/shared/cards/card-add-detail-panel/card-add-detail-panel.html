@@ -20,45 +20,33 @@
             <button type="button" class="flip-button" (click)="flipFace()">Virar carta</button>
           }
         </div>
-        <label>
-          Impressão
-          <select [value]="candidate().scryfallId" (change)="onPrintingChange($any($event.target).value)">
-            @for (option of printingOptions(); track option.scryfallId) {
-              <option [value]="option.scryfallId">
-                {{ option.setCode }} · {{ option.collectorNumber }} · {{ option.setName }}
-              </option>
-            }
-          </select>
-        </label>
+        <app-select
+          label="Impressão"
+          [value]="candidate().scryfallId"
+          [options]="printingSelectOptions()"
+          (valueChange)="onPrintingChange($event)"
+        />
       </div>
 
       <div class="right-column">
-        <label>
-          Acabamento
-          <select [value]="finish()" (change)="finishChanged.emit($any($event.target).value)">
-            <option value="">nonfoil (padrão)</option>
-            @for (f of finishes; track f) {
-              <option [value]="f">{{ f }}</option>
-            }
-          </select>
-        </label>
-        <label>
-          Condição
-          <select [value]="condition()" (change)="conditionChanged.emit($any($event.target).value)">
-            <option value="">NM (padrão)</option>
-            @for (c of conditions; track c) {
-              <option [value]="c">{{ c }}</option>
-            }
-          </select>
-        </label>
-        <label>
-          Idioma
-          <select [value]="language()" (change)="languageChanged.emit($any($event.target).value)">
-            @for (l of languages; track l.code) {
-              <option [value]="l.code">{{ l.label }}</option>
-            }
-          </select>
-        </label>
+        <app-select
+          label="Acabamento"
+          [value]="finish()"
+          [options]="finishSelectOptions"
+          (valueChange)="finishChanged.emit($any($event))"
+        />
+        <app-select
+          label="Condição"
+          [value]="condition()"
+          [options]="conditionSelectOptions"
+          (valueChange)="conditionChanged.emit($any($event))"
+        />
+        <app-select
+          label="Idioma"
+          [value]="language()"
+          [options]="languageSelectOptions"
+          (valueChange)="languageChanged.emit($event)"
+        />
         <label class="quantity-field">
           Quantidade
           <div class="stepper">

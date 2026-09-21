@@ -26,20 +26,25 @@ describe('CardFilterService', () => {
       expect(service.activeCount()).toBe(1);
       expect(service.isActive()).toBe(true);
 
-      service.setField('rarity', 'rare');
+      service.toggleListOption('rarity', 'rare');
       expect(service.activeCount()).toBe(2);
 
-      service.setField('finish', 'foil');
+      service.toggleListOption('finish', 'foil');
       expect(service.activeCount()).toBe(3);
 
-      service.setField('condition', 'NM');
+      service.toggleListOption('condition', 'NM');
       expect(service.activeCount()).toBe(4);
 
-      service.setField('setCode', 'LEA');
+      service.toggleListOption('type', 'Instant');
       expect(service.activeCount()).toBe(5);
+    });
 
-      service.setField('type', 'Instant');
-      expect(service.activeCount()).toBe(6);
+    it('counts multiple selections within the same list field as one group', () => {
+      service.toggleListOption('rarity', 'rare');
+      expect(service.activeCount()).toBe(1);
+
+      service.toggleListOption('rarity', 'mythic');
+      expect(service.activeCount()).toBe(1);
     });
 
     it('counts colors + colorless together as a single group', () => {
@@ -91,28 +96,31 @@ describe('CardFilterService', () => {
     });
 
     it('filters by rarity', () => {
-      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, rarity: 'common' });
+      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, rarity: ['common'] });
       expect(result.map((c) => c.id)).toEqual(['b']);
     });
 
+    it('filters by multiple rarities with OR semantics', () => {
+      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, rarity: ['common', 'rare'] });
+      expect(result.map((c) => c.id).sort()).toEqual(['a', 'b']);
+    });
+
     it('filters by finish', () => {
-      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, finish: 'foil' });
+      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, finish: ['foil'] });
       expect(result.map((c) => c.id)).toEqual(['a']);
     });
 
     it('filters by condition', () => {
-      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, condition: 'LP' });
+      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, condition: ['LP'] });
       expect(result.map((c) => c.id)).toEqual(['b']);
     });
 
-    it('filters by setCode with exact match', () => {
-      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, setCode: 'M20' });
+    it('filters by type with case-insensitive substring match, OR across selections', () => {
+      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, type: ['instant'] });
       expect(result.map((c) => c.id)).toEqual(['b']);
-    });
 
-    it('filters by type with case-insensitive substring match', () => {
-      const result = applyCardFilters(cards, { ...EMPTY_FILTERS, type: 'instant' });
-      expect(result.map((c) => c.id)).toEqual(['b']);
+      const both = applyCardFilters(cards, { ...EMPTY_FILTERS, type: ['instant', 'creature'] });
+      expect(both.map((c) => c.id).sort()).toEqual(['a', 'b']);
     });
   });
 
@@ -189,9 +197,9 @@ describe('CardFilterService', () => {
   describe('setField()', () => {
     it('updates a single field immutably', () => {
       const before = service.filters();
-      service.setField('setCode', 'LEA');
+      service.setField('type', ['Instant']);
 
-      expect(service.filters()).toEqual({ ...EMPTY_FILTERS, setCode: 'LEA' });
+      expect(service.filters()).toEqual({ ...EMPTY_FILTERS, type: ['Instant'] });
       expect(service.filters()).not.toBe(before);
     });
   });
@@ -207,6 +215,39 @@ describe('CardFilterService', () => {
       service.toggleColor('U');
       service.toggleColor('R');
       expect(service.filters().colors).toEqual(['U']);
+    });
+  });
+
+  describe('toggleListOption()', () => {
+    it('adds a value not yet present in the field', () => {
+      service.toggleListOption('rarity', 'rare');
+      expect(service.filters().rarity).toEqual(['rare']);
+    });
+
+    it('removes a value already present in the field', () => {
+      service.toggleListOption('rarity', 'rare');
+      service.toggleListOption('rarity', 'mythic');
+      service.toggleListOption('rarity', 'rare');
+      expect(service.filters().rarity).toEqual(['mythic']);
+    });
+
+    it('keeps other list fields untouched', () => {
+      service.toggleListOption('rarity', 'rare');
+      service.toggleListOption('finish', 'foil');
+      expect(service.filters().rarity).toEqual(['rare']);
+      expect(service.filters().finish).toEqual(['foil']);
+    });
+  });
+
+  describe('clearListField()', () => {
+    it('resets just the given field to an empty array', () => {
+      service.toggleListOption('rarity', 'rare');
+      service.toggleListOption('finish', 'foil');
+
+      service.clearListField('rarity');
+
+      expect(service.filters().rarity).toEqual([]);
+      expect(service.filters().finish).toEqual(['foil']);
     });
   });
 });

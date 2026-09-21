@@ -1,6 +1,11 @@
-@if (cards().length === 0 && filterQuery().trim() === '' && filtersActive()) {
+@if (cards().length === 0 && filtersActive()) {
   <div class="empty-state">
-    <h3>Nenhuma carta corresponde aos filtros.</h3>
+    <h3>
+      Nenhuma carta corresponde aos filtros{{ filterQuery().trim() === '' ? '' : ' e à busca' }}.
+    </h3>
+    @if (filterQuery().trim() !== '') {
+      <button type="button" (click)="queryCleared.emit()">Limpar busca</button>
+    }
     <button type="button" (click)="filtersCleared.emit()">Limpar filtros</button>
   </div>
 } @else if (cards().length === 0 && filterQuery().trim() === '') {
@@ -12,7 +17,7 @@
 } @else if (cards().length === 0) {
   <div class="empty-state">
     <h3>Nenhuma carta corresponde a "{{ filterQuery() }}".</h3>
-    <button type="button" (click)="filterCleared.emit()">Limpar filtro</button>
+    <button type="button" (click)="queryCleared.emit()">Limpar filtro</button>
   </div>
 } @else if (viewMode() === 'grid') {
   <ul class="card-grid" [style.--grid-seed]="gridSeed()">
@@ -29,9 +34,14 @@
         (keydown.enter)="selectCard(card)"
       >
         <div class="cell">
-          @if (card.quantity > 1) {
-            <span class="qty-badge">{{ card.quantity }}×</span>
-          }
+          <div class="badges">
+            @if (card.quantity > 1) {
+              <span class="badge-pill">{{ card.quantity }}×</span>
+            }
+            @if (card.forSale) {
+              <span class="badge-pill">À venda</span>
+            }
+          </div>
           <img [src]="card.imageUrl" [alt]="card.name" loading="lazy" />
         </div>
       </li>
@@ -55,7 +65,12 @@
             {{ card.condition }}</span
           >
         </div>
-        <span class="qty">{{ card.quantity }}×</span>
+        <div class="qty-col">
+          <span class="qty">{{ card.quantity }}×</span>
+          @if (card.forSale) {
+            <span class="badge-pill">À venda</span>
+          }
+        </div>
         <button type="button" (click)="$event.stopPropagation(); removeCard(card.id)">Remover</button>
       </li>
     }

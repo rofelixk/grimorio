@@ -20,9 +20,6 @@
 }
 
 <nav id="nav-drawer" class="drawer" [class.open]="drawerOpen()">
-  @if (collectionLocationId(); as locId) {
-    <app-collection-filters [locationId]="locId" />
-  }
   <section class="drawer-group acervo">
     <span class="group-heading"><h2>Acervo</h2><i class="rule"></i></span>
     <a routerLink="/decks" routerLinkActive="active" (click)="closeDrawer()"
@@ -32,6 +29,9 @@
       >Coleção<b class="count">{{ collectionCount() }}</b></a
     >
   </section>
+  @if (collectionLocationId(); as locId) {
+    <app-collection-filters [locationId]="locId" />
+  }
   <!--
     Mobile only (see nav-bar.scss's bp.wide rule) — on the wide/sidebar layout,
     reaching the profile page is the account name/email link in the top bar

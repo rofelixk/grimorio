@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { BehaviorSubject, of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CardEntry } from '@models/card.model';
 import { CardFilterService } from '@services/card-filter.service';
@@ -33,9 +34,11 @@ function cardPayload(overrides: Partial<CardEntry> = {}): Omit<CardEntry, 'id'> 
 }
 
 function fakeActivatedRoute(queryParams: Record<string, string> = {}): ActivatedRoute {
+  const paramMap = convertToParamMap(queryParams);
   return {
-    snapshot: { queryParamMap: convertToParamMap(queryParams) },
-  } as ActivatedRoute;
+    snapshot: { queryParamMap: paramMap },
+    queryParamMap: of(paramMap),
+  } as unknown as ActivatedRoute;
 }
 
 describe('CollectionDetail', () => {
@@ -193,21 +196,19 @@ describe('CollectionDetail query param hydration', () => {
       cor: 'UB',
       match: 'exata',
       venda: '1',
-      raridade: 'rare',
+      raridade: 'rare,mythic',
       acabamento: 'foil',
       condicao: 'NM',
-      set: 'CMD',
       tipo: 'creature',
     });
 
     expect(filterService.filters().colors).toEqual(['U', 'B']);
     expect(filterService.filters().colorMatch).toBe('exact');
     expect(filterService.filters().forSale).toBe(true);
-    expect(filterService.filters().rarity).toBe('rare');
-    expect(filterService.filters().finish).toBe('foil');
-    expect(filterService.filters().condition).toBe('NM');
-    expect(filterService.filters().setCode).toBe('CMD');
-    expect(filterService.filters().type).toBe('creature');
+    expect(filterService.filters().rarity).toEqual(['rare', 'mythic']);
+    expect(filterService.filters().finish).toEqual(['foil']);
+    expect(filterService.filters().condition).toEqual(['NM']);
+    expect(filterService.filters().type).toEqual(['creature']);
     expect(filterService.panelOpen()).toBe(true);
   });
 
@@ -215,6 +216,43 @@ describe('CollectionDetail query param hydration', () => {
     await createWithQueryParams({ cor: 'C' });
 
     expect(filterService.filters().colorless).toBe(true);
+    expect(filterService.panelOpen()).toBe(true);
+  });
+
+  it('dedupes a repeated color letter in cor instead of the value canceling itself out', async () => {
+    await createWithQueryParams({ cor: 'UU' });
+
+    expect(filterService.filters().colors).toEqual(['U']);
+    expect(filterService.panelOpen()).toBe(true);
+  });
+
+  it('re-hydrates filters when the query params change without the route id changing', async () => {
+    const paramMap$ = new BehaviorSubject(convertToParamMap({}));
+    await TestBed.configureTestingModule({
+      imports: [CollectionDetail],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: paramMap$.value }, queryParamMap: paramMap$ },
+        },
+      ],
+    }).compileComponents();
+
+    const locationsService = TestBed.inject(StorageLocationService);
+    filterService = TestBed.inject(CardFilterService);
+    const location = locationsService.add({ name: 'Box 1', parentId: null });
+
+    const fixture = TestBed.createComponent(CollectionDetail);
+    fixture.componentRef.setInput('id', location.id);
+    await fixture.whenStable();
+
+    expect(filterService.isActive()).toBe(false);
+
+    paramMap$.next(convertToParamMap({ raridade: 'rare' }));
+    await fixture.whenStable();
+
+    expect(filterService.filters().rarity).toEqual(['rare']);
     expect(filterService.panelOpen()).toBe(true);
   });
 
@@ -262,7 +300,6 @@ describe('CollectionDetail query param write', () => {
     raridade: null,
     acabamento: null,
     condicao: null,
-    set: null,
     tipo: null,
   };
 
@@ -284,7 +321,7 @@ describe('CollectionDetail query param write', () => {
     await createWithNavigateSpy();
     navigateSpy.mockClear();
 
-    filterService.setField('rarity', 'rare');
+    filterService.toggleListOption('rarity', 'rare');
     await fixture.whenStable();
 
     expect(navigateSpy).toHaveBeenCalledTimes(1);
@@ -296,13 +333,30 @@ describe('CollectionDetail query param write', () => {
     );
   });
 
+  it('selecting multiple values in the same field joins them with a comma', async () => {
+    await createWithNavigateSpy();
+    navigateSpy.mockClear();
+
+    filterService.toggleListOption('rarity', 'rare');
+    await fixture.whenStable();
+    filterService.toggleListOption('rarity', 'mythic');
+    await fixture.whenStable();
+
+    expect(navigateSpy).toHaveBeenLastCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: { ...allNullParams, raridade: 'rare,mythic' },
+      }),
+    );
+  });
+
   it('clearing a filter field back to default passes null for that key', async () => {
     await createWithNavigateSpy();
-    filterService.setField('rarity', 'rare');
+    filterService.toggleListOption('rarity', 'rare');
     await fixture.whenStable();
     navigateSpy.mockClear();
 
-    filterService.setField('rarity', '');
+    filterService.clearListField('rarity');
     await fixture.whenStable();
 
     expect(navigateSpy).toHaveBeenCalledTimes(1);
@@ -369,7 +423,7 @@ describe('CollectionDetail query param write', () => {
 
     filterService.setField('forSale', true);
     await fixture.whenStable();
-    filterService.setField('rarity', 'mythic');
+    filterService.setField('rarity', ['mythic']);
     await fixture.whenStable();
     filterService.toggleColor('U');
     await fixture.whenStable();

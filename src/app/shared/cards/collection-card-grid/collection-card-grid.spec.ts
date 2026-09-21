@@ -37,6 +37,28 @@ describe('CollectionCardGrid', () => {
     expect(cleared).toBe(true);
   });
 
+  it('offers to clear both the query and the filters when both are active and yield no results', () => {
+    fixture.componentRef.setInput('filtersActive', true);
+    fixture.componentRef.setInput('filterQuery', 'bolt');
+    fixture.detectChanges();
+
+    const emptyState = fixture.nativeElement.querySelector('.empty-state');
+    expect(emptyState.querySelector('h3').textContent).toContain('Nenhuma carta corresponde aos filtros e à busca.');
+
+    const buttons: HTMLButtonElement[] = Array.from(emptyState.querySelectorAll('button'));
+    expect(buttons.length).toBe(2);
+
+    let queryCleared = false;
+    let filtersCleared = false;
+    component.queryCleared.subscribe(() => (queryCleared = true));
+    component.filtersCleared.subscribe(() => (filtersCleared = true));
+    buttons[0].click();
+    buttons[1].click();
+
+    expect(queryCleared).toBe(true);
+    expect(filtersCleared).toBe(true);
+  });
+
   it('falls back to the first-run empty state when filtersActive is false and the query is empty', () => {
     fixture.componentRef.setInput('filtersActive', false);
     fixture.detectChanges();
@@ -54,7 +76,7 @@ describe('CollectionCardGrid', () => {
     expect(emptyState.querySelector('h3').textContent).toContain('Nenhuma carta corresponde a "bolt".');
 
     let cleared = false;
-    component.filterCleared.subscribe(() => (cleared = true));
+    component.queryCleared.subscribe(() => (cleared = true));
     emptyState.querySelector('button').click();
 
     expect(cleared).toBe(true);

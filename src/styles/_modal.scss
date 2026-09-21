@@ -156,15 +156,25 @@
   border-color: #{$color};
   font-weight: bold;
 
+  // Both hover branches restate background/border-color (not just inherited
+  // from the base rule above): _buttons.scss's global
+  // [type='button']:hover:not(:disabled) rule (and its own .btn-primary
+  // variant) also set background/border-color, at equal-or-higher
+  // specificity when a caller uses a bare .btn-primary with no parent-class
+  // prefix — without restating them here, that global rule wins on hover
+  // and flips this identity-themed button to the app's default brand orange.
   @if $hover {
     &:hover:not(:disabled),
     &:focus-visible {
+      background: var(--color-surface-raised);
       color: #{$hover};
       border-color: #{$hover};
     }
   } @else {
     &:hover:not(:disabled),
     &:focus-visible {
+      background: var(--color-surface-raised);
+      border-color: #{$color};
       filter: brightness(1.15);
     }
   }

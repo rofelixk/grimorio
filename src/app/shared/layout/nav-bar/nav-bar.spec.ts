@@ -55,7 +55,7 @@ describe('NavBar collection filters mounting', () => {
       imports: [NavBar],
       providers: [
         provideRouter([
-          { path: 'collection/:id', component: BlankTestComponent },
+          { path: 'collection/:id', component: BlankTestComponent, data: { showCollectionFilters: true } },
           { path: 'decks', component: BlankTestComponent },
         ]),
       ],

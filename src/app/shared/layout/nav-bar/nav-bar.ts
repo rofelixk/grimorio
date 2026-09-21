@@ -30,10 +30,12 @@ export class NavBar {
   readonly drawerOpen = signal(false);
 
   // The :id param of the currently active route, but only when that route
-  // is CollectionDetail (path 'collection/:id') — re-derived on every
-  // NavigationEnd by walking the routerState's firstChild chain down to
-  // the deepest activated route, since NavBar sits outside the
-  // <router-outlet> and has no ActivatedRoute of its own to inject.
+  // opts in via its `data.showCollectionFilters` (see app.routes.ts) —
+  // re-derived on every NavigationEnd by walking the routerState's
+  // firstChild chain down to the deepest activated route, since NavBar sits
+  // outside the <router-outlet> and has no ActivatedRoute of its own to
+  // inject. Reading route data instead of hardcoding the route's path
+  // keeps app.routes.ts the single source of truth for the route shape.
   readonly collectionLocationId = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -63,6 +65,6 @@ export class NavBar {
     while (route.firstChild) {
       route = route.firstChild;
     }
-    return route.snapshot.routeConfig?.path === 'collection/:id' ? route.snapshot.paramMap.get('id') : null;
+    return route.snapshot.data['showCollectionFilters'] ? route.snapshot.paramMap.get('id') : null;
   }
 }

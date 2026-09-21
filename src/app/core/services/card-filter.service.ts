@@ -6,11 +6,10 @@ export interface CardFilters {
   colorless: boolean;
   colorMatch: 'any' | 'exact';
   forSale: boolean;
-  rarity: CardRarity | '';
-  finish: CardFinish | '';
-  condition: CardCondition | '';
-  setCode: string;
-  type: string;
+  rarity: CardRarity[];
+  finish: CardFinish[];
+  condition: CardCondition[];
+  type: string[];
 }
 
 export const EMPTY_FILTERS: CardFilters = {
@@ -18,11 +17,10 @@ export const EMPTY_FILTERS: CardFilters = {
   colorless: false,
   colorMatch: 'any',
   forSale: false,
-  rarity: '',
-  finish: '',
-  condition: '',
-  setCode: '',
-  type: '',
+  rarity: [],
+  finish: [],
+  condition: [],
+  type: [],
 };
 
 function matchesColor(card: CardEntry, f: CardFilters): boolean {
@@ -48,19 +46,16 @@ export function applyCardFilters(cards: CardEntry[], f: CardFilters): CardEntry[
     if (f.forSale && !card.forSale) {
       return false;
     }
-    if (f.rarity && card.rarity !== f.rarity) {
+    if (f.rarity.length > 0 && !f.rarity.includes(card.rarity)) {
       return false;
     }
-    if (f.finish && card.finish !== f.finish) {
+    if (f.finish.length > 0 && !f.finish.includes(card.finish)) {
       return false;
     }
-    if (f.condition && card.condition !== f.condition) {
+    if (f.condition.length > 0 && !f.condition.includes(card.condition)) {
       return false;
     }
-    if (f.setCode && card.setCode !== f.setCode) {
-      return false;
-    }
-    if (f.type && !card.typeLine.toLowerCase().includes(f.type.toLowerCase())) {
+    if (f.type.length > 0 && !f.type.some((t) => card.typeLine.toLowerCase().includes(t.toLowerCase()))) {
       return false;
     }
     if (!matchesColor(card, f)) {
@@ -70,6 +65,9 @@ export function applyCardFilters(cards: CardEntry[], f: CardFilters): CardEntry[
   });
 }
 
+export type ListField = 'rarity' | 'finish' | 'condition' | 'type';
+export const LIST_FIELDS: ListField[] = ['rarity', 'finish', 'condition', 'type'];
+
 @Injectable({ providedIn: 'root' })
 export class CardFilterService {
   readonly filters = signal<CardFilters>(EMPTY_FILTERS);
@@ -78,29 +76,8 @@ export class CardFilterService {
 
   readonly activeCount = computed(() => {
     const f = this.filters();
-    let count = 0;
-    if (f.colors.length > 0 || f.colorless) {
-      count++;
-    }
-    if (f.forSale) {
-      count++;
-    }
-    if (f.rarity) {
-      count++;
-    }
-    if (f.finish) {
-      count++;
-    }
-    if (f.condition) {
-      count++;
-    }
-    if (f.setCode) {
-      count++;
-    }
-    if (f.type) {
-      count++;
-    }
-    return count;
+    const listFieldsActive = LIST_FIELDS.filter((key) => f[key].length > 0).length;
+    return listFieldsActive + (f.colors.length > 0 || f.colorless ? 1 : 0) + (f.forSale ? 1 : 0);
   });
 
   readonly isActive = computed(() => this.activeCount() > 0);
@@ -122,5 +99,20 @@ export class CardFilterService {
       const colors = f.colors.includes(c) ? f.colors.filter((x) => x !== c) : [...f.colors, c];
       return { ...f, colors };
     });
+  }
+
+  // Toggles a single value's membership in one of the multi-select list
+  // fields (rarity/finish/condition/type) — used by CollectionFilters'
+  // dropdowns, which allow more than one option to be active at once.
+  toggleListOption(key: ListField, value: string): void {
+    this.filters.update((f) => {
+      const list = f[key] as string[];
+      const next = list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
+      return { ...f, [key]: next } as CardFilters;
+    });
+  }
+
+  clearListField(key: ListField): void {
+    this.filters.update((f) => ({ ...f, [key]: [] }));
   }
 }

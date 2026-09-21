@@ -8,10 +8,11 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
-import { CardEntry, CardCondition, CardFinish, CardRarity, Color } from '@models/card.model';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, ParamMap, Params, Router, RouterLink } from '@angular/router';
+import { CardEntry, Color } from '@models/card.model';
 import { StorageLocation } from '@models/storage-location.model';
-import { CardFilters, CardFilterService } from '@services/card-filter.service';
+import { CardFilters, CardFilterService, ListField } from '@services/card-filter.service';
 import { CardService } from '@services/card.service';
 import { StorageLocationService } from '@services/storage-location.service';
 import { ThemeService } from '@services/theme.service';
@@ -20,6 +21,16 @@ import { CollectionViewMode } from '../../shared/cards/collection-card-grid/coll
 import { matchesCardQuery } from '@utils/text-search.util';
 
 const COLOR_LETTERS: readonly Color[] = ['W', 'U', 'B', 'R', 'G'];
+
+// Maps each multi-select list filter to its (Portuguese) query-param name,
+// shared by hydrate/serialize so adding a list filter only means editing
+// this one table instead of both functions.
+const LIST_FIELD_PARAMS = [
+  { field: 'rarity', param: 'raridade' },
+  { field: 'finish', param: 'acabamento' },
+  { field: 'condition', param: 'condicao' },
+  { field: 'type', param: 'tipo' },
+] as const satisfies { field: ListField; param: string }[];
 
 type SortOption = 'recent' | 'name' | 'set' | 'quantity' | 'color';
 
@@ -52,12 +63,21 @@ export class CollectionDetail {
 
   readonly id = input.required<string>();
 
+  // Tracked alongside `id` so filters also re-hydrate when the URL's query
+  // params change without the route's :id changing — e.g. following a
+  // filtered link to the same location already being viewed, where `id`
+  // never fires but the params the panel should reflect did change.
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
+
   constructor() {
     effect(() => {
-      this.id(); // track id changes
+      this.id();
+      const params = this.queryParamMap();
       this.filterService.panelOpen.set(false);
       this.filterService.reset();
-      this.hydrateFiltersFromQueryParams();
+      this.hydrateFiltersFromQueryParams(params);
     });
 
     // Write direction: reflect the current filters into the URL's query params.
@@ -196,60 +216,48 @@ export class CollectionDetail {
     }
   }
 
-  private hydrateFiltersFromQueryParams(): void {
-    const params = this.route.snapshot.queryParamMap;
-    let hasParams = false;
+  private hydrateFiltersFromQueryParams(params: ParamMap): void {
+    // Derived straight from the raw params, not from filterService.filters()
+    // — the hydrate effect below calls this method while tracking signals,
+    // so reading a service signal in here would silently make that effect
+    // depend on it too, re-triggering (and resetting filters) on every
+    // later filter change, not just on an actual URL change.
+    const hasParams =
+      !!params.get('cor') ||
+      params.get('match') === 'exata' ||
+      params.get('venda') === '1' ||
+      LIST_FIELD_PARAMS.some(({ param }) => !!params.get(param));
 
     const cor = params.get('cor');
     if (cor) {
-      hasParams = true;
+      const colors = new Set<Color>();
+      let colorless = false;
       for (const letter of cor) {
         if (letter === 'C') {
-          this.filterService.setField('colorless', true);
+          colorless = true;
         } else if ((COLOR_LETTERS as string[]).includes(letter)) {
-          this.filterService.toggleColor(letter as Color);
+          colors.add(letter as Color);
         }
+      }
+      this.filterService.setField('colors', [...colors]);
+      if (colorless) {
+        this.filterService.setField('colorless', true);
       }
     }
 
     if (params.get('match') === 'exata') {
-      hasParams = true;
       this.filterService.setField('colorMatch', 'exact');
     }
 
     if (params.get('venda') === '1') {
-      hasParams = true;
       this.filterService.setField('forSale', true);
     }
 
-    const raridade = params.get('raridade');
-    if (raridade) {
-      hasParams = true;
-      this.filterService.setField('rarity', raridade as CardRarity);
-    }
-
-    const acabamento = params.get('acabamento');
-    if (acabamento) {
-      hasParams = true;
-      this.filterService.setField('finish', acabamento as CardFinish);
-    }
-
-    const condicao = params.get('condicao');
-    if (condicao) {
-      hasParams = true;
-      this.filterService.setField('condition', condicao as CardCondition);
-    }
-
-    const set = params.get('set');
-    if (set) {
-      hasParams = true;
-      this.filterService.setField('setCode', set);
-    }
-
-    const tipo = params.get('tipo');
-    if (tipo) {
-      hasParams = true;
-      this.filterService.setField('type', tipo);
+    for (const { field, param } of LIST_FIELD_PARAMS) {
+      const raw = params.get(param);
+      if (raw) {
+        this.filterService.setField(field, raw.split(',') as CardFilters[typeof field]);
+      }
     }
 
     if (hasParams) {
@@ -261,16 +269,16 @@ export class CollectionDetail {
 function serializeFiltersToQueryParams(f: CardFilters): Params {
   const cor = COLOR_LETTERS.filter((c) => f.colors.includes(c)).join('') + (f.colorless ? 'C' : '');
 
-  return {
+  const params: Params = {
     cor: cor === '' ? null : cor,
     match: f.colorMatch === 'exact' ? 'exata' : null,
     venda: f.forSale ? '1' : null,
-    raridade: f.rarity || null,
-    acabamento: f.finish || null,
-    condicao: f.condition || null,
-    set: f.setCode || null,
-    tipo: f.type || null,
   };
+  for (const { field, param } of LIST_FIELD_PARAMS) {
+    const list = f[field];
+    params[param] = list.length > 0 ? list.join(',') : null;
+  }
+  return params;
 }
 
 function compareColor(a: CardEntry, b: CardEntry): number {

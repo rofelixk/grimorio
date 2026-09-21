@@ -1,0 +1,31 @@
+<span class="field-label">{{ label() }}</span>
+
+<button
+  #trigger
+  type="button"
+  class="trigger"
+  aria-haspopup="listbox"
+  [attr.aria-expanded]="open()"
+  (click)="toggle()"
+>
+  <span class="value-label">{{ triggerLabel() }}</span>
+  <span class="caret" [class.open]="open()">▾</span>
+</button>
+
+@if (open()) {
+  <ul class="panel" [class.panel-up]="panelUp()" [style.max-height.px]="panelMaxHeight()" role="listbox">
+    @for (opt of options(); track opt.value) {
+      <li
+        role="option"
+        class="option"
+        tabindex="0"
+        [class.selected]="opt.value === value()"
+        [attr.aria-selected]="opt.value === value()"
+        (click)="pick(opt)"
+        (keydown)="onOptionKeydown($event, opt)"
+      >
+        <span class="option-label">{{ opt.label }}</span>
+      </li>
+    }
+  </ul>
+}

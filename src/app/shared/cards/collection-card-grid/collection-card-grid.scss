@@ -55,14 +55,9 @@
     --seed: calc((var(--i, 0) + var(--grid-seed, 0)) * 12.9898);
     position: relative;
     cursor: pointer;
-    transform: translateX(calc(sin(var(--seed)) * 8%))
-      translateY(calc(cos(var(--seed) * 1.37) * 28px)) rotate(calc(sin(var(--seed) * 2.1) * 4deg));
-    transition:
-      transform 0.18s ease,
-      z-index 0.18s ease;
+    transition: z-index 0.18s ease;
 
     &:hover {
-      transform: translate(0, -6px) rotate(0deg) scale(1.04);
       z-index: 2;
     }
   }
@@ -72,16 +67,28 @@
   }
 }
 
+// The seed scatter and hover lift/scale live here rather than on the li
+// itself: li is what triggers :hover, so transforming it directly could
+// shift its own hit-box out from under the cursor (e.g. the -6px lift
+// moving the box away from a cursor near its edge), immediately firing
+// mouseleave, snapping the transform back, and re-triggering mouseenter —
+// a flicker loop. .cell is a descendant, so moving it doesn't affect li's
+// (stationary) hit-box, and hovering the visually-moved .cell still keeps
+// li's ancestor chain marked :hover.
 .cell {
   position: relative;
   border: 1px solid transparent;
   border-radius: var(--radius-card);
+  transform: translateX(calc(sin(var(--seed)) * 8%))
+    translateY(calc(cos(var(--seed) * 1.37) * 28px)) rotate(calc(sin(var(--seed) * 2.1) * 4deg));
   transition:
+    transform 0.18s ease,
     border-color 0.18s ease,
     box-shadow 0.18s ease;
 }
 
 li:hover .cell {
+  transform: translate(0, -6px) rotate(0deg) scale(1.04);
   border-color: var(--card-glow-1, var(--color-accent));
   box-shadow: 0 0 16px rgb(from var(--card-glow-1, #e8792f) r g b / 40%);
 }
@@ -133,11 +140,18 @@ img {
   pointer-events: none;
 }
 
-.qty-badge {
+.badges {
   position: absolute;
   top: var(--space-2);
   right: var(--space-2);
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.badge-pill {
   padding: 0.1rem 0.4rem;
   font-size: 0.625rem;
   font-weight: 700;
@@ -151,12 +165,12 @@ img {
     grid-template-columns: 1fr;
     gap: var(--space-4);
 
-    li {
+    .cell {
       transform: none;
+    }
 
-      &:hover {
-        transform: none;
-      }
+    li:hover .cell {
+      transform: none;
     }
   }
 }
@@ -209,8 +223,15 @@ img {
     }
   }
 
-  .qty {
+  .qty-col {
     flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-1);
+  }
+
+  .qty {
     font-weight: 700;
     color: var(--card-glow-1, var(--color-accent));
   }

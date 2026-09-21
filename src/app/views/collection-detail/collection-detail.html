@@ -91,7 +91,7 @@
     [filtersActive]="filterService.isActive()"
     (remove)="removeCard($event)"
     (addRequested)="startAddCard()"
-    (filterCleared)="clearFilter()"
+    (queryCleared)="clearFilter()"
     (filtersCleared)="filterService.reset()"
     (cardSelected)="editCard($event)"
   />

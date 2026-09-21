@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { CardCondition, CardEntry, CardFace, CardFinish } from '@models/card.model';
 import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
+import { Select, SelectOption } from '@shared/common/select/select';
 
 const FINISHES: CardFinish[] = ['nonfoil', 'foil', 'etched'];
 const CONDITIONS: CardCondition[] = ['NM', 'LP', 'MP', 'HP', 'DMG'];
@@ -30,17 +31,13 @@ const LANGUAGES: { code: string; label: string }[] = [
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [Select],
   selector: 'app-card-add-detail-panel',
   styleUrl: './card-add-detail-panel.scss',
   templateUrl: './card-add-detail-panel.html',
 })
 export class CardAddDetailPanel {
   private readonly cardLookup = inject(CardLookupService);
-
-  readonly finishes = FINISHES;
-  readonly conditions = CONDITIONS;
-  readonly languages = LANGUAGES;
 
   readonly candidate = input.required<CardLookupResult | CardEntry>();
   readonly isEditing = input(false);
@@ -67,6 +64,25 @@ export class CardAddDetailPanel {
   readonly printingSelected = output<CardLookupResult>();
 
   readonly printingOptions = signal<CardLookupResult[]>([]);
+
+  readonly printingSelectOptions = computed<SelectOption[]>(() =>
+    this.printingOptions().map((p) => ({
+      value: p.scryfallId,
+      label: `${p.setCode} · ${p.collectorNumber} · ${p.setName}`,
+    })),
+  );
+
+  readonly finishSelectOptions: SelectOption[] = [
+    { value: '', label: 'nonfoil (padrão)' },
+    ...FINISHES.map((f) => ({ value: f, label: f })),
+  ];
+
+  readonly conditionSelectOptions: SelectOption[] = [
+    { value: '', label: 'NM (padrão)' },
+    ...CONDITIONS.map((c) => ({ value: c, label: c })),
+  ];
+
+  readonly languageSelectOptions: SelectOption[] = LANGUAGES.map((l) => ({ value: l.code, label: l.label }));
 
   constructor() {
     effect(() => {

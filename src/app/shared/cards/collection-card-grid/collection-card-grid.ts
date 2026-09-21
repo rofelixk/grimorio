@@ -19,7 +19,7 @@ export class CollectionCardGrid {
 
   readonly remove = output<string>();
   readonly addRequested = output<void>();
-  readonly filterCleared = output<void>();
+  readonly queryCleared = output<void>();
   readonly filtersCleared = output<void>();
   readonly cardSelected = output<CardEntry>();
 

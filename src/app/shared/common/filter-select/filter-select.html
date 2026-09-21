@@ -3,28 +3,34 @@
 <button
   type="button"
   class="trigger"
-  [class.set]="value() !== ''"
+  [class.set]="values().length > 0"
   aria-haspopup="listbox"
   [attr.aria-expanded]="open()"
   (click)="toggle()"
 >
-  @if (selectedOption()?.gem; as gem) {
+  @if (selectedOptions().length === 1 && selectedOptions()[0].gem; as gem) {
     <span class="gem" [style.--gem-tint]="gem.tint">{{ gem.code }}</span>
   }
-  <span class="value-label">{{ selectedOption()?.label ?? placeholder() }}</span>
+  <span class="value-label">{{ triggerLabel() }}</span>
   <span class="caret" [class.open]="open()">▾</span>
 </button>
 
 @if (open()) {
-  <ul class="panel" role="listbox">
+  <ul
+    class="panel"
+    [class.panel-up]="panelUp()"
+    [style.max-height.px]="panelMaxHeight()"
+    role="listbox"
+    aria-multiselectable="true"
+  >
     @for (opt of options(); track opt.value) {
       <li
         role="option"
         class="option"
         tabindex="0"
-        [class.selected]="opt.value === value()"
+        [class.selected]="isSelected(opt)"
         [class.zero]="opt.count === 0"
-        [attr.aria-selected]="opt.value === value()"
+        [attr.aria-selected]="isSelected(opt)"
         (click)="pick(opt)"
         (keydown)="onOptionKeydown($event, opt)"
       >

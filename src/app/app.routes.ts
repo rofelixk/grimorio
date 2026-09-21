@@ -12,7 +12,7 @@ export const routes: Routes = [
   { path: '', component: Home },
   { path: 'collection', component: Collection },
   { path: 'collection/import', component: CollectionImport },
-  { path: 'collection/:id', component: CollectionDetail },
+  { path: 'collection/:id', component: CollectionDetail, data: { showCollectionFilters: true } },
   { path: 'decks', component: Decks },
   { path: 'decks/:id', component: DeckDetail },
   { path: 'profile', component: Profile, canActivate: [authGuard] },

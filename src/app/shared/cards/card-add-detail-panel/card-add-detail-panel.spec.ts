@@ -69,11 +69,13 @@ describe('CardAddDetailPanel', () => {
     fixture.componentRef.setInput('candidate', candidate);
     fixture.detectChanges();
 
-    const select = fixture.debugElement.query(By.css('.left-column select'));
-    expect(select.nativeElement.disabled).toBe(false);
-    const options = select.nativeElement.querySelectorAll('option');
+    const trigger = fixture.debugElement.query(By.css('.left-column .trigger'));
+    trigger.nativeElement.click();
+    fixture.detectChanges();
+
+    const options = fixture.debugElement.queryAll(By.css('.left-column .option'));
     expect(options.length).toBe(1);
-    expect(options[0].textContent).toContain('MH3 · 161 · Modern Horizons 3');
+    expect(options[0].nativeElement.textContent).toContain('MH3 · 161 · Modern Horizons 3');
   });
 
   it('populates the Impressão select with every printing fetched by oracleId', async () => {
@@ -97,9 +99,12 @@ describe('CardAddDetailPanel', () => {
     fixture.detectChanges();
 
     expect(listPrintings).toHaveBeenCalledWith(candidate.oracleId);
-    const select = fixture.debugElement.query(By.css('.left-column select'));
-    const options: HTMLOptionElement[] = Array.from(select.nativeElement.querySelectorAll('option'));
-    expect(options.map((o) => o.textContent?.trim())).toEqual([
+    const trigger = fixture.debugElement.query(By.css('.left-column .trigger'));
+    trigger.nativeElement.click();
+    fixture.detectChanges();
+
+    const options = fixture.debugElement.queryAll(By.css('.left-column .option'));
+    expect(options.map((o) => o.nativeElement.textContent.trim())).toEqual([
       'LEA · 1 · Limited Edition Alpha',
       'MH3 · 161 · Modern Horizons 3',
     ]);
@@ -118,9 +123,12 @@ describe('CardAddDetailPanel', () => {
     let emitted: CardLookupResult | undefined;
     component.printingSelected.subscribe((value) => (emitted = value));
 
-    const select = fixture.debugElement.query(By.css('.left-column select'));
-    select.nativeElement.value = 'scry-lea';
-    select.nativeElement.dispatchEvent(new Event('change'));
+    const trigger = fixture.debugElement.query(By.css('.left-column .trigger'));
+    trigger.nativeElement.click();
+    fixture.detectChanges();
+
+    const options = fixture.debugElement.queryAll(By.css('.left-column .option'));
+    options.find((opt) => opt.nativeElement.textContent.includes('LEA'))!.nativeElement.click();
 
     expect(emitted).toEqual(sibling);
   });

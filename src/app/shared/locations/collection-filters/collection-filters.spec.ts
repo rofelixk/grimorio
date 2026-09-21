@@ -44,6 +44,26 @@ describe('CollectionFilters', () => {
     expect(head.textContent).toContain('Filtros (0)');
   });
 
+  it('does not render any filter content while the panel is collapsed', () => {
+    addCard();
+    addCard();
+    render();
+
+    expect(fixture.nativeElement.querySelector('.filters-summary')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.result-count')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.filter-group')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.for-sale-toggle')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.dropdowns')).toBeNull();
+
+    const head: HTMLElement = fixture.nativeElement.querySelector('.filters-head');
+    head.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.result-count')?.textContent?.trim()).toBe('2 cartas');
+    expect(fixture.nativeElement.querySelector('.filter-group')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.dropdowns')).not.toBeNull();
+  });
+
   it('expand/collapse toggles panelOpen and applies inert to the collapsed body', () => {
     render();
     const head: HTMLElement = fixture.nativeElement.querySelector('.filters-head');
@@ -64,6 +84,31 @@ describe('CollectionFilters', () => {
 
     expect(filterService.panelOpen()).toBe(false);
     expect(body.hasAttribute('inert')).toBe(true);
+  });
+
+  it('places the result summary before the color filter group', () => {
+    render();
+    filterService.panelOpen.set(true);
+    fixture.detectChanges();
+
+    const inner: HTMLElement = fixture.nativeElement.querySelector('.filters-body .inner');
+    const children = Array.from(inner.children) as HTMLElement[];
+    const summaryIndex = children.findIndex((el) => el.classList.contains('filters-summary'));
+    const colorGroupIndex = children.findIndex((el) => el.classList.contains('filter-group'));
+
+    expect(summaryIndex).toBe(0);
+    expect(summaryIndex).toBeLessThan(colorGroupIndex);
+  });
+
+  it('does not render a Set filter', () => {
+    render();
+    filterService.panelOpen.set(true);
+    fixture.detectChanges();
+
+    const labels = Array.from(fixture.nativeElement.querySelectorAll('.field-label')).map((el) =>
+      (el as HTMLElement).textContent?.trim(),
+    );
+    expect(labels).toEqual(['Raridade', 'Acabamento', 'Condição', 'Tipo']);
   });
 
   it('toggles a color pip and updates filterService.filters()', () => {
@@ -109,7 +154,7 @@ describe('CollectionFilters', () => {
     expect(filterService.filters().colorMatch).toBe('exact');
   });
 
-  it('toggles the "Só à venda" button', () => {
+  it('toggles the "À venda" button', () => {
     render();
     filterService.panelOpen.set(true);
     fixture.detectChanges();
@@ -138,16 +183,38 @@ describe('CollectionFilters', () => {
     expect(filterService.openMenu()).toBe('');
   });
 
-  it('picking an option applies it via setField and closes the menu', () => {
+  it('picking multiple options in the same field keeps them all selected and the menu open', () => {
     render();
     filterService.panelOpen.set(true);
     filterService.openMenu.set('finish');
     fixture.detectChanges();
 
-    fixture.componentInstance.pickField('finish', 'foil');
+    fixture.componentInstance.toggleField('finish', 'foil');
+    fixture.componentInstance.toggleField('finish', 'etched');
 
-    expect(filterService.filters().finish).toBe('foil');
-    expect(filterService.openMenu()).toBe('');
+    expect(filterService.filters().finish).toEqual(['foil', 'etched']);
+    expect(filterService.openMenu()).toBe('finish');
+  });
+
+  it('toggling an already-selected option removes it', () => {
+    render();
+    fixture.componentInstance.toggleField('condition', 'NM');
+    fixture.componentInstance.toggleField('condition', 'LP');
+    fixture.componentInstance.toggleField('condition', 'NM');
+
+    expect(filterService.filters().condition).toEqual(['LP']);
+  });
+
+  it('clearField resets just that field to an empty array', () => {
+    render();
+    fixture.componentInstance.toggleField('rarity', 'rare');
+    fixture.componentInstance.toggleField('rarity', 'mythic');
+    fixture.componentInstance.toggleField('finish', 'foil');
+
+    fixture.componentInstance.clearField('rarity');
+
+    expect(filterService.filters().rarity).toEqual([]);
+    expect(filterService.filters().finish).toEqual(['foil']);
   });
 
   it('shows the plain card count when no filters are active', () => {

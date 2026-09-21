@@ -9,6 +9,7 @@ describe('FilterSelect', () => {
   const options: FilterOption[] = [
     { value: 'common', label: 'Comum', count: 12 },
     { value: 'rare', label: 'Raro', count: 3, gem: { code: 'R', tint: '#e8792f' } },
+    { value: 'mythic', label: 'Mítico', count: 1 },
   ];
 
   beforeEach(async () => {
@@ -18,7 +19,7 @@ describe('FilterSelect', () => {
 
     fixture = TestBed.createComponent(FilterSelect);
     fixture.componentRef.setInput('label', 'Raridade');
-    fixture.componentRef.setInput('value', '');
+    fixture.componentRef.setInput('values', []);
     fixture.componentRef.setInput('placeholder', 'Todas');
     fixture.componentRef.setInput('options', options);
     component = fixture.componentInstance;
@@ -33,9 +34,9 @@ describe('FilterSelect', () => {
     render();
 
     const rows = fixture.nativeElement.querySelectorAll('.option');
-    expect(rows.length).toBe(2);
+    expect(rows.length).toBe(3);
     const counts = Array.from(rows).map((row) => (row as HTMLElement).querySelector('.count')?.textContent?.trim());
-    expect(counts).toEqual(['12', '3']);
+    expect(counts).toEqual(['12', '3', '1']);
   });
 
   it('emits picked with the option value on row click', () => {
@@ -48,6 +49,17 @@ describe('FilterSelect', () => {
     rows[1].click();
 
     expect(emitted).toBe('rare');
+  });
+
+  it('allows multiple options to stay selected at once', () => {
+    fixture.componentRef.setInput('values', ['common', 'rare']);
+    fixture.componentRef.setInput('open', true);
+    render();
+
+    const rows: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('.option'));
+    expect(rows[0].classList.contains('selected')).toBe(true);
+    expect(rows[1].classList.contains('selected')).toBe(true);
+    expect(rows[2].classList.contains('selected')).toBe(false);
   });
 
   it('emits toggled on trigger click', () => {
@@ -81,8 +93,8 @@ describe('FilterSelect', () => {
     expect(emitted).toBe(false);
   });
 
-  it('renders the gem when the selected option has one', () => {
-    fixture.componentRef.setInput('value', 'rare');
+  it('renders the gem when exactly one selected option has one', () => {
+    fixture.componentRef.setInput('values', ['rare']);
     render();
 
     const gem = fixture.nativeElement.querySelector('.trigger .gem');
@@ -90,11 +102,47 @@ describe('FilterSelect', () => {
     expect(gem.textContent.trim()).toBe('R');
   });
 
-  it('shows the placeholder when value is empty', () => {
+  it('does not render a trigger gem when more than one option is selected', () => {
+    fixture.componentRef.setInput('values', ['common', 'rare']);
+    render();
+
+    expect(fixture.nativeElement.querySelector('.trigger .gem')).toBeNull();
+  });
+
+  it('shows the placeholder when no values are selected', () => {
     render();
 
     const label = fixture.nativeElement.querySelector('.value-label');
     expect(label.textContent.trim()).toBe('Todas');
     expect(fixture.nativeElement.querySelector('.trigger .gem')).toBeNull();
+  });
+
+  it('joins up to two selected labels, and shows a count for three or more', () => {
+    fixture.componentRef.setInput('values', ['common', 'rare']);
+    render();
+    expect(fixture.nativeElement.querySelector('.value-label').textContent.trim()).toBe('Comum, Raro');
+
+    fixture.componentRef.setInput('values', ['common', 'rare', 'mythic']);
+    render();
+    expect(fixture.nativeElement.querySelector('.value-label').textContent.trim()).toBe('3 selecionados');
+  });
+
+  it('emits cleared instead of picked when the clear-all row is clicked', () => {
+    const optionsWithClear: FilterOption[] = [{ value: '', label: 'Todas as raridades', count: 16 }, ...options];
+    fixture.componentRef.setInput('options', optionsWithClear);
+    fixture.componentRef.setInput('values', ['common']);
+    fixture.componentRef.setInput('open', true);
+    render();
+
+    let cleared = false;
+    let picked: string | undefined;
+    component.cleared.subscribe(() => (cleared = true));
+    component.picked.subscribe((value) => (picked = value));
+
+    const rows: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('.option'));
+    rows[0].click();
+
+    expect(cleared).toBe(true);
+    expect(picked).toBeUndefined();
   });
 });

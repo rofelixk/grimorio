@@ -1,0 +1,110 @@
+// Shared visual chrome for a custom (non-native) dropdown: a trigger button
+// plus a panel that flips above/below the trigger and clamps its own height
+// so it never forces the page to scroll (see
+// core/utils/dropdown-placement.util.ts, which computes the .panel-up class
+// and max-height this expects). Consumed by FilterSelect (multi-select,
+// filter panel) and AppSelect (single-select, plain form fields) so both
+// share one look — component-specific bits (gems, counts, checkmarks) stay
+// local to their own stylesheet.
+
+@mixin dropdown-field-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+@mixin dropdown-field-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+@mixin dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, var(--color-surface-raised) 0%, var(--color-surface) 100%);
+  font-size: var(--font-size-sm);
+  transition:
+    border-color 0.18s var(--ease-standard),
+    box-shadow 0.18s var(--ease-standard);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--ring-accent);
+  }
+}
+
+@mixin dropdown-caret {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  transition: transform var(--duration-base) var(--ease-standard);
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+@mixin dropdown-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: -6px;
+  margin-top: 4px;
+  z-index: 6;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    0 0 24px -8px rgb(from var(--role-primary) r g b / 60%);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  list-style: none;
+  overflow-y: auto;
+
+  &.panel-up {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 4px;
+  }
+}
+
+@mixin dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 34px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  transition: background 0.18s var(--ease-standard);
+  cursor: pointer;
+  color: var(--color-text);
+  background: transparent;
+
+  &:hover {
+    background: var(--color-surface-raised);
+  }
+
+  &.selected {
+    background: var(--color-surface-raised);
+    color: var(--role-primary);
+    font-weight: 700;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--ring-accent);
+  }
+}
