@@ -88,9 +88,11 @@
     [cards]="visibleCards()"
     [viewMode]="viewMode()"
     [filterQuery]="filterQuery()"
+    [filtersActive]="filterService.isActive()"
     (remove)="removeCard($event)"
     (addRequested)="startAddCard()"
     (filterCleared)="clearFilter()"
+    (filtersCleared)="filterService.reset()"
     (cardSelected)="editCard($event)"
   />
 
