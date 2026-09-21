@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CardEntry } from '@models/card.model';
 import { CardFilterService } from '@services/card-filter.service';
 import { CardService } from '@services/card.service';
@@ -223,5 +223,157 @@ describe('CollectionDetail query param hydration', () => {
 
     expect(filterService.isActive()).toBe(false);
     expect(filterService.panelOpen()).toBe(false);
+  });
+});
+
+describe('CollectionDetail query param write', () => {
+  let filterService: CardFilterService;
+  let navigateSpy: ReturnType<typeof vi.fn>;
+  let fixture: ComponentFixture<CollectionDetail>;
+
+  async function createWithNavigateSpy(queryParams: Record<string, string> = {}): Promise<void> {
+    navigateSpy = vi.fn();
+    await TestBed.configureTestingModule({
+      imports: [CollectionDetail],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: fakeActivatedRoute(queryParams) },
+        { provide: Router, useValue: { navigate: navigateSpy } },
+      ],
+    }).compileComponents();
+
+    const locationsService = TestBed.inject(StorageLocationService);
+    filterService = TestBed.inject(CardFilterService);
+    const location = locationsService.add({ name: 'Box 1', parentId: null });
+
+    fixture = TestBed.createComponent(CollectionDetail);
+    fixture.componentRef.setInput('id', location.id);
+    await fixture.whenStable();
+  }
+
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  const allNullParams = {
+    cor: null,
+    match: null,
+    venda: null,
+    raridade: null,
+    acabamento: null,
+    condicao: null,
+    set: null,
+    tipo: null,
+  };
+
+  it('writes all-null query params on init when filters are at defaults', async () => {
+    await createWithNavigateSpy();
+
+    expect(navigateSpy).toHaveBeenCalledTimes(1);
+    expect(navigateSpy).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: allNullParams,
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      }),
+    );
+  });
+
+  it('setting a filter field calls navigate with the correct merged query params', async () => {
+    await createWithNavigateSpy();
+    navigateSpy.mockClear();
+
+    filterService.setField('rarity', 'rare');
+    await fixture.whenStable();
+
+    expect(navigateSpy).toHaveBeenCalledTimes(1);
+    expect(navigateSpy).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: { ...allNullParams, raridade: 'rare' },
+      }),
+    );
+  });
+
+  it('clearing a filter field back to default passes null for that key', async () => {
+    await createWithNavigateSpy();
+    filterService.setField('rarity', 'rare');
+    await fixture.whenStable();
+    navigateSpy.mockClear();
+
+    filterService.setField('rarity', '');
+    await fixture.whenStable();
+
+    expect(navigateSpy).toHaveBeenCalledTimes(1);
+    expect(navigateSpy).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: allNullParams,
+      }),
+    );
+  });
+
+  it('serializes multiple color selections into the stable WUBRG + C order', async () => {
+    await createWithNavigateSpy();
+    navigateSpy.mockClear();
+
+    filterService.toggleColor('G');
+    await fixture.whenStable();
+    filterService.toggleColor('W');
+    await fixture.whenStable();
+    filterService.toggleColor('B');
+    await fixture.whenStable();
+    filterService.setField('colorless', true);
+    await fixture.whenStable();
+
+    expect(navigateSpy).toHaveBeenLastCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: { ...allNullParams, cor: 'WBGC' },
+      }),
+    );
+  });
+
+  it('toggling colorMatch to exact adds match=exata; back to any removes it', async () => {
+    await createWithNavigateSpy();
+    navigateSpy.mockClear();
+
+    filterService.setField('colorMatch', 'exact');
+    await fixture.whenStable();
+
+    expect(navigateSpy).toHaveBeenCalledTimes(1);
+    expect(navigateSpy).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: { ...allNullParams, match: 'exata' },
+      }),
+    );
+
+    navigateSpy.mockClear();
+    filterService.setField('colorMatch', 'any');
+    await fixture.whenStable();
+
+    expect(navigateSpy).toHaveBeenCalledTimes(1);
+    expect(navigateSpy).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: allNullParams,
+      }),
+    );
+  });
+
+  it('does not produce duplicate navigate calls for a sequence of distinct filter changes', async () => {
+    await createWithNavigateSpy();
+    navigateSpy.mockClear();
+
+    filterService.setField('forSale', true);
+    await fixture.whenStable();
+    filterService.setField('rarity', 'mythic');
+    await fixture.whenStable();
+    filterService.toggleColor('U');
+    await fixture.whenStable();
+
+    expect(navigateSpy).toHaveBeenCalledTimes(3);
   });
 });
