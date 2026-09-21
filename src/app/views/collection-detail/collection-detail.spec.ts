@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CardEntry } from '@models/card.model';
+import { CardFilterService } from '@services/card-filter.service';
 import { CardService } from '@services/card.service';
 import { StorageLocationService } from '@services/storage-location.service';
 import { CollectionDetail } from './collection-detail';
@@ -29,6 +30,12 @@ function cardPayload(overrides: Partial<CardEntry> = {}): Omit<CardEntry, 'id'> 
     updatedAt: '2026-01-01T00:00:00.000Z',
     ...overrides,
   };
+}
+
+function fakeActivatedRoute(queryParams: Record<string, string> = {}): ActivatedRoute {
+  return {
+    snapshot: { queryParamMap: convertToParamMap(queryParams) },
+  } as ActivatedRoute;
 }
 
 describe('CollectionDetail', () => {
@@ -115,5 +122,106 @@ describe('CollectionDetail', () => {
     component.setViewMode('list');
     expect(component.viewMode()).toBe('list');
     expect(localStorage.getItem('grimorio.collectionDetail.viewMode')).toBe('list');
+  });
+
+  it('filteredByFilters narrows filteredCards when a CardFilterService field is set', () => {
+    cardService.add(cardPayload({ locationId: component.id(), forSale: true, name: 'For Sale' }));
+    cardService.add(
+      cardPayload({ locationId: component.id(), forSale: false, name: 'Not For Sale' }),
+    );
+
+    expect(component.filteredByFilters().length).toBe(2);
+
+    const filterService = TestBed.inject(CardFilterService);
+    filterService.setField('forSale', true);
+
+    expect(component.filteredByFilters().length).toBe(1);
+    expect(component.filteredByFilters()[0].name).toBe('For Sale');
+    expect(component.visibleCards().length).toBe(1);
+  });
+
+  it('resultLabel reflects no-filter and filters-active states', () => {
+    cardService.add(cardPayload({ locationId: component.id(), forSale: true, name: 'A' }));
+    cardService.add(cardPayload({ locationId: component.id(), forSale: false, name: 'B' }));
+
+    expect(component.resultLabel()).toBe('2 cartas');
+
+    TestBed.inject(CardFilterService).setField('forSale', true);
+
+    expect(component.resultLabel()).toBe('1 de 2 cartas');
+  });
+
+  it('resets CardFilterService on destroy', () => {
+    const filterService = TestBed.inject(CardFilterService);
+    filterService.setField('forSale', true);
+    filterService.panelOpen.set(true);
+
+    fixture.destroy();
+
+    expect(filterService.isActive()).toBe(false);
+    expect(filterService.panelOpen()).toBe(false);
+  });
+});
+
+describe('CollectionDetail query param hydration', () => {
+  let filterService: CardFilterService;
+
+  async function createWithQueryParams(queryParams: Record<string, string>): Promise<void> {
+    await TestBed.configureTestingModule({
+      imports: [CollectionDetail],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: fakeActivatedRoute(queryParams) },
+      ],
+    }).compileComponents();
+
+    const locationsService = TestBed.inject(StorageLocationService);
+    filterService = TestBed.inject(CardFilterService);
+    const location = locationsService.add({ name: 'Box 1', parentId: null });
+
+    const fixture = TestBed.createComponent(CollectionDetail);
+    fixture.componentRef.setInput('id', location.id);
+    await fixture.whenStable();
+  }
+
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('hydrates filters from route query params on init and opens the panel', async () => {
+    await createWithQueryParams({
+      cor: 'UB',
+      match: 'exata',
+      venda: '1',
+      raridade: 'rare',
+      acabamento: 'foil',
+      condicao: 'NM',
+      set: 'CMD',
+      tipo: 'creature',
+    });
+
+    expect(filterService.filters().colors).toEqual(['U', 'B']);
+    expect(filterService.filters().colorMatch).toBe('exact');
+    expect(filterService.filters().forSale).toBe(true);
+    expect(filterService.filters().rarity).toBe('rare');
+    expect(filterService.filters().finish).toBe('foil');
+    expect(filterService.filters().condition).toBe('NM');
+    expect(filterService.filters().setCode).toBe('CMD');
+    expect(filterService.filters().type).toBe('creature');
+    expect(filterService.panelOpen()).toBe(true);
+  });
+
+  it('parses a colorless "C" letter in cor into the colorless field', async () => {
+    await createWithQueryParams({ cor: 'C' });
+
+    expect(filterService.filters().colorless).toBe(true);
+    expect(filterService.panelOpen()).toBe(true);
+  });
+
+  it('leaves filters at defaults and the panel closed when no query params are present', async () => {
+    await createWithQueryParams({});
+
+    expect(filterService.isActive()).toBe(false);
+    expect(filterService.panelOpen()).toBe(false);
   });
 });
