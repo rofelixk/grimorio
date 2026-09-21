@@ -15,10 +15,12 @@ export class CollectionCardGrid {
   readonly cards = input.required<CardEntry[]>();
   readonly viewMode = input.required<CollectionViewMode>();
   readonly filterQuery = input('');
+  readonly filtersActive = input(false);
 
   readonly remove = output<string>();
   readonly addRequested = output<void>();
   readonly filterCleared = output<void>();
+  readonly filtersCleared = output<void>();
   readonly cardSelected = output<CardEntry>();
 
   // Set once (not rerolled on every filter keystroke) so the scatter spread

@@ -1,0 +1,40 @@
+<span class="field-label">{{ label() }}</span>
+
+<button
+  type="button"
+  class="trigger"
+  [class.set]="value() !== ''"
+  aria-haspopup="listbox"
+  [attr.aria-expanded]="open()"
+  (click)="toggle()"
+>
+  @if (selectedOption()?.gem; as gem) {
+    <span class="gem" [style.--gem-tint]="gem.tint">{{ gem.code }}</span>
+  }
+  <span class="value-label">{{ selectedOption()?.label ?? placeholder() }}</span>
+  <span class="caret" [class.open]="open()">▾</span>
+</button>
+
+@if (open()) {
+  <ul class="panel" role="listbox">
+    @for (opt of options(); track opt.value) {
+      <li
+        role="option"
+        class="option"
+        tabindex="0"
+        [class.selected]="opt.value === value()"
+        [class.zero]="opt.count === 0"
+        [attr.aria-selected]="opt.value === value()"
+        (click)="pick(opt)"
+        (keydown)="onOptionKeydown($event, opt)"
+      >
+        @if (opt.gem; as gem) {
+          <span class="gem" [style.--gem-tint]="gem.tint">{{ gem.code }}</span>
+        }
+        <span class="option-label">{{ opt.label }}</span>
+        <span class="check">✓</span>
+        <span class="count">{{ opt.count }}</span>
+      </li>
+    }
+  </ul>
+}

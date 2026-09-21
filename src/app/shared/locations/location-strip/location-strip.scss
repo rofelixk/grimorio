@@ -73,6 +73,11 @@
 .count {
   font-size: 0.6875rem;
   color: var(--color-text-muted);
+
+  b {
+    font-family: var(--font-display);
+    color: var(--color-text);
+  }
 }
 
 .plate--add,
@@ -90,6 +95,17 @@
 
   &:hover,
   &:focus-within {
+    border-color: var(--color-primary);
+  }
+}
+
+.plate--add {
+  border-style: dashed;
+  background: transparent;
+
+  &:hover,
+  &:focus-within {
+    border-style: solid;
     border-color: var(--color-primary);
   }
 }
