@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { About } from './views/about/about';
 import { Decks } from './views/decks/decks';
 import { DeckDetail } from './views/deck-detail/deck-detail';
 import { Collection } from './views/collection/collection';
@@ -16,4 +17,5 @@ export const routes: Routes = [
   { path: 'decks', component: Decks },
   { path: 'decks/:id', component: DeckDetail },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
+  { path: 'about', component: About },
 ];
