@@ -1,15 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { CardService } from '@services/card.service';
 import { DeckService } from '@services/deck.service';
 import { ThemeService } from '@services/theme.service';
 import { AuthControl } from '@shared/auth/auth-control/auth-control';
 import { BrandMark } from '@shared/layout/brand-mark/brand-mark';
 import { SyncIndicator } from '@shared/layout/sync-indicator/sync-indicator';
+import { CollectionFilters } from '@shared/locations/collection-filters/collection-filters';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, AuthControl, BrandMark, SyncIndicator],
+  imports: [RouterLink, RouterLinkActive, AuthControl, BrandMark, SyncIndicator, CollectionFilters],
   selector: 'app-nav-bar',
   styleUrl: './nav-bar.scss',
   templateUrl: './nav-bar.html',
@@ -22,8 +25,22 @@ export class NavBar {
   protected readonly themeService = inject(ThemeService);
   private readonly deckService = inject(DeckService);
   private readonly cardService = inject(CardService);
+  private readonly router = inject(Router);
 
   readonly drawerOpen = signal(false);
+
+  // The :id param of the currently active route, but only when that route
+  // is CollectionDetail (path 'collection/:id') — re-derived on every
+  // NavigationEnd by walking the routerState's firstChild chain down to
+  // the deepest activated route, since NavBar sits outside the
+  // <router-outlet> and has no ActivatedRoute of its own to inject.
+  readonly collectionLocationId = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(() => this.readActiveCollectionId()),
+    ),
+    { initialValue: this.readActiveCollectionId() },
+  );
 
   readonly decksCount = computed(() => this.deckService.decks().length.toLocaleString('pt-BR'));
   readonly collectionCount = computed(() =>
@@ -39,5 +56,13 @@ export class NavBar {
 
   closeDrawer(): void {
     this.drawerOpen.set(false);
+  }
+
+  private readActiveCollectionId(): string | null {
+    let route = this.router.routerState.root;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    return route.snapshot.routeConfig?.path === 'collection/:id' ? route.snapshot.paramMap.get('id') : null;
   }
 }

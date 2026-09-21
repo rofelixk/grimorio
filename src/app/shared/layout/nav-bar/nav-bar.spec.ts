@@ -1,7 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { By } from '@angular/platform-browser';
+import { Component } from '@angular/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { NavBar } from './nav-bar';
+import { CollectionFilters } from '@shared/locations/collection-filters/collection-filters';
+
+@Component({ selector: 'app-test-blank', template: '', standalone: true })
+class BlankTestComponent {}
 
 describe('NavBar', () => {
   let component: NavBar;
@@ -39,5 +46,43 @@ describe('NavBar', () => {
     component.closeDrawer();
 
     expect(component.drawerOpen()).toBe(false);
+  });
+});
+
+describe('NavBar collection filters mounting', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [NavBar],
+      providers: [
+        provideRouter([
+          { path: 'collection/:id', component: BlankTestComponent },
+          { path: 'decks', component: BlankTestComponent },
+        ]),
+      ],
+    }).compileComponents();
+  });
+
+  it('renders app-collection-filters with the active route id on /collection/:id', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/collection/loc-123');
+
+    const fixture = TestBed.createComponent(NavBar);
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.collectionLocationId()).toBe('loc-123');
+    const filtersDebugEl = fixture.debugElement.query(By.directive(CollectionFilters));
+    expect(filtersDebugEl).toBeTruthy();
+    expect((filtersDebugEl.componentInstance as CollectionFilters).locationId()).toBe('loc-123');
+  });
+
+  it('does not render app-collection-filters on other routes', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/decks');
+
+    const fixture = TestBed.createComponent(NavBar);
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.collectionLocationId()).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-collection-filters')).toBeNull();
   });
 });

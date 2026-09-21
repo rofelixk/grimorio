@@ -20,7 +20,10 @@
 }
 
 <nav id="nav-drawer" class="drawer" [class.open]="drawerOpen()">
-  <section class="drawer-group">
+  @if (collectionLocationId(); as locId) {
+    <app-collection-filters [locationId]="locId" />
+  }
+  <section class="drawer-group acervo">
     <span class="group-heading"><h2>Acervo</h2><i class="rule"></i></span>
     <a routerLink="/decks" routerLinkActive="active" (click)="closeDrawer()"
       >Decks<b class="count">{{ decksCount() }}</b></a
