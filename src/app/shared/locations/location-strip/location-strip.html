@@ -3,7 +3,7 @@
     <li class="plate" [style.--accent]="accentFor(child.id)">
       <a [routerLink]="['/collection', child.id]">
         <span class="name">{{ child.name }}</span>
-        <span class="count">{{ countFor(child.id) }} cartas</span>
+        <span class="count"><b>{{ countFor(child.id) }}</b> cartas</span>
       </a>
     </li>
   }
@@ -19,7 +19,7 @@
   } @else {
     <li class="plate plate--add">
       <button type="button" (click)="addRequested.emit()">
-        <span class="label-wide">+ Novo</span>
+        <span class="label-wide">+ Novo sublocal</span>
         <span class="label-mobile">+ Local</span>
       </button>
     </li>

@@ -1,4 +1,5 @@
 @use 'breakpoints' as bp;
+@use 'modal' as m;
 
 // This view opts out of .app-shell's global overflow-y:auto default (see
 // app.scss) — only the card grid below scrolls, everything else here is a
@@ -49,20 +50,24 @@
   color: var(--color-text-muted);
 
   a {
-    color: var(--color-accent);
+    color: var(--color-text-muted);
     text-decoration: none;
 
     &:hover {
+      color: var(--cda);
       text-decoration: underline;
     }
   }
 
   .sep {
     margin: 0 0.3em;
+    color: rgb(from var(--color-text-muted) r g b / 45%);
   }
 
   .current {
     color: var(--color-text);
+    font-family: var(--font-display);
+    font-weight: 600;
   }
 }
 
@@ -121,19 +126,34 @@ h1 {
 
 .import-link {
   margin-left: auto;
-  color: var(--color-accent);
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   text-decoration: none;
 
   &:hover {
-    text-decoration: underline;
+    color: var(--color-text);
+    border-color: var(--cda);
+    box-shadow: 0 0 16px -6px rgb(from var(--cda) r g b / 70%);
   }
+}
+
+.cta-desktop,
+.cta-mobile {
+  @include m.glow-button(var(--cdp));
+  text-shadow: 0 0 8px rgb(from var(--cdp) r g b / 60%);
+  box-shadow: var(--shadow-glow-primary-strong);
 }
 
 .cta-desktop {
   min-height: 44px;
   padding: var(--space-2) var(--space-5);
-  box-shadow: var(--shadow-glow-primary-strong);
 }
 
 .cta-mobile {
@@ -273,7 +293,6 @@ app-collection-card-grid {
     display: block;
     margin: 0 var(--space-3) var(--space-3);
     min-height: 48px;
-    box-shadow: var(--shadow-glow-primary-strong);
   }
 
   app-location-strip {
