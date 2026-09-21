@@ -1,4 +1,9 @@
-@if (cards().length === 0 && filterQuery().trim() === '') {
+@if (cards().length === 0 && filterQuery().trim() === '' && filtersActive()) {
+  <div class="empty-state">
+    <h3>Nenhuma carta corresponde aos filtros.</h3>
+    <button type="button" (click)="filtersCleared.emit()">Limpar filtros</button>
+  </div>
+} @else if (cards().length === 0 && filterQuery().trim() === '') {
   <div class="empty-state">
     <h3>Nenhuma carta aqui ainda.</h3>
     <p>Adicione a primeira carta deste local — ou crie um sublocal para organizar por divisória.</p>
