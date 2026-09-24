@@ -66,7 +66,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
-   - Phase 1: Generate data-model.md, contracts/, quickstart.md
+   - Phase 1: Generate data-model.md, contracts/, quickstart.md, and ui.md (if the feature has any UI)
    - Re-evaluate Constitution Check post-design
 
 ## Mandatory Post-Execution Hooks
@@ -155,7 +155,12 @@ Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated 
    - Do not include full implementation code, model/service/controller bodies, migrations, or complete test suites
    - Keep this artifact as a validation/run guide; implementation details belong in `tasks.md` and the implementation phase
 
-**Output**: data-model.md, /contracts/*, quickstart.md
+4. **Design the UI** (if the feature adds or changes any user-facing UI) → `ui.md`:
+   - Follow the section list in the plan template's "UI Design" section
+   - Keep it structural (surfaces, layout per breakpoint, states, flow, design-system reuse, accessibility, PT-BR copy), not CSS values
+   - Skip if the feature has no UI surface, and say so in plan.md
+
+**Output**: data-model.md, /contracts/*, quickstart.md, ui.md (if UI)
 
 ## Key rules
 
