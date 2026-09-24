@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-23
 
-**Status**: Draft (retrofitted from existing implementation)
+**Status**: Superseded by `specs/002-profiles-accounts/spec.md` (study artifact, retrofitted from existing implementation)
 
 **Input**: User description: "Retrofit a baseline specification for the sign-up/sign-in modal
 feature, which already exists in the codebase — describe existing sign-in/sign-up/sign-out
