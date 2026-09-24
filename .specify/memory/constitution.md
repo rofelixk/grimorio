@@ -1,16 +1,16 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0
-- Modified principles: II. PT-BR-First, Not PT-BR-Translated (expanded to explicitly cover
-  unhandled/passthrough error text from dependencies, not just app-authored strings)
-- Modified sections: Technology Constraints (trimmed to a role-reference against `architecture.md`
-  instead of restating its specifics, to avoid the two documents drifting out of sync); Development
-  Workflow / Governance (generalized the hardcoded `CLAUDE.md` reference to the portable name
-  `AGENTS.md`, noting `CLAUDE.md` as the current concrete file pending a possible future migration)
+- Version change: 1.1.0 → 2.0.0 (MAJOR: Principle IV redefined — core capabilities now require a
+  local profile, where 1.x required they work without any sign-in)
+- Modified principles: IV. Local-First, Account-Optional → IV. Local-First, Cloud-Optional
+  (introduces local profiles as the gate for core features, per-profile data isolation, cloud
+  accounts as an optional sync link, and a profile-free tier for gameplay tools)
 - Added sections: none
 - Removed sections: none
 - Templates requiring updates: plan-template.md, spec-template.md, tasks-template.md, checklist-template.md
   reference this file generically ("Constitution Check") and need no edits.
+- Artifacts now non-compliant: specs/001-auth-modal/spec.md (User Story 4, FR-008, SC-003 assume
+  core features need no sign-in) — to be superseded by a new profiles/accounts spec, not amended.
 - Follow-up TODOs: none
 -->
 # Grimorio Constitution
@@ -42,13 +42,18 @@ NOT be shaped by monetization pressure (e.g., artificial limits, paywalls, upsel
 Rationale: stated product commitment in PRODUCT.md; introducing monetization surface area would
 require a governance amendment, not a routine feature decision.
 
-### IV. Local-First, Account-Optional
-Core functionality (tracking owned cards, storage locations, decks) MUST work fully offline and
-without signing in. Auth (Supabase) MAY unlock sync but MUST NOT gate any existing capability
-behind a route guard or forced account.
-Rationale: matches real usage (mid-collection-sorting sessions, inconsistent connectivity) and the
-existing architecture (signal-backed IndexedDB services hydrated before use, optional Supabase sync
-layered on top, not underneath).
+### IV. Local-First, Cloud-Optional
+Core functionality (tracking owned cards, storage locations, decks, and color identity) MUST work
+fully offline and MUST require only a *local profile* — a username and password stored on the
+device, with no email and no network. A device MAY hold multiple local profiles, and each
+profile's data MUST be isolated from the others. A *cloud account* (email/password or Google) MAY
+be linked to a local profile to enable sync, but MUST NOT be required for any capability. Gameplay
+tools that don't touch owned-card data (e.g. life counter, planechase) MUST require no profile at
+all.
+Rationale: matches real usage — mid-collection-sorting sessions with inconsistent connectivity, and
+several players sharing one device, each needing their own collection and color identity. Sync
+stays layered on top of local data, not underneath it, and table-side gameplay tools stay usable by
+anyone at the table without setup.
 
 ### V. Zoneless, Signal-Driven Angular
 New code MUST use standalone components with `ChangeDetectionStrategy.OnPush`, and MUST NOT
@@ -100,4 +105,4 @@ against the current version; unjustified violations block the plan from proceedi
 day-to-day development guidance beyond governance lives in the project's AI agent guidance file
 (`AGENTS.md` by convention; currently `CLAUDE.md` in this repo).
 
-**Version**: 1.1.0 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-09-24
+**Version**: 2.0.0 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-09-24

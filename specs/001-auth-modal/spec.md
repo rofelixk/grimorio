@@ -15,6 +15,16 @@ behavior, the optional nature of auth, and error states as user-facing requireme
 > so future changes to this area go through `/speckit-plan`/`/speckit-tasks` against a real spec
 > instead of ad hoc edits.
 
+## Clarifications
+
+### Session 2026-09-24
+
+- Q: Should every error message a visitor can see in the sign-in/sign-up modal be in Portuguese, including errors that come straight from Supabase? → A: Yes — every error in the sign-in/sign-up/sign-out flow is PT-BR; known Supabase errors are mapped, unrecognized ones fall back to a generic PT-BR message. `/profile` surfaces are out of scope.
+- Q: If someone signs up without picking a color identity, should their new account stay without one, or take the colors already chosen on that device? → A: The account takes the device's current colors on first sign-in (spec aligned to existing behavior).
+- Q: What rules should a username follow at sign-up, in terms of allowed characters and length? → A: 3–20 characters; letters, digits, `_`, `.`, `-` only; validated locally with a PT-BR message.
+- Q: What should the minimum password requirement be at sign-up, and should the form check it before sending the request? → A: Minimum 8 characters, validated locally with a PT-BR message; backend minimum raised to match.
+- Q: Should signing out while on the `/profile` page send the visitor to the home page right away? → A: No — the visitor stays on the current page; only a later visit to `/profile` is redirected. Revisited by the planned offline/local-account feature.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Create an account (Priority: P1)
@@ -43,6 +53,13 @@ separate confirmation step.
 4. **Given** a signed-out visitor submitting sign-up, **When** they leave the email or password
    field empty, **Then** the form is rejected locally with a message asking for both, and no
    network request is made.
+5. **Given** a signed-out visitor submitting sign-up with a username, **When** the username is
+   shorter than 3 or longer than 20 characters, or contains anything other than letters, digits,
+   `_`, `.`, or `-` (e.g. `joao@mtg`), **Then** the form is rejected locally with a PT-BR message
+   stating the rule, and no network request is made.
+6. **Given** a signed-out visitor submitting sign-up, **When** the password is shorter than 8
+   characters, **Then** the form is rejected locally with a PT-BR message stating the minimum, and
+   no network request is made.
 
 ---
 
@@ -88,8 +105,9 @@ returned to a signed-out state without navigating away from their current page.
 
 1. **Given** a signed-in visitor, **When** they choose "Sign out," **Then** their session ends and
    the nav bar reflects a signed-out state.
-2. **Given** a signed-in visitor on the `/profile` page, **When** they sign out, **Then** they no
-   longer have access to `/profile` on a subsequent visit until they sign in again.
+2. **Given** a signed-in visitor on the `/profile` page, **When** they sign out, **Then** they stay
+   on the current page (no automatic navigation), and they no longer have access to `/profile` on a
+   subsequent visit until they sign in again.
 
 ---
 
@@ -139,8 +157,12 @@ different session) rather than reset to the app's default.
    session, **Then** their saved color identity is restored rather than falling back to the app's
    default.
 4. **Given** a signed-out visitor filling out the sign-up form, **When** they submit without picking
-   a color identity, **Then** the account is created successfully with no identity color saved,
-   defaulting to the app's standard look.
+   a color identity, **Then** the account is created successfully and adopts the color identity
+   currently active on that device (a previous pick there, or the app's default if none was ever
+   made), saving it to the account.
+5. **Given** a visitor signing in to an existing account that has no saved color identity, **When**
+   sign-in completes, **Then** the color identity currently active on that device is saved to the
+   account; if the account already has one saved, the saved one wins over the device's.
 
 ---
 
@@ -162,8 +184,14 @@ different session) rather than reset to the app's default.
 ### Functional Requirements
 
 - **FR-001**: System MUST let a signed-out visitor create an account with an email and a password.
+  The password MUST be at least 8 characters, validated locally with a PT-BR message before any
+  network request; the auth backend's own minimum MUST be configured to the same value so the two
+  cannot disagree.
 - **FR-002**: System MUST let a visitor optionally set a username at sign-up, which becomes their
-  display name in place of their email wherever the app shows a short label for the account.
+  display name in place of their email wherever the app shows a short label for the account. A
+  username MUST be 3–20 characters long and contain only letters, digits, `_`, `.`, or `-` (so it
+  can never be mistaken for an email at sign-in); uniqueness is case-insensitive. Violations MUST
+  be rejected locally with a PT-BR message, without a network request.
 - **FR-003**: System MUST sign a visitor in immediately upon successful sign-up, without requiring
   a separate email-confirmation step.
 - **FR-004**: System MUST reject a sign-up attempt whose email or username is already associated
@@ -188,6 +216,10 @@ different session) rather than reset to the app's default.
   surfacing a message locally without making a network request when they are not.
 - **FR-011**: System MUST show a clear, non-technical error message when a sign-in or sign-up
   attempt fails for any reason, and MUST NOT leave the form in a stuck or ambiguous state.
+- **FR-018**: Every error message shown in the sign-in, sign-up, or sign-out flow MUST be in PT-BR
+  (Principle II), including errors originating from the auth backend: recognized backend errors
+  MUST be mapped to specific PT-BR messages, and any unrecognized backend error MUST fall back to a
+  generic PT-BR message rather than passing the raw backend text through.
 - **FR-012**: System MUST prevent submitting a second sign-in/sign-up request while one is already
   in progress for the same form.
 - **FR-013**: System MUST reset all entered form state (fields and error message) when the sign-in/
@@ -199,12 +231,14 @@ different session) rather than reset to the app's default.
 - **FR-016**: System MUST visually reflect a visitor's chosen color identity on the sign-up/sign-in
   modal itself as they pick it, and MUST restore a previously saved color identity on sign-in.
 - **FR-017**: System MUST allow sign-up to complete successfully when no color identity is chosen,
-  leaving the account without one rather than forcing a choice.
+  without forcing a choice; an account with no saved color identity MUST adopt the device's
+  currently active color identity on its first signed-in session, while an account's already-saved
+  color identity MUST take precedence over the device's.
 
 ### Key Entities
 
 - **Account**: a visitor's credentials and identity — email (required, used for authentication),
-  password (required), username (optional, unique across accounts, used as an alternate sign-in
+  password (required, minimum 8 characters), username (optional, 3–20 chars of letters/digits/`_`/`.`/`-`, unique case-insensitively, used as an alternate sign-in
   identifier and as the account's display name when set), color identity (optional, one to three
   colors, personalizes the account's visual theme).
 - **Session**: the live signed-in/signed-out state for the current visitor, which every other part
@@ -241,11 +275,14 @@ different session) rather than reset to the app's default.
   behavior is covered by the generic failure-message requirement (FR-011) rather than a dedicated
   offline flow.
 - The existing `/profile` route and its `authGuard` are treated as the current, correct scope
-  boundary for "signed-in only" content — no other route is assumed to require a session.
-- PT-BR localization (Principle II) is only required in this spec for the error surfaces named in
-  its acceptance scenarios (FR-004, FR-006, FR-011) — whether every other `AuthService` error
-  surface (`signIn`'s underlying failures, `updatePassword`, `deleteAccount`, etc.) must also be
-  localized is an open compliance question deferred to a separate pass, not decided by this spec.
+  boundary for "signed-in only" content — no other route is assumed to require a session. The
+  guard applies on navigation only: signing out while already on `/profile` deliberately does not
+  navigate away. How `/profile` behaves once signed out is expected to change with the planned
+  offline/local-account feature and is left to that spec.
+- PT-BR localization (Principle II) covers every error surface in the sign-in/sign-up/sign-out flow
+  (FR-018). Error surfaces of the `/profile` account-management area (`updatePassword`,
+  `updateUsername`, `deleteAccount`) are out of scope here and belong to that surface's follow-up
+  spec.
 - This spec does not address data isolation between different accounts using the same browser/
   device (e.g. a shared computer) — sign-out here only ends the Supabase session and does not
   clear or partition local IndexedDB data. That gap, and a proposed local-profile-based fix, are
