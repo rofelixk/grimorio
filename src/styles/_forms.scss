@@ -1,19 +1,21 @@
-label {
+@use 'fence' as *;
+
+label#{$legacy} {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   font-size: var(--font-size-sm);
 }
 
-.error {
+.error#{$legacy} {
   color: var(--color-danger);
   font-size: var(--font-size-sm);
   margin: 0;
 }
 
-input[type='text'],
-input[type='email'],
-input[type='password'] {
+input[type='text']#{$legacy},
+input[type='email']#{$legacy},
+input[type='password']#{$legacy} {
   font: inherit;
   color: var(--color-text);
   background: var(--color-surface);

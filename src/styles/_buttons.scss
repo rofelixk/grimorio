@@ -1,6 +1,8 @@
-button,
-[type='button'],
-[type='submit'] {
+@use 'fence' as *;
+
+button#{$legacy},
+[type='button']#{$legacy},
+[type='submit']#{$legacy} {
   font: inherit;
   color: var(--color-text);
   background: var(--color-surface-raised);
@@ -19,7 +21,7 @@ button,
   }
 }
 
-.btn-primary {
+.btn-primary#{$legacy} {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-primary-contrast);
@@ -31,8 +33,8 @@ button,
   }
 }
 
-.close-button,
-.back-button {
+.close-button#{$legacy},
+.back-button#{$legacy} {
   background: transparent;
   border: none;
   min-height: 44px;
@@ -40,7 +42,7 @@ button,
   user-select: none;
 }
 
-.btn-danger {
+.btn-danger#{$legacy} {
   background: var(--color-danger-bg);
   border-color: var(--color-danger);
   color: var(--color-danger);

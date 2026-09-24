@@ -1,28 +1,30 @@
-*,
-*::before,
-*::after {
+@use 'fence' as *;
+
+*#{$legacy},
+*#{$legacy}::before,
+*#{$legacy}::after {
   box-sizing: border-box;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-ul,
-ol,
-figure {
+h1#{$legacy},
+h2#{$legacy},
+h3#{$legacy},
+h4#{$legacy},
+h5#{$legacy},
+h6#{$legacy},
+p#{$legacy},
+ul#{$legacy},
+ol#{$legacy},
+figure#{$legacy} {
   margin: 0;
 }
 
-ul,
-ol {
+ul#{$legacy},
+ol#{$legacy} {
   padding: 0;
 }
 
-img {
+img#{$legacy} {
   max-width: 100%;
   display: block;
 }

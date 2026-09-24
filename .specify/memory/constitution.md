@@ -1,16 +1,12 @@
 <!--
 Sync Impact Report
-- Version change: 1.1.0 → 2.0.0 (MAJOR: Principle IV redefined — core capabilities now require a
-  local profile, where 1.x required they work without any sign-in)
-- Modified principles: IV. Local-First, Account-Optional → IV. Local-First, Cloud-Optional
-  (introduces local profiles as the gate for core features, per-profile data isolation, cloud
-  accounts as an optional sync link, and a profile-free tier for gameplay tools)
+- Version change: 2.0.0 → 2.1.0 (MINOR: Principle V materially expanded — design guidance now
+  points to DESIGN.md instead of the established design-token system)
+- Modified principles: V. Zoneless, Signal-Driven Angular (name unchanged; styling clause replaced:
+  DESIGN.md is the design source of truth, previous styles are legacy and fenced by `[data-grm]`)
 - Added sections: none
 - Removed sections: none
-- Templates requiring updates: plan-template.md, spec-template.md, tasks-template.md, checklist-template.md
-  reference this file generically ("Constitution Check") and need no edits.
-- Artifacts now non-compliant: specs/001-auth-modal/spec.md (User Story 4, FR-008, SC-003 assume
-  core features need no sign-in) — to be superseded by a new profiles/accounts spec, not amended.
+- Templates requiring updates: none (templates reference this file generically).
 - Follow-up TODOs: none
 -->
 # Grimorio Constitution
@@ -59,11 +55,15 @@ anyone at the table without setup.
 New code MUST use standalone components with `ChangeDetectionStrategy.OnPush`, and MUST NOT
 introduce `zone.js` or rely on implicit zone-triggered change detection. State derivation uses
 `computed`/`linkedSignal`; side effects use `effect`. No UI component framework (Ionic, Angular
-Material, etc.) is to be reintroduced — components and styles are hand-written per the established
-design-token system.
-Rationale: this is a deliberate, already-migrated architectural stance (see architecture.md); a spec
-or plan that assumes zone-based patterns or a component library would conflict with the existing
-codebase rather than extend it.
+Material, etc.) is to be reintroduced — components and styles are hand-written.
+New UI MUST follow `DESIGN.md` (repository root), the design system's single source of truth; a
+visual decision it doesn't cover is undecided and MUST be added to `DESIGN.md` before it is built.
+The previous styles (`src/styles/*` and existing component stylesheets) are legacy: frozen, fenced
+off from any `[data-grm]` subtree, and removed view by view as later specs migrate those views.
+Rationale: zoneless/signal-driven Angular is a deliberate, already-migrated stance (see
+architecture.md); a spec or plan that assumes zone-based patterns or a component library would
+conflict with the codebase rather than extend it. The design system is being rebuilt from
+`DESIGN.md` so new UI never inherits older conventions by accident.
 
 ### VI. Established Persistence and Sync Pattern
 New entity types that need persistence MUST follow the existing service shape: signal-backed state
@@ -105,4 +105,4 @@ against the current version; unjustified violations block the plan from proceedi
 day-to-day development guidance beyond governance lives in the project's AI agent guidance file
 (`AGENTS.md` by convention; currently `CLAUDE.md` in this repo).
 
-**Version**: 2.0.0 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-09-24
+**Version**: 2.1.0 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-09-24

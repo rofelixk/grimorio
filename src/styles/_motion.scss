@@ -1,3 +1,5 @@
+@use 'fence' as *;
+
 :root {
   // Shared easing/duration vocabulary — names the 0.18s-0.2s-ish timing
   // already used ad hoc in card-search-panel.scss/nav-bar.scss.
@@ -155,7 +157,7 @@
   }
 }
 
-.spinner {
+.spinner#{$legacy} {
   display: inline-block;
   width: 1em;
   height: 1em;
@@ -167,7 +169,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner {
+  .spinner#{$legacy} {
     // Slowed rather than stopped — a frozen ring reads as broken, not loading.
     animation-duration: 1.2s;
   }
@@ -184,7 +186,7 @@
 // spark) without redeclaring the keyframe itself — this used to be two
 // separately-declared `@keyframes spark-burst` with the same name but
 // diverging values, a latent naming collision.
-.spark {
+.spark#{$legacy} {
   width: 2px;
   height: 12px;
   border-radius: 2px;
