@@ -55,6 +55,16 @@ changes, not visuals."
 - Q: When someone switches away from a cloud-linked profile and later switches back, is it still
   signed in to the cloud? → A: Yes — each profile keeps its own cloud sign-in on the device and
   resumes it on unlock, until unlinked or the cloud sign-in expires or is revoked.
+- Q: Is the Home page behind the profile gate? → A: No — Home is not gated, and its current
+  content and behavior are not changed by this feature; a later spec will address Home.
+- Q: Should Google sign-in stay in this spec? → A: No — removed to narrow scope; cloud accounts
+  use email + password only. Google sign-in may return in a later spec.
+- Q: When should a profile's data sync with its cloud account? → A: Automatically — on link, on
+  new-device setup, on profile unlock, and shortly after local changes while online — plus a manual
+  "sync now" action.
+- Q: Should creating a cloud account require confirming the email address with a code? → A: No —
+  email confirmation stays off; the risk of an account being created with someone else's email is
+  accepted.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -128,7 +138,8 @@ unlocking a profile.
 ensures the profile gate is built so it never covers them, rather than delivering a tool itself.
 
 **Independent Test**: with no active profile, open every area of the app that doesn't read or
-change owned-card data (currently the About page) and verify none of them ask for a profile.
+change owned-card data (currently the About page), plus the Home page, and verify none of them
+ask for a profile.
 
 **Acceptance Scenarios**:
 
@@ -171,39 +182,14 @@ with that cloud account and verify the profile's data appears there.
 6. **Given** a profile with a linked cloud account, **When** the person unlinks it, **Then** the
    profile keeps all its local data and stops syncing; the cloud account and its data are not
    deleted.
-7. **Given** no network connection, **When** the person attempts any cloud action, **Then** they
+7. **Given** a cloud-linked profile that is online, **When** the person adds or changes a card,
+   **Then** the change reaches the cloud account within 1 minute without any manual action.
+8. **Given** no network connection, **When** the person attempts any cloud action, **Then** they
    see a PT-BR message that the action needs a connection, and local features keep working.
 
 ---
 
-### User Story 5 - Use a Google account as the cloud account (Priority: P2)
-
-A person prefers not to create another password and uses their Google account as the cloud account
-for their profile, on both the web/desktop app and the Android app.
-
-**Why this priority**: removes friction for the optional sync path; same priority as email-based
-linking since it's an alternative route to the same outcome.
-
-**Independent Test**: on the web app and on the Android app, link a profile using Google, then on
-another device sign in with the same Google account and verify the profile's data appears.
-
-**Acceptance Scenarios**:
-
-1. **Given** an active profile with no linked cloud account, **When** the person chooses "continue
-   with Google" and completes Google's consent step, **Then** a cloud account is created or signed
-   in to and linked to the profile, on both the web app and the Android app.
-2. **Given** a cloud account created with email/password, **When** the person later continues
-   with Google using a Google account with the same email, **Then** they reach the same cloud
-   account, not a second one.
-3. **Given** a person who cancels or fails Google's consent step, **When** they return to the app,
-   **Then** nothing is linked and they see a PT-BR message (or no message, if they cancelled).
-4. **Given** a device with no profile linked to a Google-based cloud account, **When** the person
-   continues with Google, **Then** they still choose a local password for the new local profile,
-   exactly as in User Story 4, scenario 5.
-
----
-
-### User Story 6 - Recover a forgotten cloud account password (Priority: P3)
+### User Story 5 - Recover a forgotten cloud account password (Priority: P3)
 
 A person who forgot their cloud account password requests a code by email, types it into the app,
 and sets a new password — without leaving the app to follow a link.
@@ -225,13 +211,10 @@ verify the response looks identical.
    signed in.
 3. **Given** a code was emailed, **When** the person enters a wrong or expired code, **Then** it is
    rejected with a PT-BR message and they can request a new code.
-4. **Given** a cloud account that only uses Google, **When** someone requests a reset for it,
-   **Then** the confirmation looks the same as for any other request (scenario 1) and no password is
-   set by this flow.
 
 ---
 
-### User Story 7 - Recover a forgotten local profile password (Priority: P3)
+### User Story 6 - Recover a forgotten local profile password (Priority: P3)
 
 A person who forgot their local profile's password needs a way back into their profile's data.
 
@@ -253,7 +236,7 @@ recovery path and verify access is restored with all data intact.
 
 ---
 
-### User Story 8 - Delete a local profile (Priority: P3)
+### User Story 7 - Delete a local profile (Priority: P3)
 
 A person who no longer uses a device, or who shared it temporarily, removes their profile and its
 data from that device.
@@ -286,8 +269,11 @@ from the device while other profiles and any linked cloud account's data are unt
   second profile on the same device: rejected with a PT-BR message naming the profile it's linked to.
 - A profile is linked to the wrong cloud account by mistake: the automatic merge has no undo;
   unlinking afterward keeps the merged data on both sides.
-- A cloud-linked profile's password is forgotten while offline: its recovery path (User Story 7,
+- A cloud-linked profile's password is forgotten while offline: its recovery path (User Story 6,
   scenario 1) needs a connection, so recovery waits until the device is online.
+- Someone creates a cloud account with an email they don't own (confirmation is off): the real
+  owner's sign-up is rejected as "email already in use"; they can take the account over through the
+  password reset flow (User Story 5), since the code goes to their inbox. Accepted risk.
 - The linked cloud account's password is changed on another device: this profile keeps working
   locally and asks the person to sign in to the cloud account again before syncing.
 
@@ -320,6 +306,8 @@ from the device while other profiles and any linked cloud account's data are unt
 
 - **FR-011**: Areas that don't read or change owned-card data or color identity (currently the
   About page; future gameplay tools such as a life counter) MUST be usable with no active profile.
+- **FR-011a**: The Home page MUST NOT be gated: it opens with or without an active profile. It
+  currently shows no owned-card data or links into core features, and this feature MUST NOT add any.
 - **FR-012**: With no active profile, the app MUST use its default color identity.
 
 **Cloud accounts**
@@ -327,68 +315,69 @@ from the device while other profiles and any linked cloud account's data are unt
 - **FR-013**: Linking a cloud account MUST always be optional; no capability may require one.
 - **FR-014**: A person with an active profile MUST be able to link it to a cloud account by
   creating one (email and password) or signing in to an existing one (email and password).
-- **FR-015**: A person MUST be able to use a Google account as the cloud account, on both the web
-  app and the Android app. A Google sign-in with the same email as an existing cloud account MUST
-  reach that account rather than create a second one.
-- **FR-016**: Cloud accounts MUST NOT have a sign-in username; they are identified by email (or
-  Google identity). A cloud account MUST store its linked profile's username as a plain label, not
+- **FR-015**: Cloud accounts MUST NOT have a sign-in username; they are identified by email. A cloud account MUST store its linked profile's username as a plain label, not
   unique across accounts and never usable to sign in; the app MUST display the local profile's
-  username, never the email or Google name.
-- **FR-017**: Only the active profile's data MUST sync, and only with that profile's linked cloud
+  username, never the email.
+- **FR-016**: Only the active profile's data MUST sync, and only with that profile's linked cloud
   account. A cloud account MUST be linked to at most one profile per device, and MAY be linked
   from multiple devices. Each profile MUST keep its own cloud sign-in on the device: switching away,
   signing out of the profile, or restarting the app MUST NOT end it, and unlocking the profile MUST
   resume it without a cloud sign-in — until the profile is unlinked or deleted, or the cloud sign-in
   expires or is revoked, in which case the next cloud action asks the person to sign in again.
-- **FR-018**: When a profile with local data is linked to a cloud account that already holds data,
+- **FR-016a**: A cloud-linked profile's data MUST sync automatically when the profile is linked,
+  when it is set up on a new device (FR-018), when it is unlocked, and within 1 minute after a local
+  change while online; the person MUST also be able to trigger a sync manually at any time. Syncs
+  that can't run (offline, expired cloud sign-in) MUST NOT block local use, and pending changes MUST
+  sync at the next trigger.
+- **FR-017**: When a profile with local data is linked to a cloud account that already holds data,
   both sides MUST be merged automatically, per item, with the most recent change winning — the same
   rule ongoing sync uses. No confirmation step or choice of side is offered.
-- **FR-019**: Signing in with a cloud account (email/password or Google) on a device with no profile
+- **FR-018**: Signing in with a cloud account on a device with no profile
   linked to it MUST set up a local profile for it on that device, filled with its synced data. The
-  profile username MUST be pre-filled from the cloud account's stored label (FR-016) and editable,
+  profile username MUST be pre-filled from the cloud account's stored label (FR-015) and editable,
   and MUST be changed if already used on this device (FR-003). The person MUST choose a local
   password for that profile during setup, following FR-004; the profile then unlocks with that
   local password like any other, including offline.
-- **FR-020**: A person MUST be able to unlink a cloud account from a profile, keeping all local data;
+- **FR-019**: A person MUST be able to unlink a cloud account from a profile, keeping all local data;
   the cloud account and its data MUST NOT be deleted by unlinking.
-- **FR-021**: Cloud sign-in MUST reject a wrong email/password with one generic message that
+- **FR-020**: Cloud sign-in MUST reject a wrong email/password with one generic message that
   doesn't reveal whether the account exists. Cloud account creation MUST say when the email is
   already in use.
-- **FR-022**: Cloud actions attempted offline MUST fail with a PT-BR message saying a connection is
+- **FR-021**: Cloud actions attempted offline MUST fail with a PT-BR message saying a connection is
   needed, without affecting local features.
 
 **Password recovery**
 
-- **FR-023**: A person MUST be able to reset a forgotten cloud account password by requesting a code
+- **FR-022**: A person MUST be able to reset a forgotten cloud account password by requesting a code
   by email (entering the account's email), typing the code into the app, and choosing a new
   password — without following a link out of the app.
-- **FR-024**: A reset request MUST produce the same visible response whether or not a matching
-  account exists, and whether or not it uses a password.
-- **FR-025**: Reset codes MUST be single-use and expire after a limited time; a wrong or expired code
+- **FR-023**: A reset request MUST produce the same visible response whether or not a matching
+  account exists.
+- **FR-024**: Reset codes MUST be single-use and expire after a limited time; a wrong or expired code
   MUST be rejected with a PT-BR message and allow requesting a new one.
-- **FR-026**: A forgotten local profile password MUST be recoverable with all data intact: for a
+- **FR-025**: A forgotten local profile password MUST be recoverable with all data intact: for a
   profile with a linked cloud account, by signing in to that cloud account and setting a new local
   password; for a profile without one, by anyone on the device after an explicit PT-BR warning that
   the password can be reset this way, then setting a new password.
 
 **Color identity**
 
-- **FR-027**: Each profile MUST have its own color identity. On linking a cloud account, a color
+- **FR-026**: Each profile MUST have its own color identity. On linking a cloud account, a color
   identity already saved on the cloud account MUST win over the profile's; if the cloud account has
-  none, the profile's color identity MUST be saved to it. The username label (FR-016) follows the
+  none, the profile's color identity MUST be saved to it. The username label (FR-015) follows the
   opposite direction: linking an existing profile keeps that profile's local username and saves it
   to the cloud account as the label, so a device's existing profile is never renamed by linking.
 
 **Errors and forms**
 
-- **FR-028**: Every message shown in profile and account flows MUST be in PT-BR (Principle II).
+- **FR-027**: Every message shown in profile and account flows MUST be in PT-BR (Principle II).
   Recognized backend errors MUST be mapped to specific PT-BR messages; unrecognized ones MUST fall
   back to a generic PT-BR message, never raw backend text.
-- **FR-029**: Forms MUST prevent a second submission while one is in progress, clear errors when
+- **FR-028**: Forms MUST prevent a second submission while one is in progress, clear errors when
   switching between forms, and reset fully when dismissed.
-- **FR-030**: The app MUST always show which profile is active (or that none is) and whether it has
+- **FR-029**: The app MUST always show which profile is active (or that none is) and whether it has
   a linked cloud account.
-- **FR-031**: The existing account page (`/profile`: change username, change password, delete
+- **FR-030**: The existing account page (`/profile`: change username, change password, delete
   account) MUST be unavailable: no navigation entry leads to it, and visiting it directly lands on
   the home page instead. Every action this spec requires (profile deletion, unlinking, password
   recovery) MUST be reachable without it.
@@ -399,7 +388,7 @@ from the device while other profiles and any linked cloud account's data are unt
   (only verifiable, never readable), color identity, and optionally a link to one cloud account.
   Owns that person's cards, storage locations, and decks on the device.
 - **Cloud account**: an optional online identity used for sync — email (unique across all
-  accounts), password and/or Google identity, saved color identity, and a profile-name label (the
+  accounts), password, saved color identity, and a profile-name label (the
   linked profile's username; not unique, not used to sign in). Can be linked to one
   profile per device, on any number of devices.
 - **Owned data** (cards, storage locations, decks): unchanged in shape, but now always belonging to
@@ -417,13 +406,14 @@ from the device while other profiles and any linked cloud account's data are unt
   while no profile is active.
 - **SC-003**: Switching between two profiles on the same device takes under 10 seconds, including
   entering the password.
-- **SC-004**: A person can link a profile to a cloud account (email or Google) and see its data on a
+- **SC-004**: A person can link a profile to a cloud account and see its data on a
   second device in under 3 minutes.
 - **SC-005**: A person who forgot their cloud password can set a new one and sign in within 5
   minutes of requesting a code, without leaving the app except to read the email.
 - **SC-006**: 100% of error messages in profile and account flows are in PT-BR; none show raw
   technical or backend text.
-- **SC-007**: Every area that doesn't touch owned-card data opens with no profile prompt.
+- **SC-007**: Every area that doesn't touch owned-card data, and the Home page, opens with no profile
+  prompt.
 
 ## Assumptions
 
@@ -433,18 +423,21 @@ from the device while other profiles and any linked cloud account's data are unt
 - The sign-in/sign-up UI is being redesigned in parallel; this spec captures behavior only.
   Layout and visual decisions belong in this feature's `ui.md`, produced by `/speckit-plan`.
 - The existing per-item "most recent change wins" sync behavior is reused unchanged for keeping a
-  profile and its cloud account in step; sync remains manually triggered.
+  profile and its cloud account in step; what's new is when it runs (FR-016a).
 - Profile-level locking is a privacy convenience between people sharing a device, not protection
   against someone with access to the device — which is why a profile without a cloud account can be
-  reset by anyone on the device (FR-026) and why every profile's username is listed to anyone
+  reset by anyone on the device (FR-025) and why every profile's username is listed to anyone
   using the device (FR-007).
 - No limit is placed on the number of profiles per device; at least 10 must work without issue.
 - Repeated wrong local passwords are not rate-limited or locked out; cloud sign-in relies on the
   cloud provider's own rate limiting.
-- The Home page's content depends on owned data, so it follows FR-001; the About page is the only
-  current profile-free area.
-- Cloud account email confirmation stays disabled (as today); the emailed reset code requires a
-  working outbound email service capable of reaching any address.
+- Signing in with Google (or any other third-party provider) is out of scope; cloud accounts use
+  email + password only. A later spec may add it.
+- The Home page is out of scope: it stays ungated and unchanged (FR-011a), and a later spec will
+  redefine it. The About page is the only other current profile-free area.
+- Cloud account email confirmation stays disabled (as today), accepting that someone could create a
+  cloud account with an email they don't own; the emailed reset code requires a working outbound
+  email service capable of reaching any address.
 - Account-management actions from the old `/profile` page (renaming a profile, changing a local or
   cloud password while signed in, deleting a cloud account) are out of scope; the page is hidden
-  (FR-031) and will be re-specified against this spec's model in a follow-up spec.
+  (FR-030) and will be re-specified against this spec's model in a follow-up spec.
