@@ -1,0 +1,7 @@
+body { margin: 0; font-family: var(--font-sans); font-size: var(--font-size-md); line-height: var(--line-height-normal); background: var(--color-bg); color: var(--color-text) }
+a { color: var(--role-accent); text-decoration: none }
+a:hover { color: var(--role-accent-hover); text-decoration: underline }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: var(--line-height-tight) }
+.ds-spinner { display: inline-block; width: 1em; height: 1em; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; opacity: .7; animation: spin .6s linear infinite }
+::selection { background: rgb(from var(--role-primary) r g b / 35%) }
+@media (prefers-reduced-motion: reduce) { .ds-spinner { animation-duration: 1.2s } }

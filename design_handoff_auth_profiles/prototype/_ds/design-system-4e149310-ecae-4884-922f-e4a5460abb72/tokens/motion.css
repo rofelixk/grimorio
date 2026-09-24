@@ -1,0 +1,17 @@
+:root {
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --duration-fast: 0.18s; /* @kind other */
+  --duration-base: 0.24s; /* @kind other */
+  --duration-slow: 0.5s; /* @kind other */
+  --duration-spin: 28s; /* @kind other */
+  /* Animated by @keyframes spin-angle below — drives every conic ring/halo. */
+  --spin-angle: 0deg; /* @kind other */
+}
+
+@property --spin-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+/* NOTE: the @keyframes that animates --spin-angle lives with the components that
+   use it (CardScatterGrid, ThemedModal) and in the ring specimen card — a custom
+   property declared inside a keyframe step can't be registered as a token here. */
+@keyframes spin { to { transform: rotate(360deg); } }
+/* Candlelight breathing — a wide, slow ambient pulse */
+@keyframes flicker { 0%, 100% { opacity: 0.3 } 50% { opacity: 0.7 } }

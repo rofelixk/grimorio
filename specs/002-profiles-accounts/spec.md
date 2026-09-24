@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-24
 
-**Status**: Draft
+**Status**: Superseded by `specs/003-profiles-design-system/spec.md`
 
 **Input**: User description: "Profiles and accounts: local profiles and optional cloud accounts,
 replacing spec 001. Core features (collection, cards, storage locations, decks, color identity)

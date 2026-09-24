@@ -1,0 +1,35 @@
+:root {
+  /* Neutral surface/text scale — warm near-blacks, never blue-tinted */
+  --color-bg: #14110f;
+  --color-surface: #1e1a17;
+  --color-surface-raised: #292320;
+  --color-border: #3a332e;
+  --color-text: #f2ede8;
+  --color-text-muted: #a89e96;
+
+  /* Brand fallbacks — used only where no color identity is applied */
+  --color-primary: #e8792f;
+  --color-primary-hover: #f5893f;
+  --color-primary-contrast: #1a1008;
+  --color-accent: #3fc4d1;
+  --color-accent-hover: #5ad3df;
+
+  /* Status (ported as-is from the app's pre-token values) */
+  --color-success-bg: #e3f6e5;
+  --color-success-text: #1e5c28;
+  --color-warning-bg: #fdf3d8;
+  --color-warning-text: #7a5c05;
+  --color-danger: #c00;
+  --color-danger-bg: #fbe3e3;
+
+  --overlay-backdrop: rgba(0, 0, 0, 0.75);
+
+  /* Semantic aliases */
+  --text-body: var(--color-text);
+  --text-muted: var(--color-text-muted);
+  --surface-page: var(--color-bg);
+  --surface-panel: var(--color-surface);
+  --surface-card: var(--color-surface);
+  --surface-raised: var(--color-surface-raised);
+  --border-hairline: 1px solid var(--color-border);
+}

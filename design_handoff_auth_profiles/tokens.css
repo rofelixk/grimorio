@@ -1,0 +1,136 @@
+/* Grimorio design tokens — generated from DESIGN.md (the source of truth).
+   Framework-agnostic: import once at the app root. Everything tints through --role-*. */
+
+@import url("https://fonts.googleapis.com/css2?family=Grenze:wght@600;700&family=Karla:wght@400..700&display=swap");
+
+@property --spin-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+:root {
+  /* Neutral surface scale — constant, never retinted */
+  --color-bg: #14110f;
+  --color-surface: #1e1a17;
+  --color-surface-raised: #292320;
+  --color-border: #3a332e;
+  --color-text: #f2ede8;
+  --color-text-muted: #a89e96;
+  --overlay-backdrop: rgba(0, 0, 0, 0.75);
+
+  /* Danger (readable on the dark page) */
+  --color-danger: oklch(0.72 0.16 28);
+  --color-danger-bg: oklch(0.27 0.06 28);
+  /* Success / warning: NOT DEFINED YET — add to DESIGN.md first. */
+
+  /* Identity colors — the personal layer (W U B R G) */
+  --identity-w: #d8cdb0; --identity-w-hover: #e6dcc2;
+  --identity-u: #3d6b85; --identity-u-hover: #4c7f9c;
+  --identity-b: #7c5aa6; --identity-b-hover: #8f6bb8;
+  --identity-r: #a8402c; --identity-r-hover: #bf4f39;
+  --identity-g: #4c7a43; --identity-g-hover: #5c8f52;
+
+  /* Default identity (no active profile): Vermelho → Azul → Verde */
+  --default-primary: var(--identity-r); --default-primary-hover: var(--identity-r-hover);
+  --default-accent: var(--identity-u);  --default-accent-hover: var(--identity-u-hover);
+  --default-tertiary: var(--identity-g); --default-tertiary-hover: var(--identity-g-hover);
+
+  /* Typography */
+  --font-display: 'Grenze', Georgia, serif;          /* 600 titles, 700 wordmark */
+  --font-sans: 'Karla', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --tracking-micro: 0.05em;
+  --tracking-eyebrow: 0.14em;
+
+  /* Spacing — 0.25rem base, nothing above 2rem */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  /* Sizes */
+  --touch-target: 44px;
+  --list-row-min: 56px;
+  --modal-width: 880px;
+  --modal-min-height: 460px;
+  --modal-identity-pane: 400px;
+  --wheel-desktop: 300px;
+  --wheel-mobile: 240px;
+  --wheel-mini: 36px;
+
+  /* Shape */
+  --radius-sm: 4px;    /* controls */
+  --radius-md: 8px;    /* containers */
+  --radius-ring: 10px; /* modal ring = md + 2px gap */
+  --shadow-rest: 0 1px 3px rgba(0, 0, 0, 0.4); /* the only neutral shadow */
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 0.18s;
+  --duration-base: 0.24s;
+  --duration-slow: 0.5s;
+  --duration-spin: 28s;
+  --duration-flicker: 6s;
+}
+
+/* Role chain. Pick order = role order. Custom properties resolve where they are declared,
+   so this block MUST be re-applied on every element that sets --theme-* (the themed root). */
+:root,
+[data-theme-scope] {
+  --role-primary: var(--theme-primary, var(--default-primary));
+  --role-primary-hover: var(--theme-primary-hover, var(--default-primary-hover));
+  --role-accent: var(--theme-accent, var(--role-primary));
+  --role-accent-hover: var(--theme-accent-hover, var(--role-primary-hover));
+  --role-tertiary: var(--theme-tertiary, var(--role-accent));
+  --role-tertiary-hover: var(--theme-tertiary-hover, var(--role-accent-hover));
+
+  /* Light recipes (resolve against the scope's roles) */
+  --glow-title: 0 0 24px rgb(from var(--role-primary) r g b / 35%);
+  --glow-button: 0 0 20px rgb(from var(--role-primary) r g b / 35%);
+  --glow-button-text: 0 0 8px rgb(from var(--role-primary) r g b / 60%);
+  --glow-plate-hover: 0 0 18px -4px rgb(from var(--role-primary) r g b / 55%);
+  --wash-header: radial-gradient(circle at 0% 0%, rgb(from var(--role-primary) r g b / 18%), transparent 58%);
+  --ring-gradient: conic-gradient(from var(--spin-angle),
+    rgb(from var(--role-primary) r g b / 35%), rgb(from var(--role-accent) r g b / 25%),
+    rgb(from var(--role-tertiary) r g b / 25%), rgb(from var(--role-primary) r g b / 35%));
+  --halo-gradient: conic-gradient(from var(--spin-angle),
+    rgb(from var(--role-primary) r g b / 24%), rgb(from var(--role-accent) r g b / 18%) 30%,
+    rgb(from var(--role-tertiary) r g b / 18%) 50%, rgb(from var(--role-primary) r g b / 24%) 80%,
+    rgb(from var(--role-primary) r g b / 24%));
+}
+
+@keyframes spin-angle { to { --spin-angle: 360deg; } }
+@keyframes flicker { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+@keyframes spark {
+  0% { opacity: 0; transform: translate(0, 0) scale(1); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+}
+@keyframes ripple {
+  0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.9); }
+}
+@keyframes name-in { from { opacity: 0; filter: blur(6px); transform: scale(0.92); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme-scope] *, [data-theme-scope] { animation: none !important; }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+a { color: var(--role-accent); text-decoration: none; }
+a:hover { color: var(--role-accent-hover); text-decoration: underline; }
+::selection { background: rgb(from var(--role-primary) r g b / 35%); }
