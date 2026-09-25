@@ -1,0 +1,7 @@
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:var(--font-sans);font-size:var(--font-size-md);line-height:var(--line-height-normal);background:var(--color-bg);color:var(--color-text)}
+a{color:var(--role-accent);text-decoration:none}
+a:hover{color:var(--role-accent-hover);text-decoration:underline}
+::selection{background:rgb(from var(--role-primary) r g b/35%)}
+:focus-visible{outline:2px solid var(--role-accent);outline-offset:2px}
+p,li,figcaption,blockquote{text-wrap:pretty}

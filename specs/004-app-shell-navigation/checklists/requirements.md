@@ -33,3 +33,4 @@
 
 - Q1 (mobile nav pattern) resolved: menu button + left drawer. The user also added: page-level no-scroll, a collapsed/hover/pin desktop nav, no Home link in the nav, and the WotC/Scryfall/AI notice. All are recorded under Clarifications and all items pass.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`
+- Revised 2026-09-25 against the design handoff (`design_handoff_app_shell_navigation/`): phone layout (right-side drawer with the account block), sync-status colors and copy, identity shown as dots + name with the tribe in the accessible name, the 960px breakpoint, and the expanded FR-032 list for DESIGN.md. Re-validated; all items still pass.

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/components.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+  <script src="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/_ds_bundle.js"></script>
+  <style>
+    @keyframes grm-drawer-in { from { transform: translateX(-100%); } }
+    @keyframes grm-drawer-in-r { from { transform: translateX(100%); } }
+    @keyframes grm-fade-in { from { opacity: 0; } }
+    @keyframes grm-flow-long { from { background-position: 0 0; } to { background-position: 2400px 0; } }
+    @keyframes grm-flow-mark { from { background-position: -16px 0; } to { background-position: 2384px 0; } }
+    @keyframes grm-flow-v { from { background-position: 0 0; } to { background-position: 0 2400px; } }
+    @media (prefers-reduced-motion: reduce) { [data-theme-scope] * { animation: none !important; } #grm-drawer { transition-duration: 0s !important; } }
+  </style>
+</helmet>
+<div data-theme-scope="" ref="{{ rootRef }}" onKeyDown="{{ onKey }}" onScroll="{{ pinRoot }}" style="--theme-primary: {{ th.p }}; --theme-primary-hover: {{ th.ph }}; --theme-accent: {{ th.a }}; --theme-accent-hover: {{ th.ah }}; --theme-tertiary: {{ th.t }}; --theme-tertiary-hover: {{ th.th }}; position: relative; width: {{ w }}px; height: {{ h }}px; overflow: clip; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); font-size: var(--font-size-md); line-height: var(--line-height-normal);">
+
+  <header role="banner" style="position: relative; z-index: 3; display: flex; align-items: center; gap: var(--space-1); min-height: 44px; padding: {{ barPad }}; background: var(--color-bg); overflow: hidden;">
+    <span aria-hidden="true" style="position: absolute; top: 0; bottom: 0; left: 0; width: 360px; max-width: 70%; opacity: 0.3; background: linear-gradient(90deg, var(--role-primary) 0%, var(--role-primary) 20%, var(--role-accent) 33%, var(--role-accent) 53%, var(--role-tertiary) 66%, var(--role-tertiary) 86%, var(--role-primary) 100%) repeat-x; background-size: 2400px 100%; -webkit-mask-image: radial-gradient(ellipse 100% 150% at 0% 50%, #000, transparent 75%); mask-image: radial-gradient(ellipse 100% 150% at 0% 50%, #000, transparent 75%); pointer-events: none; animation: grm-flow-long 120s linear infinite;"></span>
+    <a href="#" class="grm-wordmark" aria-label="Grimorio — Início" onClick="{{ goHome }}" style="position: relative; flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0; font-size: var(--font-size-lg); text-decoration: none; color: transparent; background: linear-gradient(90deg, oklch(from var(--role-primary) max(l, 0.68) c h) 0%, oklch(from var(--role-primary) max(l, 0.68) c h) 20%, oklch(from var(--role-accent) max(l, 0.68) c h) 33%, oklch(from var(--role-accent) max(l, 0.68) c h) 53%, oklch(from var(--role-tertiary) max(l, 0.68) c h) 66%, oklch(from var(--role-tertiary) max(l, 0.68) c h) 86%, oklch(from var(--role-primary) max(l, 0.68) c h) 100%) repeat-x; background-size: 2400px 100%; -webkit-background-clip: text; background-clip: text; text-shadow: none; filter: drop-shadow(0 0 1px var(--color-bg)) drop-shadow(0 0 3px var(--color-bg)) drop-shadow(0 0 10px rgb(from var(--role-primary) r g b / 30%)); animation: grm-flow-mark 120s linear infinite;" style-hover="text-decoration: none;">Grimorio</a>
+    <sc-if value="{{ barAccount }}" hint-placeholder-val="{{ true }}">
+      <div style="position: relative; margin-left: auto; display: flex; align-items: center;">
+        <button type="button" aria-disabled="{{ syncBusyAttr }}" aria-label="{{ sync.aria }}" title="{{ sync.aria }}" onClick="{{ onSync }}" style="flex: none; display: flex; flex-direction: {{ sync.dir }}; align-items: center; justify-content: center; gap: {{ sync.gap }}; min-height: 44px; padding: 0 {{ sync.pad }}; border: none; background: transparent; font: inherit; font-size: var(--font-size-xs); line-height: 1.2; white-space: nowrap; color: {{ sync.color }}; cursor: {{ sync.cursor }}; transition: color var(--duration-fast) var(--ease-standard);" style-hover="color: var(--color-text);">
+          <sc-if value="{{ sync.mk.spin }}"><span class="grm-sync" aria-hidden="true" style="font-size: var(--font-size-xs); gap: 0;"><span class="spinner" style="color: var(--color-text-muted);"></span></span></sc-if>
+          <sc-if value="{{ sync.mk.dot }}"><span aria-hidden="true" style="flex: none; width: 8px; height: 8px; border-radius: 50%; background: {{ sync.mk.color }}; box-shadow: {{ sync.mk.glow }};"></span></sc-if>
+          <sc-if value="{{ sync.mk.ring }}"><span aria-hidden="true" style="flex: none; width: 8px; height: 8px; border-radius: 50%; border: 1px solid {{ sync.mk.color }};"></span></sc-if>
+          <sc-if value="{{ sync.hasText }}"><span>{{ sync.text }}</span></sc-if>
+        </button>
+        <span aria-hidden="true" style="flex: none; width: 1px; height: 20px; background: var(--color-border);"></span>
+        <button type="button" aria-disabled="{{ syncBusyAttr }}" aria-label="{{ profileAria }}" title="{{ profileTitle }}" onClick="{{ onProfile }}" style="flex: none; display: flex; flex-direction: {{ pv.dir }}; align-items: center; justify-content: center; gap: {{ pv.gap }}; min-height: 44px; padding: 0 {{ pv.pad }}; border: none; background: transparent; color: var(--color-text); font: inherit; line-height: 1.2; white-space: nowrap; cursor: {{ pv.cursor }}; opacity: {{ pv.opacity }}; transition: color var(--duration-fast) var(--ease-standard);" style-hover="color: var(--role-primary-hover);">
+          <span aria-hidden="true" style="display: inline-flex; gap: 3px;">
+            <sc-for list="{{ p.dots }}" as="d" hint-placeholder-count="2"><span style="width: {{ d.size }}px; height: {{ d.size }}px; border-radius: 50%; background: {{ d.hex }}; box-shadow: 0 0 6px {{ d.hex }};"></span></sc-for>
+          </span>
+          <span style="font-weight: 700; font-size: {{ pv.nameFs }};">{{ p.name }}</span>
+        </button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ barSignIn }}" hint-placeholder-val="{{ false }}">
+      <button type="button" onClick="{{ onProfile }}" style="position: relative; margin-left: auto; flex: none; display: flex; align-items: center; min-height: 44px; min-width: 44px; padding: 0 var(--space-3); border: none; background: transparent; color: var(--color-text); font: inherit; font-size: var(--font-size-sm); font-weight: 700; cursor: pointer; transition: color var(--duration-fast) var(--ease-standard);" style-hover="color: var(--role-primary-hover);">Entrar</button>
+    </sc-if>
+    <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+      <div style="position: relative; margin-left: auto; display: flex; align-items: center; gap: var(--space-1);">
+        <sc-if value="{{ hasProfile }}">
+          <span role="status" aria-label="{{ syncFull.aria0 }}" title="{{ syncFull.aria0 }}" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 44px;">
+            <sc-if value="{{ syncFull.mk.spin }}"><span class="grm-sync" aria-hidden="true" style="font-size: var(--font-size-xs); gap: 0;"><span class="spinner" style="color: var(--color-text-muted);"></span></span></sc-if>
+            <sc-if value="{{ syncFull.mk.dot }}"><span aria-hidden="true" style="flex: none; width: 8px; height: 8px; border-radius: 50%; background: {{ syncFull.mk.color }}; box-shadow: {{ syncFull.mk.glow }};"></span></sc-if>
+            <sc-if value="{{ syncFull.mk.ring }}"><span aria-hidden="true" style="flex: none; width: 8px; height: 8px; border-radius: 50%; border: 1px solid {{ syncFull.mk.color }};"></span></sc-if>
+          </span>
+        </sc-if>
+        <button type="button" class="btn btn--ghost" ref="{{ menuRef }}" aria-expanded="{{ drawerAttr }}" aria-controls="grm-drawer" onClick="{{ openDrawer }}" style="flex: none; padding: 0 var(--space-2); font-size: var(--font-size-xs); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--color-text-muted);">Menu</button>
+      </div>
+    </sc-if>
+    <span aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, var(--role-primary) 0%, var(--role-primary) 20%, var(--role-accent) 33%, var(--role-accent) 53%, var(--role-tertiary) 66%, var(--role-tertiary) 86%, var(--role-primary) 100%) repeat-x; background-size: 2400px 1px; pointer-events: none; animation: grm-flow-long 120s linear infinite;"></span>
+  </header>
+
+  <div style="position: relative; min-height: 0; display: flex;">
+    <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+      <div aria-hidden="true" style="flex: none; width: {{ spacerW }}px; transition: width var(--duration-base) var(--ease-standard);"></div>
+      <nav aria-label="Navegação principal" ref="{{ navRef }}" onMouseEnter="{{ navEnter }}" onMouseLeave="{{ navLeave }}" onFocus="{{ navFocus }}" onBlur="{{ navBlur }}" onClick="{{ navTap }}" style="position: absolute; z-index: 2; left: 0; top: 0; bottom: 0; width: {{ navW }}px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: {{ navPad }}; overflow: hidden; background: var(--color-bg); border-right: 1px solid {{ navEdge }}; box-shadow: {{ navGlow }}; cursor: {{ navCursor }}; transition: width var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard);">
+        <span aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 100%; height: 360px; max-height: 70%; opacity: 0.3; background: linear-gradient(180deg, var(--role-primary) 0%, var(--role-primary) 20%, var(--role-accent) 33%, var(--role-accent) 53%, var(--role-tertiary) 66%, var(--role-tertiary) 86%, var(--role-primary) 100%) repeat-y; background-size: 100% 2400px; -webkit-mask-image: radial-gradient(ellipse 150% 100% at 0% 0%, #000, transparent 75%); mask-image: radial-gradient(ellipse 150% 100% at 0% 0%, #000, transparent 75%); pointer-events: none; animation: grm-flow-v 120s linear infinite;"></span>
+        <span aria-hidden="true" style="position: absolute; top: 0; bottom: 0; left: 11px; width: 1px; background: linear-gradient(180deg, var(--role-primary) 0%, var(--role-primary) 20%, var(--role-accent) 33%, var(--role-accent) 53%, var(--role-tertiary) 66%, var(--role-tertiary) 86%, var(--role-primary) 100%) repeat-y; background-size: 1px 2400px; box-shadow: 0 0 6px rgb(from var(--role-primary) r g b / 35%); pointer-events: none; animation: grm-flow-v 120s linear infinite;"></span>
+        <sc-if value="{{ true }}" hint-placeholder-val="{{ true }}">
+          <button type="button" aria-pressed="{{ pinnedAttr }}" onClick="{{ togglePin }}" style="visibility: {{ pinVis }}; opacity: {{ pinOpacity }}; position: relative; flex: none; display: flex; align-items: center; min-height: 44px; margin-bottom: 6px; margin-left: 20px; width: calc(100% - 20px); padding: 0 8px; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--color-text-muted); font: inherit; font-size: var(--font-size-xs); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; white-space: nowrap; cursor: pointer; transition: opacity var(--duration-base) var(--ease-standard), visibility var(--duration-base), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);" style-hover="border-color: var(--color-border); color: var(--color-text);">{{ pinLabel }}</button>
+        </sc-if>
+        <sc-for list="{{ navItems }}" as="it" hint-placeholder-count="1">
+          <a href="#" aria-current="{{ it.currentAttr }}" aria-label="{{ it.label }}" onClick="{{ it.onClick }}" onMouseEnter="{{ it.enter }}" onMouseLeave="{{ it.leave }}" onFocus="{{ it.enter }}" onBlur="{{ it.leave }}" style="position: relative; flex: none; display: flex; align-items: center; gap: 14px; min-height: 44px; padding: 0 4px; border: 1px solid transparent; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: linear-gradient(90deg, rgb(from var(--role-primary) r g b / {{ it.washA }}%), transparent 75%); color: var(--color-text-muted); text-decoration: none; white-space: nowrap; transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);" style-hover="color: var(--color-text); text-decoration: none;">
+            <sc-if value="{{ it.cur }}"><span aria-hidden="true" style="flex: none; width: 7px; height: 7px; margin-left: 3px; border-radius: 50%; box-sizing: border-box; border: 1px solid var(--role-primary); background: var(--role-primary); box-shadow: {{ it.curGlow }}; transition: box-shadow var(--duration-fast) var(--ease-standard);"></span></sc-if>
+            <sc-if value="{{ it.notCur }}"><span aria-hidden="true" style="flex: none; width: 7px; height: 7px; margin-left: 3px; border-radius: 50%; box-sizing: border-box; border: 1px solid {{ it.beadBorder }}; background: var(--color-bg); box-shadow: {{ it.beadGlow }}; transform: scale({{ it.beadScale }}); transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);"></span></sc-if>
+            <sc-if value="{{ it.showCurLabel }}"><span style="font-size: var(--font-size-sm); font-weight: 700; color: transparent; background: linear-gradient(90deg, oklch(from var(--role-primary) max(l, 0.68) c h) 0%, oklch(from var(--role-primary) max(l, 0.68) c h) 20%, oklch(from var(--role-accent) max(l, 0.68) c h) 33%, oklch(from var(--role-accent) max(l, 0.68) c h) 53%, oklch(from var(--role-tertiary) max(l, 0.68) c h) 66%, oklch(from var(--role-tertiary) max(l, 0.68) c h) 86%, oklch(from var(--role-primary) max(l, 0.68) c h) 100%) repeat-x; background-size: 2400px 100%; -webkit-background-clip: text; background-clip: text; text-shadow: none; filter: drop-shadow(0 0 1px var(--color-bg)) drop-shadow(0 0 8px rgb(from var(--role-primary) r g b / 30%)); animation: grm-flow-long 120s linear infinite;">{{ it.label }}</span></sc-if>
+            <sc-if value="{{ it.showLabel }}"><span style="font-size: var(--font-size-sm); transform: translateX({{ it.nudge }}px); text-shadow: {{ it.labelGlow }}; transition: transform var(--duration-fast) var(--ease-standard), text-shadow var(--duration-fast) var(--ease-standard);">{{ it.label }}</span></sc-if>
+          </a>
+        </sc-for>
+      </nav>
+    </sc-if>
+
+    <main ref="{{ scrollRef }}" style="flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; scrollbar-width: thin; scrollbar-color: var(--color-surface-raised) transparent;">
+      <div style="flex: none; display: flex; flex-direction: column; gap: var(--space-2); padding: {{ viewPad }};">
+        <sc-if value="{{ pageHome }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; align-items: center; justify-content: center; min-height: 160px; padding: var(--space-4); border: 1px dashed var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-xs); color: var(--color-text-muted); text-align: center;">Início — conteúdo fora do escopo desta spec</div>
+        </sc-if>
+        <sc-if value="{{ pageCol }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; align-items: center; justify-content: center; min-height: 72px; padding: var(--space-4); border: 1px dashed var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-xs); color: var(--color-text-muted); text-align: center;">Coleção — conteúdo fora do escopo desta spec</div>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+            <div aria-hidden="true" style="min-height: 56px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: linear-gradient(var(--color-surface-raised), var(--color-surface)); opacity: 0.55;"></div>
+          </sc-for>
+        </sc-if>
+      </div>
+      <aside aria-label="Aviso legal" style="flex: none; margin-top: auto; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5) {{ noticePadX }}; border-top: 1px solid var(--color-border); font-size: var(--font-size-xs); line-height: 1.5; color: var(--color-text-muted);">
+        <p style="margin: 0; max-width: 72ch; text-wrap: pretty;">Grimorio é Fan Content não-oficial, permitido segundo a <a href="https://company.wizards.com/en/legal/fancontentpolicy" target="_blank" rel="noopener" style="display: inline-block; padding: 13px 0; margin: -13px 0;">Fan Content Policy</a> da Wizards of the Coast. Não é aprovado nem endossado pela Wizards. Partes dos materiais usados são propriedade da Wizards of the Coast. ©Wizards of the Coast LLC.</p>
+        <p style="margin: 0; max-width: 72ch; text-wrap: pretty;">Os dados e imagens de cartas exibidos no Grimorio são fornecidos por <a href="https://scryfall.com" target="_blank" rel="noopener" style="display: inline-block; padding: 13px 0; margin: -13px 0;">Scryfall</a>.</p>
+        <p style="margin: 0; max-width: 72ch; text-wrap: pretty;">Parte do desenvolvimento deste app contou com ferramentas de inteligência artificial.</p>
+      </aside>
+    </main>
+  </div>
+
+  <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+    <div aria-hidden="true" onClick="{{ closeDrawer }}" style="position: absolute; inset: 0; z-index: 10; background: var(--overlay-backdrop); opacity: {{ dr.fade }}; pointer-events: {{ dr.pe }}; transition: opacity 0.36s var(--ease-standard);"></div>
+    <aside id="grm-drawer" role="dialog" aria-modal="true" aria-label="Menu" tabIndex="-1" ref="{{ drawerRef }}" onKeyDown="{{ drawerKey }}" style="position: absolute; z-index: 11; right: 0; top: 0; bottom: 0; width: min(288px, 85%); display: flex; flex-direction: column; outline: none; background: var(--color-bg); border-left: 1px solid var(--color-border); box-shadow: {{ dr.shadow }}; transform: translateX({{ dr.x }}); visibility: {{ dr.vis }}; transition: transform 0.36s var(--ease-standard), box-shadow 0.36s var(--ease-standard), visibility 0s linear {{ dr.visDelay }};">
+      <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 100%; height: 360px; max-height: 70%; opacity: 0.3; background: linear-gradient(180deg, var(--role-primary) 0%, var(--role-primary) 20%, var(--role-accent) 33%, var(--role-accent) 53%, var(--role-tertiary) 66%, var(--role-tertiary) 86%, var(--role-primary) 100%) repeat-y; background-size: 100% 2400px; -webkit-mask-image: radial-gradient(ellipse 150% 100% at 100% 0%, #000, transparent 75%); mask-image: radial-gradient(ellipse 150% 100% at 100% 0%, #000, transparent 75%); pointer-events: none; animation: grm-flow-v 120s linear infinite;"></span>
+      <span aria-hidden="true" style="position: absolute; top: 0; bottom: 0; right: 11px; width: 1px; background: linear-gradient(180deg, var(--role-primary) 0%, var(--role-primary) 20%, var(--role-accent) 33%, var(--role-accent) 53%, var(--role-tertiary) 66%, var(--role-tertiary) 86%, var(--role-primary) 100%) repeat-y; background-size: 1px 2400px; box-shadow: 0 0 6px rgb(from var(--role-primary) r g b / 35%); pointer-events: none; animation: grm-flow-v 120s linear infinite;"></span>
+      <div style="position: relative; display: flex; align-items: center; min-height: 44px; padding: 4px 20px 4px var(--space-1);">
+        <button type="button" ref="{{ drawerCloseRef }}" aria-label="Fechar" onClick="{{ closeDrawer }}" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: none; background: transparent; color: var(--color-text-muted); font: inherit; cursor: pointer;" style-hover="color: var(--color-text);">✕</button>
+      </div>
+      <div style="position: relative; display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-1); padding: var(--space-2) 28px var(--space-4) var(--space-4); text-align: right;">
+        <sc-if value="{{ hasProfile }}" hint-placeholder-val="{{ true }}">
+          <button type="button" aria-label="{{ profileAria }}" aria-disabled="{{ syncBusyAttr }}" onClick="{{ onProfile }}" style="display: flex; align-items: center; justify-content: flex-end; min-height: 44px; padding: 0; border: none; background: transparent; color: var(--color-text); font: inherit; line-height: 1.2; text-align: right; cursor: {{ pv.cursor }}; opacity: {{ pv.opacity }}; transition: color var(--duration-fast) var(--ease-standard);" style-hover="color: var(--role-primary-hover);">
+            <span style="display: flex; align-items: center; gap: var(--space-2);">
+              <span aria-hidden="true" style="display: inline-flex; gap: 3px;"><sc-for list="{{ p.dots }}" as="d" hint-placeholder-count="2"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{ d.hex }}; box-shadow: 0 0 6px {{ d.hex }};"></span></sc-for></span>
+              <span style="font-weight: 700; font-size: var(--font-size-md);">{{ p.name }}</span>
+            </span>
+          </button>
+          <div role="status" style="display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); font-size: var(--font-size-xs); color: {{ syncFull.color }};">
+            <sc-if value="{{ syncFull.mk.spin }}"><span class="grm-sync" aria-hidden="true" style="font-size: var(--font-size-xs); gap: 0;"><span class="spinner" style="color: var(--color-text-muted);"></span></span></sc-if>
+            <sc-if value="{{ syncFull.mk.dot }}"><span aria-hidden="true" style="flex: none; width: 8px; height: 8px; border-radius: 50%; background: {{ syncFull.mk.color }}; box-shadow: {{ syncFull.mk.glow }};"></span></sc-if>
+            <sc-if value="{{ syncFull.mk.ring }}"><span aria-hidden="true" style="flex: none; width: 8px; height: 8px; border-radius: 50%; border: 1px solid {{ syncFull.mk.color }};"></span></sc-if>
+            <span>{{ syncFull.text }}</span>
+          </div>
+          <sc-if value="{{ syncFull.hasAction }}">
+            <button type="button" class="link-btn" aria-disabled="{{ syncBusyAttr }}" onClick="{{ onSync }}" style="font-size: var(--font-size-xs); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: {{ syncFull.actColor }};" style-hover="color: var(--color-text); text-decoration: underline;">{{ syncFull.action }}</button>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ showSignIn }}" hint-placeholder-val="{{ false }}">
+          <p style="margin: 0; font-size: var(--font-size-xs); color: var(--color-text-muted);">Nenhum perfil ativo</p>
+          <button type="button" onClick="{{ onProfile }}" style="display: flex; align-items: center; min-height: 44px; padding: 0; border: none; background: transparent; color: var(--color-text); font: inherit; font-size: var(--font-size-md); font-weight: 700; cursor: pointer;" style-hover="color: var(--role-primary-hover);">Entrar</button>
+        </sc-if>
+      </div>
+      <div aria-hidden="true" style="position: relative; height: 1px; margin: 0 20px var(--space-2) var(--space-4); background: var(--color-border);"></div>
+      <nav aria-label="Navegação principal" style="position: relative; flex: 1; display: flex; flex-direction: column; gap: 4px; padding: 0 0 10px 10px; overflow: hidden;">
+        <sc-for list="{{ drawerItems }}" as="it" hint-placeholder-count="1">
+          <a href="#" aria-current="{{ it.currentAttr }}" aria-label="{{ it.label }}" onClick="{{ it.onClick }}" onMouseEnter="{{ it.enter }}" onMouseLeave="{{ it.leave }}" onFocus="{{ it.enter }}" onBlur="{{ it.leave }}" style="position: relative; flex: none; display: flex; flex-direction: row-reverse; align-items: center; gap: 14px; min-height: 44px; padding: 0 4px; border: 1px solid transparent; border-radius: var(--radius-sm) 0 0 var(--radius-sm); background: linear-gradient(270deg, rgb(from var(--role-primary) r g b / {{ it.washA }}%), transparent 75%); color: var(--color-text-muted); text-decoration: none; white-space: nowrap; transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);" style-hover="color: var(--color-text); text-decoration: none;">
+            <sc-if value="{{ it.cur }}"><span aria-hidden="true" style="flex: none; width: 7px; height: 7px; margin-right: 3px; border-radius: 50%; box-sizing: border-box; border: 1px solid var(--role-primary); background: var(--role-primary); box-shadow: {{ it.curGlow }}; transition: box-shadow var(--duration-fast) var(--ease-standard);"></span></sc-if>
+            <sc-if value="{{ it.notCur }}"><span aria-hidden="true" style="flex: none; width: 7px; height: 7px; margin-right: 3px; border-radius: 50%; box-sizing: border-box; border: 1px solid {{ it.beadBorder }}; background: var(--color-bg); box-shadow: {{ it.beadGlow }}; transform: scale({{ it.beadScale }}); transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);"></span></sc-if>
+            <sc-if value="{{ it.showCurLabel }}"><span style="font-size: var(--font-size-sm); font-weight: 700; color: transparent; background: linear-gradient(90deg, oklch(from var(--role-primary) max(l, 0.68) c h) 0%, oklch(from var(--role-primary) max(l, 0.68) c h) 20%, oklch(from var(--role-accent) max(l, 0.68) c h) 33%, oklch(from var(--role-accent) max(l, 0.68) c h) 53%, oklch(from var(--role-tertiary) max(l, 0.68) c h) 66%, oklch(from var(--role-tertiary) max(l, 0.68) c h) 86%, oklch(from var(--role-primary) max(l, 0.68) c h) 100%) repeat-x; background-size: 2400px 100%; -webkit-background-clip: text; background-clip: text; text-shadow: none; filter: drop-shadow(0 0 1px var(--color-bg)) drop-shadow(0 0 8px rgb(from var(--role-primary) r g b / 30%)); animation: grm-flow-long 120s linear infinite;">{{ it.label }}</span></sc-if>
+            <sc-if value="{{ it.showLabel }}"><span style="font-size: var(--font-size-sm); transform: translateX({{ it.nudgeR }}px); text-shadow: {{ it.labelGlow }}; transition: transform var(--duration-fast) var(--ease-standard), text-shadow var(--duration-fast) var(--ease-standard);">{{ it.label }}</span></sc-if>
+          </a>
+        </sc-for>
+      </nav>
+    </aside>
+  </sc-if>
+
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: {{ modalPad }}; background: var(--overlay-backdrop);">
+      <div role="dialog" aria-modal="true" aria-label="{{ modal.title }}" style="width: {{ modalW }}; height: {{ modalH }}; padding: 2px; border-radius: {{ modalRingR }}; background: var(--ring-gradient); display: flex;">
+        <div style="flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; border-radius: {{ modalFaceR }}; background: var(--color-bg); box-shadow: var(--shadow-rest);">
+          <div style="display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 var(--space-1) 0 {{ modalPadX }};">
+            <span class="micro-label">Modal de perfil · spec 003, sem mudanças</span>
+            <button type="button" aria-label="Fechar" onClick="{{ closeModal }}" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: none; background: transparent; color: var(--color-text-muted); font: inherit; cursor: pointer;" style-hover="color: var(--color-text);">✕</button>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-2) {{ modalPadX }} var(--space-6);">
+            <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+              <h2 style="margin: 0; font-family: var(--font-display); font-weight: 600; font-size: {{ modalTitleFs }}; line-height: var(--line-height-tight); text-shadow: var(--glow-title);">{{ modal.title }}</h2>
+              <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-muted); text-wrap: pretty;">{{ modal.sub }}</p>
+            </div>
+            <sc-if value="{{ modal.hasRows }}">
+              <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+                <sc-for list="{{ modal.rows }}" as="r" hint-placeholder-count="2">
+                  <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.ProfileRow" profile="{{ r.profile }}" active="{{ r.active }}" on-click="{{ r.onPick }}" hint-size="100%,56px"></x-import>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ modal.hasSignOut }}">
+              <button type="button" class="btn btn--secondary btn--block" onClick="{{ signOut }}">{{ modal.signOutLabel }}</button>
+            </sc-if>
+            <sc-if value="{{ modal.hasAction }}">
+              <div class="grm-btn-row" style="flex-direction: {{ modalBtnDir }};">
+                <button type="button" class="btn btn--primary" onClick="{{ modal.onAction }}" style="flex: 1;">{{ modal.actionLabel }}</button>
+                <button type="button" class="btn btn--ghost" onClick="{{ closeModal }}">Cancelar</button>
+              </div>
+            </sc-if>
+            <p style="margin: 0; font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ modal.note }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:760},&quot;w&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;},&quot;h&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:760,&quot;tsType&quot;:&quot;number&quot;},&quot;profile&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;rafa&quot;,&quot;bia&quot;,&quot;gabriel_montanha&quot;,&quot;none&quot;],&quot;default&quot;:&quot;rafa&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;sync&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;synced&quot;,&quot;last&quot;,&quot;never&quot;,&quot;syncing&quot;,&quot;local&quot;,&quot;offline&quot;,&quot;expired&quot;,&quot;error&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;outcome&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ok&quot;,&quot;offline&quot;,&quot;expired&quot;,&quot;error&quot;],&quot;default&quot;:&quot;ok&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;page&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;colecao&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;pinned&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;navExpanded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;drawer&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;modal&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;switch&quot;,&quot;list&quot;,&quot;link&quot;,&quot;reauth&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;long&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;persist&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;fast&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const ORDER = ['W', 'U', 'B', 'R', 'G'];
+const CNAME = { W: 'Branco', U: 'Azul', B: 'Preto', R: 'Vermelho', G: 'Verde' };
+const CVAR = { W: '--identity-w', U: '--identity-u', B: '--identity-b', R: '--identity-r', G: '--identity-g' };
+const TRIBES = { W: 'Mono-branco', U: 'Mono-azul', B: 'Mono-preto', R: 'Mono-vermelho', G: 'Mono-verde', WU: 'Azorius', WB: 'Orzhov', WR: 'Boros', WG: 'Selesnya', UB: 'Dimir', UR: 'Izzet', UG: 'Simic', BR: 'Rakdos', BG: 'Golgari', RG: 'Gruul', WUB: 'Esper', WUR: 'Jeskai', WUG: 'Bant', WBR: 'Mardu', WBG: 'Abzan', WRG: 'Naya', UBR: 'Grixis', UBG: 'Sultai', URG: 'Temur', BRG: 'Jund' };
+const tribe = (c) => TRIBES[ORDER.filter((x) => c.includes(x)).join('')] || '';
+const MIN = 60000;
+const SEED = {
+  rafa: { name: 'rafa', colors: ['U', 'R'], linked: true, ago: 42 },
+  bia: { name: 'bia', colors: ['B', 'G'], linked: false, ago: null },
+  gabriel_montanha: { name: 'gabriel_montanha', colors: ['G', 'W', 'R'], linked: true, ago: null },
+};
+const PIN_KEY = 'grimorio-proto:nav-pinned';
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.rootRef = React.createRef(); this.scrollRef = React.createRef(); this.navRef = React.createRef();
+    this.menuRef = React.createRef(); this.drawerRef = React.createRef(); this.drawerCloseRef = React.createRef();
+    this.state = this.initial(props);
+  }
+  initial(props) {
+    const now = Date.now();
+    const profiles = {};
+    Object.keys(SEED).forEach((k) => {
+      const s = SEED[k];
+      profiles[k] = { name: s.name, colors: s.colors, linked: s.linked, lastAt: s.ago == null ? null : now - s.ago * MIN, status: 'idle' };
+    });
+    const pk = props.profile === 'none' ? null : (props.profile || 'rafa');
+    if (pk && props.sync) this.applySync(profiles[pk], props.sync, now);
+    let pinned = !!props.pinned;
+    if (props.persist) { try { pinned = localStorage.getItem(PIN_KEY) === '1'; } catch (e) { pinned = false; } }
+    return { pk, profiles, pinned, hover: false, focusIn: false, drawer: !!props.drawer, page: props.page || 'home', modal: props.modal || null, pendingCol: false, now };
+  }
+  applySync(p, s, now) {
+    const scale = this.props.fast ? 60 : 1;
+    if (s === 'syncing') p.status = 'syncing';
+    else if (s === 'synced') { p.status = 'idle'; p.lastAt = now; }
+    else if (s === 'last') { p.status = 'idle'; p.lastAt = now - 42 * MIN / scale; }
+    else if (s === 'never') { p.status = 'idle'; p.lastAt = null; }
+    else if (s === 'local') { p.linked = false; }
+    else p.status = s;
+  }
+  componentDidMount() { this._pp = { profile: this.props.profile, sync: this.props.sync }; this._ps = { page: this.state.page, drawer: this.state.drawer }; this.tick = setInterval(() => this.setState({ now: Date.now() }), 1000); this.applyTheme(); }
+  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.syncT); clearTimeout(this.leaveT); }
+  componentDidUpdate() {
+    const prevProps = this._pp || this.props;
+    const prevState = this._ps || this.state;
+    this._pp = { profile: this.props.profile, sync: this.props.sync };
+    this._ps = { page: this.state.page, drawer: this.state.drawer };
+    if (prevProps.profile !== this.props.profile || prevProps.sync !== this.props.sync) {
+      const s = this.initial(this.props);
+      this.setState({ pk: s.pk, profiles: s.profiles, modal: null });
+    }
+    if (prevState.page !== this.state.page && this.scrollRef.current) this.scrollRef.current.scrollTop = 0;
+    if (!prevState.drawer && this.state.drawer) { const t = this.kbd ? this.drawerCloseRef.current : this.drawerRef.current; if (t) t.focus({ preventScroll: true }); }
+    if (prevState.drawer && !this.state.drawer && this.menuRef.current && this.returnFocus) { if (this.kbd) this.menuRef.current.focus({ preventScroll: true }); else if (this.drawerRef.current && this.drawerRef.current.contains(document.activeElement)) document.activeElement.blur(); this.returnFocus = false; }
+    const r = this.rootRef.current; if (r && (r.scrollLeft || r.scrollTop)) { r.scrollLeft = 0; r.scrollTop = 0; }
+    this.applyTheme();
+  }
+  applyTheme() {
+    const el = null; if (!el) return;
+    const p = this.state.pk ? this.state.profiles[this.state.pk] : null;
+    const c = p ? p.colors : [];
+    ['primary', 'accent', 'tertiary'].forEach((role, i) => {
+      if (c[i]) { el.style.setProperty('--theme-' + role, 'var(' + CVAR[c[i]] + ')'); el.style.setProperty('--theme-' + role + '-hover', 'var(' + CVAR[c[i]] + '-hover)'); }
+      else { el.style.removeProperty('--theme-' + role); el.style.removeProperty('--theme-' + role + '-hover'); }
+    });
+  }
+  setProfile(k, patch) { this.setState((s) => ({ profiles: { ...s.profiles, [k]: { ...s.profiles[k], ...patch } } })); }
+  syncView(p, compact) {
+    const scale = this.props.fast ? 60 : 1;
+    let kind, full, short;
+    if (!p.linked) { kind = 'local'; full = 'Sem conta na nuvem'; short = 'Sem nuvem'; }
+    else if (p.status === 'syncing') { kind = 'syncing'; full = 'Sincronizando…'; short = ''; }
+    else if (p.status === 'offline') { kind = 'fail'; full = 'Sem conexão'; short = 'Sem rede'; }
+    else if (p.status === 'expired') { kind = 'fail'; full = 'Sessão expirada'; short = 'Expirou'; }
+    else if (p.status === 'error') { kind = 'fail'; full = 'Falha ao sincronizar'; short = 'Falhou'; }
+    else if (p.lastAt == null) { kind = 'never'; full = 'Nunca sincronizado'; short = 'Nunca'; }
+    else {
+      const m = Math.floor((this.state.now - p.lastAt) * scale / MIN);
+      if (m < 5) { kind = 'synced'; full = 'Sincronizado'; short = 'Agora'; }
+      else { kind = 'last'; const rel = m < 60 ? 'há ' + m + ' min' : m < 1440 ? 'há ' + Math.floor(m / 60) + ' h' : 'há ' + Math.floor(m / 1440) + ' d'; full = 'Sincronizado ' + rel; short = rel; }
+    }
+    const action = { local: 'Vincular conta na nuvem', syncing: 'Aguarde', fail: p.status === 'expired' ? 'Entrar de novo' : 'Tentar de novo', never: 'Sincronizar agora', synced: 'Sincronizar agora', last: 'Sincronizar agora' }[kind];
+    const mk = {
+      spin: kind === 'syncing',
+      dot: kind === 'synced' || kind === 'last' || kind === 'fail',
+      ring: kind === 'never' || kind === 'local',
+      color: kind === 'fail' ? 'var(--color-danger)' : kind === 'local' || kind === 'last' ? 'var(--color-text-muted)' : 'var(--color-text)',
+      glow: kind === 'synced' ? '0 0 8px rgb(from var(--color-text) r g b / 60%)' : kind === 'fail' ? '0 0 8px var(--color-danger)' : 'none',
+    };
+    const text = compact ? short : full;
+    return {
+      kind, mk, text, hasText: !!text,
+      aria: full + (kind === 'syncing' ? '. Sincronização em andamento.' : '. ' + action + '.'),
+      color: kind === 'fail' ? 'var(--color-danger)' : kind === 'synced' ? 'var(--color-text)' : 'var(--color-text-muted)',
+      dir: compact ? 'column' : 'row', gap: compact ? '3px' : 'var(--space-2)', pad: compact ? 'var(--space-1)' : 'var(--space-3)',
+      cursor: kind === 'syncing' ? 'not-allowed' : 'pointer',
+    };
+  }
+  startSync() {
+    const k = this.state.pk;
+    this.setProfile(k, { status: 'syncing' });
+    clearTimeout(this.syncT);
+    this.syncT = setTimeout(() => {
+      const o = this.props.outcome || 'ok';
+      if (o === 'ok') this.setProfile(k, { status: 'idle', lastAt: Date.now() });
+      else this.setProfile(k, { status: o });
+    }, 2400);
+  }
+  renderVals() {
+    const S = this.state, P = this.props;
+    const w = P.w || 1280, h = P.h || 760;
+    const wide = w >= 960, narrow = !wide, compact = w <= 640;
+    const p = S.pk ? S.profiles[S.pk] : null;
+    const busy = !!(p && p.status === 'syncing');
+    const form = P.indicatorForm || 'tribo';
+    const expanded = wide && (S.pinned || S.hover || S.focusIn || !!P.navExpanded);
+    const onCol = S.page === 'colecao';
+
+    const goCol = (e) => {
+      e.preventDefault();
+      const wasDrawer = S.drawer;
+      if (!S.pk) { this.setState({ modal: 'list', pendingCol: true, drawer: false }); return; }
+      this.returnFocus = wasDrawer;
+      this.setState({ page: 'colecao', drawer: false });
+    };
+    const mkItem = (inDrawer) => {
+      const cur = onCol, lab = inDrawer || expanded;
+      const key = (inDrawer ? 'd:' : 'n:') + 'colecao';
+      const hov = S.hoverItem === key;
+      return {
+        label: 'Coleção', currentAttr: cur ? 'page' : undefined, onClick: (e) => { e.stopPropagation(); goCol(e); },
+        cur, notCur: !cur, showCurLabel: lab && cur, showLabel: lab && !cur,
+        enter: () => this.setState({ hoverItem: key }),
+        leave: () => this.setState((s) => (s.hoverItem === key ? { hoverItem: null } : null)),
+        washA: hov && lab ? 16 : 0,
+        beadBorder: hov ? 'var(--role-primary)' : 'var(--color-border)',
+        beadGlow: hov ? '0 0 0 3px var(--color-bg), 0 0 8px 1px rgb(from var(--role-primary) r g b / 70%)' : 'none',
+        beadScale: hov ? 1.3 : 1,
+        nudge: hov ? 3 : 0, nudgeR: hov ? -3 : 0,
+        labelGlow: hov ? 'var(--glow-title)' : 'none',
+        curGlow: hov ? '0 0 0 3px var(--color-bg), 0 0 16px 3px var(--role-primary)' : '0 0 0 3px var(--color-bg), 0 0 10px 1px var(--role-primary)',
+      };
+    };
+
+    const modalKey = S.modal;
+    const rowsFor = (activeKey) => {
+      const keys = Object.keys(S.profiles);
+      const ordered = activeKey ? [activeKey, ...keys.filter((k) => k !== activeKey)] : keys;
+      return ordered.map((k) => ({
+        profile: { name: S.profiles[k].name, colors: S.profiles[k].colors, linked: S.profiles[k].linked },
+        active: k === activeKey,
+        onPick: () => this.setState((s) => ({ pk: k, modal: null, page: s.pendingCol ? 'colecao' : s.page, pendingCol: false })),
+      }));
+    };
+    let modal = { title: '', sub: '', rows: [], hasRows: false, hasSignOut: false, hasAction: false, note: '' };
+    if (modalKey === 'switch' && p) modal = { title: 'Trocar de perfil', sub: 'Você está usando ' + p.name + '. Escolha outro perfil e digite a senha.', rows: rowsFor(S.pk), hasRows: true, hasSignOut: true, signOutLabel: 'Sair de ' + p.name, hasAction: false, note: 'Protótipo: a troca pula a senha.' };
+    else if (modalKey === 'list' || (modalKey && !p)) modal = { title: 'Escolha um perfil', sub: 'Perfis neste aparelho. Toque em um e digite a senha.', rows: rowsFor(null), hasRows: true, hasSignOut: false, hasAction: false, note: 'Protótipo: a escolha pula a senha.' };
+    else if (modalKey === 'link' && p) modal = { title: 'Entrar na conta', sub: 'Vincule ' + p.name + ' a uma conta na nuvem para sincronizar entre aparelhos.', hasRows: false, rows: [], hasSignOut: false, hasAction: true, actionLabel: 'Entrar', onAction: () => { this.setProfile(S.pk, { linked: true, lastAt: null, status: 'idle' }); this.setState({ modal: null }); }, note: 'Protótipo: o formulário foi omitido. Vincular não inicia sincronização.' };
+    else if (modalKey === 'reauth' && p) modal = { title: 'Entre de novo', sub: 'A sessão da conta expirou. Entre para voltar a sincronizar ' + p.name + ' — as alterações pendentes serão enviadas.', hasRows: false, rows: [], hasSignOut: false, hasAction: true, actionLabel: 'Entrar', onAction: () => { this.setProfile(S.pk, { status: 'idle' }); this.setState({ modal: null }); }, note: 'Protótipo: o formulário foi omitido. Renovar a sessão não inicia sincronização.' };
+
+    const idLine = p ? tribe(p.colors) + ' · ' + p.colors.map((c) => CNAME[c]).join(' · ') : '';
+    const pv = p ? { name: p.name, colors: p.colors, tribe: tribe(p.colors), idLine, dots: p.colors.map((c) => ({ hex: 'var(' + CVAR[c] + ')', size: compact ? 6 : 8 })) } : { name: '', colors: [], tribe: '', idLine: '', dots: [] };
+    const seg = {
+      dir: compact ? 'column' : 'row', gap: compact ? '3px' : 'var(--space-2)', pad: compact ? 'var(--space-2)' : 'var(--space-3)',
+      nameFs: compact ? 'var(--font-size-xs)' : 'var(--font-size-sm)', showTribe: !compact && form !== 'nome',
+      cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.5 : 1,
+    };
+
+    return {
+      th: (() => {
+        const c = p ? p.colors.slice() : ['R', 'U', 'G'];
+        if (!c[1]) c[1] = c[0];
+        if (!c[2]) c[2] = c[1];
+        const v = (i, hov) => 'var(' + CVAR[c[i]] + (hov ? '-hover' : '') + ')';
+        return { p: v(0), ph: v(0, 1), a: v(1), ah: v(1, 1), t: v(2), th: v(2, 1) };
+      })(),
+      pinRoot: (e) => { if (e.target === this.rootRef.current) { e.target.scrollLeft = 0; e.target.scrollTop = 0; } },
+      rootRef: this.rootRef, scrollRef: this.scrollRef, navRef: this.navRef, menuRef: this.menuRef, drawerRef: this.drawerRef, drawerCloseRef: this.drawerCloseRef,
+      w, h, wide, narrow,
+      barPad: narrow ? '4px var(--space-1) 4px var(--space-4)' : '4px var(--space-4)',
+      rightGap: compact ? 'var(--space-1)' : 'var(--space-2)',
+      hasProfile: !!p,
+      sync: p ? this.syncView(p, compact) : { mk: {}, text: '', aria: '' },
+      syncBusyAttr: busy ? 'true' : undefined,
+      p: pv, pv: seg,
+      dr: S.drawer && narrow
+        ? { fade: 1, pe: 'auto', x: '0', vis: 'visible', visDelay: '0s', shadow: 'var(--shadow-rest), 0 0 24px -6px rgb(from var(--role-primary) r g b / 45%)' }
+        : { fade: 0, pe: 'none', x: '100%', vis: 'hidden', visDelay: '0.36s', shadow: 'none' },
+      showSignIn: !p, barAccount: !!p && wide, barSignIn: !p && wide,
+      syncFull: p ? (() => { const v = this.syncView(p, false); const act = { local: 'Vincular conta na nuvem', fail: p.status === 'expired' ? 'Entrar de novo' : 'Tentar de novo', never: 'Sincronizar agora', synced: 'Sincronizar agora', last: 'Sincronizar agora' }[v.kind]; return { ...v, action: act || '', hasAction: !!act, aria0: v.text, actColor: v.kind === 'fail' ? 'var(--color-danger)' : 'var(--color-text-muted)' }; })() : { mk: {}, text: '', aria0: '', hasAction: false },
+      profileAria: p ? (busy ? 'Perfil ' + p.name + ' — ' + idLine + '. Aguarde a sincronização terminar.' : 'Perfil ' + p.name + ' — ' + idLine + '. Trocar de perfil ou sair.') : 'Entrar',
+      profileTitle: busy ? 'Aguarde a sincronização terminar' : (p ? 'Trocar de perfil ou sair' : 'Entrar'),
+      onSync: () => {
+        if (!p || busy) return;
+        if (!p.linked) { this.setState({ modal: 'link' }); return; }
+        if (p.status === 'expired') { this.setState({ modal: 'reauth' }); return; }
+        this.startSync();
+      },
+      onProfile: () => { if (busy) return; this.setState({ modal: p ? 'switch' : 'list' }); },
+      goHome: (e) => { e.preventDefault(); this.returnFocus = S.drawer; this.setState({ page: 'home', drawer: false }); },
+      drawerAttr: S.drawer ? 'true' : 'false',
+      openDrawer: (e) => { this.kbd = !(e && e.detail > 0); this.setState({ drawer: true }); },
+      closeDrawer: (e) => { if (e && e.detail > 0) this.kbd = false; this.returnFocus = true; this.setState({ drawer: false }); },
+      drawerOpen: narrow && S.drawer,
+      drawerKey: (e) => {
+        if (e.key !== 'Tab' || !this.drawerRef.current) return;
+        const f = this.drawerRef.current.querySelectorAll('a,button');
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      },
+      onKey: (e) => {
+        if (e.key !== 'Escape') return;
+        if (S.modal) this.setState({ modal: null, pendingCol: false });
+        else if (S.drawer) { this.kbd = true; this.returnFocus = true; this.setState({ drawer: false }); }
+      },
+      spacerW: S.pinned ? 232 : 24,
+      navW: expanded ? 232 : 24,
+      navPad: expanded ? '10px 10px 10px 0' : '10px 0',
+      navEdge: expanded ? 'var(--color-border)' : 'transparent',
+      navGlow: expanded && !S.pinned ? 'var(--shadow-rest), 0 0 24px -6px rgb(from var(--role-primary) r g b / 45%)' : 'none',
+      navCursor: S.pinned ? 'default' : 'pointer',
+      navOpen: expanded,
+      navEnter: () => { clearTimeout(this.leaveT); if (!S.hover) this.setState({ hover: true }); },
+      navLeave: () => { clearTimeout(this.leaveT); this.leaveT = setTimeout(() => this.setState({ hover: false }), 120); },
+      navFocus: () => { if (!S.focusIn) this.setState({ focusIn: true }); },
+      navBlur: (e) => { const n = this.navRef.current; if (n && e.relatedTarget && n.contains(e.relatedTarget)) return; this.setState({ focusIn: false }); },
+      navTap: (e) => {
+        if (e.target !== this.navRef.current || S.pinned) return;
+        if (P.persist) { try { localStorage.setItem(PIN_KEY, '1'); } catch (err) {} }
+        clearTimeout(this.leaveT); this.setState({ pinned: true, hover: false });
+      },
+      navItems: [mkItem(false)],
+      drawerItems: [mkItem(true)],
+      pinVis: expanded ? 'visible' : 'hidden',
+      pinOpacity: expanded ? 1 : 0,
+      pinnedAttr: S.pinned ? 'true' : 'false',
+      pinLabel: S.pinned ? 'Recolher menu' : 'Fixar menu',
+      togglePin: () => {
+        const v = !S.pinned;
+        if (P.persist) { try { localStorage.setItem(PIN_KEY, v ? '1' : '0'); } catch (e) {} }
+        this.setState({ pinned: v, hover: v ? S.hover : false, focusIn: false });
+      },
+      viewPad: compact ? 'var(--space-4)' : 'var(--space-6)',
+      noticePadX: compact ? 'var(--space-4)' : 'var(--space-6)',
+      pageHome: S.page === 'home',
+      pageCol: onCol,
+      rows: Array.from({ length: P.long === false ? 2 : 14 }, (_, i) => ({ i })),
+      modalOpen: !!S.modal,
+      modal,
+      closeModal: () => this.setState({ modal: null, pendingCol: false }),
+      signOut: () => this.setState({ pk: null, modal: null, page: 'home' }),
+      modalPad: compact ? '0' : 'var(--space-4)',
+      modalW: compact ? '100%' : 'min(440px, 100%)',
+      modalH: compact ? '100%' : 'auto',
+      modalRingR: compact ? '0' : 'var(--radius-ring)',
+      modalFaceR: compact ? '0' : 'var(--radius-md)',
+      modalPadX: compact ? 'var(--space-5)' : 'var(--space-6)',
+      modalTitleFs: compact ? 'var(--font-size-lg)' : 'var(--font-size-2xl)',
+      modalBtnDir: compact ? 'column' : 'row',
+    };
+  }
+}
+</script>
+</body>
+</html>

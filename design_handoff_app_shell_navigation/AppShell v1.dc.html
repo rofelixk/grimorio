@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/components.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+  <script src="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/_ds_bundle.js"></script>
+  <style>
+    @keyframes grm-drawer-in { from { transform: translateX(-100%); } }
+    @keyframes grm-fade-in { from { opacity: 0; } }
+  </style>
+</helmet>
+<div data-theme-scope="" ref="{{ rootRef }}" onKeyDown="{{ onKey }}" style="position: relative; width: {{ w }}px; height: {{ h }}px; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); font-size: var(--font-size-md); line-height: var(--line-height-normal);">
+
+  <header role="banner" style="position: relative; z-index: 3; display: flex; align-items: center; gap: var(--space-1); height: 45px; padding: 0 {{ barPad }}; border-bottom: 1px solid var(--color-border); background: var(--color-bg);">
+    <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+      <button type="button" class="btn btn--ghost" ref="{{ menuRef }}" aria-expanded="{{ drawerAttr }}" aria-controls="grm-drawer" onClick="{{ openDrawer }}" style="flex: none; padding: 0; font-size: var(--font-size-sm);">Menu</button>
+    </sc-if>
+    <a href="#" class="grm-wordmark" aria-label="Grimorio — Início" onClick="{{ goHome }}" style="flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0; font-size: var(--font-size-lg); text-decoration: none;" style-hover="text-decoration: none; color: var(--role-primary-hover);">Grimorio</a>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: {{ rightGap }};">
+      <sc-if value="{{ hasProfile }}" hint-placeholder-val="{{ true }}">
+        <button type="button" class="btn btn--ghost" aria-disabled="{{ syncBusyAttr }}" aria-label="{{ sync.aria }}" title="{{ sync.aria }}" onClick="{{ onSync }}" style="flex: none; flex-direction: {{ sync.dir }}; gap: {{ sync.gap }}; padding: 0 {{ sync.pad }}; font-size: {{ sync.fs }}; line-height: 1.2; white-space: nowrap; color: {{ sync.color }};">
+          <sc-if value="{{ sync.mk.spin }}"><span class="grm-sync" aria-hidden="true" style="font-size: var(--font-size-xs); gap: 0;"><span class="spinner"></span></span></sc-if>
+          <sc-if value="{{ sync.mk.dot }}"><span aria-hidden="true" style="flex: none; width: 8px; height: 8px; border-radius: 50%; background: {{ sync.mk.color }}; box-shadow: {{ sync.mk.glow }};"></span></sc-if>
+          <sc-if value="{{ sync.mk.ring }}"><span aria-hidden="true" style="flex: none; width: 8px; height: 8px; border-radius: 50%; border: 1px solid {{ sync.mk.color }};"></span></sc-if>
+          <sc-if value="{{ sync.hasText }}"><span>{{ sync.text }}</span></sc-if>
+        </button>
+      </sc-if>
+
+      <sc-if value="{{ showWheel }}" hint-placeholder-val="{{ true }}">
+        <button type="button" class="btn" aria-disabled="{{ syncBusyAttr }}" aria-label="{{ profileAria }}" title="{{ profileTitle }}" onClick="{{ onProfile }}" style="flex: none; gap: var(--space-2); padding: 0 var(--space-3) 0 var(--space-1); background: transparent;">
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.MiniWheel" colors="{{ p.colors }}" hint-size="36px,36px"></x-import>
+          <span style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; white-space: nowrap;">
+            <span style="font-weight: 700; font-size: var(--font-size-sm);">{{ p.name }}</span>
+            <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ p.idLine }}</span>
+          </span>
+        </button>
+      </sc-if>
+      <sc-if value="{{ showChip }}" hint-placeholder-val="{{ false }}">
+        <button type="button" class="btn" aria-disabled="{{ syncBusyAttr }}" aria-label="{{ profileAria }}" title="{{ profileTitle }}" onClick="{{ onProfile }}" style="flex: none; gap: var(--space-2); padding: 0 var(--space-3); background: transparent; font-size: var(--font-size-sm); white-space: nowrap;">
+          <span aria-hidden="true" style="display: inline-flex; gap: 3px;">
+            <sc-for list="{{ p.dots }}" as="d" hint-placeholder-count="2"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{ d.hex }}; box-shadow: 0 0 6px {{ d.hex }};"></span></sc-for>
+          </span>
+          <span style="font-weight: 700;">{{ p.name }}</span>
+          <span style="color: var(--color-text-muted);">{{ p.tribe }}</span>
+        </button>
+      </sc-if>
+      <sc-if value="{{ showCompact }}" hint-placeholder-val="{{ false }}">
+        <button type="button" class="btn" aria-disabled="{{ syncBusyAttr }}" aria-label="{{ profileAria }}" title="{{ profileTitle }}" onClick="{{ onProfile }}" style="flex: none; flex-direction: column; gap: 3px; padding: 0 var(--space-2); background: transparent; line-height: 1.2; white-space: nowrap;">
+          <span aria-hidden="true" style="display: inline-flex; gap: 3px;">
+            <sc-for list="{{ p.dots }}" as="d" hint-placeholder-count="2"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{ d.hex }}; box-shadow: 0 0 6px {{ d.hex }};"></span></sc-for>
+          </span>
+          <span style="font-weight: 700; font-size: var(--font-size-xs);">{{ p.name }}</span>
+        </button>
+      </sc-if>
+      <sc-if value="{{ showSignIn }}" hint-placeholder-val="{{ false }}">
+        <button type="button" class="btn btn--secondary" onClick="{{ onProfile }}" style="flex: none; font-size: var(--font-size-sm);">Entrar</button>
+      </sc-if>
+    </div>
+  </header>
+
+  <div style="position: relative; min-height: 0; display: flex;">
+    <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+      <div aria-hidden="true" style="flex: none; width: {{ spacerW }}px; transition: width var(--duration-base) var(--ease-standard);"></div>
+      <nav aria-label="Navegação principal" ref="{{ navRef }}" onMouseEnter="{{ navEnter }}" onMouseLeave="{{ navLeave }}" onFocus="{{ navFocus }}" onBlur="{{ navBlur }}" onClick="{{ navTap }}" style="position: absolute; z-index: 2; left: 0; top: 0; bottom: 0; width: {{ navW }}px; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2); overflow: hidden; background: var(--color-bg); border-right: 1px solid {{ navEdge }}; box-shadow: {{ navGlow }}; transition: width var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard);">
+        <sc-for list="{{ navItems }}" as="it" hint-placeholder-count="1">
+          <a href="#" aria-current="{{ it.currentAttr }}" aria-label="{{ it.label }}" onClick="{{ it.onClick }}" style="display: flex; flex-direction: {{ it.dir }}; align-items: center; justify-content: {{ it.justify }}; gap: var(--space-3); min-height: 44px; padding: {{ it.pad }}; border: 1px solid {{ it.border }}; border-radius: var(--radius-sm); box-shadow: {{ it.glow }}; background: {{ it.bg }}; color: var(--color-text); text-decoration: none; white-space: nowrap; transition: border-color var(--duration-fast) var(--ease-standard);" style-hover="border-color: var(--role-primary); text-decoration: none; color: var(--color-text);">
+            <sc-if value="{{ it.showCap }}"><span aria-hidden="true" style="flex: none; width: 38px; text-align: center; font-family: var(--font-display); font-weight: 600; font-size: var(--font-size-lg); line-height: 1; color: {{ it.capColor }}; text-shadow: {{ it.capGlow }};">{{ it.initial }}</span></sc-if>
+            <span style="font-size: var(--font-size-sm); font-weight: {{ it.weight }}; opacity: {{ it.labelOpacity }}; writing-mode: {{ it.writing }}; transform: {{ it.rotate }}; letter-spacing: {{ it.tracking }}; transition: opacity var(--duration-fast) var(--ease-standard);">{{ it.label }}</span>
+          </a>
+        </sc-for>
+        <div style="margin-top: auto; padding-top: var(--space-2); border-top: 1px solid var(--color-border); visibility: {{ pinVis }}; opacity: {{ pinOpacity }}; transition: opacity var(--duration-fast) var(--ease-standard);">
+          <button type="button" class="btn btn--ghost btn--block" aria-pressed="{{ pinnedAttr }}" onClick="{{ togglePin }}" style="justify-content: flex-start; padding: 0 var(--space-3); font-size: var(--font-size-sm); color: var(--color-text-muted); white-space: nowrap;">{{ pinLabel }}</button>
+        </div>
+      </nav>
+    </sc-if>
+
+    <main ref="{{ scrollRef }}" style="flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;">
+      <div style="flex: none; display: flex; flex-direction: column; gap: var(--space-2); padding: {{ viewPad }};">
+        <sc-if value="{{ pageHome }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; align-items: center; justify-content: center; min-height: 160px; padding: var(--space-4); border: 1px dashed var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-xs); color: var(--color-text-muted); text-align: center;">Início — conteúdo fora do escopo desta spec</div>
+        </sc-if>
+        <sc-if value="{{ pageCol }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; align-items: center; justify-content: center; min-height: 72px; padding: var(--space-4); border: 1px dashed var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-xs); color: var(--color-text-muted); text-align: center;">Coleção — conteúdo fora do escopo desta spec</div>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+            <div aria-hidden="true" style="min-height: 56px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: linear-gradient(var(--color-surface-raised), var(--color-surface)); opacity: 0.55;"></div>
+          </sc-for>
+        </sc-if>
+      </div>
+      <aside aria-label="Aviso legal" style="flex: none; margin-top: auto; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5) {{ noticePadX }}; border-top: 1px solid var(--color-border); font-size: var(--font-size-xs); line-height: 1.5; color: var(--color-text-muted);">
+        <p style="margin: 0; max-width: 72ch; text-wrap: pretty;">Grimorio é Fan Content não-oficial, permitido segundo a <a href="https://company.wizards.com/en/legal/fancontentpolicy" target="_blank" rel="noopener" style="display: inline-block; padding: 13px 0; margin: -13px 0;">Fan Content Policy</a> da Wizards of the Coast. Não é aprovado nem endossado pela Wizards. Partes dos materiais usados são propriedade da Wizards of the Coast. ©Wizards of the Coast LLC.</p>
+        <p style="margin: 0; max-width: 72ch; text-wrap: pretty;">Os dados e imagens de cartas exibidos no Grimorio são fornecidos por <a href="https://scryfall.com" target="_blank" rel="noopener" style="display: inline-block; padding: 13px 0; margin: -13px 0;">Scryfall</a>.</p>
+        <p style="margin: 0; max-width: 72ch; text-wrap: pretty;">Parte do desenvolvimento deste app contou com ferramentas de inteligência artificial.</p>
+      </aside>
+    </main>
+  </div>
+
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div aria-hidden="true" onClick="{{ closeDrawer }}" style="position: absolute; inset: 0; z-index: 10; background: var(--overlay-backdrop); animation: grm-fade-in var(--duration-base) var(--ease-standard);"></div>
+    <aside id="grm-drawer" role="dialog" aria-modal="true" aria-label="Menu" ref="{{ drawerRef }}" onKeyDown="{{ drawerKey }}" style="position: absolute; z-index: 11; left: 0; top: 0; bottom: 0; width: min(288px, 85%); display: flex; flex-direction: column; background: var(--color-bg); border-right: 1px solid var(--color-border); animation: grm-drawer-in var(--duration-base) var(--ease-standard);">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); height: 45px; padding: 0 var(--space-1) 0 var(--space-4); border-bottom: 1px solid var(--color-border); background: var(--wash-header);">
+        <a href="#" class="grm-wordmark" aria-label="Grimorio — Início" onClick="{{ goHome }}" style="display: inline-flex; align-items: center; min-height: 44px; font-size: var(--font-size-lg); text-decoration: none;" style-hover="text-decoration: none; color: var(--role-primary-hover);">Grimorio</a>
+        <button type="button" ref="{{ drawerCloseRef }}" aria-label="Fechar" onClick="{{ closeDrawer }}" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: none; background: transparent; color: var(--color-text-muted); font: inherit; cursor: pointer;" style-hover="color: var(--color-text);">✕</button>
+      </div>
+      <nav aria-label="Navegação principal" style="display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2);">
+        <sc-for list="{{ drawerItems }}" as="it" hint-placeholder-count="1">
+          <a href="#" aria-current="{{ it.currentAttr }}" onClick="{{ it.onClick }}" style="display: flex; align-items: center; gap: var(--space-3); min-height: 44px; padding: 0; border: 1px solid {{ it.border }}; border-radius: var(--radius-sm); box-shadow: {{ it.glow }}; color: var(--color-text); text-decoration: none;" style-hover="border-color: var(--role-primary); text-decoration: none; color: var(--color-text);">
+            <sc-if value="{{ it.showCap }}"><span aria-hidden="true" style="flex: none; width: 38px; text-align: center; font-family: var(--font-display); font-weight: 600; font-size: var(--font-size-lg); line-height: 1; color: {{ it.capColor }}; text-shadow: {{ it.capGlow }};">{{ it.initial }}</span></sc-if>
+            <span style="font-size: var(--font-size-sm); font-weight: {{ it.weight }}; padding-left: {{ it.labelPad }};">{{ it.label }}</span>
+          </a>
+        </sc-for>
+      </nav>
+    </aside>
+  </sc-if>
+
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: {{ modalPad }}; background: var(--overlay-backdrop);">
+      <div role="dialog" aria-modal="true" aria-label="{{ modal.title }}" style="width: {{ modalW }}; height: {{ modalH }}; padding: 2px; border-radius: {{ modalRingR }}; background: var(--ring-gradient); display: flex;">
+        <div style="flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; border-radius: {{ modalFaceR }}; background: var(--color-bg); box-shadow: var(--shadow-rest);">
+          <div style="display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 var(--space-1) 0 {{ modalPadX }};">
+            <span class="micro-label">Modal de perfil · spec 003, sem mudanças</span>
+            <button type="button" aria-label="Fechar" onClick="{{ closeModal }}" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: none; background: transparent; color: var(--color-text-muted); font: inherit; cursor: pointer;" style-hover="color: var(--color-text);">✕</button>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-2) {{ modalPadX }} var(--space-6);">
+            <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+              <h2 style="margin: 0; font-family: var(--font-display); font-weight: 600; font-size: {{ modalTitleFs }}; line-height: var(--line-height-tight); text-shadow: var(--glow-title);">{{ modal.title }}</h2>
+              <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-muted); text-wrap: pretty;">{{ modal.sub }}</p>
+            </div>
+            <sc-if value="{{ modal.hasRows }}">
+              <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+                <sc-for list="{{ modal.rows }}" as="r" hint-placeholder-count="2">
+                  <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.ProfileRow" profile="{{ r.profile }}" active="{{ r.active }}" on-click="{{ r.onPick }}" hint-size="100%,56px"></x-import>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ modal.hasSignOut }}">
+              <button type="button" class="btn btn--secondary btn--block" onClick="{{ signOut }}">{{ modal.signOutLabel }}</button>
+            </sc-if>
+            <sc-if value="{{ modal.hasAction }}">
+              <div class="grm-btn-row" style="flex-direction: {{ modalBtnDir }};">
+                <button type="button" class="btn btn--primary" onClick="{{ modal.onAction }}" style="flex: 1;">{{ modal.actionLabel }}</button>
+                <button type="button" class="btn btn--ghost" onClick="{{ closeModal }}">Cancelar</button>
+              </div>
+            </sc-if>
+            <p style="margin: 0; font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ modal.note }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:760},&quot;w&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;},&quot;h&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:760,&quot;tsType&quot;:&quot;number&quot;},&quot;profile&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;rafa&quot;,&quot;bia&quot;,&quot;gabriel_montanha&quot;,&quot;none&quot;],&quot;default&quot;:&quot;rafa&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;sync&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;synced&quot;,&quot;last&quot;,&quot;never&quot;,&quot;syncing&quot;,&quot;local&quot;,&quot;offline&quot;,&quot;expired&quot;,&quot;error&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;outcome&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ok&quot;,&quot;offline&quot;,&quot;expired&quot;,&quot;error&quot;],&quot;default&quot;:&quot;ok&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;page&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;colecao&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;pinned&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;navExpanded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;drawer&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;modal&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;switch&quot;,&quot;list&quot;,&quot;link&quot;,&quot;reauth&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;long&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;persist&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;fast&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;collapsedForm&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;capitular&quot;,&quot;vertical&quot;],&quot;default&quot;:&quot;capitular&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;indicatorForm&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;roda&quot;,&quot;chip&quot;],&quot;default&quot;:&quot;roda&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const ORDER = ['W', 'U', 'B', 'R', 'G'];
+const CNAME = { W: 'Branco', U: 'Azul', B: 'Preto', R: 'Vermelho', G: 'Verde' };
+const CVAR = { W: '--identity-w', U: '--identity-u', B: '--identity-b', R: '--identity-r', G: '--identity-g' };
+const TRIBES = { W: 'Mono-branco', U: 'Mono-azul', B: 'Mono-preto', R: 'Mono-vermelho', G: 'Mono-verde', WU: 'Azorius', WB: 'Orzhov', WR: 'Boros', WG: 'Selesnya', UB: 'Dimir', UR: 'Izzet', UG: 'Simic', BR: 'Rakdos', BG: 'Golgari', RG: 'Gruul', WUB: 'Esper', WUR: 'Jeskai', WUG: 'Bant', WBR: 'Mardu', WBG: 'Abzan', WRG: 'Naya', UBR: 'Grixis', UBG: 'Sultai', URG: 'Temur', BRG: 'Jund' };
+const tribe = (c) => TRIBES[ORDER.filter((x) => c.includes(x)).join('')] || '';
+const MIN = 60000;
+const SEED = {
+  rafa: { name: 'rafa', colors: ['U', 'R'], linked: true, ago: 42 },
+  bia: { name: 'bia', colors: ['B', 'G'], linked: false, ago: null },
+  gabriel_montanha: { name: 'gabriel_montanha', colors: ['G', 'W', 'R'], linked: true, ago: null },
+};
+const PIN_KEY = 'grimorio-proto:nav-pinned';
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.rootRef = React.createRef(); this.scrollRef = React.createRef(); this.navRef = React.createRef();
+    this.menuRef = React.createRef(); this.drawerRef = React.createRef(); this.drawerCloseRef = React.createRef();
+    this.state = this.initial(props);
+  }
+  initial(props) {
+    const now = Date.now();
+    const profiles = {};
+    Object.keys(SEED).forEach((k) => {
+      const s = SEED[k];
+      profiles[k] = { name: s.name, colors: s.colors, linked: s.linked, lastAt: s.ago == null ? null : now - s.ago * MIN, status: 'idle' };
+    });
+    const pk = props.profile === 'none' ? null : (props.profile || 'rafa');
+    if (pk && props.sync) this.applySync(profiles[pk], props.sync, now);
+    let pinned = !!props.pinned;
+    if (props.persist) { try { pinned = localStorage.getItem(PIN_KEY) === '1'; } catch (e) { pinned = false; } }
+    return { pk, profiles, pinned, hover: false, focusIn: false, drawer: !!props.drawer, page: props.page || 'home', modal: props.modal || null, pendingCol: false, now };
+  }
+  applySync(p, s, now) {
+    const scale = this.props.fast ? 60 : 1;
+    if (s === 'syncing') p.status = 'syncing';
+    else if (s === 'synced') { p.status = 'idle'; p.lastAt = now; }
+    else if (s === 'last') { p.status = 'idle'; p.lastAt = now - 42 * MIN / scale; }
+    else if (s === 'never') { p.status = 'idle'; p.lastAt = null; }
+    else if (s === 'local') { p.linked = false; }
+    else p.status = s;
+  }
+  componentDidMount() { this.tick = setInterval(() => this.setState({ now: Date.now() }), 1000); this.applyTheme(); }
+  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.syncT); clearTimeout(this.leaveT); }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.profile !== this.props.profile || prevProps.sync !== this.props.sync) {
+      const s = this.initial(this.props);
+      this.setState({ pk: s.pk, profiles: s.profiles, modal: null });
+    }
+    if (prevState.page !== this.state.page && this.scrollRef.current) this.scrollRef.current.scrollTop = 0;
+    if (!prevState.drawer && this.state.drawer && this.drawerCloseRef.current) this.drawerCloseRef.current.focus();
+    if (prevState.drawer && !this.state.drawer && this.menuRef.current && this.returnFocus) { this.menuRef.current.focus(); this.returnFocus = false; }
+    this.applyTheme();
+  }
+  applyTheme() {
+    const el = this.rootRef.current; if (!el) return;
+    const p = this.state.pk ? this.state.profiles[this.state.pk] : null;
+    const c = p ? p.colors : [];
+    ['primary', 'accent', 'tertiary'].forEach((role, i) => {
+      if (c[i]) { el.style.setProperty('--theme-' + role, 'var(' + CVAR[c[i]] + ')'); el.style.setProperty('--theme-' + role + '-hover', 'var(' + CVAR[c[i]] + '-hover)'); }
+      else { el.style.removeProperty('--theme-' + role); el.style.removeProperty('--theme-' + role + '-hover'); }
+    });
+  }
+  setProfile(k, patch) { this.setState((s) => ({ profiles: { ...s.profiles, [k]: { ...s.profiles[k], ...patch } } })); }
+  syncView(p, compact) {
+    const scale = this.props.fast ? 60 : 1;
+    let kind, full, short;
+    if (!p.linked) { kind = 'local'; full = 'Sem conta na nuvem'; short = 'Sem nuvem'; }
+    else if (p.status === 'syncing') { kind = 'syncing'; full = 'Sincronizando…'; short = ''; }
+    else if (p.status === 'offline') { kind = 'fail'; full = 'Sem conexão'; short = 'Sem rede'; }
+    else if (p.status === 'expired') { kind = 'fail'; full = 'Sessão expirada'; short = 'Expirou'; }
+    else if (p.status === 'error') { kind = 'fail'; full = 'Falha ao sincronizar'; short = 'Falhou'; }
+    else if (p.lastAt == null) { kind = 'never'; full = 'Nunca sincronizado'; short = 'Nunca'; }
+    else {
+      const m = Math.floor((this.state.now - p.lastAt) * scale / MIN);
+      if (m < 5) { kind = 'synced'; full = 'Sincronizado'; short = 'Agora'; }
+      else { kind = 'last'; const rel = m < 60 ? 'há ' + m + ' min' : m < 1440 ? 'há ' + Math.floor(m / 60) + ' h' : 'há ' + Math.floor(m / 1440) + ' d'; full = 'Sincronizado ' + rel; short = rel; }
+    }
+    const action = { local: 'Vincular conta na nuvem', syncing: 'Aguarde', fail: p.status === 'expired' ? 'Entrar de novo' : 'Tentar de novo', never: 'Sincronizar agora', synced: 'Sincronizar agora', last: 'Sincronizar agora' }[kind];
+    const mk = {
+      spin: kind === 'syncing',
+      dot: kind === 'synced' || kind === 'last' || kind === 'fail',
+      ring: kind === 'never' || kind === 'local',
+      color: kind === 'fail' ? 'var(--color-danger)' : kind === 'local' ? 'var(--color-text-muted)' : 'var(--role-accent)',
+      glow: kind === 'synced' ? '0 0 8px var(--role-accent)' : kind === 'fail' ? '0 0 8px var(--color-danger)' : 'none',
+    };
+    const text = compact ? short : full;
+    return {
+      kind, mk, text, hasText: !!text,
+      aria: full + (kind === 'syncing' ? '. Sincronização em andamento.' : '. ' + action + '.'),
+      color: kind === 'fail' ? 'var(--color-danger)' : kind === 'synced' ? 'var(--color-text)' : 'var(--color-text-muted)',
+      dir: compact ? 'column' : 'row', gap: compact ? '3px' : 'var(--space-2)', pad: compact ? 'var(--space-1)' : 'var(--space-3)',
+      fs: compact ? 'var(--font-size-xs)' : 'var(--font-size-sm)',
+    };
+  }
+  startSync() {
+    const k = this.state.pk;
+    this.setProfile(k, { status: 'syncing' });
+    clearTimeout(this.syncT);
+    this.syncT = setTimeout(() => {
+      const o = this.props.outcome || 'ok';
+      if (o === 'ok') this.setProfile(k, { status: 'idle', lastAt: Date.now() });
+      else this.setProfile(k, { status: o });
+    }, 2400);
+  }
+  renderVals() {
+    const S = this.state, P = this.props;
+    const w = P.w || 1280, h = P.h || 760;
+    const wide = w >= 960, narrow = !wide, compact = w <= 640;
+    const p = S.pk ? S.profiles[S.pk] : null;
+    const busy = !!(p && p.status === 'syncing');
+    const form = P.indicatorForm || 'roda';
+    const cform = P.collapsedForm || 'capitular';
+    const expanded = wide && (S.pinned || S.hover || S.focusIn || !!P.navExpanded);
+    const onCol = S.page === 'colecao';
+
+    const goCol = (e) => {
+      e.preventDefault();
+      const wasDrawer = S.drawer;
+      if (!S.pk) { this.setState({ modal: 'list', pendingCol: true, drawer: false }); return; }
+      this.returnFocus = wasDrawer;
+      this.setState({ page: 'colecao', drawer: false });
+    };
+    const mkItem = (inDrawer) => {
+      const cur = onCol;
+      const vertical = !inDrawer && cform === 'vertical' && !expanded;
+      const cap = cform === 'capitular';
+      return {
+        label: 'Coleção', initial: 'C', currentAttr: cur ? 'page' : undefined, onClick: goCol,
+        border: cur ? 'var(--role-primary)' : 'transparent', glow: cur ? 'var(--glow-plate-hover)' : 'none',
+        bg: 'transparent',
+        showCap: cap, capColor: cur ? 'var(--role-primary)' : 'var(--color-text-muted)', capGlow: cur ? 'var(--glow-title)' : 'none',
+        weight: cur ? 700 : 400,
+        labelOpacity: inDrawer || expanded || vertical ? 1 : 0,
+        dir: vertical ? 'column' : 'row', justify: vertical ? 'center' : 'flex-start',
+        pad: vertical ? 'var(--space-3) 0' : (cap ? '0' : '0 var(--space-3)'),
+        labelPad: cap ? '0' : 'var(--space-3)',
+        writing: vertical ? 'vertical-rl' : 'horizontal-tb', rotate: vertical ? 'rotate(180deg)' : 'none',
+        tracking: vertical ? 'var(--tracking-micro)' : 'normal',
+      };
+    };
+
+    const modalKey = S.modal;
+    const rowsFor = (activeKey) => {
+      const keys = Object.keys(S.profiles);
+      const ordered = activeKey ? [activeKey, ...keys.filter((k) => k !== activeKey)] : keys;
+      return ordered.map((k) => ({
+        profile: { name: S.profiles[k].name, colors: S.profiles[k].colors, linked: S.profiles[k].linked },
+        active: k === activeKey,
+        onPick: () => this.setState((s) => ({ pk: k, modal: null, page: s.pendingCol ? 'colecao' : s.page, pendingCol: false })),
+      }));
+    };
+    let modal = { title: '', sub: '', rows: [], hasRows: false, hasSignOut: false, hasAction: false, note: '' };
+    if (modalKey === 'switch' && p) modal = { title: 'Trocar de perfil', sub: 'Você está usando ' + p.name + '. Escolha outro perfil e digite a senha.', rows: rowsFor(S.pk), hasRows: true, hasSignOut: true, signOutLabel: 'Sair de ' + p.name, hasAction: false, note: 'Protótipo: a troca pula a senha.' };
+    else if (modalKey === 'list' || (modalKey && !p)) modal = { title: 'Escolha um perfil', sub: 'Perfis neste aparelho. Toque em um e digite a senha.', rows: rowsFor(null), hasRows: true, hasSignOut: false, hasAction: false, note: 'Protótipo: a escolha pula a senha.' };
+    else if (modalKey === 'link' && p) modal = { title: 'Entrar na conta', sub: 'Vincule ' + p.name + ' a uma conta na nuvem para sincronizar entre aparelhos.', hasRows: false, rows: [], hasSignOut: false, hasAction: true, actionLabel: 'Entrar', onAction: () => { this.setProfile(S.pk, { linked: true, lastAt: null, status: 'idle' }); this.setState({ modal: null }); }, note: 'Protótipo: o formulário foi omitido. Vincular não inicia sincronização.' };
+    else if (modalKey === 'reauth' && p) modal = { title: 'Entre de novo', sub: 'A sessão da conta expirou. Entre para voltar a sincronizar ' + p.name + ' — as alterações pendentes serão enviadas.', hasRows: false, rows: [], hasSignOut: false, hasAction: true, actionLabel: 'Entrar', onAction: () => { this.setProfile(S.pk, { status: 'idle' }); this.setState({ modal: null }); }, note: 'Protótipo: o formulário foi omitido. Renovar a sessão não inicia sincronização.' };
+
+    const idLine = p ? tribe(p.colors) + ' · ' + p.colors.map((c) => CNAME[c]).join(' · ') : '';
+    const pv = p ? { name: p.name, colors: p.colors, tribe: tribe(p.colors), idLine, dots: p.colors.map((c) => ({ hex: 'var(' + CVAR[c] + ')' })) } : { name: '', colors: [], tribe: '', idLine: '', dots: [] };
+
+    return {
+      rootRef: this.rootRef, scrollRef: this.scrollRef, navRef: this.navRef, menuRef: this.menuRef, drawerRef: this.drawerRef, drawerCloseRef: this.drawerCloseRef,
+      w, h, wide, narrow,
+      barPad: compact ? 'var(--space-2)' : 'var(--space-4)',
+      rightGap: compact ? 'var(--space-1)' : 'var(--space-2)',
+      hasProfile: !!p,
+      sync: p ? this.syncView(p, compact) : { mk: {}, text: '', aria: '' },
+      syncBusyAttr: busy ? 'true' : undefined,
+      p: pv,
+      showWheel: !!p && !compact && form === 'roda',
+      showChip: !!p && !compact && form === 'chip',
+      showCompact: !!p && compact,
+      showSignIn: !p,
+      profileAria: p ? (busy ? 'Perfil ' + p.name + ' — ' + idLine + '. Aguarde a sincronização terminar.' : 'Perfil ' + p.name + ' — ' + idLine + '. Trocar de perfil ou sair.') : 'Entrar',
+      profileTitle: busy ? 'Aguarde a sincronização terminar' : (p ? 'Trocar de perfil ou sair' : 'Entrar'),
+      onSync: () => {
+        if (!p || busy) return;
+        if (!p.linked) { this.setState({ modal: 'link' }); return; }
+        if (p.status === 'expired') { this.setState({ modal: 'reauth' }); return; }
+        this.startSync();
+      },
+      onProfile: () => { if (busy) return; this.setState({ modal: p ? 'switch' : 'list' }); },
+      goHome: (e) => { e.preventDefault(); this.returnFocus = S.drawer; this.setState({ page: 'home', drawer: false }); },
+      drawerAttr: S.drawer ? 'true' : 'false',
+      openDrawer: () => this.setState({ drawer: true }),
+      closeDrawer: () => { this.returnFocus = true; this.setState({ drawer: false }); },
+      drawerOpen: narrow && S.drawer,
+      drawerKey: (e) => {
+        if (e.key !== 'Tab' || !this.drawerRef.current) return;
+        const f = this.drawerRef.current.querySelectorAll('a,button');
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      },
+      onKey: (e) => {
+        if (e.key !== 'Escape') return;
+        if (S.modal) this.setState({ modal: null, pendingCol: false });
+        else if (S.drawer) { this.returnFocus = true; this.setState({ drawer: false }); }
+      },
+      spacerW: S.pinned ? 240 : 56,
+      navW: expanded ? 240 : 56,
+      navEdge: expanded && !S.pinned ? 'var(--role-primary)' : 'var(--color-border)',
+      navGlow: expanded && !S.pinned ? 'var(--glow-plate-hover)' : 'none',
+      navEnter: () => { clearTimeout(this.leaveT); if (!S.hover) this.setState({ hover: true }); },
+      navLeave: () => { clearTimeout(this.leaveT); this.leaveT = setTimeout(() => this.setState({ hover: false }), 120); },
+      navFocus: () => { if (!S.focusIn) this.setState({ focusIn: true }); },
+      navBlur: (e) => { const n = this.navRef.current; if (n && e.relatedTarget && n.contains(e.relatedTarget)) return; this.setState({ focusIn: false }); },
+      navTap: (e) => { if (e.target === this.navRef.current && !expanded) this.setState({ hover: true }); },
+      navItems: [mkItem(false)],
+      drawerItems: [mkItem(true)],
+      pinVis: expanded ? 'visible' : 'hidden',
+      pinOpacity: expanded ? 1 : 0,
+      pinnedAttr: S.pinned ? 'true' : 'false',
+      pinLabel: S.pinned ? 'Recolher menu' : 'Fixar menu',
+      togglePin: () => {
+        const v = !S.pinned;
+        if (P.persist) { try { localStorage.setItem(PIN_KEY, v ? '1' : '0'); } catch (e) {} }
+        this.setState({ pinned: v, hover: v ? S.hover : false, focusIn: false });
+      },
+      viewPad: compact ? 'var(--space-4)' : 'var(--space-6)',
+      noticePadX: compact ? 'var(--space-4)' : 'var(--space-6)',
+      pageHome: S.page === 'home',
+      pageCol: onCol,
+      rows: Array.from({ length: P.long === false ? 2 : 14 }, (_, i) => ({ i })),
+      modalOpen: !!S.modal,
+      modal,
+      closeModal: () => this.setState({ modal: null, pendingCol: false }),
+      signOut: () => this.setState({ pk: null, modal: null, page: 'home' }),
+      modalPad: compact ? '0' : 'var(--space-4)',
+      modalW: compact ? '100%' : 'min(440px, 100%)',
+      modalH: compact ? '100%' : 'auto',
+      modalRingR: compact ? '0' : 'var(--radius-ring)',
+      modalFaceR: compact ? '0' : 'var(--radius-md)',
+      modalPadX: compact ? 'var(--space-5)' : 'var(--space-6)',
+      modalTitleFs: compact ? 'var(--font-size-lg)' : 'var(--font-size-2xl)',
+      modalBtnDir: compact ? 'column' : 'row',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+:root{
+--font-display:'Grenze', Georgia, serif; /* 600 titles, 700 wordmark */
+--font-sans:'Karla', system-ui, -apple-system, 'Segoe UI', sans-serif;
+--font-size-xs:0.75rem;--font-size-sm:0.875rem;--font-size-md:1rem;--font-size-lg:1.25rem;--font-size-xl:1.5rem;--font-size-2xl:2rem;
+--line-height-tight:1.2;--line-height-normal:1.5;
+--tracking-micro:0.05em;--tracking-eyebrow:0.14em;
+}

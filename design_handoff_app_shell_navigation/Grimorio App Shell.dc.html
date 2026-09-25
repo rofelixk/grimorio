@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/components.css">
+  <link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+  <script src="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/_ds_bundle.js"></script>
+  <style>body { margin: 0; background: #1e1a17; } a { color: var(--role-accent); } a:hover { color: var(--role-accent-hover); }</style>
+</helmet>
+<div style="min-width: 1760px; background: var(--color-surface); color: var(--color-text); font-family: var(--font-sans);">
+
+  <section style="padding: 44px 44px 28px; border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 12px; max-width: 1100px;">
+    <span class="eyebrow">Spec 004 · feature/004-app-shell-navigation</span>
+    <h1 style="margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 2rem; line-height: 1.2; color: var(--role-primary); text-shadow: var(--glow-title);">Grimorio — app shell</h1>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--color-text-muted); text-wrap: pretty;">Top bar, área de sincronização, indicador de perfil, menu lateral (recolhido / expandido / fixado), gaveta no celular e aviso legal. Tudo com tokens e primitivas existentes (<code>.btn*</code>, <code>.grm-wordmark</code>, <code>MiniWheel</code>, <code>ProfileRow</code>, receitas de luz). O conteúdo das páginas é placeholder — fora do escopo. O modal de perfil é uma versão resumida só para demonstrar os fluxos de abertura.</p>
+    <p style="margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--color-text-muted); text-wrap: pretty;">Estilo “Fio de luz” (Nav Options <b style="color: var(--color-text);">1c</b> + top bar 4b): a hairline da top bar é uma faixa nas cores do perfil que flui devagar, dobra a esquina e desce pela borda esquerda como um fio de 1px; cada destino é uma conta no fio, e a atual acende. O wordmark e o rótulo atual são pintados pela mesma faixa. Sincronização + perfil formam uma placa única. Nenhum glifo novo — o botão de menu diz <b style="color: var(--color-text);">Menu</b>. A sincronização não usa cores de sucesso/aviso (ainda indefinidas): só role-accent e danger, com marcas de formas diferentes. Faixas: ≥ 960 px menu lateral; &lt; 960 px gaveta; ≤ 640 px formas compactas na top bar.</p>
+  </section>
+
+  <section id="t1" style="padding: 36px 44px; border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; align-items: baseline; gap: 10px;">
+      <a href="#t1" style="font: 600 10px ui-monospace, Menlo, monospace; padding: 3px 7px; background: var(--color-text); color: var(--color-bg); border-radius: 4px; text-decoration: none;">1</a>
+      <span style="font-family: var(--font-display); font-weight: 600; font-size: 1.25rem;">Protótipo interativo</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="micro-label">Perfil</span>
+        <sc-for list="{{ profileOpts }}" as="o" hint-placeholder-count="4">
+          <button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}" style="font-size: 0.875rem;">{{ o.label }}</button>
+        </sc-for>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="micro-label">Resultado da sincronização</span>
+        <sc-for list="{{ outcomeOpts }}" as="o" hint-placeholder-count="4">
+          <button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}" style="font-size: 0.875rem;">{{ o.label }}</button>
+        </sc-for>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="{{ fastCls }}" aria-pressed="{{ fastAttr }}" onClick="{{ toggleFast }}" style="font-size: 0.875rem;">Tempo acelerado (1 s = 1 min)</button>
+        <button type="button" class="{{ longCls }}" aria-pressed="{{ longAttr }}" onClick="{{ toggleLong }}" style="font-size: 0.875rem;">Coleção longa</button>
+      </div>
+    </div>
+    <div style="display: flex; gap: 28px; align-items: flex-start;">
+      <div id="1a" style="display: flex; flex-direction: column; gap: 9px;">
+        <div style="display: flex; align-items: baseline; gap: 8px; font-size: 11px; color: var(--color-text-muted);"><a href="#1a" style="font: 600 10.5px ui-monospace, Menlo, monospace; padding: 3px 7px; background: var(--color-surface-raised); color: var(--color-text); border-radius: 5px; text-decoration: none;">1a</a>Desktop 1280 × 760 — passe o mouse no menu, fixe-o (fica salvo), toque na sincronização e no perfil</div>
+        <div style="border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+          <dc-import name="AppShell" w="{{ 1280 }}" h="{{ 760 }}" profile="{{ profile }}" outcome="{{ outcome }}" fast="{{ fast }}" long="{{ long }}" persist="{{ true }}" hint-size="1280px,760px"></dc-import>
+        </div>
+      </div>
+      <div id="1b" style="display: flex; flex-direction: column; gap: 9px;">
+        <div style="display: flex; align-items: baseline; gap: 8px; font-size: 11px; color: var(--color-text-muted);"><a href="#1b" style="font: 600 10.5px ui-monospace, Menlo, monospace; padding: 3px 7px; background: var(--color-surface-raised); color: var(--color-text); border-radius: 5px; text-decoration: none;">1b</a>Celular 360 × 760 — Menu abre a gaveta</div>
+        <div style="border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+          <dc-import name="AppShell" w="{{ 360 }}" h="{{ 760 }}" profile="{{ profile }}" outcome="{{ outcome }}" fast="{{ fast }}" long="{{ long }}" hint-size="360px,760px"></dc-import>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="t2" style="padding: 36px 44px; border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; align-items: baseline; gap: 10px;">
+      <a href="#t2" style="font: 600 10px ui-monospace, Menlo, monospace; padding: 3px 7px; background: var(--color-text); color: var(--color-bg); border-radius: 4px; text-decoration: none;">2</a>
+      <span style="font-family: var(--font-display); font-weight: 600; font-size: 1.25rem;">Menu lateral em tela larga (≥ 960 px)</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start;">
+      <sc-for list="{{ navFrames }}" as="f" hint-placeholder-count="3">
+        <div id="{{ f.id }}" style="display: flex; flex-direction: column; gap: 9px; width: 820px;">
+          <div style="display: flex; align-items: baseline; gap: 8px; font-size: 11px; color: var(--color-text-muted);"><a href="{{ f.href }}" style="font: 600 10.5px ui-monospace, Menlo, monospace; padding: 3px 7px; background: var(--color-surface-raised); color: var(--color-text); border-radius: 5px; text-decoration: none;">{{ f.id }}</a>{{ f.label }}</div>
+          <div style="border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; width: 820px; height: 360px;">
+            <div style="transform: scale(0.8541); transform-origin: 0 0;">
+              <dc-import name="AppShell" w="{{ 960 }}" h="{{ 421 }}" profile="rafa" page="{{ f.page }}" pinned="{{ f.pinned }}" nav-expanded="{{ f.expanded }}" long="{{ false }}" hint-size="960px,421px"></dc-import>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="t3" style="padding: 36px 44px; border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; align-items: baseline; gap: 10px;">
+      <a href="#t3" style="font: 600 10px ui-monospace, Menlo, monospace; padding: 3px 7px; background: var(--color-text); color: var(--color-bg); border-radius: 4px; text-decoration: none;">3</a>
+      <span style="font-family: var(--font-display); font-weight: 600; font-size: 1.25rem;">Celular e tablet (&lt; 960 px)</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start;">
+      <sc-for list="{{ phoneFrames }}" as="f" hint-placeholder-count="4">
+        <div id="{{ f.id }}" style="display: flex; flex-direction: column; gap: 9px; width: {{ f.w }}px;">
+          <div style="display: flex; align-items: baseline; gap: 8px; font-size: 11px; color: var(--color-text-muted); text-wrap: pretty;"><a href="{{ f.href }}" style="flex: none; font: 600 10.5px ui-monospace, Menlo, monospace; padding: 3px 7px; background: var(--color-surface-raised); color: var(--color-text); border-radius: 5px; text-decoration: none;">{{ f.id }}</a>{{ f.label }}</div>
+          <div style="border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+            <dc-import name="AppShell" w="{{ f.w }}" h="{{ 640 }}" profile="{{ f.profile }}" sync="{{ f.sync }}" page="{{ f.page }}" drawer="{{ f.drawer }}" long="{{ f.long }}" hint-size="320px,640px"></dc-import>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="t4" style="padding: 36px 44px; border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; align-items: baseline; gap: 10px;">
+      <a href="#t4" style="font: 600 10px ui-monospace, Menlo, monospace; padding: 3px 7px; background: var(--color-text); color: var(--color-bg); border-radius: 4px; text-decoration: none;">4</a>
+      <span style="font-family: var(--font-display); font-weight: 600; font-size: 1.25rem;">Área de sincronização — todos os estados</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 200px 760px 320px; gap: 12px 24px; align-items: center;">
+      <span class="micro-label">Estado</span><span class="micro-label">Top bar · 760 px (sem Menu a partir de 960)</span><span class="micro-label">Celular · 320 px — só indicador</span>
+      <sc-for list="{{ syncRows }}" as="s" hint-placeholder-count="8">
+        <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 0.875rem; font-weight: 700;">{{ s.name }}</span><span style="font-size: 0.75rem; color: var(--color-text-muted);">{{ s.tap }}</span></div>
+        <div style="border: 1px solid var(--color-border); border-radius: 4px; overflow: hidden; height: 45px;"><dc-import name="AppShell" w="{{ 760 }}" h="{{ 45 }}" profile="{{ s.profile }}" sync="{{ s.sync }}" hint-size="760px,45px"></dc-import></div>
+        <div style="border: 1px solid var(--color-border); border-radius: 4px; overflow: hidden; height: 45px;"><dc-import name="AppShell" w="{{ 320 }}" h="{{ 45 }}" profile="{{ s.profile }}" sync="{{ s.sync }}" hint-size="320px,45px"></dc-import></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="t5" style="padding: 36px 44px 56px; display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; align-items: baseline; gap: 10px;">
+      <a href="#t5" style="font: 600 10px ui-monospace, Menlo, monospace; padding: 3px 7px; background: var(--color-text); color: var(--color-bg); border-radius: 4px; text-decoration: none;">5</a>
+      <span style="font-family: var(--font-display); font-weight: 600; font-size: 1.25rem;">Especificação para o DESIGN.md (FR-032)</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 520px)); gap: 32px; font-size: 0.875rem; line-height: 1.6; color: var(--color-text-muted);">
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <span class="eyebrow">Novos tokens · _tokens.scss</span>
+        <pre style="margin: 0; padding: 12px 14px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 4px; font: 12px/1.7 ui-monospace, Menlo, monospace; color: var(--color-text); white-space: pre-wrap;">/* Sizes */
+--top-bar-height: calc(var(--touch-target) + 1px); /* 44 + hairline */
+--nav-rail-width: 24px;     /* o fio — recolhido */
+--nav-panel-width: 232px;   /* expandido/fixado */
+--thread-x: 11px;           /* posição do fio */
+--bead: 7px;                /* conta do destino */
+
+/* Light (novos) */
+--band: linear-gradient(90deg, primary 0 20%, accent 33% 53%,
+        tertiary 66% 86%, primary);          /* 2400px, repete */
+--band-v: (mesma, 180deg);
+--band-lit: --band com oklch(from role max(l, .68) c h);
+--line-band: 1px de --band — substitui a hairline da top bar;
+--wash-band: --band a 30%, máscara radial à esquerda;
+--glow-overlay: var(--shadow-rest), 0 0 24px -6px primary 45%;
+@keyframes grm-flow-long / grm-flow-mark / grm-flow-v (120s linear)
+--drawer-width: min(18rem, 85vw);
+--pip-compact: 6px;         /* pontos do indicador compacto */
+--status-mark: 8px;         /* marca da sincronização (= sync dot) */
+
+/* Motion */
+--delay-nav-leave: 120ms;   /* anti-flicker ao sair do menu */
+
+/* Layers */
+--z-nav: 2;       /* menu expandido sobre o conteúdo */
+--z-drawer: 10;   /* gaveta + backdrop */
+--z-modal: 20;
+
+/* Breakpoints (_breakpoints.scss, já existentes) */
+$bp-mobile: 640px;  /* formas compactas na top bar */
+$bp-wide: 960px;    /* menu lateral; abaixo = gaveta */</pre>
+        <p style="margin: 0;">Exceções ao DESIGN.md atual a registrar: texto em gradiente (wordmark e rótulo atual), linha de 1px em gradiente no lugar da hairline, e animação contínua das faixas (para com reduced motion). Nenhuma cor nova. Sucesso/aviso continuam indefinidos: estados saudáveis usam text/muted, falhas usam <code>--color-danger</code>.</p>
+        <span class="eyebrow" style="margin-top: 12px;">Layout e rolagem</span>
+        <p style="margin: 0;">Raiz: grid <code>auto | minmax(0,1fr)</code>, <code>height: 100dvh</code>, <code>overflow: hidden</code> em html/body. A área de vista (<code>&lt;main&gt;</code>) é a única região que rola; é uma coluna flex para o aviso ficar embaixo com <code>margin-top: auto</code>. <code>scrollTop = 0</code> a cada troca de rota. Padding da vista: <code>space-6</code> (<code>space-4</code> ≤ 640).</p>
+        <p style="margin: 0;">Nome de perfil: 3 a 16 caracteres. Helper “3 a 16 caracteres: letras, números, _ . ou -”; erro “Use de 3 a 16 caracteres.”</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <span class="eyebrow">App top bar (substitui a entrada atual)</span>
+        <p style="margin: 0;">Página, padding 4px × <code>space-4</code> (<code>space-2</code> ≤ 640); embaixo, <code>--line-band</code> fluindo; à esquerda, <code>--wash-band</code>. Wordmark pintado por <code>--band-lit</code>. Ordem: <b style="color: var(--color-text);">Menu</b> (só &lt; 960) · wordmark 1.25rem (link para Início, alvo 44px, hover → <code>--role-primary-hover</code>, sem sublinhado) · à direita, gap <code>space-2</code> (<code>space-1</code> ≤ 640): área de sincronização e indicador de perfil.</p>
+        <p style="margin: 0;"><b style="color: var(--color-text);">Botão Menu:</b> <code>.btn--ghost</code>, “Menu” em eyebrow (0.75, 0.14em, maiúsculas, muted), <code>aria-expanded</code>, <code>aria-controls</code>. Nenhum glifo novo.</p>
+        <p style="margin: 0;"><b style="color: var(--color-text);">Sync + perfil:</b> só texto, sem face nem borda — dois alvos de 44px separados por um divisor vertical de 1px × 20px (border). Hover: sync → text; perfil → role-primary-hover. <b style="color: var(--color-text);">Perfil:</b> pontos 8px + nome (Karla 700, 0.875); a tribo fica no <code>aria-label</code>/<code>title</code>. Sem perfil: “Entrar” em texto 700. Compacto: pontos <code>--pip-compact</code> sobre o nome (0.75, 700) — nunca trunca. Sem perfil: <code>.btn--secondary</code> “Entrar”, sem cores do perfil. Durante sincronização: <code>aria-disabled</code> (opacidade .5, not-allowed), título e rótulo “Aguarde a sincronização terminar”.</p>
+        <p style="margin: 0;"><b style="color: var(--color-text);">Área de sincronização:</b> Largo: marca + texto 0.75 em linha. Compacto: marca sobre texto 0.75 (coluna, padding <code>space-1</code>). O texto completo fica em <code>aria-label</code>/<code>title</code>. Ver os estados em <a href="#t4">4</a>.</p>
+        <span class="eyebrow" style="margin-top: 12px;">Marcas de estado (8px)</span>
+        <p style="margin: 0;">Estados saudáveis são neutros — a cor fica só para erro: spinner muted = sincronizando · ponto text + brilho = sincronizado · ponto muted = há N min · anel 1px text = nunca · anel 1px muted = sem conta na nuvem · ponto danger + glow = sem conexão / sessão expirada / falha (texto e ação também em danger). Assim uma identidade vermelha (Boros, Izzet…) nunca parece erro. Forma e texto diferem sempre — nunca só a cor.</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <span class="eyebrow">Menu lateral</span>
+        <p style="margin: 0;"><b style="color: var(--color-text);">Recolhido:</b> 24px, sem borda. Fio de 1px em <code>left: 11px</code> com <code>--band-v</code> fluindo (<code>grm-flow-v</code> 120s) e brilho <code>0 0 6px</code> primary 35%; lavagem da faixa a 20% no topo. Cada destino = conta de 7px (página + hairline). Toque no fio fixa.</p>
+        <p style="margin: 0;"><b style="color: var(--color-text);">Atual:</b> conta cheia em role-primary com <code>0 0 0 3px bg, 0 0 10px 1px primary</code>; aberto, o rótulo fica 700 pintado por <code>--band-lit</code>. <code>aria-current="page"</code>.</p>
+        <p style="margin: 0;"><b style="color: var(--color-text);">Expandido (hover/foco):</b> 232px sobre o conteúdo, hairline à direita, <code>--shadow-rest</code> + <code>0 0 24px -6px</code> primary 45%. Um espaçador de 24px segura o layout — a vista não se move. Fecha 120ms após sair.</p>
+        <p style="margin: 0;"><b style="color: var(--color-text);">Fixar:</b> no topo do menu aberto, em estilo eyebrow: “Fixar menu” / “Recolher menu”, <code>aria-pressed</code>. Fixado: espaçador vira 232px, sem sombra. Preferência por aparelho em localStorage.</p>
+        <p style="margin: 0;"><b style="color: var(--color-text);">Gaveta (&lt; 960):</b> <code>--drawer-width</code>, sobre tudo com backdrop 75%. Cabeçalho = top bar (faixa, wordmark pintado, linha fluindo) + ✕; o fio desce pela lista com as contas. Sem pino, sem faixa. Fecha ao escolher, tocar fora, Esc/Voltar; foco preso dentro, volta ao Menu. Entra deslizando em <code>--duration-base</code>; parado com reduced motion.</p>
+        <span class="eyebrow" style="margin-top: 12px;">Aviso legal</span>
+        <p style="margin: 0;">Fim da vista, hairline acima, padding <code>space-5</code> × <code>space-6</code>, 0.75rem muted, parágrafos com <code>max-width: 72ch</code>. Links role-accent, <code>target="_blank"</code>; alvo de 44px por padding vertical com margem negativa (não altera a entrelinha). Texto vem de uma fonte única compartilhada com Sobre.</p>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; max-width: 1100px;">
+      <span class="eyebrow">Textos novos · entry-copy.ts</span>
+      <pre style="margin: 0; padding: 12px 14px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 4px; font: 12px/1.7 ui-monospace, Menlo, monospace; color: var(--color-text); white-space: pre-wrap;">export const SHELL = {
+  menu: 'Menu', navLabel: 'Navegação principal', collection: 'Coleção',
+  pin: 'Fixar menu', unpin: 'Recolher menu', home: 'Grimorio — Início',
+  signIn: ACTION.in, profileBusy: 'Aguarde a sincronização terminar',
+  profileHint: 'Trocar de perfil ou sair',
+} as const;
+
+export const SYNC_AREA = {            // completo · compacto (≤ 640)
+  syncing: 'Sincronizando…',          // só o spinner
+  synced: 'Sincronizado',             // 'Agora'
+  last: (rel: string) =&gt; `Sincronizado ${rel}`,  // rel = 'há 5 min' | 'há 2 h' | 'há 3 d'
+  never: 'Nunca sincronizado',        // 'Nunca'
+  local: 'Sem conta na nuvem',        // 'Sem nuvem'
+  offline: 'Sem conexão',             // 'Sem rede'
+  expired: 'Sessão expirada',         // 'Expirou'
+  error: 'Falha ao sincronizar',      // 'Falhou'
+  actSync: 'Sincronizar agora', actRetry: 'Tentar de novo', actReauth: 'Entrar de novo',
+  actLink: 'Vincular conta na nuvem',
+} as const;
+
+export const NOTICE = { wotc: '…texto de about.html…', scryfall: '…', ai:
+  'Parte do desenvolvimento deste app contou com ferramentas de inteligência artificial.' };</pre>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--color-text-muted);">Removidos: <code>TOP_BAR.*</code> (botão temporário) e <code>SYNC.synced</code> nos fluxos do modal. <code>SUBTITLE.up</code> (“passa a sincronizar automaticamente”) deixa de ser verdade — sugerir “passa a sincronizar entre aparelhos quando você tocar em sincronizar”.</p>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { profile: 'rafa', outcome: 'ok', fast: false, long: true };
+  renderVals() {
+    const S = this.state;
+    const cls = (on) => on ? 'btn btn--primary' : 'btn btn--secondary';
+    
+    const profileOpts = [['rafa', 'rafa · Izzet · vinculado'], ['bia', 'bia · Golgari · local'], ['gabriel_montanha', 'gabriel_montanha · nunca sincronizado'], ['none', 'Nenhum perfil']]
+      .map(([v, l]) => ({ label: l, cls: cls(S.profile === v), pick: () => this.setState({ profile: v }) }));
+    const outcomeOpts = [['ok', 'Sucesso'], ['offline', 'Sem conexão'], ['expired', 'Sessão expirada'], ['error', 'Erro']]
+      .map(([v, l]) => ({ label: l, cls: cls(S.outcome === v), pick: () => this.setState({ outcome: v }) }));
+    const nf = (id, label, o) => ({ id, href: '#' + id, label, pinned: false, expanded: false, page: 'colecao', ...o });
+    const navFrames = [
+      nf('2a', 'Recolhido — o fio de 24px com a conta da seção atual acesa; toque no fio para fixar', { page: 'colecao' }),
+      nf('2b', 'Expandido ao passar o mouse / foco — sobre o conteúdo, que não se move', { expanded: true }),
+      nf('2c', 'Fixado — a vista estreita, nada fica coberto', { pinned: true }),
+    ];
+    const pf = (id, w, label, o) => ({ id, href: '#' + id, w, label, profile: 'rafa', sync: '', page: 'colecao', drawer: false, long: true, ...o });
+    const phoneFrames = [
+      pf('3a', 320, '320 px · top bar: Grimorio · indicador de sincronização (não clicável) · Menu', { profile: 'gabriel_montanha', sync: 'never' }),
+      pf('3b', 320, '320 px · gaveta aberta — conta, sincronização e navegação, espelhada à direita', { drawer: true }),
+      pf('3c', 360, '360 px · sincronizando — gaveta aberta, perfil bloqueado', { sync: 'syncing', drawer: true }),
+      pf('3d', 390, '390 px · sem perfil, página curta — aviso no fim da vista', { profile: 'none', page: 'home', long: false }),
+    ];
+    const syncRows = [
+      ['Sincronizando', 'Indisponível; perfil bloqueado', 'rafa', 'syncing'],
+      ['Sincronizado', '5 min após sucesso · toque sincroniza', 'rafa', 'synced'],
+      ['Última sincronização', 'Atualiza sozinho · toque sincroniza', 'rafa', 'last'],
+      ['Nunca sincronizado', 'Toque sincroniza', 'gabriel_montanha', 'never'],
+      ['Sem conta na nuvem', 'Toque abre “vincular conta”', 'bia', 'local'],
+      ['Sem conexão', 'Toque tenta de novo', 'rafa', 'offline'],
+      ['Sessão expirada', 'Toque abre “Entre de novo”', 'rafa', 'expired'],
+      ['Falha', 'Toque tenta de novo', 'rafa', 'error'],
+    ].map(([name, tap, profile, sync]) => ({ name, tap, profile, sync }));
+    return {
+      ...S, profileOpts, outcomeOpts, navFrames, phoneFrames, syncRows,
+      fastCls: cls(S.fast), fastAttr: S.fast ? 'true' : 'false', toggleFast: () => this.setState({ fast: !S.fast }),
+      longCls: cls(S.long), longAttr: S.long ? 'true' : 'false', toggleLong: () => this.setState({ long: !S.long }),
+    };
+  }
+}
+</script>
+</body>
+</html>
