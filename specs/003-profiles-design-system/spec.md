@@ -524,8 +524,9 @@ styles (page, surfaces, text, typography) and that no legacy global rule or toke
   as listed, on both desktop and mobile layouts.
 - **SC-009**: 100% of interactive elements meet the 44px touch target, and 0 decorative animations run
   under reduced motion.
-- **SC-010**: 0 legacy global style rules or legacy tokens remain; every screen renders on the new
-  tokens and base styles.
+- **SC-010**: 0 legacy global style rules remain, and no legacy token is declared in the global
+  stylesheet; every screen renders on the new tokens and base styles. Legacy component stylesheets
+  may still reference legacy tokens that no longer exist (US9-2).
 
 ## Assumptions
 
