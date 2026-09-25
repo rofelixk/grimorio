@@ -1,0 +1,23 @@
+<dialog
+  #dialog
+  class="dialog"
+  data-grm
+  data-theme-scope
+  [attr.aria-labelledby]="labelledBy()"
+  [style.--theme-primary]="roles().primary"
+  [style.--theme-primary-hover]="roles().primaryHover"
+  [style.--theme-accent]="roles().accent"
+  [style.--theme-accent-hover]="roles().accentHover"
+  [style.--theme-tertiary]="roles().tertiary"
+  [style.--theme-tertiary-hover]="roles().tertiaryHover"
+  (cancel)="onCancel($event)"
+>
+  <div class="ring">
+    <div class="halo" aria-hidden="true"></div>
+    <ng-content select="[modalSparks]" />
+    <div class="face" [style.height.px]="faceHeight()">
+      <ng-content select="[modalAside]" />
+      <ng-content />
+    </div>
+  </div>
+</dialog>

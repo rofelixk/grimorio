@@ -1,7 +1,15 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { StorageLocation, StorageLocationNode } from '@models/storage-location.model';
 import { Tombstone } from '@models/tombstone.model';
-import { clearTombstones, getAllFromStore, getTombstonesFor, putTombstone, replaceStore } from '../db/entity-store';
+import {
+  clearTombstones,
+  currentDbHandle,
+  getAllFromStore,
+  getTombstonesFor,
+  putTombstone,
+  replaceStore,
+  setActiveProfileDb,
+} from '../db/entity-store';
 
 function buildTree(locations: StorageLocation[]): StorageLocationNode[] {
   const nodesById = new Map<string, StorageLocationNode>(
@@ -27,19 +35,33 @@ export class StorageLocationService {
   readonly locations = this.locationsSignal.asReadonly();
   readonly tree = computed(() => buildTree(this.locations()));
 
-  private readonly readyPromise: Promise<void>;
+  private readonly changeCountSignal = signal(0);
+  // Bumped by user mutations (add/addMany/update/remove), never by applySyncResult — feeds
+  // the automatic-sync debounce (R11).
+  readonly changeCount = this.changeCountSignal.asReadonly();
+
+  private readyPromise: Promise<void> = Promise.resolve();
+  private loadGeneration = 0;
   private writeQueue: Promise<unknown> = Promise.resolve();
 
-  constructor() {
-    this.readyPromise = this.hydrate();
+  // Points this service at a profile's database (or none) and rehydrates (R1). The signal
+  // is cleared synchronously, before anything awaits, so no other profile's rows are ever
+  // visible; pending writes still land in the database they were queued for.
+  load(profileId: string | null): Promise<void> {
+    const generation = ++this.loadGeneration;
+    this.locationsSignal.set([]);
+    this.readyPromise = (async () => {
+      await this.flush();
+      await setActiveProfileDb(profileId);
+      const locations = await getAllFromStore<StorageLocation>('locations');
+      if (generation === this.loadGeneration) {
+        this.locationsSignal.set(locations);
+      }
+    })();
+    return this.readyPromise;
   }
 
-  private async hydrate(): Promise<void> {
-    const locations = await getAllFromStore<StorageLocation>('locations');
-    this.locationsSignal.set(locations);
-  }
-
-  // Resolves once this service's initial IndexedDB read has landed in the signal.
+  // Resolves once the latest load() has landed in the signal.
   whenReady(): Promise<void> {
     return this.readyPromise;
   }
@@ -56,7 +78,8 @@ export class StorageLocationService {
   }
 
   private persist(locations: StorageLocation[]): void {
-    this.enqueueWrite(() => replaceStore('locations', locations));
+    const handle = currentDbHandle();
+    this.enqueueWrite(() => replaceStore('locations', locations, handle));
   }
 
   add(location: Omit<StorageLocation, 'id' | 'updatedAt'>): StorageLocation {
@@ -70,6 +93,7 @@ export class StorageLocationService {
       this.persist(next);
       return next;
     });
+    this.changeCountSignal.update((n) => n + 1);
     return entry;
   }
 
@@ -81,6 +105,7 @@ export class StorageLocationService {
       this.persist(next);
       return next;
     });
+    this.changeCountSignal.update((n) => n + 1);
   }
 
   remove(id: string): void {
@@ -90,6 +115,7 @@ export class StorageLocationService {
       return next;
     });
     this.addTombstone(id);
+    this.changeCountSignal.update((n) => n + 1);
   }
 
   byId(id: string) {
@@ -153,6 +179,7 @@ export class StorageLocationService {
   }
 
   private addTombstone(id: string): void {
-    this.enqueueWrite(() => putTombstone('locations', { id, deletedAt: new Date().toISOString() }));
+    const handle = currentDbHandle();
+    this.enqueueWrite(() => putTombstone('locations', { id, deletedAt: new Date().toISOString() }, handle));
   }
 }

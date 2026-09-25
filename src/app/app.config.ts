@@ -2,9 +2,9 @@ import { ApplicationConfig, provideAppInitializer, provideBrowserGlobalErrorList
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
-import { CardService } from '@services/card.service';
-import { StorageLocationService } from '@services/storage-location.service';
-import { DeckService } from '@services/deck.service';
+import { ProfileStore } from '@services/profile-store.service';
+import { ProfileSessionService } from '@services/profile-session.service';
+import { runLegacyCleanup } from './core/db/legacy-cleanup';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,13 +14,14 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
-    // Holds initial render until IndexedDB-backed state has hydrated, so no
-    // component ever observes an empty, not-yet-loaded collection.
-    provideAppInitializer(() => {
-      const cardService = inject(CardService);
-      const locationService = inject(StorageLocationService);
-      const deckService = inject(DeckService);
-      return Promise.all([cardService.whenReady(), locationService.whenReady(), deckService.whenReady()]);
+    // Holds initial render until the profile registry and the restored active profile's
+    // data have hydrated, so no component ever observes pre-hydration state.
+    provideAppInitializer(async () => {
+      const store = inject(ProfileStore);
+      const session = inject(ProfileSessionService);
+      await runLegacyCleanup();
+      await store.whenReady();
+      await session.whenReady();
     }),
   ],
 };

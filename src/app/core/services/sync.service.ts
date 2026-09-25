@@ -1,12 +1,15 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { CardEntry, CardFace } from '@models/card.model';
+import { ProfileSummary } from '@models/profile.model';
 import { StorageLocation } from '@models/storage-location.model';
-import { AuthService } from '@services/auth.service';
-import { CardService } from '@services/card.service';
-import { StorageLocationService } from '@services/storage-location.service';
+import { currentDbHandle, getMeta, setMeta } from '../db/entity-store';
 import { reconcileEntities } from '../utils/sync-reconcile.util';
-import { SUPABASE_CLIENT } from '../supabase-client';
-import { getMeta, setMeta } from '../db/entity-store';
+import { CardService } from './card.service';
+import { CloudSessionService } from './cloud-session.service';
+import { ConnectivityService } from './connectivity.service';
+import { ProfileSessionService } from './profile-session.service';
+import { StorageLocationService } from './storage-location.service';
 
 interface StorageLocationRow {
   id: string;
@@ -43,20 +46,20 @@ interface CardEntryRow {
   updated_at: string;
 }
 
-export interface SyncResult {
-  locationsPushed: number;
-  locationsPulled: number;
-  locationsDeletedRemote: number;
-  cardsPushed: number;
-  cardsPulled: number;
-  cardsDeletedRemote: number;
-}
+export type SyncState = 'idle' | 'syncing' | 'done' | 'offline' | 'reauth' | 'error';
+/** How a syncNow() call ended; 'skipped' = nothing to sync (unlinked, or the profile changed). */
+export type SyncOutcome = 'done' | 'offline' | 'reauth' | 'error' | 'skipped';
 
-export type SyncStatus = 'fresh' | 'stale' | 'syncing' | 'error';
-
-const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000;
-const HOUR_MS = 60 * 60 * 1000;
-const DAY_MS = 24 * 60 * 60 * 1000;
+const LAST_SYNCED_KEY = 'lastSyncedAt';
+const AUTH_ERROR_CODES = new Set([
+  'session_not_found',
+  'refresh_token_not_found',
+  'refresh_token_already_used',
+  'bad_jwt',
+  'PGRST301',
+  'PGRST302',
+  'PGRST303',
+]);
 
 function locationToRow(location: StorageLocation, userId: string): StorageLocationRow {
   return {
@@ -134,194 +137,198 @@ function cardFromRow(row: CardEntryRow): CardEntry {
   };
 }
 
+class AuthExpired extends Error {}
+class ProfileChanged extends Error {}
+
+function isAuthError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') {
+    return false;
+  }
+  const { code, status } = error as { code?: unknown; status?: unknown };
+  return (typeof code === 'string' && AUTH_ERROR_CODES.has(code)) || status === 401 || status === 403;
+}
+
+function isNetworkError(error: unknown): boolean {
+  const { name, message } = (error ?? {}) as { name?: unknown; message?: unknown };
+  return (
+    name === 'AuthRetryableFetchError' ||
+    (typeof message === 'string' && /failed to fetch|networkerror|load failed/i.test(message))
+  );
+}
+
+// Syncs the active profile's locations and cards with its linked account (R11), reusing the
+// per-item last-write-wins reconciler. Decks never sync. Single-flight, and a sync started for
+// one profile never applies its results after a switch to another.
 @Injectable({ providedIn: 'root' })
 export class SyncService {
-  private readonly supabase = inject(SUPABASE_CLIENT);
-  private readonly auth = inject(AuthService);
-  private readonly cardService = inject(CardService);
-  private readonly locationService = inject(StorageLocationService);
+  private readonly session = inject(ProfileSessionService);
+  private readonly cloud = inject(CloudSessionService);
+  private readonly connectivity = inject(ConnectivityService);
+  private readonly cards = inject(CardService);
+  private readonly locations = inject(StorageLocationService);
 
+  private readonly stateSignal = signal<SyncState>('idle');
+  readonly state = this.stateSignal.asReadonly();
   private readonly lastSyncedAtSignal = signal<string | null>(null);
   readonly lastSyncedAt = this.lastSyncedAtSignal.asReadonly();
 
-  private readonly phaseSignal = signal<'idle' | 'syncing' | 'error'>('idle');
-  // Ticks hourly so `status`/`staleLabel` recompute in a tab left open across
-  // a day boundary, instead of only re-deriving on the next sync/reload.
-  private readonly nowSignal = signal(Date.now());
+  private inFlight: Promise<SyncOutcome> | null = null;
 
-  readonly status = computed<SyncStatus>(() => {
-    const phase = this.phaseSignal();
-    if (phase === 'syncing' || phase === 'error') {
-      return phase;
+  /** Resets the status for a newly active profile and loads its last sync time. */
+  async profileChanged(): Promise<void> {
+    this.stateSignal.set('idle');
+    this.lastSyncedAtSignal.set(null);
+    const profileId = this.session.active()?.id ?? null;
+    const lastSyncedAt = profileId ? await getMeta<string>(LAST_SYNCED_KEY) : undefined;
+    if (profileId && this.session.active()?.id === profileId) {
+      this.lastSyncedAtSignal.set(lastSyncedAt ?? null);
     }
-    const last = this.lastSyncedAtSignal();
-    if (!last) {
-      return 'stale';
-    }
-    const age = this.nowSignal() - new Date(last).getTime();
-    return age < STALE_THRESHOLD_MS ? 'fresh' : 'stale';
-  });
-
-  readonly staleLabel = computed<string>(() => {
-    const last = this.lastSyncedAtSignal();
-    if (!last) {
-      return 'Nunca sincronizado · Sincronizar';
-    }
-    const ageDays = Math.floor((this.nowSignal() - new Date(last).getTime()) / DAY_MS);
-    if (ageDays <= 1) {
-      return 'Há 1 dia · Sincronizar';
-    }
-    if (ageDays <= 6) {
-      return `Há ${ageDays} dias · Sincronizar`;
-    }
-    return 'Há semanas · Sincronizar';
-  });
-
-  constructor() {
-    setInterval(() => this.nowSignal.set(Date.now()), HOUR_MS);
-    getMeta<string>('lastSyncedAt')
-      .then((value) => {
-        if (value) {
-          this.lastSyncedAtSignal.set(value);
-        }
-      })
-      .catch(() => {
-        // IndexedDB unavailable/blocked on startup — fall back to the default null state.
-      });
   }
 
-  // Manually triggered only — no automatic/background sync. Locations are
-  // reconciled and pushed before cards since card_entries.location_id has a
-  // foreign key into storage_locations.
-  async sync(): Promise<SyncResult> {
-    this.phaseSignal.set('syncing');
+  syncNow(): Promise<SyncOutcome> {
+    this.inFlight ??= this.run().finally(() => (this.inFlight = null));
+    return this.inFlight;
+  }
+
+  private async run(): Promise<SyncOutcome> {
+    const profile = this.session.active();
+    if (!profile?.cloud) {
+      return 'skipped';
+    }
+    if (profile.cloud.needsReauth) {
+      this.stateSignal.set('reauth');
+      return 'reauth';
+    }
+    if (!this.connectivity.online()) {
+      this.stateSignal.set('offline');
+      return 'offline';
+    }
+
+    this.stateSignal.set('syncing');
+    const handle = currentDbHandle();
     try {
-      const result = await this.performSync();
+      const client = this.cloud.client(profile.id);
+      const { data, error } = await client.auth.getSession();
+      if (error || !data.session) {
+        throw new AuthExpired();
+      }
+      await Promise.all([this.locations.flush(), this.cards.flush()]);
+      // Locations first: card_entries.location_id references storage_locations.
+      await this.syncLocations(client, profile);
+      await this.syncCards(client, profile);
+
       const syncedAt = new Date().toISOString();
+      await setMeta(LAST_SYNCED_KEY, syncedAt, handle);
+      this.ensureStillActive(profile);
       this.lastSyncedAtSignal.set(syncedAt);
-      await setMeta('lastSyncedAt', syncedAt);
-      this.phaseSignal.set('idle');
-      return result;
-    } catch (e) {
-      this.phaseSignal.set('error');
-      throw e;
+      this.stateSignal.set('done');
+      return 'done';
+    } catch (error) {
+      if (error instanceof ProfileChanged) {
+        return 'skipped';
+      }
+      if (error instanceof AuthExpired || isAuthError(error)) {
+        await this.cloud.markNeedsReauth(profile.id);
+        this.setStateIfActive(profile, 'reauth');
+        return 'reauth';
+      }
+      if (!this.connectivity.online() || isNetworkError(error)) {
+        this.setStateIfActive(profile, 'offline');
+        return 'offline';
+      }
+      this.setStateIfActive(profile, 'error');
+      return 'error';
     }
   }
 
-  private async performSync(): Promise<SyncResult> {
-    const userId = this.auth.user()?.id;
-    if (!userId) {
-      throw new Error('Sync requires a signed-in account.');
+  private ensureStillActive(profile: ProfileSummary): void {
+    if (this.session.active()?.id !== profile.id) {
+      throw new ProfileChanged();
     }
-
-    await Promise.all([this.locationService.flush(), this.cardService.flush()]);
-
-    const { locationsPushed, locationsPulled, locationsDeletedRemote } = await this.syncLocations(userId);
-    const { cardsPushed, cardsPulled, cardsDeletedRemote } = await this.syncCards(userId);
-
-    return {
-      locationsPushed,
-      locationsPulled,
-      locationsDeletedRemote,
-      cardsPushed,
-      cardsPulled,
-      cardsDeletedRemote,
-    };
   }
 
-  private async syncLocations(
-    userId: string,
-  ): Promise<{ locationsPushed: number; locationsPulled: number; locationsDeletedRemote: number }> {
-    const { data, error } = await this.supabase
+  private setStateIfActive(profile: ProfileSummary, state: SyncState): void {
+    if (this.session.active()?.id === profile.id) {
+      this.stateSignal.set(state);
+    }
+  }
+
+  private async syncLocations(client: SupabaseClient, profile: ProfileSummary): Promise<void> {
+    const userId = profile.cloud!.userId;
+    const { data, error } = await client
       .from('storage_locations')
       .select('id, user_id, name, parent_id, color, updated_at')
       .eq('user_id', userId);
     if (error) {
-      throw new Error(error.message);
+      throw error;
     }
+    this.ensureStillActive(profile);
+    const local = this.locations.locations();
+    const tombstones = await this.locations.getTombstones();
+    const result = reconcileEntities(local, (data as StorageLocationRow[]).map(locationFromRow), tombstones);
 
-    const remote = (data as StorageLocationRow[]).map(locationFromRow);
-    const local = this.locationService.locations();
-    const tombstones = await this.locationService.getTombstones();
-
-    const { merged, toUpsertRemote, toDeleteRemoteIds, tombstonesToClear } = reconcileEntities(
-      local,
-      remote,
-      tombstones,
-    );
-
-    if (toUpsertRemote.length > 0) {
-      const { error: upsertError } = await this.supabase
+    if (result.toUpsertRemote.length > 0) {
+      const { error: upsertError } = await client
         .from('storage_locations')
-        .upsert(toUpsertRemote.map((location) => locationToRow(location, userId)));
+        .upsert(
+          result.toUpsertRemote.map((location) => locationToRow(location, userId)),
+          { onConflict: 'user_id,id' },
+        );
       if (upsertError) {
-        throw new Error(upsertError.message);
+        throw upsertError;
       }
     }
-
-    if (toDeleteRemoteIds.length > 0) {
-      const { error: deleteError } = await this.supabase
+    if (result.toDeleteRemoteIds.length > 0) {
+      const { error: deleteError } = await client
         .from('storage_locations')
         .delete()
-        .in('id', toDeleteRemoteIds);
+        .eq('user_id', userId)
+        .in('id', result.toDeleteRemoteIds);
       if (deleteError) {
-        throw new Error(deleteError.message);
+        throw deleteError;
       }
     }
 
-    this.locationService.applySyncResult(merged);
-    await this.locationService.clearTombstones(tombstonesToClear);
-
-    const localIds = new Set(local.map((location) => location.id));
-    return {
-      locationsPushed: toUpsertRemote.length,
-      locationsPulled: merged.filter((location) => !localIds.has(location.id)).length,
-      locationsDeletedRemote: toDeleteRemoteIds.length,
-    };
+    this.ensureStillActive(profile);
+    this.locations.applySyncResult(result.merged);
+    await this.locations.clearTombstones(result.tombstonesToClear);
   }
 
-  private async syncCards(
-    userId: string,
-  ): Promise<{ cardsPushed: number; cardsPulled: number; cardsDeletedRemote: number }> {
-    const { data, error } = await this.supabase.from('card_entries').select('*').eq('user_id', userId);
+  private async syncCards(client: SupabaseClient, profile: ProfileSummary): Promise<void> {
+    const userId = profile.cloud!.userId;
+    const { data, error } = await client.from('card_entries').select('*').eq('user_id', userId);
     if (error) {
-      throw new Error(error.message);
+      throw error;
     }
+    this.ensureStillActive(profile);
+    const local = this.cards.cards();
+    const tombstones = await this.cards.getTombstones();
+    const result = reconcileEntities(local, (data as CardEntryRow[]).map(cardFromRow), tombstones);
 
-    const remote = (data as CardEntryRow[]).map(cardFromRow);
-    const local = this.cardService.cards();
-    const tombstones = await this.cardService.getTombstones();
-
-    const { merged, toUpsertRemote, toDeleteRemoteIds, tombstonesToClear } = reconcileEntities(
-      local,
-      remote,
-      tombstones,
-    );
-
-    if (toUpsertRemote.length > 0) {
-      const { error: upsertError } = await this.supabase
+    if (result.toUpsertRemote.length > 0) {
+      const { error: upsertError } = await client
         .from('card_entries')
-        .upsert(toUpsertRemote.map((card) => cardToRow(card, userId)));
+        .upsert(
+          result.toUpsertRemote.map((card) => cardToRow(card, userId)),
+          { onConflict: 'user_id,id' },
+        );
       if (upsertError) {
-        throw new Error(upsertError.message);
+        throw upsertError;
       }
     }
-
-    if (toDeleteRemoteIds.length > 0) {
-      const { error: deleteError } = await this.supabase.from('card_entries').delete().in('id', toDeleteRemoteIds);
+    if (result.toDeleteRemoteIds.length > 0) {
+      const { error: deleteError } = await client
+        .from('card_entries')
+        .delete()
+        .eq('user_id', userId)
+        .in('id', result.toDeleteRemoteIds);
       if (deleteError) {
-        throw new Error(deleteError.message);
+        throw deleteError;
       }
     }
 
-    this.cardService.applySyncResult(merged);
-    await this.cardService.clearTombstones(tombstonesToClear);
-
-    const localIds = new Set(local.map((card) => card.id));
-    return {
-      cardsPushed: toUpsertRemote.length,
-      cardsPulled: merged.filter((card) => !localIds.has(card.id)).length,
-      cardsDeletedRemote: toDeleteRemoteIds.length,
-    };
+    this.ensureStillActive(profile);
+    this.cards.applySyncResult(result.merged);
+    await this.cards.clearTombstones(result.tombstonesToClear);
   }
 }

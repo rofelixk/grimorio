@@ -1,0 +1,39 @@
+@if (store.notice()) {
+  <p class="plate" role="status">{{ store.notice() }}</p>
+}
+
+<div class="list" role="list" (mouseleave)="store.preview(null)" (focusout)="onFocusOut($event)">
+  @if (store.active(); as active) {
+    <app-profile-row
+      [profile]="active"
+      [active]="true"
+      (mouseenter)="store.preview(active.id)"
+      (focusin)="store.preview(active.id)"
+    />
+  }
+  @for (profile of others(); track profile.id) {
+    <app-profile-row
+      [profile]="profile"
+      (picked)="store.pickProfile(profile.id)"
+      (mouseenter)="store.preview(profile.id)"
+      (focusin)="store.preview(profile.id)"
+    />
+  }
+  <app-profile-row
+    [dashed]="true"
+    (picked)="store.createProfile()"
+    (mouseenter)="store.preview(null)"
+    (focusin)="store.preview(null)"
+  />
+</div>
+
+@if (store.active()) {
+  <button
+    type="button"
+    class="btn btn--secondary btn--block"
+    [disabled]="store.loading()"
+    (click)="store.signOut()"
+  >
+    {{ store.signOutLabel() }}
+  </button>
+}

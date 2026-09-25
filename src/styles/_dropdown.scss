@@ -1,3 +1,7 @@
+// LEGACY-ONLY, MIXIN-ONLY partial. Kept so legacy component stylesheets still compile.
+// It must emit no global CSS (mixins only) and must not be used by new UI — new UI follows
+// the root DESIGN.md and src/styles/_tokens.scss / _base.scss / _controls.scss (spec 003).
+
 // Shared visual chrome for a custom (non-native) dropdown: a trigger button
 // plus a panel that flips above/below the trigger and clamps its own height
 // so it never forces the page to scroll (see

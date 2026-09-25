@@ -1,15 +1,3 @@
-@use 'styles/reset';
 @use 'styles/tokens';
-@use 'styles/motion';
-@use 'styles/buttons';
-@use 'styles/forms';
-@use 'styles/modal';
-
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: var(--font-size-md);
-  line-height: var(--line-height-normal);
-  background: var(--color-bg);
-  color: var(--color-text);
-}
+@use 'styles/base';
+@use 'styles/controls';

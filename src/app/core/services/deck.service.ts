@@ -1,25 +1,39 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { Deck, DeckCard } from '@models/deck.model';
-import { getAllFromStore, replaceStore } from '../db/entity-store';
+import { currentDbHandle, getAllFromStore, replaceStore, setActiveProfileDb } from '../db/entity-store';
 
 @Injectable({ providedIn: 'root' })
 export class DeckService {
   private readonly decksSignal = signal<Deck[]>([]);
   readonly decks = this.decksSignal.asReadonly();
 
-  private readonly readyPromise: Promise<void>;
+  private readonly changeCountSignal = signal(0);
+  // Bumped by user mutations (add/addMany/update/remove), never by applySyncResult — feeds
+  // the automatic-sync debounce (R11).
+  readonly changeCount = this.changeCountSignal.asReadonly();
+
+  private readyPromise: Promise<void> = Promise.resolve();
+  private loadGeneration = 0;
   private writeQueue: Promise<unknown> = Promise.resolve();
 
-  constructor() {
-    this.readyPromise = this.hydrate();
+  // Points this service at a profile's database (or none) and rehydrates (R1). The signal
+  // is cleared synchronously, before anything awaits, so no other profile's rows are ever
+  // visible; pending writes still land in the database they were queued for.
+  load(profileId: string | null): Promise<void> {
+    const generation = ++this.loadGeneration;
+    this.decksSignal.set([]);
+    this.readyPromise = (async () => {
+      await this.flush();
+      await setActiveProfileDb(profileId);
+      const decks = await getAllFromStore<Deck>('decks');
+      if (generation === this.loadGeneration) {
+        this.decksSignal.set(decks);
+      }
+    })();
+    return this.readyPromise;
   }
 
-  private async hydrate(): Promise<void> {
-    const decks = await getAllFromStore<Deck>('decks');
-    this.decksSignal.set(decks);
-  }
-
-  // Resolves once this service's initial IndexedDB read has landed in the signal.
+  // Resolves once the latest load() has landed in the signal.
   whenReady(): Promise<void> {
     return this.readyPromise;
   }
@@ -30,8 +44,9 @@ export class DeckService {
   }
 
   private persist(decks: Deck[]): void {
+    const handle = currentDbHandle();
     this.writeQueue = this.writeQueue
-      .then(() => replaceStore('decks', decks))
+      .then(() => replaceStore('decks', decks, handle))
       .catch((e) => console.error('Grimorio: failed to persist decks.', e));
   }
 
@@ -41,6 +56,7 @@ export class DeckService {
       this.persist(next);
       return next;
     });
+    this.changeCountSignal.update((n) => n + 1);
   }
 
   add(deck: Omit<Deck, 'id'>): Deck {
@@ -50,6 +66,7 @@ export class DeckService {
       this.persist(next);
       return next;
     });
+    this.changeCountSignal.update((n) => n + 1);
     return entry;
   }
 
@@ -59,6 +76,7 @@ export class DeckService {
       this.persist(next);
       return next;
     });
+    this.changeCountSignal.update((n) => n + 1);
   }
 
   byId(id: string) {

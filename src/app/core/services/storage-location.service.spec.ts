@@ -1,17 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { resetGrimorioDbForTests } from '../db/grimorio-db';
 import { StorageLocationService } from './storage-location.service';
 
 describe('StorageLocationService', () => {
   let service: StorageLocationService;
 
   beforeEach(async () => {
-    localStorage.clear();
-    await resetGrimorioDbForTests();
     TestBed.configureTestingModule({});
     service = TestBed.inject(StorageLocationService);
-    await service.whenReady();
+    await service.load('p1');
   });
 
   afterEach(async () => {
@@ -34,7 +31,7 @@ describe('StorageLocationService', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
     const reloaded = TestBed.inject(StorageLocationService);
-    await reloaded.whenReady();
+    await reloaded.load('p1');
     expect(reloaded.locations()).toEqual([added]);
   });
 

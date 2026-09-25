@@ -2,18 +2,23 @@
 
 Dated, fact-based entries accumulated session-to-session go here — new dependencies, new durable conventions, new scripts/commands, structural changes. See the "worth adding" test in `CLAUDE.md`'s Maintaining section before adding anything. Keep entries short; if a note describes something stable enough to be a permanent reference, move it into `architecture.md` or `commands.md` instead and remove it from here.
 
-## 2026-09-16
-
-- New tokens in `_tokens.scss`: `--shadow-glow-primary-strong` (ember glow for primary-button hover/focus), `--ring-accent` (teal glow-style focus ring, used in place of a hard `outline` on newer components).
-- `_tokens.scss` gained `--overlay-backdrop` for `<dialog>::backdrop` — use it instead of a raw `rgba(0,0,0,0.75)`.
-
 ## 2026-09-24
 
 - `DESIGN.md` (root) is the design system's source of truth; UI it doesn't cover is undecided.
   Legacy styles (`src/styles/*`, existing component `.scss`) are frozen.
-- Legacy global selectors are fenced via `$legacy` from `src/styles/_fence.scss`
-  (`:where(:not([data-grm], [data-grm] *))`) — any new legacy global rule must append it, and new
-  design-system UI lives under a `[data-grm]` root.
 - The pre-rebuild auth UI is preserved at git tag `auth-modal-v1`.
-- Until spec 003 lands, `architecture.md`'s "Styling / design system" section describes the legacy
-  system only — don't apply it (or `auth-modal` as a reference) to new UI.
+
+## 2026-09-24 (spec 003)
+
+- Owned data is per local profile: IndexedDB `grimorio-device` (profile registry + `activeProfileId`)
+  plus one `grimorio-profile-{id}` database per profile. Entity services gain `load(profileId | null)`
+  and `changeCount`; `ProfileSessionService` owns switching. The legacy `grimorio` database is deleted
+  on startup (`core/db/legacy-cleanup.ts`).
+- `profileGuard` (`core/guards/profile.guard.ts`) gates owned-data routes; gated routes also set
+  `runGuardsAndResolvers: 'always'` so a sign-out/switch re-guards the current page.
+- One Supabase auth client per linked profile (`CloudSessionService`, storage key `grm-cloud:{id}`);
+  the shared `SUPABASE_CLIENT` is anonymous-only (catalog reads). Cloud errors reach the UI only via
+  `mapCloudError` (`core/utils/cloud-error.util.ts`).
+- New-system UI primitives live in `src/app/shared/ds/`; entry-modal PT-BR copy is centralized in
+  `core/utils/entry-copy.ts`.
+- `@utils/*` path alias → `src/app/core/utils/*` (already in tsconfig; now used).

@@ -1,6 +1,7 @@
-import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Injectable, computed, inject } from '@angular/core';
 import { Color } from '@models/card.model';
-import { AuthService } from '@services/auth.service';
+import { DEFAULT_IDENTITY, IDENTITY_HEX } from '../utils/identity.util';
+import { IdentityService } from './identity.service';
 
 export interface ThemeColorInfo {
   label: string;
@@ -9,18 +10,15 @@ export interface ThemeColorInfo {
 }
 
 export const THEME_COLOR_PALETTE: Record<Color, ThemeColorInfo> = {
-  W: { label: 'Branco', base: '#d8cdb0', hover: '#e6dcc2' },
-  U: { label: 'Azul', base: '#3d6b85', hover: '#4c7f9c' },
-  B: { label: 'Roxo', base: '#7c5aa6', hover: '#8f6bb8' },
-  R: { label: 'Vermelho', base: '#a8402c', hover: '#bf4f39' },
-  G: { label: 'Verde', base: '#4c7a43', hover: '#5c8f52' },
+  W: { label: 'Branco', ...IDENTITY_HEX.W },
+  U: { label: 'Azul', ...IDENTITY_HEX.U },
+  B: { label: 'Preto', ...IDENTITY_HEX.B },
+  R: { label: 'Vermelho', ...IDENTITY_HEX.R },
+  G: { label: 'Verde', ...IDENTITY_HEX.G },
 };
 
 export const THEME_COLOR_ORDER: Color[] = ['W', 'U', 'B', 'R', 'G'];
-export const MAX_THEME_COLORS = 3;
-// Fresh install / first run: seeds a Red-primary/Blue-accent look rather than
-// leaving the modal untinted, since there is no "no theme" state to preserve.
-export const DEFAULT_THEME_COLORS: Color[] = ['R', 'U'];
+export const DEFAULT_THEME_COLORS: Color[] = [...DEFAULT_IDENTITY];
 
 export interface ThemeRoles {
   primary?: string;
@@ -31,20 +29,21 @@ export interface ThemeRoles {
   tertiaryHover?: string;
 }
 
+// Legacy adapter (R13): legacy components still read `roles()`/`colors()` in their old shape,
+// now derived from IdentityService — the active profile's colors, or the default identity with
+// none — so they never keep showing a signed-out profile's colors. Choosing colors happens only
+// in the entry modal's identity picker; there is no toggle or persistence here.
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  private readonly authService = inject(AuthService);
+  private readonly identity = inject(IdentityService);
 
-  private readonly storageKey = 'grimorio.themeColors';
-  private readonly colorsSignal = signal<Color[]>(this.load());
-  readonly colors = this.colorsSignal.asReadonly();
+  readonly colors = computed<Color[]>(() => this.identity.activeColors() ?? [...DEFAULT_IDENTITY]);
 
-  // Pick order = role priority: 1st -> primary, 2nd -> accent, 3rd -> tertiary.
-  // Unset roles resolve to undefined (not null/''), which is what makes Angular's
-  // [style.--x] bindings remove the inline custom property and let the CSS
-  // var(--modal-x, var(--color-x)) fallback chain re-engage.
+  // Pick order = role priority: 1st -> primary, 2nd -> accent, 3rd -> tertiary. Unset roles
+  // resolve to undefined, which removes the legacy components' inline custom property and
+  // lets their CSS fallback chain re-engage.
   readonly roles = computed<ThemeRoles>(() => {
-    const [primary, accent, tertiary] = this.colorsSignal();
+    const [primary, accent, tertiary] = this.colors();
     return {
       primary: primary ? THEME_COLOR_PALETTE[primary].base : undefined,
       primaryHover: primary ? THEME_COLOR_PALETTE[primary].hover : undefined,
@@ -54,80 +53,4 @@ export class ThemeService {
       tertiaryHover: tertiary ? THEME_COLOR_PALETTE[tertiary].hover : undefined,
     };
   });
-
-  // Cross-device sync: when the signed-in account's user_metadata already has a
-  // themeColors preference, it wins over this device's local copy (another device
-  // set it last); when it doesn't (pre-existing account, or a fresh device that
-  // never talked to this account before), this device's current colors get pushed
-  // up once to claim it. toggle() itself never pushes — see saveToAccount().
-  constructor() {
-    effect(() => {
-      const user = this.authService.user();
-      if (!user) {
-        return;
-      }
-      const remote = this.authService.themeColors();
-      untracked(() => {
-        if (remote && remote.length > 0) {
-          if (JSON.stringify(remote) !== JSON.stringify(this.colorsSignal())) {
-            this.colorsSignal.set(remote);
-            this.persist(remote);
-          }
-        } else {
-          this.syncRemoteBestEffort(this.colorsSignal());
-        }
-      });
-    });
-  }
-
-  private load(): Color[] {
-    const raw = localStorage.getItem(this.storageKey);
-    return raw ? JSON.parse(raw) : DEFAULT_THEME_COLORS;
-  }
-
-  private persist(colors: Color[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(colors));
-  }
-
-  // Only used to auto-claim an account with no saved preference yet (see the
-  // constructor effect) — an automatic background action, not something the user
-  // asked for, so a failure here just means this device stays local-only for now
-  // rather than surfacing an error anywhere.
-  private syncRemoteBestEffort(colors: Color[]): void {
-    if (this.authService.user()) {
-      this.authService.updateThemeColors(colors).catch(() => undefined);
-    }
-  }
-
-  // Local only — toggling doesn't hit Supabase per click (would spam the client
-  // as someone clicks through swatches). Persisting to the account is an explicit
-  // action via saveToAccount(), e.g. a "Save" button in Profile.
-  toggle(color: Color): void {
-    this.colorsSignal.update((colors) => {
-      const isSelected = colors.includes(color);
-      if (isSelected) {
-        // At least 1 color must always stay selected.
-        if (colors.length <= 1) {
-          return colors;
-        }
-        const next = colors.filter((c) => c !== color);
-        this.persist(next);
-        return next;
-      }
-
-      if (colors.length >= MAX_THEME_COLORS) {
-        return colors;
-      }
-      const next = [...colors, color];
-      this.persist(next);
-      return next;
-    });
-  }
-
-  // Explicitly pushes the current local colors to the signed-in account. Throws
-  // on failure (unlike the best-effort auto-claim above) so a caller like
-  // Profile's Save button can surface a real error instead of failing silently.
-  async saveToAccount(): Promise<void> {
-    await this.authService.updateThemeColors(this.colorsSignal());
-  }
 }

@@ -1,0 +1,16 @@
+:host {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.spark {
+  position: absolute;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 6px 1px var(--c);
+  opacity: 0;
+  animation: spark var(--dur) var(--ease-standard) var(--delay) 1 both;
+}

@@ -1,0 +1,129 @@
+<app-themed-modal
+  [open]="modal.isOpen()"
+  [roles]="store.roles()"
+  [faceHeight]="desktopFaceHeight()"
+  [labelledBy]="titleId"
+  (closed)="store.close()"
+>
+  @if (modal.isOpen()) {
+    <app-spark-field modalSparks [count]="mobile() ? 12 : 20" [direction]="mobile() ? 'inward' : 'outward'" />
+  }
+
+  @if (!mobile()) {
+    <aside modalAside class="identity-pane">
+      @if (picking()) {
+        <app-identity-wheel mode="picker" [size]="300" [(picks)]="store.picks" />
+      } @else {
+        <app-identity-wheel
+          mode="display"
+          [size]="300"
+          [picks]="store.identityColors() ?? []"
+          [neutral]="store.neutral()"
+          [subline]="store.wheelSubline()"
+        />
+      }
+      <p class="caption">{{ store.caption() }}</p>
+    </aside>
+  }
+
+  <section class="form-pane" [class.capped]="capped()">
+    @if (mobile()) {
+      <header class="m-header">
+        <span class="wordmark">{{ wordmark }}</span>
+        <span class="m-header-end">
+          @if (!store.neutral()) {
+            <app-identity-chip [colors]="store.identityColors() ?? []" [label]="store.chipLabel()" />
+          }
+          <button type="button" class="close" [attr.aria-label]="action.close" (click)="store.close()">✕</button>
+        </span>
+      </header>
+    } @else {
+      <div class="close-row">
+        <button type="button" class="close" [attr.aria-label]="action.close" (click)="store.close()">✕</button>
+      </div>
+    }
+
+    <div class="body">
+      <div class="content" #content>
+        @if (store.done()) {
+          <app-done-panel />
+        } @else {
+          <form class="form" novalidate (submit)="onSubmit($event)">
+            <div class="heading">
+              <h2 class="title" [id]="titleId">{{ store.title() }}</h2>
+              <p class="subtitle">{{ store.subtitle() }}</p>
+            </div>
+
+            @switch (body()) {
+              @case ('list') {
+                <app-profile-list />
+              }
+              @case ('local') {
+                <app-profile-form />
+              }
+              @case ('cloud') {
+                <app-cloud-form />
+              }
+              @case ('reset') {
+                <app-reset-form />
+              }
+            }
+
+            @if (store.formError()) {
+              <p class="form-error" role="alert">{{ store.formError() }}</p>
+            }
+
+            @if (hasSubmit()) {
+              <button type="submit" class="btn btn--primary btn--block" [disabled]="store.loading()">
+                {{ store.primary() }}
+              </button>
+            }
+
+            @switch (store.phase()) {
+              @case ('localreset-warn') {
+                <div class="actions">
+                  <button type="button" class="btn btn--ghost" (click)="store.cancelToUnlock()">
+                    {{ action.cancel }}
+                  </button>
+                  <button type="button" class="btn btn--primary" (click)="store.confirmLocalReset()">
+                    {{ action.confirmReset }}
+                  </button>
+                </div>
+              }
+              @case ('unlink') {
+                <div class="actions">
+                  <button type="button" class="btn btn--ghost" (click)="store.close()">{{ action.cancel }}</button>
+                  <button type="submit" class="btn btn--danger" [disabled]="store.loading()">
+                    {{ store.primary() }}
+                  </button>
+                </div>
+              }
+              @case ('reset-code') {
+                <div class="resend">
+                  <button
+                    type="button"
+                    class="btn btn--secondary"
+                    [disabled]="store.cooldown() > 0 || store.isCloudBusy()"
+                    (click)="store.resend()"
+                  >
+                    {{ store.resendLabel() }}
+                  </button>
+                  @if (!store.emailLocked()) {
+                    <button type="button" class="link-btn" (click)="store.otherEmail()">{{ action.otherEmail }}</button>
+                  }
+                </div>
+              }
+            }
+          </form>
+        }
+      </div>
+
+      @if (store.prompt(); as prompt) {
+        <div class="prompt" #prompt>
+          {{ prompt.ask }}
+          <button type="button" class="link-btn" (click)="store.followPrompt(prompt.target)">{{ prompt.cta }}</button>
+        </div>
+      }
+    </div>
+  </section>
+</app-themed-modal>
