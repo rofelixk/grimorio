@@ -1,9 +1,10 @@
 <!--
 Sync Impact Report
-- Version change: 2.0.0 → 2.1.0 (MINOR: Principle V materially expanded — design guidance now
-  points to DESIGN.md instead of the established design-token system)
-- Modified principles: V. Zoneless, Signal-Driven Angular (name unchanged; styling clause replaced:
-  DESIGN.md is the design source of truth, previous styles are legacy and fenced by `[data-grm]`)
+- Version change: 2.1.0 → 2.1.1 (PATCH: wording clarification, no change in obligations)
+- Modified principles: IV. Local-First, Cloud-Optional — "username" → "profile name" (a local
+  profile is identified by a device-unique profile name; cloud accounts have no username); the
+  "(email/password or Google)" enumeration dropped — sign-in methods are decided per spec
+  (spec 003: e-mail + password only; Google deferred)
 - Added sections: none
 - Removed sections: none
 - Templates requiring updates: none (templates reference this file generically).
@@ -40,10 +41,11 @@ require a governance amendment, not a routine feature decision.
 
 ### IV. Local-First, Cloud-Optional
 Core functionality (tracking owned cards, storage locations, decks, and color identity) MUST work
-fully offline and MUST require only a *local profile* — a username and password stored on the
+fully offline and MUST require only a *local profile* — a profile name and password stored on the
 device, with no email and no network. A device MAY hold multiple local profiles, and each
-profile's data MUST be isolated from the others. A *cloud account* (email/password or Google) MAY
-be linked to a local profile to enable sync, but MUST NOT be required for any capability. Gameplay
+profile's data MUST be isolated from the others. A *cloud account* MAY be linked to a local profile
+to enable sync, but MUST NOT be required for any capability; which sign-in methods it offers is a
+spec-level decision. Gameplay
 tools that don't touch owned-card data (e.g. life counter, planechase) MUST require no profile at
 all.
 Rationale: matches real usage — mid-collection-sorting sessions with inconsistent connectivity, and
@@ -105,4 +107,4 @@ against the current version; unjustified violations block the plan from proceedi
 day-to-day development guidance beyond governance lives in the project's AI agent guidance file
 (`AGENTS.md` by convention; currently `CLAUDE.md` in this repo).
 
-**Version**: 2.1.0 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-09-24
+**Version**: 2.1.1 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-09-24
