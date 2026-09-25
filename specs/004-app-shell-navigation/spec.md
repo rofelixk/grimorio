@@ -197,7 +197,7 @@ Anyone using the app can find a short notice at the bottom of the view area. It 
 - **FR-007a**: Healthy sync states MUST be shown in neutral colors. Only the three failure states (offline, session expired, error) use the danger color. Identity colors MUST never signal sync status. Each state also has a distinct mark shape or fill, so states never rely on color alone.
 - **FR-008**: On wide screens, the sync area MUST be a single control showing the state mark and the full label. Activating it performs the state's action: start a sync, retry, open the modal at the session-expired step, or open the modal at the cloud-link step. While a sync is running it MUST NOT be activatable, and it MUST expose that to assistive technology. Its accessible name is the full label plus the action (e.g. "Sincronizado há 42 min. Sincronizar agora.").
 - **FR-009**: With no active profile, no sync status MUST be shown anywhere.
-- **FR-010**: The new shell MUST replace the temporary profile button and its menu (from spec 003). Every action that menu offered MUST still be reachable, through the profile modal or the sync status and its action. "Sincronizar agora" becomes the sync action.
+- **FR-010**: The new shell MUST replace the temporary profile button and its menu (from spec 003). Every action that menu offered MUST still be reachable, through the profile modal or the sync status and its action, except "Desvincular conta": it has no entry point until the profile-modal rework spec (accepted 2026-09-25). "Sincronizar agora" becomes the sync action.
 
 **Nav bar**
 
@@ -280,11 +280,12 @@ Anyone using the app can find a short notice at the bottom of the view area. It 
 
 - The profile/account modal from spec 003 is reused unchanged. Its planned rework is a separate, later spec. The only changes inside it are:
   - removing its automatic syncs (see below)
-  - rewording its account-creation subtitle, which still promises automatic sync
+  - rewording its account-creation and session-renewal subtitles, which still promise automatic sync
   - the profile-name length rule (FR-033)
 - The collection is the only nav destination for now. Decks, Sobre and other existing pages stay reachable by URL but are not linked from the new nav. Per the project's unreleased-redo scope, legacy pages that relied on the old navigation (e.g. the collection-filter panel inside the old drawer) may lose that entry point. Legacy views that assumed the whole page scrolls may need small fixes to fit the new view area, but only as far as keeping them usable.
 - Home stays ungated. The collection keeps its existing profile gate, and the nav does not duplicate that check.
 - The existing sync engine (how data is reconciled with the cloud, the states it reports, the stored last-synced time) is reused. Its automatic triggers are removed: the scheduler that synced after changes and on profile switch, and the syncs that the profile modal starts after link, set-up, unlock and session renewal. As a result, a profile set up on a new device starts with an empty collection until the person triggers a sync. The modal's "sync line" (DESIGN.md) no longer applies to those flows.
 - "Wide" is the existing wide breakpoint (960px), which is the shell's only breakpoint. Everything narrower, including tablets in portrait, uses the drawer. The smaller mobile breakpoint is not used by the shell.
+- In the Android app, the hardware Back button navigates history rather than dismissing the drawer. The drawer still closes, because it closes on any navigation, but the page also goes back, or the app exits at the first page. A proper Back handler (`@capacitor/app`) is left to a later native-polish spec, alongside the same gap in the profile modal. In browsers and the installed PWA, Back closes only the drawer.
 - The notice goes in the view area, not in the top bar or the nav, and it scrolls with the content, so it takes no permanent screen space.
 - The visual design, including exact sizes, colors, motion and copy, is specified by the design handoff in `design_handoff_app_shell_navigation/` (its README supersedes its presentation board). DESIGN.md is updated to match, as FR-032 describes.
