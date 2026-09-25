@@ -484,8 +484,9 @@ styles (page, surfaces, text, typography) and that no legacy global rule or toke
   the legacy global styles and tokens app-wide, and the legacy global rules and tokens MUST be
   removed. Existing components keep their own stylesheets until later specs redesign them; they are
   not adapted to the new foundation, and losing their appearance or usability is acceptable.
-- **FR-040**: Every interactive element MUST have at least a 44px touch target, and every animation
-  MUST stop when the person prefers reduced motion.
+- **FR-040**: Every interactive element MUST have at least a 44px touch target, and every decorative
+  animation (ring, halo, spark, ripple, name blur-in) MUST stop when the person prefers reduced
+  motion; the modal's height transition MAY remain.
 - **FR-041**: Only the three roles may carry color in the interface chrome; identity colors appear
   directly only in swatches, pips and dots. This feature MUST NOT use success or warning colors
   (still undefined in `DESIGN.md`): warnings are plain text on an info plate, and success is shown
@@ -521,8 +522,8 @@ styles (page, surfaces, text, typography) and that no legacy global rule or toke
 - **SC-007**: Home, About and every area not touching owned-card data open with no profile prompt.
 - **SC-008**: 100% of the phases, success screens and errors in `STATES.md` are reachable and behave
   as listed, on both desktop and mobile layouts.
-- **SC-009**: 100% of interactive elements meet the 44px touch target, and 0 animations run under
-  reduced motion.
+- **SC-009**: 100% of interactive elements meet the 44px touch target, and 0 decorative animations run
+  under reduced motion.
 - **SC-010**: 0 legacy global style rules or legacy tokens remain; every screen renders on the new
   tokens and base styles.
 
