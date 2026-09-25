@@ -20,6 +20,8 @@
 - Q (added by the user): Should long profile names be truncated in the indicator? → A: No. The profile-name maximum drops from 20 to 16 characters, matching common gaming handles (PlayStation Online ID 16, X 15, Xbox gamertag 12). Names then always fit whole, so they are never truncated.
 - Q (added by the user): When does sync run? → A: Only when the person activates it: the sync area in the top bar on wide screens, or the sync action in the drawer on narrow screens. The earlier automatic sync (after data changes, on profile switch, and after modal flows) is removed. The status shows syncing (not clickable), synced (a recent success) or the time since the last sync. A profile without a cloud account gets a matching message.
 - Q (added by the user): What happens if the person switches profile during a sync? → A: They can't. The profile control is locked while a sync runs.
+- Q: Does a failed sync's state survive a reload or a profile switch? → A: No. Failure states last only for the current session. After a reload or a switch into the profile, the status shows the last-synced or never-synced state.
+- Q: On narrow screens, what happens to the drawer when a drawer control opens the profile modal? → A: The drawer closes first, then the modal opens. When the modal closes, focus returns to "Menu". "Sincronizar agora" and "Tentar de novo" leave the drawer open.
 
 ### Design handoff 2026-09-25 (`design_handoff_app_shell_navigation/`)
 
@@ -106,7 +108,7 @@ On a phone held in portrait, the person still needs the home link, their profile
 
 1. **Given** a narrow screen, **When** any page is shown, **Then** the top bar fits on one row: the wordmark at the left, then the sync mark (only when a profile is active), then "Menu" at the right.
 2. **Given** a narrow screen, **When** the person taps "Menu" and then "Coleção", **Then** the collection opens and the drawer closes.
-3. **Given** a narrow screen, **When** the person taps "Menu" and then the profile control, **Then** the profile modal opens.
+3. **Given** a narrow screen, **When** the person taps "Menu" and then the profile control, **Then** the drawer closes and the profile modal opens. When the modal closes, focus is on "Menu".
 4. **Given** a narrow screen, **When** the drawer is closed, **Then** the navigation takes no space from the page content.
 5. **Given** a narrow screen and an open drawer, **When** the person picks a destination, taps outside the drawer, taps ✕, or presses Back/Escape, **Then** the drawer closes.
 6. **Given** a narrow screen, **When** the drawer is shown, **Then** its nav labels are always visible, and there is no pin button and no collapsed strip.
@@ -155,6 +157,7 @@ Anyone using the app can find a short notice at the bottom of the view area. It 
 - The app stays open across a long idle time: the "last synced" time keeps counting correctly ("há 5 min" → "há 2 h" → "há 3 d"). The synced state still changes to last synced after 5 minutes, even if nothing else happens on screen.
 - If the person taps the profile control while a sync is running, the profile modal does not open. The control is dimmed and unavailable, and its label says why ("Aguarde a sincronização terminar"). It becomes available again as soon as the sync ends, whether the sync succeeded or failed.
 - If a sync stalls (e.g. the network drops mid-request), it must end in the error state within 60 seconds, so the person is never locked out of switching profile indefinitely.
+- A failed sync shows its failure state only until the app reloads or the person switches profile. After that, the status shows "Sincronizado há N…" or "Nunca sincronizado" again, and the failure is never restored.
 - A profile whose identity is red (or includes red) must never look like it's in an error state. Status never uses identity colors.
 - If the person activates "Coleção" while already on the collection, nothing changes and no error appears.
 - While a modal is open (e.g. the profile modal opened by the profile gate), nothing behind it can be activated: the top bar, the nav, the drawer and page content are all out of reach, by pointer, touch and keyboard. A second modal can never be opened from behind the first.
@@ -212,6 +215,7 @@ Anyone using the app can find a short notice at the bottom of the view area. It 
 - **FR-018a**: On narrow screens, the top-bar sync mark MUST show only the state mark, never text. It MUST NOT be interactive, and it MUST expose the full label to assistive technology as a status. The full label and the state's action live in the drawer.
 - **FR-019**: On narrow screens, "Menu" MUST open a drawer from the right, over the content, with a backdrop. The drawer holds, top to bottom: a ✕ close button; the account block (the profile control, the full sync status, and the state's action, which is hidden while syncing); a divider; and the nav destinations with labels always visible. The nav takes no space while the drawer is closed. The profile modal and every destination are reachable in two taps from any page. "Menu" MUST expose whether the drawer is open.
 - **FR-020**: The drawer MUST close when a destination is chosen, when the backdrop is tapped, when ✕ is tapped, or when the person presses Escape/Back. While it is open, keyboard focus MUST stay inside it. When it is opened with the keyboard, focus goes to ✕. When it is closed with the keyboard, focus returns to "Menu".
+- **FR-020a**: When a drawer control opens the profile modal (the profile control, "Entrar", "Vincular conta na nuvem", "Entrar de novo"), the drawer MUST close before the modal opens, so the drawer and the modal are never open together. When that modal closes, focus returns to "Menu". "Sincronizar agora" and "Tentar de novo" MUST leave the drawer open, so the person sees the status change.
 - **FR-021**: On narrow screens there MUST be no side nav, no collapsed strip and no pin button.
 - **FR-022**: Every interactive shell element, including the notice's links, MUST have a touch target at least 44px tall on every width.
 
@@ -251,7 +255,7 @@ Anyone using the app can find a short notice at the bottom of the view area. It 
 ### Key Entities
 
 - **Active profile**: the local profile currently in use. The shell reads its name, color identity (in pick order), and whether it is linked to a cloud account.
-- **Sync status**: the sync state of the active profile — whether it has a cloud account, whether a sync is running, the result of the last attempt, and the time of the last successful sync. The time is kept per profile across sessions. The displayed state (FR-007) is derived from it and re-evaluated every minute.
+- **Sync status**: the sync state of the active profile — whether it has a cloud account, whether a sync is running, the result of the last attempt, and the time of the last successful sync. Only the time is kept per profile across sessions. The result of the last attempt (including a failure) lasts only for the current session and is cleared on reload or profile switch. The displayed state (FR-007) is derived from it and re-evaluated every minute.
 - **Navigation destination**: a named section of the app, currently only "Coleção". It has a label and knows which pages count as "inside" it, for the current-section mark.
 - **Nav pin preference**: a per-device yes/no choice of whether the desktop nav is pinned open. Default: not pinned.
 - **Disclaimer notice**: the shared legal/attribution text (WotC fan content, Scryfall, AI usage) shown at the end of the view area and reused by the About page.
