@@ -1,0 +1,67 @@
+<div class="glow" aria-hidden="true"></div>
+<div class="ring" aria-hidden="true"></div>
+
+@for (swatch of swatches(); track swatch.color) {
+  @if (mode() === 'picker') {
+    <button
+      type="button"
+      class="swatch"
+      [class.on]="swatch.on"
+      [class.locked]="swatch.locked"
+      [class.neutral]="neutral()"
+      [style.left.%]="swatch.left"
+      [style.top.%]="swatch.top"
+      [style.--hex]="swatch.hex"
+      [attr.aria-label]="swatch.label"
+      [attr.aria-pressed]="swatch.on"
+      [attr.aria-disabled]="swatch.locked ? 'true' : null"
+      (click)="toggle(swatch)"
+    ></button>
+  } @else {
+    <span
+      class="swatch display"
+      [class.on]="swatch.on"
+      [class.neutral]="neutral()"
+      [style.left.%]="swatch.left"
+      [style.top.%]="swatch.top"
+      [style.--hex]="swatch.hex"
+      aria-hidden="true"
+    ></span>
+  }
+}
+
+<div class="fx" aria-hidden="true">
+  @for (burst of bursts(); track burst.id) {
+    <span
+      class="ripple"
+      [style.left.%]="burst.x"
+      [style.top.%]="burst.y"
+      [style.--hex]="burst.hex"
+      (animationend)="dropBurst(burst.id)"
+    ></span>
+    @for (spark of burst.sparks; track $index) {
+      <span
+        class="burst"
+        [style.left.%]="burst.x"
+        [style.top.%]="burst.y"
+        [style.--hex]="burst.hex"
+        [style.--dx]="spark.dx"
+        [style.--dy]="spark.dy"
+        [style.--dur]="spark.dur"
+      ></span>
+    }
+  }
+</div>
+
+<div class="center">
+  @if (lit().length) {
+    @for (key of centerKey(); track key) {
+      <div class="name-block">
+        <span class="tribe">{{ tribe() }}</span>
+        <span class="sub">{{ sub() }}</span>
+      </div>
+    }
+  } @else {
+    <span class="wordmark">{{ wordmark }}</span>
+  }
+</div>

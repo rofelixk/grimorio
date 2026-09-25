@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DeckCard } from '@models/deck.model';
-import { resetGrimorioDbForTests } from '../db/grimorio-db';
 import { DeckService } from './deck.service';
 
 const ownedCard: DeckCard = { id: 'entry-1', source: 'owned', cardEntryId: 'entry-1' };
@@ -10,11 +9,9 @@ describe('DeckService', () => {
   let service: DeckService;
 
   beforeEach(async () => {
-    localStorage.clear();
-    await resetGrimorioDbForTests();
     TestBed.configureTestingModule({});
     service = TestBed.inject(DeckService);
-    await service.whenReady();
+    await service.load('p1');
   });
 
   afterEach(async () => {
@@ -36,7 +33,7 @@ describe('DeckService', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
     const reloaded = TestBed.inject(DeckService);
-    await reloaded.whenReady();
+    await reloaded.load('p1');
     expect(reloaded.decks()).toEqual([added]);
   });
 

@@ -1,0 +1,15 @@
+@if (active(); as profile) {
+  <button type="button" class="target" popovertarget="grm-profile-menu">
+    {{ label() }}
+  </button>
+  <div #menu id="grm-profile-menu" class="menu" popover>
+    <button type="button" class="target" (click)="switchProfile()">{{ copy.switchProfile }}</button>
+    <button type="button" class="target" (click)="cloudAccount()">{{ copy.cloudAccount }}</button>
+    @if (profile.cloud) {
+      <button type="button" class="target" (click)="syncNow()">{{ copy.syncNow }}</button>
+      <p class="status" role="status">{{ syncStatus() }}</p>
+    }
+  </div>
+} @else {
+  <button type="button" class="target" (click)="openEntry()">{{ label() }}</button>
+}

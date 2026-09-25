@@ -1,0 +1,24 @@
+@if (dashed()) {
+  <button type="button" class="row dashed" (click)="picked.emit()">
+    <span class="plus" aria-hidden="true">+</span>{{ createLabel }}
+  </button>
+} @else if (profile(); as p) {
+  <button
+    type="button"
+    class="row"
+    [class.active]="active()"
+    [style.--own]="ownHex()"
+    [attr.aria-current]="active() ? 'true' : null"
+    [attr.aria-disabled]="active() ? 'true' : null"
+    (click)="pick()"
+  >
+    <app-mini-wheel [colors]="p.colors" />
+    <span class="text">
+      <span class="name">{{ p.name }}</span>
+      <span class="meta">{{ meta() }}</span>
+    </span>
+    @if (active()) {
+      <span class="badge">{{ inUse }}</span>
+    }
+  </button>
+}

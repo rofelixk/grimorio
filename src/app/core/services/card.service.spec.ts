@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntryWithoutId } from '@testing/card.mocks';
-import { resetGrimorioDbForTests } from '../db/grimorio-db';
 import { getAllFromStore } from '../db/entity-store';
 import { CardEntry } from '@models/card.model';
 import { CardService } from './card.service';
@@ -12,11 +11,9 @@ describe('CardService', () => {
   let service: CardService;
 
   beforeEach(async () => {
-    localStorage.clear();
-    await resetGrimorioDbForTests();
     TestBed.configureTestingModule({});
     service = TestBed.inject(CardService);
-    await service.whenReady();
+    await service.load('p1');
   });
 
   afterEach(async () => {
@@ -112,7 +109,7 @@ describe('CardService', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
     const reloaded = TestBed.inject(CardService);
-    await reloaded.whenReady();
+    await reloaded.load('p1');
 
     expect(reloaded.cards().length).toBe(1);
   });

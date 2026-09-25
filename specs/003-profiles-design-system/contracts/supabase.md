@@ -28,12 +28,17 @@ alter table public.storage_locations drop constraint storage_locations_pkey;
 alter table public.storage_locations add primary key (user_id, id);
 alter table public.card_entries add primary key (user_id, id);
 
+-- Delete rules preserved from the previous single-column FKs (checked live 2026-09-24:
+-- parent SET NULL, location CASCADE). The column-list SET NULL (Postgres ≥ 15; the project runs
+-- 17.6) nulls only parent_id — a plain SET NULL would also null the NOT NULL user_id.
 alter table public.storage_locations
   add constraint storage_locations_parent_fkey
-  foreign key (user_id, parent_id) references public.storage_locations (user_id, id);
+  foreign key (user_id, parent_id) references public.storage_locations (user_id, id)
+  on delete set null (parent_id);
 alter table public.card_entries
   add constraint card_entries_location_fkey
-  foreign key (user_id, location_id) references public.storage_locations (user_id, id);
+  foreign key (user_id, location_id) references public.storage_locations (user_id, id)
+  on delete cascade;
 
 -- No new tables → no new grants/RLS. Existing owner-only policies and
 -- `authenticated` grants on both tables are kept as-is.

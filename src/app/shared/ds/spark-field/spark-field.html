@@ -1,0 +1,17 @@
+@if (!reducedMotion()) {
+  @for (spark of sparks(); track spark.id; let i = $index) {
+    <span
+      class="spark"
+      [style.left.%]="spark.x"
+      [style.top.%]="spark.y"
+      [style.width.px]="spark.size"
+      [style.height.px]="spark.size"
+      [style.--c]="spark.color"
+      [style.--dx]="spark.dx + 'px'"
+      [style.--dy]="spark.dy + 'px'"
+      [style.--dur]="spark.dur + 's'"
+      [style.--delay]="spark.delay + 's'"
+      (animationend)="reroll(i)"
+    ></span>
+  }
+}

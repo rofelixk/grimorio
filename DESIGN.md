@@ -328,6 +328,14 @@ The e-mail chip ("Conta na nuvem" eyebrow + address) and status notices ("Você 
 ### Sync line
 Shown after linking, creating an account, unlocking a linked profile or setting up a new device. While syncing: a spinner in role-accent + "Sincronizando…" / "Baixando sua coleção…". When finished: an 8px role-accent dot with a glow + "Sincronizado agora" / "Coleção baixada".
 
+### App top bar
+The thin app-shell row above every screen. It is identical at every width.
+- **Surface:** page background (`#14110f`) with a 1px `border` hairline below. No shadow, no wash.
+- **Height:** 44px minimum (the touch target); horizontal padding `space-4`. Contents are vertically centered.
+- **Left:** the "Grimorio" wordmark per the Typography table — Grenze 700, `--role-primary`, with the title glow. Mobile header size (1.25rem).
+- **Right:** the active-profile control. It uses no new tokens.
+- **Exempt:** the temporary profile button and its menu inside the bar are placeholders (spec 003, FR-029). Their final design is undecided, and they are not governed by this entry beyond the 44px target.
+
 ## Content
 
 - **PT-BR only.** Second person, imperative, no "we", no exclamation marks, no emoji. Em dashes are welcome.

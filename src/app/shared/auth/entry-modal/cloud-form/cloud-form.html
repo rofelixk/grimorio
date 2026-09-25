@@ -1,0 +1,55 @@
+@if (store.shown().plate) {
+  <div class="plate">
+    <span class="micro-label">{{ cloudAccount }}</span>
+    <span>{{ store.plateEmail() }}</span>
+  </div>
+}
+
+@if (store.shown().name) {
+  <app-text-field
+    [label]="field.name"
+    name="username"
+    autocomplete="username"
+    [value]="store.fields().name"
+    [error]="store.fieldErrors().user"
+    (valueChange)="store.editField('name', $event)"
+  />
+}
+
+@if (store.shown().email) {
+  <app-text-field
+    [label]="field.email"
+    type="email"
+    name="email"
+    autocomplete="email"
+    [placeholder]="field.emailPlaceholder"
+    [value]="store.fields().email"
+    [error]="store.fieldErrors().email"
+    (valueChange)="store.editField('email', $event)"
+  />
+  @if (store.emailInUse()) {
+    <div class="in-use">
+      {{ inUse.ask }}
+      <button type="button" class="link-btn" (click)="store.recoverAccess()">{{ inUse.cta }}</button>
+    </div>
+  }
+}
+
+@if (store.shown().pw) {
+  <app-text-field
+    [label]="store.pwLabel()"
+    type="password"
+    name="password"
+    [autocomplete]="store.pwAutocomplete()"
+    [value]="store.fields().pw"
+    [helper]="store.pwHelper()"
+    [error]="store.fieldErrors().pw"
+    (valueChange)="store.editField('pw', $event)"
+  />
+}
+
+@if (store.shown().forgot) {
+  <div class="forgot">
+    <button type="button" class="link-btn" (click)="store.forgot()">{{ forgot }}</button>
+  </div>
+}

@@ -1,0 +1,38 @@
+@if (store.phase() === 'profile') {
+  <app-text-field
+    [label]="field.name"
+    name="username"
+    autocomplete="username"
+    [value]="store.fields().name"
+    [helper]="helper.name"
+    [error]="store.fieldErrors().user"
+    (valueChange)="store.editField('name', $event)"
+  />
+}
+
+@if (store.shown().pw) {
+  <app-text-field
+    [label]="store.pwLabel()"
+    type="password"
+    name="password"
+    [autocomplete]="store.pwAutocomplete()"
+    [value]="store.fields().pw"
+    [helper]="store.pwHelper()"
+    [error]="store.fieldErrors().pw"
+    (valueChange)="store.editField('pw', $event)"
+  />
+}
+
+@if (store.phase() === 'unlock') {
+  <div class="forgot">
+    <button type="button" class="link-btn" (click)="store.forgot()">{{ forgot }}</button>
+  </div>
+}
+
+@if (store.phase() === 'profile' && mobile()) {
+  <div class="identity">
+    <span class="eyebrow">{{ yourIdentity }}</span>
+    <app-identity-wheel mode="picker" [size]="240" [(picks)]="store.picks" />
+    <span class="picker-helper">{{ helper.picker }}</span>
+  </div>
+}

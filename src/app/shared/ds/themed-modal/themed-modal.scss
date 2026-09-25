@@ -1,0 +1,84 @@
+@use 'breakpoints' as bp;
+
+.dialog {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  overflow: visible;
+  max-width: none;
+  max-height: none;
+
+  &::backdrop {
+    background: var(--overlay-backdrop);
+  }
+}
+
+// 2px gap around the face, showing the rotating conic ring.
+.ring {
+  position: relative;
+  width: min(var(--modal-width), calc(100vw - 2 * var(--space-4)));
+  padding: 2px;
+  border-radius: var(--radius-ring);
+  background: var(--ring-gradient);
+  animation: spin-angle var(--duration-spin) linear infinite;
+}
+
+.halo {
+  position: absolute;
+  inset: -32px;
+  border-radius: 70px;
+  filter: blur(26px);
+  background: var(--halo-gradient);
+  pointer-events: none;
+  animation:
+    spin-angle var(--duration-spin) linear infinite,
+    flicker var(--duration-flicker) ease-in-out infinite;
+}
+
+.face {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--modal-identity-pane) minmax(0, 1fr);
+  min-height: var(--modal-min-height);
+  max-height: calc(100dvh - 2 * var(--space-6));
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-rest);
+  overflow: hidden;
+  // Not decorative (the modal "never jumps"), so it stays under reduced motion.
+  transition: height var(--duration-base) var(--ease-standard);
+}
+
+// Mobile: full-bleed, the ring's gap runs around the screen edge.
+@include bp.mobile {
+  .dialog {
+    width: 100vw;
+    height: 100dvh;
+    margin: 0;
+    inset: 0;
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    display: flex;
+    border-radius: 0;
+  }
+
+  .halo {
+    display: none;
+  }
+
+  .face {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: none;
+    border-radius: 0;
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+}

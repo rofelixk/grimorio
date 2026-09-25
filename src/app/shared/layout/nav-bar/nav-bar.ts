@@ -5,14 +5,12 @@ import { filter, map } from 'rxjs';
 import { CardService } from '@services/card.service';
 import { DeckService } from '@services/deck.service';
 import { ThemeService } from '@services/theme.service';
-import { AuthControl } from '@shared/auth/auth-control/auth-control';
 import { BrandMark } from '@shared/layout/brand-mark/brand-mark';
-import { SyncIndicator } from '@shared/layout/sync-indicator/sync-indicator';
 import { CollectionFilters } from '@shared/locations/collection-filters/collection-filters';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, AuthControl, BrandMark, SyncIndicator, CollectionFilters],
+  imports: [RouterLink, RouterLinkActive, BrandMark, CollectionFilters],
   selector: 'app-nav-bar',
   styleUrl: './nav-bar.scss',
   templateUrl: './nav-bar.html',

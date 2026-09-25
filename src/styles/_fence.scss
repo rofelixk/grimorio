@@ -1,4 +1,0 @@
-// Appended to every legacy global selector so it stops at a `[data-grm]`
-// root: UI under that root follows DESIGN.md and must not inherit legacy
-// rules. `:where()` keeps the selector's specificity unchanged.
-$legacy: ':where(:not([data-grm], [data-grm] *))';

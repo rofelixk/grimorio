@@ -1,0 +1,203 @@
+@use 'breakpoints' as bp;
+
+.identity-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  border-right: 1px solid var(--color-border);
+  background: var(--wash-header);
+}
+
+// Two reserved lines, so a swapping caption never shifts the wheel.
+.caption {
+  margin: 0;
+  max-width: var(--wheel-desktop);
+  min-height: calc(2 * var(--line-height-normal) * 1em);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.form-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-3) var(--space-3) var(--space-5) var(--space-6);
+  // Hidden while the face animates to a new height, so no scrollbar flashes mid-transition;
+  // it only scrolls when the content is taller than the tallest face the viewport allows.
+  overflow: hidden;
+
+  &.capped {
+    overflow-y: auto;
+  }
+}
+
+.form-pane.capped,
+.body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-raised) var(--color-bg);
+}
+
+.close-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close {
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-right: var(--space-5);
+}
+
+.content {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.form,
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.heading {
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-tight);
+  text-shadow: var(--glow-title);
+  overflow-wrap: anywhere;
+}
+
+.subtitle,
+.form-error {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+}
+
+.form-error {
+  color: var(--color-danger);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.resend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.prompt {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.m-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: calc(var(--space-3) + env(safe-area-inset-top)) var(--space-3) var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--wash-header);
+}
+
+.m-header-end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  color: var(--role-primary);
+  text-shadow: var(--glow-title);
+}
+
+@include bp.mobile {
+  .form-pane,
+  .form-pane.capped {
+    flex: 1;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .body {
+    overflow-y: auto;
+    padding: var(--space-5);
+  }
+
+  .content {
+    flex: 1 0 auto;
+  }
+
+  .title {
+    font-size: var(--font-size-xl);
+  }
+
+  // Multi-button rows stack, each full width.
+  .actions,
+  .resend {
+    flex-direction: column-reverse;
+    align-items: stretch;
+
+    .btn {
+      width: 100%;
+    }
+  }
+
+  .resend {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .prompt {
+    min-height: var(--touch-target);
+    padding-top: 0;
+    border-top: none;
+  }
+}

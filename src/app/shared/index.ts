@@ -1,6 +1,4 @@
 export { AddCardModal } from './cards/add-card-modal/add-card-modal';
-export { AuthControl } from './auth/auth-control/auth-control';
-export { AuthModal } from './auth/auth-modal/auth-modal';
 export { CardAddDetailPanel } from './cards/card-add-detail-panel/card-add-detail-panel';
 export { CardList } from './cards/card-list/card-list';
 export { CardPicker } from './cards/card-picker/card-picker';
@@ -9,7 +7,6 @@ export { CardSearchPanel } from './cards/card-search-panel/card-search-panel';
 export { CollectionCardGrid } from './cards/collection-card-grid/collection-card-grid';
 export { CollectionHeader } from './locations/collection-header/collection-header';
 export { ColorIdentity } from './cards/color-identity/color-identity';
-export { ColorThemePicker } from './effects/color-theme-picker/color-theme-picker';
 export { DashboardPanel } from './layout/dashboard-panel/dashboard-panel';
 export { DeckCardList } from './cards/deck-card-list/deck-card-list';
 export { DeckList } from './decks/deck-list/deck-list';
@@ -28,3 +25,14 @@ export type {
   LocationChip,
 } from './common/search-results-list/search-results-list';
 export { SparkRerollDirective } from './effects/spark-reroll/spark-reroll.directive';
+export { EntryModal } from './auth/entry-modal/entry-modal';
+export { ProfileButton } from './auth/profile-button/profile-button';
+export { IdentityChip } from './ds/identity-chip/identity-chip';
+export { IdentityWheel } from './ds/identity-wheel/identity-wheel';
+export { MiniWheel } from './ds/mini-wheel/mini-wheel';
+export { ProfileRow } from './ds/profile-row/profile-row';
+export { SparkField } from './ds/spark-field/spark-field';
+export { SyncLine } from './ds/sync-line/sync-line';
+export { TextField } from './ds/text-field/text-field';
+export { ThemedModal } from './ds/themed-modal/themed-modal';
+export { TopBar } from './layout/top-bar/top-bar';

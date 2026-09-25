@@ -11,13 +11,21 @@
 // out locally via :host { overflow: hidden } and owns its own
 // scrolling descendant — see collection-detail.scss for the pattern.
 //
+// The new top bar (spec 003) sits above the legacy layout: the host is a two-row grid, so the
+// bar sizes itself and .app-layout takes the rest of the viewport. The legacy layout's own
+// --nav-bar-height math (a token the new foundation no longer declares) may break.
+:host {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100dvh;
+}
+
 // Below bp.wide the nav-bar's drawer is an overlay (fixed positioning),
 // so .app-layout is just normal block flow. At bp.wide and up, NavBar's
 // host renders `display: contents` (see nav-bar.scss), so its top bar
 // and drawer become direct grid items here alongside .app-shell — that's
 // what lets the drawer pin open as a sidebar instead of overlaying.
 .app-layout {
-  height: 100dvh;
   min-height: 0;
 }
 
@@ -35,7 +43,7 @@
     display: grid;
     grid-template-columns: 16rem 1fr;
     grid-template-rows: var(--nav-bar-height) 1fr;
-    height: 100dvh;
+    min-height: 0;
   }
 
   .app-shell {
