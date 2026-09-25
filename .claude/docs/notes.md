@@ -22,3 +22,7 @@ Dated, fact-based entries accumulated session-to-session go here — new depende
 - New-system UI primitives live in `src/app/shared/ds/`; entry-modal PT-BR copy is centralized in
   `core/utils/entry-copy.ts`.
 - `@utils/*` path alias → `src/app/core/utils/*` (already in tsconfig; now used).
+
+## 2026-09-25
+
+- `design_brief/` holds the self-contained design-system brief for Claude Design; its `tokens.css`/`controls.css`/`components/*.css` are compiled from `src/styles/` and `shared/ds/` and must be regenerated when those change.
