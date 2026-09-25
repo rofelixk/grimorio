@@ -8,6 +8,8 @@ Grimorio is a free, personal Magic: The Gathering collection/deck manager built 
 
 Features are specified and built through spec-kit (`specs/NNN-*/`, `.specify/`): `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`, governed by `.specify/memory/constitution.md`. `.specify/templates/overrides/plan-template.md` adds a `ui.md` Phase 1 artifact for features with UI.
 
+Early-development rework, single user. Never add backward-compatibility code, migrations, or edge-case handling for old conventions.
+
 @.claude/docs/commands.md
 
 @.claude/docs/architecture.md
