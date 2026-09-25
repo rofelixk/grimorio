@@ -1,7 +1,5 @@
-// Every PT-BR string of the entry modal and the top bar, verbatim from
-// design_handoff_auth_profiles/STATES.md and DESIGN.md (Principle II, SC-006). Wheel captions
-// follow the prototype's `leftCaption` rules; the top-bar placeholder strings are spec 003's
-// ui.md §7 (FR-029). Nothing user-visible in those surfaces is written anywhere else.
+// Every PT-BR string of the entry modal and the top bar, from spec 003's ui.md §7 and DESIGN.md
+// (Principle II, SC-006). Nothing user-visible in those surfaces is written anywhere else.
 
 export const MSG = {
   emailEmpty: 'Digite seu e-mail.',

@@ -1,7 +1,6 @@
-// Grimorio design tokens — a verbatim port of design_handoff_auth_profiles/tokens.css, which is
-// generated from the root DESIGN.md (the source of truth). The font @import is omitted (the
-// Google Fonts <link> in index.html loads Grenze + Karla), and tokens.css's element rules
-// (body, a) live in _base.scss. Everything tints through --role-*.
+// Grimorio design tokens, implementing the root DESIGN.md (the source of truth). Fonts load via
+// the Google Fonts <link> in index.html (Grenze + Karla); element rules (body, a) live in
+// _base.scss. Everything tints through --role-*.
 
 @property --spin-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 

@@ -1,4 +1,0 @@
-/* Grimorio loads Grenze (display) and Karla (text) from Google Fonts — the
-   upstream app does the same via a <link> in src/index.html. No font binaries
-   ship with the repo, so there are no local @font-face rules here. */
-@import url("https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,400;0,600;0,700;1,400&family=Karla:wght@400..700&display=swap");
