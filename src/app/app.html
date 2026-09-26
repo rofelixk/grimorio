@@ -1,8 +1,14 @@
 <app-top-bar />
-<div class="app-layout">
-  <app-nav-bar />
-  <main class="app-shell">
+<div class="shell-row">
+  @if (shell.wide()) {
+    <app-side-nav />
+  }
+  <main #main class="view-area">
     <router-outlet />
+    <app-legal-notice />
   </main>
 </div>
+@if (!shell.wide()) {
+  <app-nav-drawer />
+}
 <app-entry-modal />

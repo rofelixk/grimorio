@@ -1,0 +1,91 @@
+@use 'fio';
+
+:host {
+  display: contents;
+}
+
+.nav-spacer {
+  flex: none;
+  width: var(--nav-rail-width);
+  transition: width var(--duration-base) var(--ease-standard);
+
+  &.is-pinned {
+    width: var(--nav-panel-width);
+  }
+}
+
+nav {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: var(--nav-rail-width);
+  padding: 10px 0;
+  overflow: hidden;
+  border-right: 1px solid transparent;
+  background: var(--color-bg);
+  transition:
+    width var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
+
+  &.is-expanded {
+    width: var(--nav-panel-width);
+    padding: 10px 10px 10px 0;
+    border-right-color: var(--color-border);
+  }
+
+  &.is-overlay {
+    box-shadow: var(--glow-overlay);
+  }
+}
+
+.thread {
+  @include fio.thread(left);
+}
+
+.wash {
+  @include fio.wash(nav-start);
+}
+
+.pin {
+  position: relative;
+  flex: none;
+  min-height: var(--touch-target);
+  width: calc(100% - 20px);
+  margin: 0 0 6px 20px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity var(--duration-base) var(--ease-standard),
+    visibility var(--duration-base),
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .is-expanded > & {
+    visibility: visible;
+    opacity: 1;
+  }
+}

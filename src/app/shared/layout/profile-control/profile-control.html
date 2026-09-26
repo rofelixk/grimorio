@@ -1,0 +1,22 @@
+@if (active(); as profile) {
+  <button
+    type="button"
+    class="control"
+    [attr.aria-disabled]="busy() || null"
+    [attr.aria-label]="label()"
+    [attr.title]="busy() ? label() : null"
+    (click)="onClick()"
+  >
+    <span class="dots" aria-hidden="true">
+      @for (dot of dots(); track $index) {
+        <span class="dot" [style.--dot]="dot"></span>
+      }
+    </span>
+    <span class="name">{{ profile.name }}</span>
+  </button>
+} @else {
+  @if (variant() === 'drawer') {
+    <p class="no-profile">{{ copy.noProfile }}</p>
+  }
+  <button type="button" class="control" (click)="onClick()">{{ copy.signIn }}</button>
+}

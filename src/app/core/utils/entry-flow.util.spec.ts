@@ -66,7 +66,8 @@ describe('entry-flow.util validate', () => {
 
   it.each<EntryPhase>(['profile', 'setup'])('checks the profile name on %s', (phase) => {
     expect(validate(phase, fields({ name: 'jo' }), free).user).toBe(MSG.userLen);
-    expect(validate(phase, fields({ name: 'a'.repeat(21) }), free).user).toBe(MSG.userLen);
+    expect(validate(phase, fields({ name: 'a'.repeat(17) }), free).user).toBe(MSG.userLen);
+    expect(validate(phase, fields({ name: 'a'.repeat(16) }), free).user).toBeUndefined();
     expect(validate(phase, fields({ name: 'a b' }), free).user).toBe(MSG.userChars);
     expect(validate(phase, fields({ name: 'rafa!' }), free).user).toBe(MSG.userChars);
     expect(validate(phase, fields({ name: 'RAFA' }), { isNameTaken: (n) => n.toLowerCase() === 'rafa' }).user).toBe(

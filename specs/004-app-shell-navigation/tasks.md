@@ -35,7 +35,7 @@ of truth.
 **Purpose**: Record every new visual decision in DESIGN.md before any shell UI is built, then add the tokens and
 recipes.
 
-- [ ] T001 Update `DESIGN.md` per FR-032, using the handoff README's values. Make these changes:
+- [X] T001 Update `DESIGN.md` per FR-032, using the handoff README's values. Make these changes:
   - **Elevation & depth**: add a "Fio de luz" subsection with the recipes `--band`, `--band-v`, `--band-lit`, the
     flowing line, thread, wash, overlay glow, and gradient text for the wordmark and the current nav label.
     Record them as explicit exceptions to "Every border is exactly 1px, solid" (Shapes) and "Titles … never
@@ -56,7 +56,7 @@ recipes.
     - Amend "Identity is always named twice" with the shell exception: dots + profile name visible, tribe and
       color names in the accessible name only.
   - **Iconography**: note that "Menu" and the pin are text and ✕ is the only glyph.
-- [ ] T002 [P] Extend `src/styles/_tokens.scss`:
+- [X] T002 [P] Extend `src/styles/_tokens.scss`:
   - Add `--nav-rail-width: 24px`, `--nav-panel-width: 232px`, `--drawer-width: min(288px, 85%)`,
     `--thread-x: 11px`, `--bead: 7px`, `--status-mark: 8px`, `--delay-nav-leave: 120ms` and
     `--duration-drawer: 0.36s`.
@@ -66,7 +66,7 @@ recipes.
   - Add the keyframes `grm-flow-long`, `grm-flow-mark` and `grm-flow-v` (2400px travel).
   - Extend the existing reduced-motion rule so they stop and `--duration-drawer` becomes 0s.
   - Do not add `--z-*` tokens (research R15).
-- [ ] T003 [P] Create `src/styles/_fio.scss` (used as `@use 'fio'`, resolved through `stylePreprocessorOptions`)
+- [X] T003 [P] Create `src/styles/_fio.scss` (used as `@use 'fio'`, resolved through `stylePreprocessorOptions`)
   with these mixins:
   - `band-text($variant: mark | nav)`: transparent color, `--band-lit` clipped to text, 2400px size, the
     drop-shadow filter stack (the wordmark adds the 3px bg shadow; nav uses an 8px glow), animated with
@@ -88,7 +88,7 @@ every story renders into.
 
 ### Sync becomes manual (FR-006, FR-005a, SC-011)
 
-- [ ] T004 Modify `src/app/core/services/sync.service.ts` (research R8, R9; contracts/shell.md):
+- [X] T004 Modify `src/app/core/services/sync.service.ts` (research R8, R9; contracts/shell.md):
   - Add `export const SYNC_TIMEOUT_MS = 60_000`.
   - Add `start()`, idempotent. It registers `ProfileSessionService` hooks:
     - `beforeSwitch(previous)`: `cloud.stopAutoRefresh(previous.id)` when previous is linked.
@@ -101,10 +101,10 @@ every story renders into.
   - Add a per-run generation number, so a run that settles after a timeout or a newer run never sets state,
     writes `lastSyncedAt` or applies results.
   - Update the class comment: sync is manual only.
-- [ ] T005 Delete `src/app/core/services/sync-scheduler.service.ts` and
+- [X] T005 Delete `src/app/core/services/sync-scheduler.service.ts` and
   `src/app/core/services/sync-scheduler.service.spec.ts`. In `src/app/app.ts`, replace
   `inject(SyncScheduler).start()` with `inject(SyncService).start()`.
-- [ ] T006 Remove the entry modal's automatic sync (research R8):
+- [X] T006 Remove the entry modal's automatic sync (research R8):
   - In `src/app/shared/auth/entry-modal/entry-flow.store.ts`:
     - Delete the `SyncKind` type, the `syncLine` signal and every `syncLine.set(...)`.
     - Make `finish(kind: DoneKind)` take no sync argument and never call `sync.syncNow()`.
@@ -112,9 +112,9 @@ every story renders into.
     - Remove the `SyncService`, `SyncLineState` and `SYNC` imports if unused.
   - In `src/app/shared/auth/entry-modal/done-panel/done-panel.ts`, remove the `<app-sync-line>` block and the
     `SyncLine` import.
-- [ ] T007 Delete `src/app/shared/ds/sync-line/` and remove its `SyncLine` export from `src/app/shared/index.ts`
+- [X] T007 Delete `src/app/shared/ds/sync-line/` and remove its `SyncLine` export from `src/app/shared/index.ts`
   (depends on T006).
-- [ ] T008 [P] Create `src/app/core/utils/sync-status.util.ts` exporting:
+- [X] T008 [P] Create `src/app/core/utils/sync-status.util.ts` exporting:
   - `SyncDisplayKind`, `SyncAction`, `SyncDisplay` (fields: `kind`, `label`, `action`, `actionLabel`, `failure`,
     `opensModal`)
   - `SYNCED_WINDOW_MS = 5 * 60_000`
@@ -133,7 +133,7 @@ every story renders into.
 
   Labels and action labels come from `SYNC_AREA` (T011). `failure` is true for offline, expired and error.
   `opensModal` is true for the reauth and link actions (depends on T011).
-- [ ] T009 [P] Create `src/app/core/utils/sync-status.util.spec.ts` covering:
+- [X] T009 [P] Create `src/app/core/utils/sync-status.util.spec.ts` covering:
   - every row of the priority table, including a failure while unlinked
   - the 5-minute boundary (4:59 → synced, 5:00 → "há 5 min")
   - 59 min → "há 59 min", 60 min → "há 1 h", 23 h → "há 23 h", 24 h → "há 1 d"
@@ -141,7 +141,7 @@ every story renders into.
   - `failure` and `opensModal` flags per kind
 
   Depends on T008.
-- [ ] T010 Create `src/app/core/services/sync-status.service.ts` (`providedIn: 'root'`):
+- [X] T010 Create `src/app/core/services/sync-status.service.ts` (`providedIn: 'root'`):
   - A private `now` signal refreshed every 60 000 ms by a `setInterval`, cleared on `DestroyRef`.
   - `display = computed(...)`: `null` when `session.active()` is null (FR-009); otherwise
     `syncDisplay({ linked: !!active.cloud, state: sync.state(), lastSyncedAt: sync.lastSyncedAt(), now: now() })`.
@@ -152,7 +152,7 @@ every story renders into.
     - `reauth` → `void entryModal.open({ context: 'link', start: 'reauth' })`
 
   Depends on T004 and T008.
-- [ ] T011 [P] Update `src/app/core/utils/entry-copy.ts` (research R17, ui.md §7):
+- [X] T011 [P] Update `src/app/core/utils/entry-copy.ts` (research R17, ui.md §7):
   - Change the header comment to cover the shell.
   - Add `SHELL`: `menu: 'Menu'`, `close: ACTION.close`, `navLabel: 'Navegação principal'`,
     `collection: 'Coleção'`, `pin: 'Fixar menu'`, `unpin: 'Recolher menu'`, `home: 'Grimorio — Início'`,
@@ -178,8 +178,8 @@ every story renders into.
 
 ### Shell state and layout (FR-023 to FR-026)
 
-- [ ] T012 [P] Add `export const WIDE_QUERY = '(min-width: 960px)';` to `src/app/shared/ds/media-query.ts`.
-- [ ] T013 Create `src/app/core/services/shell-state.service.ts` (`providedIn: 'root'`, research R4, R12):
+- [X] T012 [P] Add `export const WIDE_QUERY = '(min-width: 960px)';` to `src/app/shared/ds/media-query.ts`.
+- [X] T013 Create `src/app/core/services/shell-state.service.ts` (`providedIn: 'root'`, research R4, R12):
   - `NAV_PINNED_KEY = 'grm-nav-pinned'`.
   - `wide = mediaQuerySignal(WIDE_QUERY)`.
   - `pinned`: read once from `localStorage.getItem(NAV_PINNED_KEY) === '1'` inside try/catch, false on any
@@ -191,7 +191,7 @@ every story renders into.
   - A Router `events` subscription that closes the drawer on every `NavigationStart`.
 
   Depends on T012.
-- [ ] T014 [P] Create `src/app/core/services/shell-state.service.spec.ts` covering:
+- [X] T014 [P] Create `src/app/core/services/shell-state.service.spec.ts` covering:
   - the default is not pinned
   - `'1'` in storage restores pinned
   - `setPinned` persists and clears
@@ -201,7 +201,7 @@ every story renders into.
   - `drawerOpen` resets to false when `wide` flips (stub `matchMedia`)
 
   Depends on T013.
-- [ ] T015 Rebuild the shell layout in `src/app/app.html`, `src/app/app.scss` and `src/app/app.ts` (research R1–R3):
+- [X] T015 Rebuild the shell layout in `src/app/app.html`, `src/app/app.scss` and `src/app/app.ts` (research R1–R3):
   - **Template**: `<app-top-bar />`, then `<div class="shell-row">` holding
     `@if (shell.wide()) { <app-side-nav /> }` and `<main #main class="view-area"><router-outlet /><app-legal-notice /></main>`,
     then `@if (!shell.wide()) { <app-nav-drawer /> }`, then `<app-entry-modal />`.
@@ -218,7 +218,7 @@ every story renders into.
     the imports as each one lands.
 
   Depends on T005 and T013.
-- [ ] T016 Remove `data: { showCollectionFilters: true }` from the `collection/:id` route in
+- [X] T016 Remove `data: { showCollectionFilters: true }` from the `collection/:id` route in
   `src/app/app.routes.ts`, and update `src/app/app.routes.spec.ts` if it asserts that data. Update
   `src/app/app.spec.ts` so `App` still creates, with `provideRouter([])` and its new children.
 
@@ -235,7 +235,7 @@ entry modal. The control locks while a sync runs.
 **Independent Test**: quickstart V1–V3. At wide and narrow widths, with and without a profile, the control shows
 correctly and opens the modal. Narrow depends on US4's drawer for placement, so test US1 at wide first.
 
-- [ ] T017 [P] [US1] Create `src/app/shared/layout/profile-control/profile-control.ts` (+ `.html`/`.scss`):
+- [X] T017 [P] [US1] Create `src/app/shared/layout/profile-control/profile-control.ts` (+ `.html`/`.scss`):
   - **Inputs and output**: input `variant: 'bar' | 'drawer'` (required), output `activate`.
   - **With an active profile**: a `<button type="button">` holding identity dots (8px circles, `gap: 3px`, in
     `profile.colors` order, background `var(--identity-x)` / `IDENTITY_HEX` with `box-shadow: 0 0 6px`) + the
@@ -248,7 +248,7 @@ correctly and opens the modal. Narrow depends on US4's drawer for placement, so 
   - **Layout**: 44px min height. The drawer variant is right-aligned. No truncation (`white-space: nowrap`, no
     ellipsis).
   - Hover color → `--role-primary-hover`.
-- [ ] T018 [US1] Rewrite `src/app/shared/layout/top-bar/top-bar.ts` (split into `.html`/`.scss`), `role="banner"`:
+- [X] T018 [US1] Rewrite `src/app/shared/layout/top-bar/top-bar.ts` (split into `.html`/`.scss`), `role="banner"`:
   - **Wordmark**: `<a routerLink="/" class="wordmark" [attr.aria-label]="SHELL.home">Grimorio</a>` with
     `@include fio.band-text(mark)`, Grenze 700, `--font-size-lg`, 44px min height, no underline.
   - **Decorative spans**: `fio.wash(bar)` and `fio.line` (`aria-hidden`).
@@ -262,13 +262,13 @@ correctly and opens the modal. Narrow depends on US4's drawer for placement, so 
   - **Narrow**: the Menu slot is added by T031.
 
   Depends on T017.
-- [ ] T019 [US1] Wire `TopBar` into `src/app/app.ts`, and delete `src/app/shared/auth/profile-button/` along with
+- [X] T019 [US1] Wire `TopBar` into `src/app/app.ts`, and delete `src/app/shared/auth/profile-button/` along with
   its `ProfileButton` export in `src/app/shared/index.ts` (FR-010; the unlink gap is accepted, research R19).
-- [ ] T020 [P] [US1] Enforce the 3–16 name rule (FR-033):
+- [X] T020 [P] [US1] Enforce the 3–16 name rule (FR-033):
   - In `src/app/core/utils/entry-flow.util.ts`, change the name-length check from `> 20` to `> 16`.
   - In `src/app/core/models/profile.model.ts`, change the `ProfileRecord.name` doc comment to "3–16 chars".
   - Do not add a `maxlength` attribute anywhere.
-- [ ] T021 [P] [US1] Update `src/app/core/utils/entry-flow.util.spec.ts`: 16 characters is valid, and
+- [X] T021 [P] [US1] Update `src/app/core/utils/entry-flow.util.spec.ts`: 16 characters is valid, and
   `'a'.repeat(17)` returns `MSG.userLen` (replacing the current 21-character case). Depends on T020.
 
 **Checkpoint**: On wide screens, the top bar shows who is active and opens the modal. The MVP is shippable.
@@ -282,11 +282,11 @@ correctly and opens the modal. Narrow depends on US4's drawer for placement, so 
 
 **Independent Test**: quickstart V4–V6.
 
-- [ ] T022 [P] [US2] Create `src/app/shared/layout/nav-links/nav-destinations.ts` with
+- [X] T022 [P] [US2] Create `src/app/shared/layout/nav-links/nav-destinations.ts` with
   `export interface NavDestination { label: string; path: string }` and
   `export const NAV_DESTINATIONS: readonly NavDestination[] = [{ label: SHELL.collection, path: '/collection' }]`.
   It has no Home entry (FR-011).
-- [ ] T023 [US2] Create `src/app/shared/layout/nav-links/nav-links.ts` (+ `.html`/`.scss`):
+- [X] T023 [US2] Create `src/app/shared/layout/nav-links/nav-links.ts` (+ `.html`/`.scss`):
   - Inputs: `mirrored = false`, `showLabels = true`.
   - Renders one `<a>` per destination with `routerLink`, `routerLinkActive="is-current"`,
     `[routerLinkActiveOptions]="{ exact: false }"` and `ariaCurrentWhenActive="page"`.
@@ -300,7 +300,7 @@ correctly and opens the modal. Narrow depends on US4's drawer for placement, so 
     with glow, label `translateX(±3px)` + `--glow-title`.
 
   Depends on T022.
-- [ ] T024 [US2] Create `src/app/shared/layout/side-nav/side-nav.ts` (+ `.html`/`.scss`), research R13:
+- [X] T024 [US2] Create `src/app/shared/layout/side-nav/side-nav.ts` (+ `.html`/`.scss`), research R13:
   - **Host**: `display: contents`. It renders a spacer `<div class="nav-spacer">` (width `--nav-panel-width`
     when `shell.pinned()`, else `--nav-rail-width`, transitioning over `--duration-base`) and
     `<nav aria-label="Navegação principal">`.
@@ -322,7 +322,7 @@ correctly and opens the modal. Narrow depends on US4's drawer for placement, so 
   - **Links**: `<app-nav-links [showLabels]="expanded()" />`.
 
   Depends on T013 and T023.
-- [ ] T025 [US2] Wire `SideNav` into `src/app/app.ts` (it is rendered only when `shell.wide()`). Delete
+- [X] T025 [US2] Wire `SideNav` into `src/app/app.ts` (it is rendered only when `shell.wide()`). Delete
   `src/app/shared/layout/nav-bar/`, `src/app/shared/layout/brand-mark/` and
   `src/app/shared/locations/collection-filters/`, including their specs, and remove their `NavBar`, `BrandMark`
   and `CollectionFilters` exports from `src/app/shared/index.ts`. First confirm with grep that they have no other
@@ -340,7 +340,7 @@ person.
 
 **Independent Test**: quickstart V11–V16. The drawer action half is completed in US4 (T030).
 
-- [ ] T026 [P] [US3] Create `src/app/shared/ds/sync-mark/sync-mark.ts` (`aria-hidden`), input
+- [X] T026 [P] [US3] Create `src/app/shared/ds/sync-mark/sync-mark.ts` (`aria-hidden`), input
   `kind: SyncDisplayKind`, 8px (`--status-mark`):
   - syncing: a `.spinner` (existing `spin` keyframe), muted, 0.75rem
   - synced: a `--color-text` dot + `0 0 8px rgb(from var(--color-text) r g b / 60%)`
@@ -350,7 +350,7 @@ person.
   - offline, expired, error: a `--color-danger` dot + `0 0 8px` danger glow
 
   Identity colors are never used (FR-007a).
-- [ ] T027 [US3] Create `src/app/shared/layout/sync-status/sync-status.ts` (+ `.html`/`.scss`), input
+- [X] T027 [US3] Create `src/app/shared/layout/sync-status/sync-status.ts` (+ `.html`/`.scss`), input
   `variant: 'area' | 'mark' | 'drawer'`, output `action`. It renders nothing when `SyncStatusService.display()`
   is null.
   - **`area`**: a `<button type="button">` with `<app-sync-mark>` + the label.
@@ -367,11 +367,11 @@ person.
     click emits `action` with the `SyncDisplay` so the drawer can decide the order (T030).
 
   Depends on T010 and T026.
-- [ ] T028 [US3] In `src/app/shared/layout/top-bar/top-bar.html`, add these to the wide right group before the
+- [X] T028 [US3] In `src/app/shared/layout/top-bar/top-bar.html`, add these to the wide right group before the
   profile control, only when a profile is active: `<app-sync-status variant="area" />` and a
   `<span class="divider" aria-hidden="true">` (1px × 20px, `--color-border`). In the narrow layout, add
   `<app-sync-status variant="mark" />` before the Menu slot, only when a profile is active (FR-018).
-- [ ] T029 [P] [US3] Create `src/app/core/services/sync.service.spec.ts` covering:
+- [X] T029 [P] [US3] Create `src/app/core/services/sync.service.spec.ts` covering:
   - `syncNow()` twice while running returns the same promise, and only one run happens
   - a stalled Supabase call (a mocked client whose query never resolves), with fake timers advanced by 60 s →
     the state is `'error'`, or `'offline'` when `navigator.onLine` is stubbed to false, and `inFlight` clears
@@ -392,7 +392,7 @@ nav.
 
 **Independent Test**: quickstart V7, V8, V10 and V22 at 360px and 320px.
 
-- [ ] T030 [US4] Create `src/app/shared/layout/nav-drawer/nav-drawer.ts` (+ `.html`/`.scss`), research R5 and R6:
+- [X] T030 [US4] Create `src/app/shared/layout/nav-drawer/nav-drawer.ts` (+ `.html`/`.scss`), research R5 and R6:
   - **Element**: `<dialog #dialog id="grm-drawer" [attr.aria-label]="SHELL.menu" tabindex="-1">`, driven by an
     `effect` on `shell.drawerOpen()` (`showModal()` / `close()`).
   - **Surface**: `position: fixed; inset: 0 0 0 auto; margin: 0; height: 100dvh; max-height: none; width: var(--drawer-width); background: var(--color-bg); border: 0; border-left: 1px solid var(--color-border); padding: 0`.
@@ -422,13 +422,13 @@ nav.
   - There is no pin button (FR-021).
 
   Depends on T010, T013, T017, T023 and T027.
-- [ ] T031 [US4] In `src/app/shared/layout/top-bar/top-bar.html` and `.scss`, add the narrow layout: a right group
+- [X] T031 [US4] In `src/app/shared/layout/top-bar/top-bar.html` and `.scss`, add the narrow layout: a right group
   (`margin-left: auto; gap: var(--space-1)`) with the sync mark (T028) and
   `<button type="button" class="btn btn--ghost menu" aria-controls="grm-drawer" [attr.aria-expanded]="shell.drawerOpen()" (click)="shell.openDrawer($event.detail === 0)">Menu</button>`
   (`padding: 0 var(--space-2)`, eyebrow text: 0.75rem, `--tracking-eyebrow`, uppercase, muted). The profile
   control is not rendered narrow (FR-018).
-- [ ] T032 [US4] Wire `NavDrawer` into `src/app/app.ts` (it is rendered only when `!shell.wide()`).
-- [ ] T033 [P] [US4] Create `src/app/shared/layout/nav-drawer/nav-drawer.spec.ts`. Stub
+- [X] T032 [US4] Wire `NavDrawer` into `src/app/app.ts` (it is rendered only when `!shell.wide()`).
+- [X] T033 [P] [US4] Create `src/app/shared/layout/nav-drawer/nav-drawer.spec.ts`. Stub
   `HTMLDialogElement.prototype.showModal`/`close` if jsdom lacks them. Cover:
   - `drawerOpen` true → `showModal` called
   - the `cancel` event closes, and focus lands on the Menu button
@@ -450,12 +450,12 @@ this is delivered by T015. This phase verifies it and fixes legacy views.
 
 **Independent Test**: quickstart V17 and V18.
 
-- [ ] T034 [US5] Audit the legacy views under `src/app/views/` (`home`, `collection`, `collection-detail`,
+- [X] T034 [US5] Audit the legacy views under `src/app/views/` (`home`, `collection`, `collection-detail`,
   `collection-import`, `decks`, `deck-detail`, `about`) for rules that assume the document scrolls or depend on
   `--nav-bar-height` (`100vh`/`100dvh` heights, `position: fixed` headers). Fix only what keeps them usable
   inside `.view-area`. `collection-detail`'s `:host { height: 100%; overflow: hidden }` must keep working as a
   direct flex child (research R2). Do not restyle anything else (unreleased-redo scope).
-- [ ] T035 [US5] Using the `run` skill against the user's running dev server (never start or stop port 4200),
+- [X] T035 [US5] Using the `run` skill against the user's running dev server (never start or stop port 4200),
   verify quickstart V17 and V18 at 1280×800 and 360×740: `document.documentElement.scrollTop === 0` after
   scrolling a long collection, the top bar's position is unchanged, and `<main>.scrollTop` resets on
   navigation.
@@ -468,7 +468,7 @@ this is delivered by T015. This phase verifies it and fixes legacy views.
 
 **Independent Test**: quickstart V19.
 
-- [ ] T036 [P] [US6] Create `src/app/shared/layout/legal-notice/legal-notice.ts` (+ `.html`/`.scss`):
+- [X] T036 [P] [US6] Create `src/app/shared/layout/legal-notice/legal-notice.ts` (+ `.html`/`.scss`):
   - **Element**: `<aside [attr.aria-label]="SHELL.notice">` rendering `NOTICE.wotc`, `NOTICE.scryfall` (runs:
     strings as text; `{ text, href }` as `<a [href] target="_blank" rel="noopener">`) and `NOTICE.ai` as three
     `<p>`.
@@ -477,9 +477,9 @@ this is delivered by T015. This phase verifies it and fixes legacy views.
   - **Paragraphs**: `max-width: 72ch; text-wrap: pretty`.
   - **Links**: `--role-accent`, hover `--role-accent-hover` + underline, and
     `display: inline-block; padding: 13px 0; margin: -13px 0` for a 44px hit area (FR-022).
-- [ ] T037 [US6] Wire `<app-legal-notice />` as the last child of `<main>` in `src/app/app.html` (T015
+- [X] T037 [US6] Wire `<app-legal-notice />` as the last child of `<main>` in `src/app/app.html` (T015
   placeholder). Depends on T036.
-- [ ] T038 [P] [US6] Update `src/app/views/about/about.ts` and `about.html` so the WotC and Scryfall paragraphs
+- [X] T038 [P] [US6] Update `src/app/views/about/about.ts` and `about.html` so the WotC and Scryfall paragraphs
   render from `NOTICE.wotc` and `NOTICE.scryfall` (the same run-rendering as T036), keeping the first "projeto
   pessoal" paragraph as is (FR-029). Update `src/app/views/about/about.spec.ts` if it asserts the hard-coded
   text.
@@ -488,13 +488,13 @@ this is delivered by T015. This phase verifies it and fixes legacy views.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T039 Confirm that `src/app/shared/index.ts` exports the new shell components only where other code imports
+- [X] T039 Confirm that `src/app/shared/index.ts` exports the new shell components only where other code imports
   them through the barrel (within `shared/`, use `@shared/deep-path`, per architecture.md). Remove stale exports.
-- [ ] T040 Run `grep -rn "syncNow(" src/app --include=*.ts` (excluding `*.spec.ts`) and confirm that only
+- [X] T040 Run `grep -rn "syncNow(" src/app --include=*.ts` (excluding `*.spec.ts`) and confirm that only
   `sync.service.ts` and `sync-status.service.ts` match. Also confirm that `SyncScheduler`, `ProfileButton`,
   `NavBar`, `SyncLine`, `TOP_BAR` and `SYNC.` have no references left (SC-011).
-- [ ] T041 Run `npm run lint` and `npm test`, and fix any failures.
-- [ ] T042 Using the `run` skill (on the user's dev server), walk through quickstart V1–V22 at 1280×800, 360×740
+- [X] T041 Run `npm run lint` and `npm test`, and fix any failures.
+- [X] T042 Using the `run` skill (on the user's dev server), walk through quickstart V1–V22 at 1280×800, 360×740
   and 320px. Include:
   - V4: hover causes 0 px of content shift, compared with `getBoundingClientRect`
   - V9: the modal makes the shell inert

@@ -1,0 +1,68 @@
+@use 'fio';
+
+:host {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--touch-target);
+  padding: 4px var(--space-1) 4px var(--space-4);
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+:host(.is-wide) {
+  padding: 4px var(--space-4);
+}
+
+.wash {
+  @include fio.wash(bar);
+}
+
+.line {
+  @include fio.line;
+}
+
+.wordmark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  text-decoration: none;
+  @include fio.band-text(mark);
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+:host(.is-wide) .group {
+  gap: 0;
+}
+
+.separator {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+}
+
+.menu {
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}

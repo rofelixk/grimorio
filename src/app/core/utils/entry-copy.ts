@@ -1,12 +1,13 @@
-// Every PT-BR string of the entry modal and the top bar, from spec 003's ui.md §7 and DESIGN.md
-// (Principle II, SC-006). Nothing user-visible in those surfaces is written anywhere else.
+// Every PT-BR string of the entry modal and the app shell (top bar, side nav, drawer, sync status,
+// legal notice), from spec 003's and spec 004's ui.md §7 and DESIGN.md (Principle II, SC-006).
+// Nothing user-visible in those surfaces is written anywhere else.
 
 export const MSG = {
   emailEmpty: 'Digite seu e-mail.',
   emailBad: 'Esse e-mail não parece válido.',
   pwEmpty: 'Digite sua senha.',
   pwMin: 'Use pelo menos 8 caracteres.',
-  userLen: 'Use de 3 a 20 caracteres.',
+  userLen: 'Use de 3 a 16 caracteres.',
   userChars: 'Use só letras, números, _ . ou -.',
   userTaken: 'Esse nome já está em uso neste aparelho.',
   codeFmt: 'Digite os 6 dígitos do código.',
@@ -46,12 +47,11 @@ export const SUBTITLE = {
   profile: 'Seu perfil fica neste aparelho e funciona sem internet — sem e-mail.',
   inLink: (p: string) => `Vincule ${p} a uma conta na nuvem para sincronizar entre aparelhos.`,
   inDevice: 'Traga sua coleção da nuvem para este aparelho.',
-  up: (p: string) => `${p} passa a sincronizar automaticamente entre aparelhos.`,
+  up: (p: string) => `${p} pode sincronizar entre aparelhos quando você quiser.`,
   resetEmail: 'Digite o e-mail da conta. Um código de 6 dígitos chega em alguns minutos.',
   resetCode: (email: string) => `Se houver uma conta para ${email}, um código foi enviado. Confira também o spam.`,
   setup: 'Esta conta ainda não tem perfil neste aparelho. Confirme o nome e crie uma senha local.',
-  reauth: (p: string) =>
-    `A sessão da conta expirou. Entre para voltar a sincronizar ${p} — as alterações pendentes serão enviadas.`,
+  reauth: (p: string) => `A sessão da conta expirou. Entre para voltar a sincronizar ${p}.`,
   recoverForm: (p: string) => `Entre na conta vinculada a ${p} para criar uma nova senha local.`,
   recoverNewpw: (p: string) => `Crie uma nova senha para ${p} neste aparelho. Os dados continuam intactos.`,
   unlink: (p: string, email: string) =>
@@ -72,7 +72,7 @@ export const FIELD = {
 } as const;
 
 export const HELPER = {
-  name: '3 a 20 caracteres: letras, números, _ . ou -',
+  name: '3 a 16 caracteres: letras, números, _ . ou -',
   pwNew: 'Pelo menos 8 caracteres.',
   pwLocal: 'Pelo menos 8 caracteres. Funciona sem internet.',
   picker: 'Escolha até 3 cores. A primeira tinge o app inteiro — dá para mudar depois.',
@@ -148,13 +148,6 @@ export const DONE = {
   },
 } as const;
 
-export const SYNC = {
-  syncing: 'Sincronizando…',
-  synced: 'Sincronizado agora',
-  downloading: 'Baixando sua coleção…',
-  downloaded: 'Coleção baixada',
-} as const;
-
 export const LINK_STATE = {
   linked: 'Vinculado à nuvem',
   local: 'Só neste aparelho',
@@ -181,11 +174,56 @@ export const CAPTION = {
   optional: 'Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.',
 } as const;
 
-// Temporary top-bar button and menu (FR-029) — not in STATES.md; see ui.md §7.
-export const TOP_BAR = {
+// App shell (spec 004 ui.md §7).
+export const SHELL = {
+  menu: 'Menu',
+  close: ACTION.close,
+  navLabel: 'Navegação principal',
+  collection: 'Coleção',
+  pin: 'Fixar menu',
+  unpin: 'Recolher menu',
+  home: 'Grimorio — Início',
+  signIn: ACTION.in,
   noProfile: 'Nenhum perfil ativo',
-  profileLabel: (p: string, linked: boolean) => `${p} · ${linked ? LINK_STATE.linked : LINK_STATE.local}`,
-  switchProfile: 'Trocar perfil',
-  cloudAccount: 'Conta na nuvem',
-  syncNow: 'Sincronizar agora',
+  profileHint: 'Trocar de perfil ou sair',
+  profileBusy: 'Aguarde a sincronização terminar',
+  notice: 'Aviso legal',
+  profileLabel: (name: string, tribe: string, colors: string) =>
+    `Perfil ${name} — ${tribe} · ${colors}. Trocar de perfil ou sair.`,
 } as const;
+
+// The sync area, sync mark and drawer sync line (FR-007).
+export const SYNC_AREA = {
+  syncing: 'Sincronizando…',
+  synced: 'Sincronizado',
+  last: (rel: string) => `Sincronizado ${rel}`,
+  never: 'Nunca sincronizado',
+  local: 'Sem conta na nuvem',
+  offline: 'Sem conexão',
+  expired: 'Sessão expirada',
+  error: 'Falha ao sincronizar',
+  actSync: 'Sincronizar agora',
+  actRetry: 'Tentar de novo',
+  actReauth: 'Entrar de novo',
+  actLink: ACTION.linkCloud,
+  areaLabel: (label: string, action: string) => `${label}. ${action}.`,
+} as const;
+
+/** A run of notice text: plain, or a link opened in a new tab. */
+export type NoticeRun = string | { text: string; href: string };
+
+// The legal notice (FR-027), shared by the shell's LegalNotice and the About view (FR-029).
+export const NOTICE: { wotc: readonly NoticeRun[]; scryfall: readonly NoticeRun[]; ai: string } = {
+  wotc: [
+    'Grimorio é Fan Content não-oficial, permitido segundo a ',
+    { text: 'Fan Content Policy', href: 'https://company.wizards.com/en/legal/fancontentpolicy' },
+    ' da Wizards of the Coast. Não é aprovado nem endossado pela Wizards. Partes dos materiais usados são ' +
+      'propriedade da Wizards of the Coast. ©Wizards of the Coast LLC.',
+  ],
+  scryfall: [
+    'Os dados e imagens de cartas exibidos no Grimorio são fornecidos por ',
+    { text: 'Scryfall', href: 'https://scryfall.com' },
+    '.',
+  ],
+  ai: 'Parte do desenvolvimento deste app contou com ferramentas de inteligência artificial.',
+};

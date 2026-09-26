@@ -1,0 +1,29 @@
+@use 'breakpoints' as bp;
+
+:host {
+  display: block;
+  margin-top: auto;
+  padding: var(--space-5) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-muted);
+}
+
+@include bp.wide {
+  :host {
+    padding: var(--space-5) var(--space-6);
+  }
+}
+
+aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+p {
+  margin: 0;
+  max-width: 72ch;
+  text-wrap: pretty;
+}

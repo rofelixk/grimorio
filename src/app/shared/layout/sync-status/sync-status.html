@@ -1,0 +1,35 @@
+@if (display(); as d) {
+  @switch (variant()) {
+    @case ('area') {
+      <button
+        type="button"
+        class="area"
+        [class.is-synced]="d.kind === 'synced'"
+        [class.is-failure]="d.failure"
+        [attr.aria-disabled]="busy() || null"
+        [attr.aria-label]="areaLabel()"
+        [attr.title]="areaLabel()"
+        (click)="onArea()"
+      >
+        <app-sync-mark [kind]="d.kind" />
+        <span>{{ d.label }}</span>
+      </button>
+    }
+    @case ('mark') {
+      <span class="mark" role="status" [attr.aria-label]="d.label" [attr.title]="d.label">
+        <app-sync-mark [kind]="d.kind" />
+      </span>
+    }
+    @case ('drawer') {
+      <p class="line" role="status" [class.is-synced]="d.kind === 'synced'" [class.is-failure]="d.failure">
+        <app-sync-mark [kind]="d.kind" />
+        <span>{{ d.label }}</span>
+      </p>
+      @if (d.action && d.actionLabel) {
+        <button type="button" class="link-btn action" [class.is-failure]="d.failure" (click)="action.emit(d)">
+          {{ d.actionLabel }}
+        </button>
+      }
+    }
+  }
+}

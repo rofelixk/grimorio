@@ -27,7 +27,7 @@ export interface PasswordHash {
 export interface ProfileRecord {
   /** UUID; also names the profile's database (`grimorio-profile-{id}`) and session key. */
   id: string;
-  /** 3–20 chars, `^[A-Za-z0-9_.-]+$`, unique per device compared with `toLowerCase()`
+  /** 3–16 chars, `^[A-Za-z0-9_.-]+$`, unique per device compared with `toLowerCase()`
    * (FR-003); trimmed before storing. */
   name: string;
   /** 1–3 distinct values of `W U B R G`, in pick order (FR-026): primary, accent, tertiary. */

@@ -1,0 +1,27 @@
+<span class="wash" aria-hidden="true"></span>
+<a routerLink="/" class="wordmark" [attr.aria-label]="copy.home">{{ wordmark }}</a>
+@if (shell.wide()) {
+  <div class="group">
+    @if (active()) {
+      <app-sync-status variant="area" />
+      <span class="separator" aria-hidden="true"></span>
+    }
+    <app-profile-control variant="bar" (activate)="openProfile()" />
+  </div>
+} @else {
+  <div class="group">
+    @if (active()) {
+      <app-sync-status variant="mark" />
+    }
+    <button
+      type="button"
+      class="btn btn--ghost menu"
+      aria-controls="grm-drawer"
+      [attr.aria-expanded]="shell.drawerOpen()"
+      (click)="shell.openDrawer($event.detail === 0)"
+    >
+      {{ copy.menu }}
+    </button>
+  </div>
+}
+<span class="line" aria-hidden="true"></span>

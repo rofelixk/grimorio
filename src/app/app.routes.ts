@@ -16,7 +16,7 @@ export const routes: Routes = [
   { path: '', component: Home },
   { path: 'collection', component: Collection, ...gated },
   { path: 'collection/import', component: CollectionImport, ...gated },
-  { path: 'collection/:id', component: CollectionDetail, data: { showCollectionFilters: true }, ...gated },
+  { path: 'collection/:id', component: CollectionDetail, ...gated },
   { path: 'decks', component: Decks, ...gated },
   { path: 'decks/:id', component: DeckDetail, ...gated },
   // The old account page is hidden until a follow-up spec rebuilds it (FR-030).

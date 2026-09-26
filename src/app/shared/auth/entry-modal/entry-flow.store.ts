@@ -4,9 +4,8 @@ import { CloudAuthService, CloudIdentity } from '@services/cloud-auth.service';
 import { EntryModalService, ResolvedEntryRequest } from '@services/entry-modal.service';
 import { ProfileSessionService } from '@services/profile-session.service';
 import { ProfileStore } from '@services/profile-store.service';
-import { SyncService } from '@services/sync.service';
 import { FieldKey, mapCloudError } from '@utils/cloud-error.util';
-import { ACTION, LINK_STATE, MISC, MSG, SYNC } from '@utils/entry-copy';
+import { ACTION, LINK_STATE, MISC, MSG } from '@utils/entry-copy';
 import {
   CopyVars,
   DoneKind,
@@ -30,7 +29,6 @@ import {
   validate,
 } from '@utils/entry-flow.util';
 import { DEFAULT_IDENTITY, rolesFor, sameColors, tribeName } from '@utils/identity.util';
-import { SyncLineState } from '@shared/ds/sync-line/sync-line';
 
 /** The id of whichever title (phase or success) labels the modal. */
 export const ENTRY_TITLE_ID = 'grm-entry-title';
@@ -38,8 +36,6 @@ export const ENTRY_TITLE_ID = 'grm-entry-title';
 const BLANK_FIELDS: EntryFields = { name: '', email: '', pw: '', code: '' };
 const RESEND_COOLDOWN_S = 30;
 const SIGN_OUT_MIN_MS = 700;
-
-type SyncKind = 'sync' | 'download';
 
 const FIELD_ERROR_KEY: Record<keyof EntryFields, FieldKey> = { name: 'user', email: 'email', pw: 'pw', code: 'code' };
 
@@ -57,7 +53,6 @@ export class EntryFlowStore {
   private readonly profileStore = inject(ProfileStore);
   private readonly session = inject(ProfileSessionService);
   private readonly cloudAuth = inject(CloudAuthService);
-  private readonly sync = inject(SyncService);
   private readonly modal = inject(EntryModalService);
 
   // ── State ────────────────────────────────────────────────────────────────
@@ -77,7 +72,6 @@ export class EntryFlowStore {
   readonly done = signal<DoneKind | null>(null);
   readonly previousName = signal<string | null>(null);
   readonly replacedTribe = signal<string | null>(null);
-  readonly syncLine = signal<{ state: SyncLineState; label: string } | null>(null);
   readonly cooldown = signal(0);
   readonly resending = signal(false);
   readonly cloudColors = signal<Color[] | null>(null);
@@ -240,7 +234,6 @@ export class EntryFlowStore {
     this.done.set(null);
     this.previousName.set(null);
     this.replacedTribe.set(null);
-    this.syncLine.set(null);
     this.resending.set(false);
     this.cloudColors.set(null);
     this.picks.set([...DEFAULT_IDENTITY]);
@@ -343,7 +336,6 @@ export class EntryFlowStore {
   linkAfterCreate(): void {
     this.context.set('link');
     this.selectedId.set(null);
-    this.syncLine.set(null);
     this.go('up');
   }
 
@@ -439,8 +431,7 @@ export class EntryFlowStore {
         if (this.stale(generation)) {
           return;
         }
-        const cloud = this.profileStore.byId(id)?.cloud;
-        this.finish('unlocked', cloud && !cloud.needsReauth ? 'sync' : null);
+        this.finish('unlocked');
         return;
       }
       case 'localreset-newpw':
@@ -476,7 +467,7 @@ export class EntryFlowStore {
         await this.cloudAuth.signUp(email, pw, { label: profile.name, colors: profile.colors });
         await this.cloudAuth.linkPending(profile.id, { writeColors: true });
         if (!this.stale(generation)) {
-          this.finish('created', 'sync');
+          this.finish('created');
         }
         return;
       }
@@ -499,14 +490,14 @@ export class EntryFlowStore {
         const created = await this.cloudAuth.setupFromPending({ name, password: pw });
         if (!this.stale(generation)) {
           this.selectedId.set(created.id);
-          this.finish('setup', 'download');
+          this.finish('setup');
         }
         return;
       }
       case 'reauth': {
         await this.cloudAuth.reauth(this.subject()!.id, pw);
         if (!this.stale(generation)) {
-          this.finish('reauthed', 'sync');
+          this.finish('reauthed');
         }
         return;
       }
@@ -536,7 +527,7 @@ export class EntryFlowStore {
       this.backTarget.set(null);
       this.emailLocked.set(false);
       if (origin === 'reauth') {
-        this.finish('reauthed', 'sync');
+        this.finish('reauthed');
       } else {
         this.toPhase('recover-newpw');
       }
@@ -571,38 +562,13 @@ export class EntryFlowStore {
     this.replacedTribe.set(
       colorsReplaced && !sameColors(colorsReplaced, profile.colors) ? tribeName(colorsReplaced) : null,
     );
-    this.finish('linked', 'sync');
+    this.finish('linked');
   }
 
-  private finish(kind: DoneKind, sync: SyncKind | null = null): void {
+  // Never syncs: sync starts only from the shell's sync controls (spec 004, FR-006).
+  private finish(kind: DoneKind): void {
     this.done.set(kind);
     this.loading.set(false);
-    this.syncLine.set(null);
-    if (!sync) {
-      return;
-    }
-    const [busy, finished] = sync === 'download' ? [SYNC.downloading, SYNC.downloaded] : [SYNC.syncing, SYNC.synced];
-    this.syncLine.set({ state: 'pending', label: busy });
-    const generation = this.generation;
-    // Driven by the real sync; a sync that can't run shows why, and the success stands (FR-016a).
-    void this.sync.syncNow().then((outcome) => {
-      if (this.stale(generation)) {
-        return;
-      }
-      switch (outcome) {
-        case 'done':
-          this.syncLine.set({ state: 'done', label: finished });
-          return;
-        case 'offline':
-          this.syncLine.set({ state: 'failed', label: MSG.offline });
-          return;
-        case 'skipped':
-          this.syncLine.set(null);
-          return;
-        default:
-          this.syncLine.set({ state: 'failed', label: MSG.generic });
-      }
-    });
   }
 
   // ── List actions ─────────────────────────────────────────────────────────

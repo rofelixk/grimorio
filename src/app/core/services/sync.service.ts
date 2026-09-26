@@ -49,6 +49,8 @@ interface CardEntryRow {
 export type SyncState = 'idle' | 'syncing' | 'done' | 'offline' | 'reauth' | 'error';
 /** How a syncNow() call ended; 'skipped' = nothing to sync (unlinked, or the profile changed). */
 export type SyncOutcome = 'done' | 'offline' | 'reauth' | 'error' | 'skipped';
+/** A sync run always settles within this bound (FR-005a); a hung request ends as a failure. */
+export const SYNC_TIMEOUT_MS = 60_000;
 
 const LAST_SYNCED_KEY = 'lastSyncedAt';
 const AUTH_ERROR_CODES = new Set([
@@ -137,8 +139,16 @@ function cardFromRow(row: CardEntryRow): CardEntry {
   };
 }
 
+/** One sync attempt: its generation disowns it once it times out or another run starts. */
+interface Run {
+  profile: ProfileSummary;
+  generation: number;
+  abort: AbortController;
+}
+
 class AuthExpired extends Error {}
-class ProfileChanged extends Error {}
+/** The run no longer owns the outcome: the profile changed, or the run timed out. */
+class Superseded extends Error {}
 
 function isAuthError(error: unknown): boolean {
   if (!error || typeof error !== 'object') {
@@ -157,8 +167,10 @@ function isNetworkError(error: unknown): boolean {
 }
 
 // Syncs the active profile's locations and cards with its linked account (R11), reusing the
-// per-item last-write-wins reconciler. Decks never sync. Single-flight, and a sync started for
-// one profile never applies its results after a switch to another.
+// per-item last-write-wins reconciler. Decks never sync. Sync is manual only: nothing but
+// syncNow() starts one, and only SyncStatusService calls it (spec 004, SC-011). Single-flight
+// and bounded by SYNC_TIMEOUT_MS; a run that was switched away from or timed out never writes
+// state or applies its results.
 @Injectable({ providedIn: 'root' })
 export class SyncService {
   private readonly session = inject(ProfileSessionService);
@@ -173,6 +185,33 @@ export class SyncService {
   readonly lastSyncedAt = this.lastSyncedAtSignal.asReadonly();
 
   private inFlight: Promise<SyncOutcome> | null = null;
+  private generation = 0;
+  private started = false;
+
+  /**
+   * Registers the session hooks once (called from App): a switch stops the previous profile's
+   * auth auto-refresh; an activation resets the status and keeps the new linked profile's
+   * session refreshing. Never syncs.
+   */
+  start(): void {
+    if (this.started) {
+      return;
+    }
+    this.started = true;
+    this.session.registerHooks({
+      beforeSwitch: (previous) => {
+        if (previous?.cloud) {
+          this.cloud.stopAutoRefresh(previous.id);
+        }
+      },
+      afterActivate: (active) => {
+        void this.profileChanged();
+        if (active?.cloud && !active.cloud.needsReauth) {
+          this.cloud.startAutoRefresh(active.id);
+        }
+      },
+    });
+  }
 
   /** Resets the status for a newly active profile and loads its last sync time. */
   async profileChanged(): Promise<void> {
@@ -205,64 +244,97 @@ export class SyncService {
     }
 
     this.stateSignal.set('syncing');
+    const run: Run = { profile, generation: ++this.generation, abort: new AbortController() };
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timedOut = new Promise<'timeout'>((resolve) => {
+      timer = setTimeout(() => resolve('timeout'), SYNC_TIMEOUT_MS);
+    });
+    try {
+      const outcome = await Promise.race([this.exchange(run), timedOut]);
+      if (outcome !== 'timeout') {
+        return outcome;
+      }
+      // Disown the run and cancel its requests, so nothing it does afterwards lands.
+      this.generation++;
+      run.abort.abort();
+      const state = this.connectivity.online() ? 'error' : 'offline';
+      if (this.session.active()?.id === profile.id) {
+        this.stateSignal.set(state);
+      }
+      return state;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private async exchange(run: Run): Promise<SyncOutcome> {
+    const { profile } = run;
     const handle = currentDbHandle();
     try {
       const client = this.cloud.client(profile.id);
       const { data, error } = await client.auth.getSession();
+      this.ensureCurrent(run);
       if (error || !data.session) {
         throw new AuthExpired();
       }
       await Promise.all([this.locations.flush(), this.cards.flush()]);
       // Locations first: card_entries.location_id references storage_locations.
-      await this.syncLocations(client, profile);
-      await this.syncCards(client, profile);
+      await this.syncLocations(client, run);
+      await this.syncCards(client, run);
 
       const syncedAt = new Date().toISOString();
+      this.ensureCurrent(run);
       await setMeta(LAST_SYNCED_KEY, syncedAt, handle);
-      this.ensureStillActive(profile);
+      this.ensureCurrent(run);
       this.lastSyncedAtSignal.set(syncedAt);
       this.stateSignal.set('done');
       return 'done';
     } catch (error) {
-      if (error instanceof ProfileChanged) {
+      if (error instanceof Superseded || !this.isCurrent(run)) {
         return 'skipped';
       }
       if (error instanceof AuthExpired || isAuthError(error)) {
         await this.cloud.markNeedsReauth(profile.id);
-        this.setStateIfActive(profile, 'reauth');
+        this.setStateIfCurrent(run, 'reauth');
         return 'reauth';
       }
       if (!this.connectivity.online() || isNetworkError(error)) {
-        this.setStateIfActive(profile, 'offline');
+        this.setStateIfCurrent(run, 'offline');
         return 'offline';
       }
-      this.setStateIfActive(profile, 'error');
+      this.setStateIfCurrent(run, 'error');
       return 'error';
     }
   }
 
-  private ensureStillActive(profile: ProfileSummary): void {
-    if (this.session.active()?.id !== profile.id) {
-      throw new ProfileChanged();
+  private isCurrent(run: Run): boolean {
+    return run.generation === this.generation && this.session.active()?.id === run.profile.id;
+  }
+
+  private ensureCurrent(run: Run): void {
+    if (!this.isCurrent(run)) {
+      throw new Superseded();
     }
   }
 
-  private setStateIfActive(profile: ProfileSummary, state: SyncState): void {
-    if (this.session.active()?.id === profile.id) {
+  private setStateIfCurrent(run: Run, state: SyncState): void {
+    if (this.isCurrent(run)) {
       this.stateSignal.set(state);
     }
   }
 
-  private async syncLocations(client: SupabaseClient, profile: ProfileSummary): Promise<void> {
-    const userId = profile.cloud!.userId;
+  private async syncLocations(client: SupabaseClient, run: Run): Promise<void> {
+    const signal = run.abort.signal;
+    const userId = run.profile.cloud!.userId;
     const { data, error } = await client
       .from('storage_locations')
       .select('id, user_id, name, parent_id, color, updated_at')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .abortSignal(signal);
     if (error) {
       throw error;
     }
-    this.ensureStillActive(profile);
+    this.ensureCurrent(run);
     const local = this.locations.locations();
     const tombstones = await this.locations.getTombstones();
     const result = reconcileEntities(local, (data as StorageLocationRow[]).map(locationFromRow), tombstones);
@@ -273,7 +345,8 @@ export class SyncService {
         .upsert(
           result.toUpsertRemote.map((location) => locationToRow(location, userId)),
           { onConflict: 'user_id,id' },
-        );
+        )
+        .abortSignal(signal);
       if (upsertError) {
         throw upsertError;
       }
@@ -283,24 +356,30 @@ export class SyncService {
         .from('storage_locations')
         .delete()
         .eq('user_id', userId)
-        .in('id', result.toDeleteRemoteIds);
+        .in('id', result.toDeleteRemoteIds)
+        .abortSignal(signal);
       if (deleteError) {
         throw deleteError;
       }
     }
 
-    this.ensureStillActive(profile);
+    this.ensureCurrent(run);
     this.locations.applySyncResult(result.merged);
     await this.locations.clearTombstones(result.tombstonesToClear);
   }
 
-  private async syncCards(client: SupabaseClient, profile: ProfileSummary): Promise<void> {
-    const userId = profile.cloud!.userId;
-    const { data, error } = await client.from('card_entries').select('*').eq('user_id', userId);
+  private async syncCards(client: SupabaseClient, run: Run): Promise<void> {
+    const signal = run.abort.signal;
+    const userId = run.profile.cloud!.userId;
+    const { data, error } = await client
+      .from('card_entries')
+      .select('*')
+      .eq('user_id', userId)
+      .abortSignal(signal);
     if (error) {
       throw error;
     }
-    this.ensureStillActive(profile);
+    this.ensureCurrent(run);
     const local = this.cards.cards();
     const tombstones = await this.cards.getTombstones();
     const result = reconcileEntities(local, (data as CardEntryRow[]).map(cardFromRow), tombstones);
@@ -311,7 +390,8 @@ export class SyncService {
         .upsert(
           result.toUpsertRemote.map((card) => cardToRow(card, userId)),
           { onConflict: 'user_id,id' },
-        );
+        )
+        .abortSignal(signal);
       if (upsertError) {
         throw upsertError;
       }
@@ -321,13 +401,14 @@ export class SyncService {
         .from('card_entries')
         .delete()
         .eq('user_id', userId)
-        .in('id', result.toDeleteRemoteIds);
+        .in('id', result.toDeleteRemoteIds)
+        .abortSignal(signal);
       if (deleteError) {
         throw deleteError;
       }
     }
 
-    this.ensureStillActive(profile);
+    this.ensureCurrent(run);
     this.cards.applySyncResult(result.merged);
     await this.cards.clearTombstones(result.tombstonesToClear);
   }

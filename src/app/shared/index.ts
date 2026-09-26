@@ -18,7 +18,6 @@ export { LocationModal } from './locations/location-modal/location-modal';
 export { LocationPlate } from './locations/location-plate/location-plate';
 export { LocationPlateList } from './locations/location-plate-list/location-plate-list';
 export { LocationStrip } from './locations/location-strip/location-strip';
-export { NavBar } from './layout/nav-bar/nav-bar';
 export { SearchResultsList } from './common/search-results-list/search-results-list';
 export type {
   CollectionSearchRow,
@@ -26,13 +25,10 @@ export type {
 } from './common/search-results-list/search-results-list';
 export { SparkRerollDirective } from './effects/spark-reroll/spark-reroll.directive';
 export { EntryModal } from './auth/entry-modal/entry-modal';
-export { ProfileButton } from './auth/profile-button/profile-button';
 export { IdentityChip } from './ds/identity-chip/identity-chip';
 export { IdentityWheel } from './ds/identity-wheel/identity-wheel';
 export { MiniWheel } from './ds/mini-wheel/mini-wheel';
 export { ProfileRow } from './ds/profile-row/profile-row';
 export { SparkField } from './ds/spark-field/spark-field';
-export { SyncLine } from './ds/sync-line/sync-line';
 export { TextField } from './ds/text-field/text-field';
 export { ThemedModal } from './ds/themed-modal/themed-modal';
-export { TopBar } from './layout/top-bar/top-bar';

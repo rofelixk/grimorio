@@ -1,0 +1,115 @@
+@use 'fio';
+
+dialog {
+  position: fixed;
+  inset: 0 0 0 auto;
+  box-sizing: border-box;
+  width: var(--drawer-width);
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--color-border);
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: none;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transform: translateX(100%);
+  transition:
+    transform var(--duration-drawer) var(--ease-standard),
+    box-shadow var(--duration-drawer) var(--ease-standard),
+    overlay var(--duration-drawer) allow-discrete,
+    display var(--duration-drawer) allow-discrete;
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+    transform: translateX(0);
+    box-shadow: var(--glow-overlay);
+  }
+
+  &::backdrop {
+    background: var(--overlay-backdrop, rgba(0, 0, 0, 0.75));
+    opacity: 0;
+    transition:
+      opacity var(--duration-drawer) var(--ease-standard),
+      overlay var(--duration-drawer) allow-discrete,
+      display var(--duration-drawer) allow-discrete;
+  }
+
+  &[open]::backdrop {
+    opacity: 1;
+  }
+}
+
+@starting-style {
+  dialog[open] {
+    transform: translateX(100%);
+  }
+
+  dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.thread {
+  @include fio.thread(right);
+}
+
+.wash {
+  @include fio.wash(nav-end);
+}
+
+.header,
+.account,
+.rule,
+nav {
+  position: relative;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 4px 20px 4px var(--space-1);
+}
+
+.close {
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.account {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  padding: var(--space-2) 28px var(--space-4) var(--space-4);
+  text-align: right;
+}
+
+.rule {
+  flex: none;
+  height: 1px;
+  margin: 0 20px var(--space-2) var(--space-4);
+  border: 0;
+  background: var(--color-border);
+}
+
+nav {
+  padding-left: var(--space-4);
+}

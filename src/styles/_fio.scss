@@ -1,0 +1,86 @@
+// "Fio de luz" recipes (DESIGN.md Elevation & depth): the app shell's flowing identity band.
+// Each mixin styles one decorative element (aria-hidden, never interactive); the band tokens and
+// grm-flow-* keyframes live in _tokens.scss and resolve against the nearest [data-theme-scope].
+
+$flow: 120s linear infinite;
+
+// Transparent text filled with the lit band. `mark` is the wordmark, `nav` the current nav label.
+@mixin band-text($variant: mark) {
+  color: transparent;
+  background: var(--band-lit) repeat-x;
+  background-size: 2400px 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: none;
+
+  @if $variant == mark {
+    filter: drop-shadow(0 0 1px var(--color-bg)) drop-shadow(0 0 3px var(--color-bg))
+      drop-shadow(0 0 10px rgb(from var(--role-primary) r g b / 30%));
+    animation: grm-flow-mark $flow;
+  } @else {
+    filter: drop-shadow(0 0 1px var(--color-bg)) drop-shadow(0 0 8px rgb(from var(--role-primary) r g b / 30%));
+    animation: grm-flow-long $flow;
+  }
+}
+
+// The flowing 1px line along the bottom edge of its positioned parent.
+@mixin line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--band) repeat-x;
+  background-size: 2400px 1px;
+  animation: grm-flow-long $flow;
+  pointer-events: none;
+}
+
+// The vertical thread along the nav (left) or the mirrored drawer (right).
+@mixin thread($side: left) {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  #{$side}: var(--thread-x);
+  width: 1px;
+  background: var(--band-v) repeat-y;
+  background-size: 1px 2400px;
+  box-shadow: 0 0 6px rgb(from var(--role-primary) r g b / 35%);
+  animation: grm-flow-v $flow;
+  pointer-events: none;
+}
+
+// The masked band wash: behind the wordmark (`bar`), or in the nav's (`nav-start`) or the
+// drawer's (`nav-end`) top corner.
+@mixin wash($placement: bar) {
+  position: absolute;
+  opacity: 0.3;
+  pointer-events: none;
+
+  @if $placement == bar {
+    inset-block: 0;
+    left: 0;
+    width: 360px;
+    max-width: 70%;
+    background: var(--band) repeat-x;
+    background-size: 2400px 100%;
+    mask-image: radial-gradient(ellipse 100% 150% at 0% 50%, #000, transparent 75%);
+    animation: grm-flow-long $flow;
+  } @else {
+    top: 0;
+    width: 100%;
+    height: 360px;
+    max-height: 70%;
+    background: var(--band-v) repeat-y;
+    background-size: 100% 2400px;
+    animation: grm-flow-v $flow;
+
+    @if $placement == nav-start {
+      left: 0;
+      mask-image: radial-gradient(ellipse 150% 100% at 0% 0%, #000, transparent 75%);
+    } @else {
+      right: 0;
+      mask-image: radial-gradient(ellipse 150% 100% at 100% 0%, #000, transparent 75%);
+    }
+  }
+}

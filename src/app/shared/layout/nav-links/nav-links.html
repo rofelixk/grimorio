@@ -1,0 +1,12 @@
+@for (destination of destinations; track destination.path) {
+  <a
+    class="item"
+    [routerLink]="destination.path"
+    routerLinkActive="is-current"
+    [routerLinkActiveOptions]="{ exact: false }"
+    ariaCurrentWhenActive="page"
+  >
+    <span class="bead" aria-hidden="true"></span>
+    <span class="label">{{ destination.label }}</span>
+  </a>
+}

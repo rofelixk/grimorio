@@ -1,6 +1,8 @@
 import { DestroyRef, Signal, inject, signal } from '@angular/core';
 
 export const MOBILE_QUERY = '(max-width: 640px)';
+/** The app shell's one breakpoint (matches `$bp-wide`): side nav at and above, drawer below. */
+export const WIDE_QUERY = '(min-width: 960px)';
 export const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 /** A signal tracking a CSS media query; call in an injection context. */

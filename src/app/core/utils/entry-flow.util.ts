@@ -385,7 +385,7 @@ export function validate(
 
   if (shown.name) {
     const name = fields.name.trim();
-    if (name.length < 3 || name.length > 20) {
+    if (name.length < 3 || name.length > 16) {
       errors.user = MSG.userLen;
     } else if (!NAME_PATTERN.test(name)) {
       errors.user = MSG.userChars;

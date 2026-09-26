@@ -1,0 +1,18 @@
+<div class="nav-spacer" [class.is-pinned]="shell.pinned()" aria-hidden="true"></div>
+<nav
+  #nav
+  [attr.aria-label]="copy.navLabel"
+  [class.is-expanded]="expanded()"
+  [class.is-overlay]="expanded() && !shell.pinned()"
+  (pointerenter)="onPointerEnter($event)"
+  (pointerleave)="onPointerLeave()"
+  (focusin)="onFocusIn()"
+  (focusout)="onFocusOut($event, nav)"
+>
+  <span class="thread" aria-hidden="true"></span>
+  <span class="wash" aria-hidden="true"></span>
+  <button type="button" class="pin" [attr.aria-pressed]="shell.pinned()" (click)="togglePin()">
+    {{ shell.pinned() ? copy.unpin : copy.pin }}
+  </button>
+  <app-nav-links [showLabels]="expanded()" />
+</nav>
