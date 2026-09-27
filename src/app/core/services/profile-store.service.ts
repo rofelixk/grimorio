@@ -1,6 +1,6 @@
 import { Injectable, InjectionToken, inject, signal } from '@angular/core';
 import { CloudLink, Color, ProfileRecord, ProfileSummary } from '@models/profile.model';
-import { getDeviceDb } from '../db/device-db';
+import { ACTIVE_PROFILE_KEY, getDeviceDb } from '../db/device-db';
 import { hashPassword, verifyPassword } from '../utils/password-hash.util';
 
 /** PBKDF2 iteration count for new password hashes (R3); tests provide a small value. */
@@ -10,8 +10,8 @@ export const PBKDF2_ITERATIONS = new InjectionToken<number>('PBKDF2_ITERATIONS',
 });
 
 function toSummary(record: ProfileRecord): ProfileSummary {
-  const { id, name, colors, cloud, createdAt } = record;
-  return { id, name, colors, cloud, createdAt };
+  const { id, name, nameUpdatedAt, colors, colorsUpdatedAt, cloud, createdAt } = record;
+  return { id, name, nameUpdatedAt, colors, colorsUpdatedAt, cloud, createdAt };
 }
 
 function byCreatedAt(a: ProfileRecord, b: ProfileRecord): number {
@@ -96,13 +96,17 @@ export class ProfileStore {
   }
 
   async create(input: { name: string; password: string; colors: Color[] }): Promise<ProfileSummary> {
+    const password = await hashPassword(input.password, this.iterations);
+    const createdAt = this.nextCreatedAt();
     const record: ProfileRecord = {
       id: crypto.randomUUID(),
       name: input.name.trim(),
+      nameUpdatedAt: createdAt,
       colors: [...input.colors],
-      password: await hashPassword(input.password, this.iterations),
+      colorsUpdatedAt: createdAt,
+      password,
       cloud: null,
-      createdAt: this.nextCreatedAt(),
+      createdAt,
     };
     this.setRecords([...this.records(), record]);
     await this.persist(record);
@@ -125,8 +129,29 @@ export class ProfileStore {
     await this.patch(id, { password: await hashPassword(password, this.iterations) });
   }
 
-  setColors(id: string, colors: Color[]): Promise<void> {
-    return this.patch(id, { colors: [...colors] });
+  /** Renames a profile (FR-009); the caller validates the name first. */
+  rename(id: string, name: string): Promise<void> {
+    return this.patch(id, { name: name.trim(), nameUpdatedAt: new Date().toISOString() });
+  }
+
+  /** `at` keeps an adopted account change's own timestamp (R6); otherwise the change is now. */
+  setColors(id: string, colors: Color[], at?: string): Promise<void> {
+    return this.patch(id, { colors: [...colors], colorsUpdatedAt: at ?? new Date().toISOString() });
+  }
+
+  /** Drops the registry record (FR-017). If it was the active profile, none is active afterwards. */
+  async remove(id: string): Promise<void> {
+    this.setRecords(this.records().filter((r) => r.id !== id));
+    await this.enqueueWrite(async () => {
+      const db = await getDeviceDb();
+      const tx = db.transaction(['profiles', 'meta'], 'readwrite');
+      await tx.objectStore('profiles').delete(id);
+      const meta = tx.objectStore('meta');
+      if ((await meta.get(ACTIVE_PROFILE_KEY))?.value === id) {
+        await meta.put({ key: ACTIVE_PROFILE_KEY, value: null });
+      }
+      await tx.done;
+    });
   }
 
   setCloud(id: string, link: CloudLink | null): Promise<void> {

@@ -1,14 +1,21 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Session, SupabaseClient, User } from '@supabase/supabase-js';
 import { Color, ProfileSummary } from '@models/profile.model';
-import { GENERIC_FAILURE, OFFLINE_FAILURE, mapCloudError } from '../utils/cloud-error.util';
-import { MSG } from '../utils/entry-copy';
+import {
+  GENERIC_FAILURE,
+  OFFLINE_FAILURE,
+  isAuthSessionError,
+  isNetworkError,
+  mapCloudError,
+} from '../utils/cloud-error.util';
+import { MSG, TOAST } from '../utils/entry-copy';
 import { DEFAULT_IDENTITY } from '../utils/identity.util';
 import { normalizeEmail } from '../utils/entry-flow.util';
 import { CloudSessionService } from './cloud-session.service';
 import { ConnectivityService } from './connectivity.service';
 import { ProfileSessionService } from './profile-session.service';
 import { ProfileStore } from './profile-store.service';
+import { ToastService } from './toast.service';
 
 /** Who a cloud sign-in belongs to, read from the account's `user_metadata` (R6). */
 export interface CloudIdentity {
@@ -16,7 +23,20 @@ export interface CloudIdentity {
   email: string;
   label?: string;
   colors?: Color[];
+  /** When `colors` last changed on any device (spec 005 R6). */
+  colorsAt?: string;
+  /** When `label` was last written. */
+  labelAt?: string;
 }
+
+/** What `getUser()` says about a linked profile's account (spec 005 R12). */
+export type AccountStatus = 'ok' | 'gone' | 'expired' | 'offline';
+
+/** `checkAccount`'s answer with the fetched user, so a sync reuses it; 'error' = unrecognized. */
+export type AccountLookup =
+  | { status: 'ok'; user: User }
+  | { status: 'gone' | 'expired' | 'offline' }
+  | { status: 'error'; error: unknown };
 
 interface Pending {
   client: SupabaseClient;
@@ -26,17 +46,40 @@ interface Pending {
 
 const VALID_COLORS: readonly string[] = ['W', 'U', 'B', 'R', 'G'];
 
-function identityOf(user: User): CloudIdentity {
-  const meta = (user.user_metadata ?? {}) as { grm_label?: unknown; grm_colors?: unknown };
+const str = (value: unknown) => (typeof value === 'string' ? value : undefined);
+
+export function identityOf(user: User): CloudIdentity {
+  const meta = (user.user_metadata ?? {}) as {
+    grm_label?: unknown;
+    grm_colors?: unknown;
+    grm_colors_at?: unknown;
+    grm_label_at?: unknown;
+  };
   const colors = Array.isArray(meta.grm_colors)
     ? (meta.grm_colors.filter((c) => typeof c === 'string' && VALID_COLORS.includes(c)) as Color[])
     : [];
   return {
     userId: user.id,
     email: user.email ?? '',
-    label: typeof meta.grm_label === 'string' ? meta.grm_label : undefined,
+    label: str(meta.grm_label),
     colors: colors.length ? [...new Set(colors)].slice(0, 3) : undefined,
+    colorsAt: str(meta.grm_colors_at),
+    labelAt: str(meta.grm_label_at),
   };
+}
+
+function classify(error: unknown): AccountLookup {
+  const code = (error as { code?: unknown } | null)?.code;
+  if (code === 'user_not_found') {
+    return { status: 'gone' };
+  }
+  if (isNetworkError(error)) {
+    return { status: 'offline' };
+  }
+  if (isAuthSessionError(error)) {
+    return { status: 'expired' };
+  }
+  return { status: 'error', error };
 }
 
 // Every cloud-account flow (contracts/services.md). Network calls check connectivity first and
@@ -49,8 +92,13 @@ export class CloudAuthService {
   private readonly connectivity = inject(ConnectivityService);
   private readonly profiles = inject(ProfileStore);
   private readonly session = inject(ProfileSessionService);
+  private readonly toasts = inject(ToastService);
 
   private pending: Pending | null = null;
+
+  private readonly accountGoneSignal = signal<{ profileId: string; n: number } | null>(null);
+  /** Bumped each time a linked profile's account turns out to be gone (FR-019b). */
+  readonly accountGone = this.accountGoneSignal.asReadonly();
 
   private async run<T>(fn: () => Promise<T>): Promise<T> {
     if (!this.connectivity.online()) {
@@ -93,15 +141,26 @@ export class CloudAuthService {
     });
   }
 
-  /** Creates an account with the linking profile's name and colors as its metadata (R6). */
-  signUp(email: string, password: string, profile: { label: string; colors: Color[] }): Promise<CloudIdentity> {
+  /** Creates an account with the linking profile's name and colors, and their times, as its metadata (R6). */
+  signUp(
+    email: string,
+    password: string,
+    profile: { label: string; labelAt: string; colors: Color[]; colorsAt: string },
+  ): Promise<CloudIdentity> {
     return this.run(async () => {
       await this.discardPending();
       const client = this.cloud.transient();
       const { data, error } = await client.auth.signUp({
         email: normalizeEmail(email),
         password,
-        options: { data: { grm_label: profile.label, grm_colors: profile.colors } },
+        options: {
+          data: {
+            grm_label: profile.label,
+            grm_label_at: profile.labelAt,
+            grm_colors: profile.colors,
+            grm_colors_at: profile.colorsAt,
+          },
+        },
       });
       if (error) {
         throw error;
@@ -155,14 +214,19 @@ export class CloudAuthService {
       await this.discardPending();
       throw failure;
     }
-    const profile = this.requireProfile(profileId);
     const accountColors = !opts.writeColors ? (pending.identity.colors ?? null) : null;
-    const colors = accountColors ?? profile.colors;
     await this.adopt(profileId, pending);
     if (accountColors) {
-      await this.profiles.setColors(profileId, accountColors);
+      // The account's colors keep their own change time (spec 005 R6).
+      await this.profiles.setColors(profileId, accountColors, pending.identity.colorsAt ?? new Date().toISOString());
     }
-    await this.writeMetadata(profileId, { grm_label: profile.name, grm_colors: colors });
+    const profile = this.requireProfile(profileId);
+    await this.writeMetadata(profileId, {
+      grm_label: profile.name,
+      grm_label_at: profile.nameUpdatedAt,
+      grm_colors: profile.colors,
+      grm_colors_at: profile.colorsUpdatedAt,
+    });
     return { colorsReplaced: accountColors };
   }
 
@@ -216,8 +280,15 @@ export class CloudAuthService {
     return this.signInAsLinked(profileId, password);
   }
 
-  /** Local-only (FR-021): works offline. The remote account and its rows are kept (FR-019). */
-  async unlink(profileId: string): Promise<void> {
+  /**
+   * Local-only (FR-021): works offline. The remote account and its rows are kept (FR-019).
+   * Online, it first checks the account: one that no longer exists takes the gone path (FR-019b).
+   */
+  async unlink(profileId: string): Promise<'unlinked' | 'gone'> {
+    if (this.connectivity.online() && (await this.checkAccount(profileId)) === 'gone') {
+      await this.forgetGoneAccount(profileId);
+      return 'gone';
+    }
     const client = this.cloud.client(profileId);
     await this.cloud.whileUnlinking(profileId, async () => {
       this.cloud.stopAutoRefresh(profileId);
@@ -227,6 +298,106 @@ export class CloudAuthService {
       this.cloud.removeSession(profileId);
       await this.profiles.setCloud(profileId, null);
     });
+    return 'unlinked';
+  }
+
+  /** Asks GoTrue about the linked account (R12): `getUser()` is the only call that does. */
+  async checkAccount(profileId: string): Promise<AccountStatus> {
+    const lookup = await this.lookupAccount(profileId);
+    // An unrecognized failure can't tell anything about the account: treat it like offline.
+    return lookup.status === 'error' ? 'offline' : lookup.status;
+  }
+
+  /** `checkAccount` with the fetched user (the sync identity step reads its metadata). */
+  async lookupAccount(profileId: string): Promise<AccountLookup> {
+    if (!this.connectivity.online()) {
+      return { status: 'offline' };
+    }
+    try {
+      const { data, error } = await this.cloud.client(profileId).auth.getUser();
+      if (error) {
+        return classify(error);
+      }
+      return data.user ? { status: 'ok', user: data.user } : { status: 'expired' };
+    } catch (error) {
+      return classify(error);
+    }
+  }
+
+  /**
+   * The account no longer exists (FR-019b): the profile turns local-only with its data intact,
+   * with no network needed, and a toast says so.
+   */
+  async forgetGoneAccount(profileId: string): Promise<void> {
+    const profile = this.profiles.byId(profileId);
+    if (!profile?.cloud) {
+      return;
+    }
+    const email = profile.cloud.email;
+    await this.cloud.whileUnlinking(profileId, async () => {
+      this.cloud.removeSession(profileId);
+      await this.profiles.setCloud(profileId, null);
+    });
+    const toast = TOAST.gone(email, profile.name);
+    this.toasts.show(toast.label, toast.text);
+    this.accountGoneSignal.update((last) => ({ profileId, n: (last?.n ?? 0) + 1 }));
+  }
+
+  /**
+   * Changes the linked account's password (FR-016a, R8), then ends the account's other sessions
+   * so the other devices need the new one. This device stays signed in and linked; the local
+   * profile password is untouched.
+   */
+  changeAccountPassword(profileId: string, current: string, next: string): Promise<void> {
+    return this.run(async () => {
+      await this.verifyAccountPassword(profileId, current);
+      const auth = this.cloud.client(profileId).auth;
+      const updated = await auth.updateUser({ password: next });
+      if (updated.error) {
+        throw updated.error;
+      }
+      // Never 'global': that would also end this device's session (R4).
+      const { error } = await auth.signOut({ scope: 'others' });
+      if (error) {
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Deletes the linked account and every cloud row it owns, atomically, through the
+   * `delete_own_account()` function (FR-019a, R11). The profile then becomes local-only.
+   */
+  async deleteAccount(profileId: string, password: string): Promise<void> {
+    await this.run(async () => {
+      await this.verifyAccountPassword(profileId, password);
+      const { error } = await this.cloud.client(profileId).rpc('delete_own_account');
+      if (error) {
+        throw error;
+      }
+    });
+    await this.cloud.whileUnlinking(profileId, async () => {
+      this.cloud.removeSession(profileId);
+      await this.profiles.setCloud(profileId, null);
+    });
+  }
+
+  // supabase-js can't verify a password on its own: a throwaway sign-in with the linked e-mail
+  // does, then is discarded (R8). A wrong password maps to "E-mail ou senha incorretos.".
+  private async verifyAccountPassword(profileId: string, password: string): Promise<void> {
+    const link = this.requireProfile(profileId).cloud;
+    if (!link) {
+      throw GENERIC_FAILURE;
+    }
+    const client = this.cloud.transient();
+    const { data, error } = await client.auth.signInWithPassword({ email: link.email, password });
+    if (error) {
+      throw error;
+    }
+    await client.auth.signOut({ scope: 'local' }).catch(() => undefined);
+    if (data.user?.id !== link.userId) {
+      throw GENERIC_FAILURE;
+    }
   }
 
   private async signInAsLinked(profileId: string, password: string): Promise<void> {
@@ -261,7 +432,10 @@ export class CloudAuthService {
   }
 
   // Best-effort: the link stands even if the metadata write fails; the next link retries it.
-  private async writeMetadata(profileId: string, data: { grm_label: string; grm_colors: Color[] }): Promise<void> {
+  private async writeMetadata(
+    profileId: string,
+    data: { grm_label: string; grm_label_at: string; grm_colors: Color[]; grm_colors_at: string },
+  ): Promise<void> {
     try {
       await this.cloud.client(profileId).auth.updateUser({ data });
     } catch {

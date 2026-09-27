@@ -44,7 +44,7 @@ own. All paths are relative to the repository root.
 **Purpose**: Constitution V requires `DESIGN.md` to cover every new visual before it is built;
 the Supabase function must exist before US5's cloud deletion can be exercised.
 
-- [ ] T001 Update `DESIGN.md` per research R20: (a) **Themed modal** — add the profile modal and its
+- [X] T001 Update `DESIGN.md` per research R20: (a) **Themed modal** — add the profile modal and its
   modes (hub, "Perfil neste aparelho", "Conta na nuvem", action steps, done screens; desktop 880px
   face with 400px identity pane + fluid form pane, 460px min; mobile full-bleed with header chip and
   240px wheel on `hub`/`local` only), and remove the entry modal's link/reauth/unlink modes;
@@ -61,7 +61,7 @@ the Supabase function must exist before US5's cloud deletion can be exercised.
   control** now opens the profile modal; (i) **Content** — the new messages from ui.md §7. Take all
   visual values from `design_handoff_profile_modal/` (final path only; ignore the rejected variants
   listed in its README).
-- [ ] T002 Apply the Supabase migration `005_delete_own_account` with the Supabase MCP
+- [X] T002 Apply the Supabase migration `005_delete_own_account` with the Supabase MCP
   `apply_migration` tool on project `hyzbkxraanzhdyhtnadf`, using the exact SQL in
   `specs/005-profile-modal/contracts/supabase.md` §1 (`SECURITY DEFINER`, `set search_path = ''`,
   raises `42501` when `auth.uid()` is null, `delete from auth.users where id = uid`,
@@ -80,20 +80,20 @@ forms that every story builds on.
 
 ### Model and stores
 
-- [ ] T003 Add `nameUpdatedAt: string` and `colorsUpdatedAt: string` (ISO timestamps) to
+- [X] T003 Add `nameUpdatedAt: string` and `colorsUpdatedAt: string` (ISO timestamps) to
   `ProfileRecord` in `src/app/core/models/profile.model.ts`; `ProfileSummary`
   (`Omit<ProfileRecord, 'password'>`) carries both. No `grimorio-device` version bump.
-- [ ] T004 In `src/app/core/services/profile-store.service.ts`: make `create()` set `nameUpdatedAt`
+- [X] T004 In `src/app/core/services/profile-store.service.ts`: make `create()` set `nameUpdatedAt`
   and `colorsUpdatedAt` to the creation time; add `rename(id, name)` (trims, stamps
   `nameUpdatedAt = now`, patches the signal synchronously, persists through the existing serialized
   queue); add `setColors(id, colors: Color[], at?: string)` (stamps `colorsUpdatedAt = at ?? now`,
   same patch-then-queue shape); add `remove(id)` (drops the registry record; if it was the active
   one, `activeProfileId` becomes `null`). Keep `isNameTaken(name, exceptId?)` case-insensitive and
   make sure `exceptId` excludes that profile (depends on T003).
-- [ ] T005 [P] Add `deleteProfileDb(profileId: string): Promise<void>` to
+- [X] T005 [P] Add `deleteProfileDb(profileId: string): Promise<void>` to
   `src/app/core/db/profile-db.ts`: close and forget the memoized connection for that id, then
   `deleteDB(profileDbName(profileId))` from `idb`.
-- [ ] T006 Extend `src/app/core/services/profile-store.service.spec.ts`: `create` sets both
+- [X] T006 Extend `src/app/core/services/profile-store.service.spec.ts`: `create` sets both
   timestamps; `rename` trims, restamps only `nameUpdatedAt`, persists across a fresh load; `setColors`
   restamps `colorsUpdatedAt` (and keeps a passed `at`); `remove` drops the record and clears
   `activeProfileId` when active; `isNameTaken('ABC', ownId)` is false for one's own name and true for
@@ -103,17 +103,17 @@ forms that every story builds on.
 
 ### Toasts (FR-022, research R13)
 
-- [ ] T007 [P] Create `src/app/core/services/toast.service.ts` (`providedIn: 'root'`) per
+- [X] T007 [P] Create `src/app/core/services/toast.service.ts` (`providedIn: 'root'`) per
   contracts/services.md: `export const TOAST_MS = 5_000`; `toast: Signal<{ id: number; label:
   string; text: string } | null>` (at most one); `show(label, text)` replaces the current toast with
   a new id and restarts a single 5 s timer; `dismiss()` clears it and the timer; `pushHost(): number`
   returns an increasing host id (newest on top); `popHost(id)` removes that id; `topHost:
   Signal<number>` is the last pushed id.
-- [ ] T008 [P] Write `src/app/core/services/toast.service.spec.ts` (fake timers): a second `show`
+- [X] T008 [P] Write `src/app/core/services/toast.service.spec.ts` (fake timers): a second `show`
   replaces the first and restarts the 5 s window; the toast clears at exactly `TOAST_MS`; `dismiss`
   clears it; `pushHost`/`popHost` keep a stack and `topHost` follows it, including popping a
   non-top host.
-- [ ] T009 Create `ToastOutlet` in `src/app/shared/ds/toast/toast-outlet.ts|.html|.scss`: on init it
+- [X] T009 Create `ToastOutlet` in `src/app/shared/ds/toast/toast-outlet.ts|.html|.scss`: on init it
   calls `ToastService.pushHost()` and stores its id (pop on destroy), or accepts an input `hostId`
   when the host pushes itself (T010/T011); renders a `popover="manual"` element and, in an `effect`,
   calls `showPopover()` while `topHost() === hostId && toast()` and `hidePopover()` otherwise; keeps a
@@ -122,17 +122,17 @@ forms that every story builds on.
   moves focus; no transition under `prefers-reduced-motion`. Add
   `src/app/shared/ds/toast/toast-outlet.spec.ts` (renders only when it is the top host; ✕ dismisses).
   Export it from `src/app/shared/index.ts` (depends on T007).
-- [ ] T010 Host the outlets: render a base `<app-toast-outlet />` in `src/app/app.html` (imported in
+- [X] T010 Host the outlets: render a base `<app-toast-outlet />` in `src/app/app.html` (imported in
   `src/app/app.ts`); in `src/app/shared/ds/themed-modal/themed-modal.ts|.html`, place an outlet
   inside the `<dialog>` that pushes its host when the dialog opens (`showModal()`) and pops it on
   close. Depends on T009.
-- [ ] T011 In `src/app/shared/layout/nav-drawer/nav-drawer.ts|.html`, place a `ToastOutlet` inside
+- [X] T011 In `src/app/shared/layout/nav-drawer/nav-drawer.ts|.html`, place a `ToastOutlet` inside
   the drawer's `<dialog>` that pushes on open and pops on close, the same as T010's `ThemedModal`.
   Depends on T009.
 
 ### Shared modal behavior (research R19)
 
-- [ ] T012 Extract `src/app/shared/ds/themed-modal/fluid-face.ts` from
+- [X] T012 Extract `src/app/shared/ds/themed-modal/fluid-face.ts` from
   `src/app/shared/auth/entry-modal/entry-modal.ts`: a small helper class, created in a modal's
   constructor, that owns the ResizeObserver fluid-height measuring (`PANE_CHROME`, the capped check,
   instant under reduced motion) and the "focus the first field or first action row when the screen
@@ -141,7 +141,7 @@ forms that every story builds on.
 
 ### Copy and validation
 
-- [ ] T013 Add the copy to `src/app/core/utils/entry-copy.ts` from ui.md §7: a new `PROFILE` section
+- [X] T013 Add the copy to `src/app/core/utils/entry-copy.ts` from ui.md §7: a new `PROFILE` section
   (hub title/caption/rows/verb "Abrir"/prompt "Não é você?" + "Trocar de perfil"; sync-plate local
   meta and buttons; "Perfil neste aparelho" title/subtitles/caption/rows/buttons; "Conta na nuvem"
   title/caption/subtitles/plates/rows; every step's title/subtitle/caption/verb/busy from the §7
@@ -160,11 +160,11 @@ forms that every story builds on.
   from the entry-modal sections in T045). Add `PROFILE.delprofileDecksNote` "Decks ainda não vão
   para a nuvem — saem junto com o perfil.". Mark the four review strings (`samePassword`,
   `goneHint`, the shell hint, `delprofileDecksNote`) with a `// review:` comment.
-- [ ] T014 [P] In `src/app/core/utils/cloud-error.util.ts`: extend `FieldKey` with `pwNew` and
+- [X] T014 [P] In `src/app/core/utils/cloud-error.util.ts`: extend `FieldKey` with `pwNew` and
   `pwConfirm`; map `same_password` → field `pwNew`, `MSG.samePassword`; keep `weak_password` → field
   `pw`, `MSG.pwMin`; `user_not_found` falls to `GENERIC_FAILURE`. Add cases to
   `src/app/core/utils/cloud-error.util.spec.ts`. Depends on T013.
-- [ ] T015 [P] In `src/app/core/utils/entry-flow.util.ts`, extract `validateName(name: string,
+- [X] T015 [P] In `src/app/core/utils/entry-flow.util.ts`, extract `validateName(name: string,
   isTaken: (n: string) => boolean): string | null` (3–16 characters, `^[A-Za-z0-9_.-]+$`, trimmed,
   same messages as creation) and make `validate()` use it. Add `validateName` cases to
   `src/app/core/utils/entry-flow.util.spec.ts` (too short, bad characters, taken, case-only change
@@ -172,12 +172,12 @@ forms that every story builds on.
 
 ### Shared cloud forms (research R2)
 
-- [ ] T016 Create the abstract class `CloudFlowHost` in `src/app/shared/auth/cloud-flow-host.ts`
+- [X] T016 Create the abstract class `CloudFlowHost` in `src/app/shared/auth/cloud-flow-host.ts`
   declaring exactly what `CloudForm`/`ResetForm` templates read and call: `fields`, `fieldErrors`,
   `shown`, `phase`, `pwLabel`, `pwAutocomplete`, `pwHelper`, `plateEmail`, `emailInUse`,
   `emailLocked`, `editField()`, `forgot()`, `recoverAccess()` (plus any other member the two
   templates actually use — read both before writing it).
-- [ ] T017 Make `src/app/shared/auth/entry-modal/cloud-form/cloud-form.ts` and
+- [X] T017 Make `src/app/shared/auth/entry-modal/cloud-form/cloud-form.ts` and
   `src/app/shared/auth/entry-modal/reset-form/reset-form.ts` inject `CloudFlowHost` instead of
   `EntryFlowStore`, and make `EntryModal` (or `EntryFlowStore`'s providers in
   `src/app/shared/auth/entry-modal/entry-modal.ts`) provide `{ provide: CloudFlowHost, useExisting:
@@ -186,7 +186,7 @@ forms that every story builds on.
 
 ### Identity wheel v2 (FR-023, research R14)
 
-- [ ] T018 Rewrite the internals of `src/app/shared/ds/identity-wheel/identity-wheel.ts|.html|.scss`
+- [X] T018 Rewrite the internals of `src/app/shared/ds/identity-wheel/identity-wheel.ts|.html|.scss`
   to the handoff's `design_handoff_profile_modal/IdentityWheelV2.js` anatomy, keeping the public API
   (`mode`, `picks` model, `neutral`, `subline`, `size`) and the pick rules (1–3 in pick order, last
   pick not removable, others locked at 3), positions, 28 s spin, ripple and bursts: each swatch
@@ -216,33 +216,33 @@ entry modal opens; during a shell sync nothing opens.
 
 ### Tests for User Story 1
 
-- [ ] T019 [P] [US1] Write `src/app/core/services/profile-modal.service.spec.ts`: `open()` is a
+- [X] T019 [P] [US1] Write `src/app/core/services/profile-modal.service.spec.ts`: `open()` is a
   no-op with no active profile and while the entry modal is open; `open({start})` sets `request`
   with a new id and `start ?? 'hub'`; `close()` clears `isOpen`. Also add to
   `src/app/core/services/entry-modal.service.spec.ts`: `open()` is a no-op while the profile modal is
   open.
-- [ ] T020 [P] [US1] Write `src/app/core/utils/profile-flow.util.spec.ts` for the US1 rules:
+- [X] T020 [P] [US1] Write `src/app/core/utils/profile-flow.util.spec.ts` for the US1 rules:
   `linkState` (`local` when `cloud === null`, `expired` when `cloud.needsReauth`, else `linked`) and
   `hubCloudMeta` (e-mail / "Sessão expirada · {email}" / "Vincular para sincronizar entre
   aparelhos").
 
 ### Implementation for User Story 1
 
-- [ ] T021 [P] [US1] Create `src/app/core/services/profile-modal.service.ts` per
+- [X] T021 [P] [US1] Create `src/app/core/services/profile-modal.service.ts` per
   contracts/services.md: `export type ProfileStart = 'hub' | 'in' | 'up' | 'reauth'`;
   `ResolvedProfileRequest { id: number; start: ProfileStart }`; `request` and `isOpen` signals;
   `open(request?)` is a no-op when `ProfileSessionService` has no active profile or
   `EntryModalService.isOpen()`; `close()`.
-- [ ] T022 [US1] In `src/app/core/services/entry-modal.service.ts`, make `open()` a no-op while
+- [X] T022 [US1] In `src/app/core/services/entry-modal.service.ts`, make `open()` a no-op while
   `ProfileModalService.isOpen()` (inject lazily with `inject()` inside the method if needed to avoid
   a circular DI graph). Depends on T021.
-- [ ] T023 [P] [US1] Create `src/app/core/utils/profile-flow.util.ts` with `ProfilePhase` (`hub`,
+- [X] T023 [P] [US1] Create `src/app/core/utils/profile-flow.util.ts` with `ProfilePhase` (`hub`,
   `local`, `cloud`, `pw`, `delprofile`, `cloudpw`, `unlink`, `delcloud`, `in`, `up`, `reauth`,
   `reset-email`, `reset-code`), `ProfileOrigin = 'hub' | 'local' | 'cloud'`, `LinkState`,
   `linkState(profile)`, `hubCloudMeta(profile)`, and the first entries of `titleFor`/`subtitleFor`/
   `captionFor`/`promptFor` for `hub`, `local`, `cloud` (copy from `PROFILE`, T013). Later stories add
   their phases to the same functions.
-- [ ] T024 [US1] Create `ProfileFlowStore` in
+- [X] T024 [US1] Create `ProfileFlowStore` in
   `src/app/shared/auth/profile-modal/profile-flow.store.ts` (provided on the component, like
   `EntryFlowStore`) with the data-model §6 state: `phase`, `origin`, `backTarget`, `fields {name,
   email, pw, pwNew, pwConfirm, code}`, `fieldErrors`, `formError`, `formHint`, `emailInUse`,
@@ -256,13 +256,13 @@ entry modal opens; during a shell sync nothing opens.
   `switchProfile()` (disabled while `SyncStatusService.busy()`: `ProfileModalService.close()` then
   synchronously `EntryModalService.open({ start: 'list' })`). It implements `CloudFlowHost` (members,
   and `openStep('in' | 'reauth')`, are no-ops until US3's T042). Depends on T016, T021, T023.
-- [ ] T025 [P] [US1] Create the `ActionRow` DS primitive in
+- [X] T025 [P] [US1] Create the `ActionRow` DS primitive in
   `src/app/shared/ds/action-row/action-row.ts|.html|.scss`: inputs `title`, `meta`, `verb`, `danger?`,
   `disabled?`, `hint?` (appended to the description, e.g. "Aguarde a sincronização terminar"); a
   leading content slot; one `<button>` (56px min height) whose accessible name is "{title}. {meta}.";
   emits `activate`; styles per DESIGN.md Action rows. Add `action-row.spec.ts`; export from
   `src/app/shared/index.ts`.
-- [ ] T026 [P] [US1] Create the `SyncPlate` DS primitive in
+- [X] T026 [P] [US1] Create the `SyncPlate` DS primitive in
   `src/app/shared/ds/sync-plate/sync-plate.ts|.html|.scss`: reads `SyncStatusService` and the
   active profile; per ui.md §3 — linked: `SyncMark` + the `syncDisplay()` label, the e-mail,
   secondary "Sincronizar agora" (calls `act()`); syncing: spinner + "Sincronizando…", no button;
@@ -271,7 +271,7 @@ entry modal opens; during a shell sync nothing opens.
   "Vincular conta na nuvem" (emits `link`); expired: danger mark, label and border, e-mail,
   **primary** "Entrar de novo" (emits `reauth`). Row on desktop, column with full-width button on
   mobile. Add `sync-plate.spec.ts` (one case per state); export from `src/app/shared/index.ts`.
-- [ ] T027 [US1] Create the `ProfileModal` component in
+- [X] T027 [US1] Create the `ProfileModal` component in
   `src/app/shared/auth/profile-modal/profile-modal.ts|.html|.scss`: provides `ProfileFlowStore` and
   `{ provide: CloudFlowHost, useExisting: ProfileFlowStore }`; opens/closes a `ThemedModal` from
   `ProfileModalService.request`/`isOpen` (calling `store.open(start)` on each new request id) with
@@ -282,28 +282,28 @@ entry modal opens; during a shell sync nothing opens.
   ✕ in the header; uses `fluid-face.ts` (T012) with the entry modal's constants; closing (✕, Esc,
   backdrop) calls `store.close()` and `ProfileModalService.close()`, and focus returns to the
   opener. Switches on `store.phase()` to render the screen components. Depends on T012, T024.
-- [ ] T028 [US1] Create `ProfileHub` in
+- [X] T028 [US1] Create `ProfileHub` in
   `src/app/shared/auth/profile-modal/hub/profile-hub.ts|.html|.scss`: title `{nome}` (no subtitle),
   `SyncPlate` (its `link` → `store.openStep('in')`, `reauth` → `store.openStep('reauth')`, both with
   `origin = 'hub'`), `ActionRow` "Perfil neste aparelho" / "Cores, nome e senha" with a leading
   `MiniWheel`, `ActionRow` "Conta na nuvem" / `hubCloudMeta` with a 36px spacer, verbs "Abrir"; the
   prompt "Não é você? Trocar de perfil" calls `store.switchProfile()` and is disabled while
   syncing. Depends on T025, T026, T027.
-- [ ] T029 [P] [US1] Create the `LocalScreen` scaffold in
+- [X] T029 [P] [US1] Create the `LocalScreen` scaffold in
   `src/app/shared/auth/profile-modal/local-screen/local-screen.ts|.html|.scss` (title, subtitle
   linked/expired vs local, ghost "Voltar" → `store.back()`); US2, US4 and US5 fill it in.
-- [ ] T030 [P] [US1] Create the `CloudScreen` scaffold in
+- [X] T030 [P] [US1] Create the `CloudScreen` scaffold in
   `src/app/shared/auth/profile-modal/cloud-screen/cloud-screen.ts|.html|.scss` (title, per-link-state
   subtitle, ghost "Voltar" → `store.back()`); US3–US5 fill it in.
-- [ ] T031 [US1] Render `<app-profile-modal />` once in `src/app/app.html` next to
+- [X] T031 [US1] Render `<app-profile-modal />` once in `src/app/app.html` next to
   `<app-entry-modal />` (import in `src/app/app.ts`). Depends on T027.
-- [ ] T032 [US1] Route the profile control (FR-001, research R16): in
+- [X] T032 [US1] Route the profile control (FR-001, research R16): in
   `src/app/shared/layout/top-bar/top-bar.ts`, `openProfile()` calls `ProfileModalService.open()`
   when a profile is active and `EntryModalService.open()` otherwise; in
   `src/app/shared/layout/nav-drawer/nav-drawer.ts`, `onProfile()` closes the drawer then does the
   same (focus returns to "Menu" on close). The sync lock (spec 004 FR-005a) still blocks both while
   syncing. Update `top-bar.spec.ts` and `nav-drawer.spec.ts`. Depends on T021.
-- [ ] T033 [US1] Write `src/app/shared/auth/profile-modal/profile-flow.store.spec.ts` for US1:
+- [X] T033 [US1] Write `src/app/shared/auth/profile-modal/profile-flow.store.spec.ts` for US1:
   `open` resets to `hub` with `origin 'hub'`; `openLocal`/`openCloud` then `back()` return to `hub`;
   `openStep` records `origin`; `cancel`/`concluir` return to it; `switchProfile` closes and opens
   the entry modal on `list`, and does nothing while syncing. Add
@@ -326,7 +326,7 @@ aparelho" (app retints, survives reload, "Salvar" stays disabled); rename valid/
 
 ### Tests for User Story 2
 
-- [ ] T034 [P] [US2] Write `src/app/core/utils/identity-sync.util.spec.ts` covering every row of
+- [X] T034 [P] [US2] Write `src/app/core/utils/identity-sync.util.spec.ts` covering every row of
   data-model §2's reconciliation table: remote newer → `adoptColors`; remote absent or local newer
   with different colors → `write.grm_colors` + `grm_colors_at = colorsUpdatedAt`; equal colors →
   nothing regardless of timestamps; `labelAt` absent or `nameUpdatedAt > labelAt` →
@@ -335,13 +335,13 @@ aparelho" (app retints, survives reload, "Salvar" stays disabled); rename valid/
 
 ### Implementation for User Story 2
 
-- [ ] T035 [P] [US2] Create `src/app/core/utils/identity-sync.util.ts`: `LocalIdentity { colors,
+- [X] T035 [P] [US2] Create `src/app/core/utils/identity-sync.util.ts`: `LocalIdentity { colors,
   colorsUpdatedAt, name, nameUpdatedAt }`, `RemoteIdentity { colors?, colorsAt?, labelAt? }`,
   `IdentityResult { adoptColors: { colors, at } | null; write: Partial<{ grm_colors, grm_colors_at,
   grm_label, grm_label_at }> | null }`, and pure `reconcileIdentity(local, remote)` per data-model §2
   (an absent `grm_colors_at` counts as older than any local change; color equality compares the
   ordered arrays).
-- [ ] T036 [US2] Wire the live wheel (FR-008, research R4): in `ProfileModal`'s identity pane
+- [X] T036 [US2] Wire the live wheel (FR-008, research R4): in `ProfileModal`'s identity pane
   (desktop) and at the top of the body on `hub` and `local` (mobile, 240px), render `IdentityWheel`
   `mode="picker"` with `[picks]` = the active profile's colors and `(picksChange)` →
   `ProfileStore.setColors(activeId, colors)`, with the center tribe name `aria-live="polite"`
@@ -349,7 +349,7 @@ aparelho" (app retints, survives reload, "Salvar" stays disabled); rename valid/
   inteiro." on `local`. Files:
   `src/app/shared/auth/profile-modal/profile-modal.html`, `hub/profile-hub.html`,
   `local-screen/local-screen.html`. The entry modal's wheel is untouched.
-- [ ] T037 [US2] Fill the rename part of `LocalScreen` (FR-009, FR-009a): `TextField` "Nome do
+- [X] T037 [US2] Fill the rename part of `LocalScreen` (FR-009, FR-009a): `TextField` "Nome do
   perfil" (helper, `autocomplete="username"`, the field error replaces the helper) bound to
   `store.fields().name`; primary "Salvar" / "Salvando…" enabled only by `salvarEnabled = phase ===
   'local' && fields.name.trim() !== active.name && !loading`; ghost "Voltar". Add `saveName()` to
@@ -357,18 +357,18 @@ aparelho" (app retints, survives reload, "Salvar" stays disabled); rename valid/
   error on `user`, else `ProfileStore.rename()`, stay on `local`, `ToastService.show(TOAST.saved)`.
   Files: `local-screen/local-screen.ts|.html|.scss`, `profile-flow.store.ts`. Depends on T004, T015,
   T029.
-- [ ] T038 [US2] Add the sync identity step (FR-012, FR-012a, research R6) to
+- [X] T038 [US2] Add the sync identity step (FR-012, FR-012a, research R6) to
   `src/app/core/services/sync.service.ts`: in `exchange()`, before locations and cards, call
   `client.auth.getUser()`; read `grm_colors`/`grm_colors_at`/`grm_label_at` from `user_metadata`;
   run `reconcileIdentity`; if `adoptColors`, `ProfileStore.setColors(id, colors, at)` (silent
   retint); if `write`, one `auth.updateUser({ data: write })`. A failure fails the sync like any
   other sync request. (US5's T067 later routes the `getUser()` classification through
   `checkAccount`.) Depends on T035.
-- [ ] T039 [US2] In `src/app/core/services/cloud-auth.service.ts`, make `linkPending` and `signUp`
+- [X] T039 [US2] In `src/app/core/services/cloud-auth.service.ts`, make `linkPending` and `signUp`
   write `grm_label_at` (= `nameUpdatedAt`) and `grm_colors_at` (= `colorsUpdatedAt`) alongside
   `grm_label`/`grm_colors`; when a link adopts the account's colors (spec 003 FR-026), call
   `ProfileStore.setColors(id, accountColors, grm_colors_at ?? now)`.
-- [ ] T040 [US2] Extend tests: `src/app/core/services/sync.service.spec.ts` (identity step adopts
+- [X] T040 [US2] Extend tests: `src/app/core/services/sync.service.spec.ts` (identity step adopts
   newer remote colors, writes newer local colors/label in one `updateUser`, runs before locations);
   `src/app/core/services/cloud-auth.service.spec.ts` (link/sign-up write the `_at` keys; adopted
   colors keep the remote timestamp); `profile-flow.store.spec.ts` (`salvarEnabled` false on open and
@@ -390,13 +390,13 @@ unlink offline keeping data; expired session re-sign-in from the shell and from 
 
 ### Implementation for User Story 3
 
-- [ ] T041 [US3] Add the cloud phases to `src/app/core/utils/profile-flow.util.ts`: titles,
+- [X] T041 [US3] Add the cloud phases to `src/app/core/utils/profile-flow.util.ts`: titles,
   subtitles, captions, prompts and `doneCopy` for `in`, `up`, `reauth`, `reset-email`, `reset-code`,
   `unlink` and the done kinds `linked`, `created`, `reauthed`, `unlinked` (copy from `PROFILE`,
   moved from spec 003's link-context entries); `primaryLabel`/`busyLabel`, `fieldsFor` and
   `validate` for the shared cloud phases delegate to `entry-flow.util`. Extend
   `profile-flow.util.spec.ts`.
-- [ ] T042 [US3] Implement the cloud flows in `ProfileFlowStore` (research R2, R18, data-model §6):
+- [X] T042 [US3] Implement the cloud flows in `ProfileFlowStore` (research R2, R18, data-model §6):
   the full `CloudFlowHost` members; `submit()` for `in` (link, `done = 'linked'`, set
   `replacedTribe` when the account's colors replaced the profile's), `up` (sign-up + link, `done =
   'created'`), `reauth` (`done = 'reauthed'`), `reset-email`/`reset-code` with the resend
@@ -406,7 +406,7 @@ unlink offline keeping data; expired session re-sign-in from the shell and from 
   Voltar" returns to it; `emailLocked` on a reset from `reauth`; stale results dropped by
   `generation`; no flow starts a sync (FR-016). Reuse `EntryFlowStore`'s calls into
   `CloudAuthService` (read it first). Depends on T041.
-- [ ] T043 [US3] Fill `CloudScreen` (FR-004) per ui.md §2: **linked** — plate "Vinculado à nuvem" /
+- [X] T043 [US3] Fill `CloudScreen` (FR-004) per ui.md §2: **linked** — plate "Vinculado à nuvem" /
   `{email}`, `ActionRow` "Senha da conta" (US4 wires it; render it now calling
   `store.openStep('cloudpw')`), `ActionRow` "Desvincular conta" → `openStep('unlink')`, separate
   list with danger `ActionRow` "Excluir conta na nuvem" (US5 wires it; calls
@@ -419,11 +419,11 @@ unlink offline keeping data; expired session re-sign-in from the shell and from 
   não apaga nada — nem aqui, nem na nuvem." copy) in
   `src/app/shared/auth/profile-modal/unlink-step/unlink-step.ts|.html`. Files:
   `cloud-screen/*`, `profile-modal.html`.
-- [ ] T044 [US3] Create `ProfileDonePanel` in
+- [X] T044 [US3] Create `ProfileDonePanel` in
   `src/app/shared/auth/profile-modal/done-panel/profile-done-panel.ts|.html|.scss` (reusing the
   entry modal's done-panel styling): title, one sentence from `doneCopy(done, profile)`, primary
   block "Concluir" → `store.concluir()`. Used by every done kind in US3–US5.
-- [ ] T045 [US3] Prune the entry modal (FR-006, research R3): `EntryContext` becomes `'device' |
+- [X] T045 [US3] Prune the entry modal (FR-006, research R3): `EntryContext` becomes `'device' |
   'gate'`; remove the phases `reauth`/`unlink`, done kinds `reauthed`/`unlinked`, their `EntryStart`
   members, and the `link`-context branches in `promptFor`, `colorSourceFor`, `captionFor`,
   `subtitleFor` and `EntryFlowStore.afterCloudSignIn`; delete their now-unused copy entries from the
@@ -432,15 +432,15 @@ unlink offline keeping data; expired session re-sign-in from the shell and from 
   `src/app/core/services/entry-modal.service.ts`, `src/app/core/utils/entry-copy.ts`, and their
   `.spec.ts` files (delete the removed cases). Run `npx tsc --noEmit -p tsconfig.app.json` or
   `npm run build` to find every leftover reference.
-- [ ] T046 [US3] Hand-off from "Perfil criado" (research R3): `EntryFlowStore.linkAfterCreate` now
+- [X] T046 [US3] Hand-off from "Perfil criado" (research R3): `EntryFlowStore.linkAfterCreate` now
   calls `EntryModalService.close()` and then `ProfileModalService.open({ start: 'up' })` (origin
   `hub`). File: `src/app/shared/auth/entry-modal/entry-flow.store.ts` (+ its spec).
-- [ ] T047 [US3] Route the shell's sync area (FR-007, research R16): in
+- [X] T047 [US3] Route the shell's sync area (FR-007, research R16): in
   `src/app/core/services/sync-status.service.ts`, `act()` maps `link` → `profileModal.open({ start:
   'in' })` and `reauth` → `profileModal.open({ start: 'reauth' })`; in
   `src/app/shared/layout/nav-drawer/nav-drawer.ts`, `onSyncAction()` closes the drawer then does the
   same. Update `sync-status.service.spec.ts` and `nav-drawer.spec.ts`.
-- [ ] T048 [US3] Extend `profile-flow.store.spec.ts`: link/sign-up/reauth/unlink success set the
+- [X] T048 [US3] Extend `profile-flow.store.spec.ts`: link/sign-up/reauth/unlink success set the
   right `done` and "Concluir" returns to `origin` (`cloud` vs `hub`); reset returns to its
   `backTarget`; a stale result after `go()` is dropped; no sync is triggered. Depends on T042.
 
@@ -457,37 +457,37 @@ unlink offline keeping data; expired session re-sign-in from the shell and from 
 
 ### Implementation for User Story 4
 
-- [ ] T049 [US4] Add `pw` and `cloudpw` to `src/app/core/utils/profile-flow.util.ts`: copy per ui.md
+- [X] T049 [US4] Add `pw` and `cloudpw` to `src/app/core/utils/profile-flow.util.ts`: copy per ui.md
   §7 steps table (`pw` subtitle linked vs local), done copy `pwChanged` (linked adds " A senha da
   conta na nuvem continua a mesma.") and `cloudPwChanged`, and `validateStep(phase, fields, deps)`
   for `pw` in order: current empty → `MSG.pwEmpty` on `pw`; new < 8 → `MSG.pwMin` on `pwNew`;
   confirmation differs → `MSG.pwMismatch` on `pwConfirm`; for `cloudpw`: current empty →
   `MSG.pwEmpty`, new < 8 → `MSG.pwMin` on `pwNew`. Extend `profile-flow.util.spec.ts`.
-- [ ] T050 [US4] Create `PasswordStep` in
+- [X] T050 [US4] Create `PasswordStep` in
   `src/app/shared/auth/profile-modal/password-step/password-step.ts|.html|.scss`, used for both
   phases: `pw` — "Senha atual do perfil" (`current-password`), "Nova senha do perfil" (helper
   "Pelo menos 8 caracteres. Funciona sem internet.", `new-password`), "Confirmar nova senha"
   (`new-password`); `cloudpw` — e-mail plate, "Senha atual da conta" (`current-password`), "Nova senha
   da conta" (`new-password`); form error (`role="alert"`); ghost "Cancelar" + verb/busy label; fields
   and verb locked while `loading`.
-- [ ] T051 [US4] Wire the local password change (FR-010, research R7) in `ProfileFlowStore`:
+- [X] T051 [US4] Wire the local password change (FR-010, research R7) in `ProfileFlowStore`:
   `validateStep`, then `ProfileStore.verifyPassword` (wrong → `MSG.wrongLocal` on `pw`), then
   `ProfileStore.setPassword` (new PBKDF2 hash), `done = 'pwChanged'`; works offline. Wire the
   `LocalScreen` `ActionRow` "Senha do perfil" / "Desbloqueia o perfil neste aparelho" / "Mudar" →
   `openStep('pw')`. Files: `profile-flow.store.ts`, `local-screen/local-screen.html`.
-- [ ] T052 [US4] Add `changeAccountPassword(profileId, current, next)` to
+- [X] T052 [US4] Add `changeAccountPassword(profileId, current, next)` to
   `src/app/core/services/cloud-auth.service.ts` (research R8) through the existing `run()` wrapper
   (offline → `MSG.offline`): verify with a transient `signInWithPassword` on the linked e-mail and
   check `user.id === link.userId` (discard with `signOut({ scope: 'local' })`; `invalid_credentials`
   → `MSG.wrongCloud`); then `client(profileId).auth.updateUser({ password: next })`; then
   `client(profileId).auth.signOut({ scope: 'others' })`. Never `scope: 'global'`. The profile stays
   linked; the local password is untouched. Reuse `verifyLinkedAccount`'s transient-client pattern.
-- [ ] T053 [US4] Wire `cloudpw` (FR-016a) in `ProfileFlowStore`: submit → `validateStep` →
+- [X] T053 [US4] Wire `cloudpw` (FR-016a) in `ProfileFlowStore`: submit → `validateStep` →
   `changeAccountPassword`; map a `pw`-field `weak_password` failure onto `pwNew`; `same_password`
   shows on `pwNew`; offline/wrong credentials show as the form error; success `done =
   'cloudPwChanged'`. The `CloudScreen` "Senha da conta" row (T043) opens it. (US5's T066 adds the
   `checkAccount` on open.)
-- [ ] T054 [US4] Redesign the entry modal's `recover-form` into "Redefinir senha do perfil"
+- [X] T054 [US4] Redesign the entry modal's `recover-form` into "Redefinir senha do perfil"
   (FR-024, research R3): keep the phase and flow (verify the account password, then `recover-newpw`);
   change title, subtitle ("{nome} está vinculado à nuvem. Confirme a senha da conta para criar uma
   nova senha do perfil neste aparelho."), desktop caption ("Redefinir a senha não apaga nada."), the
@@ -497,7 +497,7 @@ unlink offline keeping data; expired session re-sign-in from the shell and from 
   warning. Files: `src/app/core/utils/entry-flow.util.ts`,
   `src/app/shared/auth/entry-modal/entry-flow.store.ts`, `entry-modal.html` (and the form component
   that renders `recover-form`), plus specs.
-- [ ] T055 [US4] Tests: `cloud-auth.service.spec.ts` for `changeAccountPassword` with a mocked
+- [X] T055 [US4] Tests: `cloud-auth.service.spec.ts` for `changeAccountPassword` with a mocked
   client (offline, wrong password, user-id mismatch, success calls `updateUser` then
   `signOut({scope:'others'})`, never `'global'`); `profile-flow.store.spec.ts` for `pw` (error order,
   wrong current, success) and `cloudpw` (`same_password` on `pwNew`); `entry-flow.store.spec.ts` for
@@ -517,11 +517,11 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
 
 ### Tests for User Story 5
 
-- [ ] T056 [P] [US5] Add `hasUnsyncedChanges` cases to `src/app/core/utils/sync-status.util.spec.ts`:
+- [X] T056 [P] [US5] Add `hasUnsyncedChanges` cases to `src/app/core/utils/sync-status.util.spec.ts`:
   false for a local profile; true with a tombstone; true with a row newer than `lastSyncedAt`; true
   with any row when `lastSyncedAt` is null; true when `colorsUpdatedAt` or `nameUpdatedAt` is newer;
   false otherwise.
-- [ ] T057 [P] [US5] Write `src/app/core/services/profile-lifecycle.service.spec.ts`: wrong password
+- [X] T057 [P] [US5] Write `src/app/core/services/profile-lifecycle.service.spec.ts`: wrong password
   throws `{ kind: 'field', field: 'pw', message: MSG.wrongLocal }` and deletes nothing; success signs
   out, deletes `grimorio-profile-{id}`, removes the record, leaves another profile's database and
   data intact (SC-004), clears a linked profile's `grm-cloud:{id}` session, and resolves with the
@@ -529,17 +529,17 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
 
 ### Implementation for User Story 5
 
-- [ ] T058 [P] [US5] Add pure `hasUnsyncedChanges(input)` to `src/app/core/utils/sync-status.util.ts`
+- [X] T058 [P] [US5] Add pure `hasUnsyncedChanges(input)` to `src/app/core/utils/sync-status.util.ts`
   with the contracts/services.md signature (`linked`, `lastSyncedAt`, `cards`, `locations`,
   `tombstoneCount`, `colorsUpdatedAt`, `nameUpdatedAt`) per data-model §4. Decks never count.
-- [ ] T059 [US5] Create `src/app/core/services/profile-lifecycle.service.ts` (`providedIn: 'root'`)
+- [X] T059 [US5] Create `src/app/core/services/profile-lifecycle.service.ts` (`providedIn: 'root'`)
   with `deleteProfile(id, password): Promise<number>` per research R9: `verifyPassword` (or throw
   the `MSG.wrongLocal` field failure) → `ProfileSessionService.signOut()` → for a linked profile,
   under `whileUnlinking`: `stopAutoRefresh`, best-effort `signOut({ scope: 'local' })` when online,
   `removeSession` (no network required; account and cloud data untouched) →
   `deleteProfileDb(id)` → `ProfileStore.remove(id)` → resolve with the remaining profile count.
   Depends on T004, T005.
-- [ ] T060 [US5] Create `DeleteProfileStep` in
+- [X] T060 [US5] Create `DeleteProfileStep` in
   `src/app/shared/auth/profile-modal/delete-profile-step/delete-profile-step.ts|.html|.scss` (FR-017,
   FR-018a): the "Sai deste aparelho:" plate (Cartas · Locais de armazenamento · Decks · Cores · O
   perfil {nome}); the linked note (cloud account and data are not deleted); the decks note
@@ -550,7 +550,7 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
   "Sincronizado agora — nada se perde na nuvem." / the SyncLine failure label + "Tentar de novo");
   "Senha do perfil" (`current-password`); ghost "Cancelar" + danger verb "Excluir perfil" /
   "Excluindo…", locked while `blockSync === 'syncing'` or `SyncStatusService.busy()`.
-- [ ] T061 [US5] Wire `delprofile` in `ProfileFlowStore` (research R10, R17): on open evaluate
+- [X] T061 [US5] Wire `delprofile` in `ProfileFlowStore` (research R10, R17): on open evaluate
   `unsynced` with `hasUnsyncedChanges` from `CardService`, `StorageLocationService`
   (`getTombstones()`), `SyncService.lastSyncedAt()` and the active profile; `blockSync()` runs
   `SyncService.syncNow()` and maps `done` → `'done'` (re-evaluate `unsynced`), `offline`/`reauth`/
@@ -559,13 +559,13 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
   `router.navigateByUrl('/')`. Wire the `LocalScreen` danger `ActionRow` "Excluir perfil" / "Apaga
   {nome} e os dados dele deste aparelho" / "Excluir" → `openStep('delprofile')`, disabled with the
   hint "Aguarde a sincronização terminar" while syncing. Depends on T058, T059, T060.
-- [ ] T062 [US5] Home empty-device state (FR-018b, research R15): in
+- [X] T062 [US5] Home empty-device state (FR-018b, research R15): in
   `src/app/views/home/home.ts|.html|.scss`, inject `ProfileStore` and when `profiles().length === 0`
   render the DESIGN.md empty-device pattern — eyebrow "Nenhum perfil neste aparelho", muted line
   "Crie um perfil para começar — funciona sem internet, sem e-mail.", `.btn--primary` "Criar perfil"
   → `EntryModalService.open({ context: 'device', start: 'profile' })`. Home stays ungated. Update
   `home.spec.ts`.
-- [ ] T063 [US5] Add account-state detection to `src/app/core/services/cloud-auth.service.ts`
+- [X] T063 [US5] Add account-state detection to `src/app/core/services/cloud-auth.service.ts`
   (research R12): `checkAccount(profileId): Promise<'ok' | 'gone' | 'expired' | 'offline'>` via
   `client(profileId).auth.getUser()` (`user_not_found` → `gone`; the auth/session error set
   `SyncService` already treats as reauth, or no session → `expired`; offline or network error →
@@ -573,18 +573,18 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
   `ToastService.show(TOAST.gone(email, nome))`, and bump `accountGone: Signal<{ profileId; n } |
   null>`; `unlink(profileId): Promise<'unlinked' | 'gone'>` runs `checkAccount` first when online and
   takes the gone path on `gone`. `expired` runs the existing `markNeedsReauth`.
-- [ ] T064 [US5] Add `deleteAccount(profileId, password)` to
+- [X] T064 [US5] Add `deleteAccount(profileId, password)` to
   `src/app/core/services/cloud-auth.service.ts` (research R11) through `run()`: offline →
   `MSG.offline`; verify the password with the transient sign-in from T052 (wrong →
   `MSG.wrongCloud`); `client(profileId).rpc('delete_own_account')`; then under `whileUnlinking`,
   `removeSession` and `ProfileStore.setCloud(id, null)`. A dropped connection after the RPC reports
   the offline failure, never success.
-- [ ] T065 [US5] Create `DeleteCloudStep` in
+- [X] T065 [US5] Create `DeleteCloudStep` in
   `src/app/shared/auth/profile-modal/delete-cloud-step/delete-cloud-step.ts|.html|.scss` (FR-019):
   the "Sai da nuvem para sempre:" plate and its notes (verbatim from `ph.delcloud`: other linked
   devices stop syncing; this device's profile and data stay), "Senha da conta"
   (`current-password`), form error, ghost "Cancelar" + danger verb "Excluir conta" / "Excluindo…".
-- [ ] T066 [US5] Wire `delcloud` and the gone path in `ProfileFlowStore`: add `delcloud`/`delprofile`
+- [X] T066 [US5] Wire `delcloud` and the gone path in `ProfileFlowStore`: add `delcloud`/`delprofile`
   copy and the `cloudDeleted` done copy to `profile-flow.util.ts`; `openStep('cloudpw' | 'delcloud')`
   runs `checkAccount` when online (`gone` → `forgetGoneAccount`; `expired` → back to `cloud`, now
   showing the expired state); `delcloud` submit → `deleteAccount`, `done = 'cloudDeleted'`; the
@@ -595,13 +595,13 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
   on `reauth`, an `invalid_credentials` failure sets `formError = MSG.wrongCloud` and `formHint =
   MSG.goneHint(nome)` (FR-019c), rendered under the form error. The `CloudScreen` "Excluir conta na
   nuvem" row is only rendered in the linked (not expired) state. Depends on T063, T064, T065.
-- [ ] T067 [US5] Make the sync identity step gone-aware (data-model §4): in
+- [X] T067 [US5] Make the sync identity step gone-aware (data-model §4): in
   `src/app/core/services/sync.service.ts`, add `'gone'` to `SyncOutcome`; `exchange()` starts with
   `checkAccount` — `gone` → `forgetGoneAccount`, state `idle`, return `'gone'`; `expired` →
   `markNeedsReauth`, state `reauth`; `ok` → the T038 identity step, then locations, then cards (reuse
   the fetched user instead of calling `getUser()` twice, e.g. by having `checkAccount` expose the
   user internally). Make `SyncStatusService`/`SyncPlate` treat `'gone'` as settling to `local`.
-- [ ] T068 [US5] Tests: `cloud-auth.service.spec.ts` for `checkAccount` (each result),
+- [X] T068 [US5] Tests: `cloud-auth.service.spec.ts` for `checkAccount` (each result),
   `forgetGoneAccount` (session removed, `cloud` null, toast shown, `accountGone` bumped, local data
   kept), `deleteAccount` (offline, wrong password, success calls `rpc('delete_own_account')` then
   unlinks), and gone-aware `unlink`; `sync.service.spec.ts` for the `gone` and `expired` outcomes;
@@ -615,16 +615,16 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T069 Remove anything the rework left unused: old identity-wheel styles/helpers, entry-modal
+- [X] T069 Remove anything the rework left unused: old identity-wheel styles/helpers, entry-modal
   code only the link context used, and unused `entry-copy.ts` keys (search with Grep before
   deleting). No compatibility shims.
-- [ ] T070 [P] Accessibility pass across `src/app/shared/auth/profile-modal/`,
+- [X] T070 [P] Accessibility pass across `src/app/shared/auth/profile-modal/`,
   `src/app/shared/ds/action-row/`, `sync-plate/`, `toast/`: 44px targets (row verbs, toast ✕, prompt
   links on mobile), `aria-labelledby` on the current title, first field/row focused on each screen
   change, disabled rows with the sync hint, password `autocomplete` values and "do perfil" vs "da
   conta" labels (ui.md §6).
-- [ ] T071 Run `npm run lint` and `npm test`; fix every failure.
-- [ ] T072 Update `.claude/docs/architecture.md` with the durable conventions only (per CLAUDE.md's
+- [X] T071 Run `npm run lint` and `npm test`; fix every failure.
+- [X] T072 Update `.claude/docs/architecture.md` with the durable conventions only (per CLAUDE.md's
   "worth adding" test): the profile modal (`ProfileModalService`, `ProfileFlowStore`,
   `shared/auth/profile-modal/`) and the one-modal rule; the `CloudFlowHost` token shared by
   `CloudForm`/`ResetForm`; `ToastService` + `ToastOutlet` hosts (popover inside the top dialog);
@@ -632,7 +632,7 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
   via `ProfileLifecycleService` + `deleteProfileDb`; `delete_own_account()` as the only cloud
   deletion path; the entry modal's contexts now `device | gate`. Show the proposed edit to the user
   before writing it.
-- [ ] T073 Run the quickstart browser scenarios V1–V11, V14–V16, V19–V23 with the `run` skill against
+- [X] T073 Run the quickstart browser scenarios V1–V11, V14–V16, V19–V23 with the `run` skill against
   the user's dev server (never start or stop it). Then the two-device and live-cloud scenarios V12,
   V13, V17, V18 with throwaway accounts; for V18, **record the actual error code** from `getUser()`
   for a deleted user (`user_not_found` vs a session error) in `specs/005-profile-modal/research.md`

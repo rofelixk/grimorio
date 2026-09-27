@@ -4,7 +4,9 @@ import { IdentityService } from '@services/identity.service';
 import { ShellState } from '@services/shell-state.service';
 import { SyncService } from '@services/sync.service';
 import { EntryModal } from '@shared/auth/entry-modal/entry-modal';
+import { ProfileModal } from '@shared/auth/profile-modal/profile-modal';
 import { LegalNotice } from '@shared/layout/legal-notice/legal-notice';
+import { ToastOutlet } from '@shared/ds/toast/toast-outlet';
 import { NavDrawer } from '@shared/layout/nav-drawer/nav-drawer';
 import { SideNav } from '@shared/layout/side-nav/side-nav';
 import { TopBar } from '@shared/layout/top-bar/top-bar';
@@ -16,7 +18,7 @@ const pathOf = (url: string) => url.split(/[?#]/, 1)[0];
 // also the app shell (spec 004): top bar, side nav (wide) or drawer (narrow), and <main>.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, TopBar, SideNav, NavDrawer, LegalNotice, EntryModal],
+  imports: [RouterOutlet, TopBar, SideNav, NavDrawer, LegalNotice, ProfileModal, EntryModal, ToastOutlet],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',

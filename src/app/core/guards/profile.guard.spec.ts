@@ -7,7 +7,7 @@ import { EntryModalService } from '@services/entry-modal.service';
 import { ProfileSessionService } from '@services/profile-session.service';
 import { profileGuard } from './profile.guard';
 
-const rafa: ProfileSummary = { id: 'p1', name: 'rafa', colors: ['U', 'R'], cloud: null, createdAt: '' };
+const rafa: ProfileSummary = { id: 'p1', name: 'rafa', colors: ['U', 'R'], cloud: null, createdAt: '', nameUpdatedAt: '', colorsUpdatedAt: '' };
 
 describe('profileGuard', () => {
   const active = signal<ProfileSummary | null>(null);

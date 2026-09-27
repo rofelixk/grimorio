@@ -18,4 +18,5 @@
   <nav [attr.aria-label]="copy.navLabel">
     <app-nav-links [mirrored]="true" [showLabels]="true" />
   </nav>
+  <app-toast-outlet [active]="drawerOpen()" />
 </dialog>

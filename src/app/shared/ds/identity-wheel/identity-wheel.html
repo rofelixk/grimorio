@@ -5,32 +5,44 @@
   @if (mode() === 'picker') {
     <button
       type="button"
-      class="swatch"
-      [class.on]="swatch.on"
-      [class.locked]="swatch.locked"
-      [class.neutral]="neutral()"
+      [class]="'swatch ' + swatch.state"
       [style.left.%]="swatch.left"
       [style.top.%]="swatch.top"
       [style.--hex]="swatch.hex"
       [attr.aria-label]="swatch.label"
       [attr.aria-pressed]="swatch.on"
-      [attr.aria-disabled]="swatch.locked ? 'true' : null"
+      [attr.aria-disabled]="swatch.state === 'locked' ? 'true' : null"
       (click)="toggle(swatch)"
-    ></button>
+    >
+      <span class="disc"></span><span class="rim"></span><span class="dot"></span>
+    </button>
   } @else {
     <span
-      class="swatch display"
-      [class.on]="swatch.on"
-      [class.neutral]="neutral()"
+      [class]="'swatch ' + swatch.state"
       [style.left.%]="swatch.left"
       [style.top.%]="swatch.top"
       [style.--hex]="swatch.hex"
       aria-hidden="true"
-    ></span>
+    >
+      <span class="disc"></span><span class="rim"></span><span class="dot"></span>
+    </span>
   }
 }
 
 <div class="fx" aria-hidden="true">
+  @for (mote of motes(); track mote.id) {
+    <span
+      class="mote"
+      [style.left.px]="mote.x"
+      [style.top.px]="mote.y"
+      [style.--hex]="mote.hex"
+      [style.--dx.px]="mote.dx"
+      [style.--dy.px]="mote.dy"
+      [style.--dur.s]="mote.dur"
+      [style.--peak]="mote.peak"
+      (animationend)="dropMote(mote.id)"
+    ></span>
+  }
   @for (burst of bursts(); track burst.id) {
     <span
       class="ripple"
@@ -53,7 +65,7 @@
   }
 </div>
 
-<div class="center">
+<div class="center" [attr.aria-live]="announce() ? 'polite' : null">
   @if (lit().length) {
     @for (key of centerKey(); track key) {
       <div class="name-block">

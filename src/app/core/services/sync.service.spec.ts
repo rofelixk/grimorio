@@ -2,9 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileSummary } from '@models/profile.model';
+import { CloudAuthService } from './cloud-auth.service';
 import { CloudSessionService } from './cloud-session.service';
 import { ConnectivityService } from './connectivity.service';
 import { ProfileSessionService, SessionHooks } from './profile-session.service';
+import { ProfileStore } from './profile-store.service';
 import { SYNC_TIMEOUT_MS, SyncService } from './sync.service';
 
 const LINKED: ProfileSummary = {
@@ -13,6 +15,8 @@ const LINKED: ProfileSummary = {
   colors: ['R'],
   cloud: { userId: 'u1', email: 'rafa@exemplo.com', needsReauth: false },
   createdAt: '2026-01-01T00:00:00.000Z',
+  nameUpdatedAt: '2026-01-01T00:00:00.000Z',
+  colorsUpdatedAt: '2026-01-01T00:00:00.000Z',
 };
 
 /** A PostgREST-like query whose result resolves only when `release()` is called. */
@@ -38,12 +42,29 @@ describe('SyncService', () => {
   let pending: ReturnType<typeof stalledQuery>;
   let cloud: {
     client: ReturnType<typeof vi.fn>;
-    getSession: ReturnType<typeof vi.fn>;
     startAutoRefresh: ReturnType<typeof vi.fn>;
     stopAutoRefresh: ReturnType<typeof vi.fn>;
     markNeedsReauth: ReturnType<typeof vi.fn>;
   };
+  let auth: { lookupAccount: ReturnType<typeof vi.fn>; forgetGoneAccount: ReturnType<typeof vi.fn> };
+  let profiles: { byId: ReturnType<typeof vi.fn>; setColors: ReturnType<typeof vi.fn> };
+  let updateUser: ReturnType<typeof vi.fn>;
+  let from: ReturnType<typeof vi.fn>;
+  let calls: string[];
   let sync: SyncService;
+
+  /** The account's user, with metadata matching LINKED unless patched. */
+  const user = (meta: Record<string, unknown> = {}) => ({
+    id: 'u1',
+    email: 'rafa@exemplo.com',
+    user_metadata: {
+      grm_colors: ['R'],
+      grm_colors_at: LINKED.colorsUpdatedAt,
+      grm_label: 'rafa',
+      grm_label_at: LINKED.nameUpdatedAt,
+      ...meta,
+    },
+  });
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -51,17 +72,31 @@ describe('SyncService', () => {
     online.set(true);
     hooks = [];
     pending = stalledQuery();
-    const getSession = vi.fn().mockResolvedValue({ data: { session: {} }, error: null });
+    calls = [];
+    updateUser = vi.fn(async () => (calls.push('updateUser'), { data: {}, error: null }));
+    from = vi.fn(() => (calls.push('from'), pending.query));
     cloud = {
-      getSession,
-      client: vi.fn(() => ({ auth: { getSession }, from: () => pending.query })),
+      client: vi.fn(() => ({ auth: { updateUser }, from })),
       startAutoRefresh: vi.fn(),
       stopAutoRefresh: vi.fn(),
-      markNeedsReauth: vi.fn().mockResolvedValue(undefined),
+      markNeedsReauth: vi.fn(async () => {
+        const profile = active();
+        active.set(profile?.cloud ? { ...profile, cloud: { ...profile.cloud, needsReauth: true } } : profile);
+      }),
+    };
+    auth = {
+      lookupAccount: vi.fn().mockResolvedValue({ status: 'ok', user: user() }),
+      forgetGoneAccount: vi.fn().mockResolvedValue(undefined),
+    };
+    profiles = {
+      byId: vi.fn(() => active()),
+      setColors: vi.fn(async () => void calls.push('setColors')),
     };
     TestBed.configureTestingModule({
       providers: [
         { provide: CloudSessionService, useValue: cloud },
+        { provide: CloudAuthService, useValue: auth },
+        { provide: ProfileStore, useValue: profiles },
         { provide: ConnectivityService, useValue: { online } },
         {
           provide: ProfileSessionService,
@@ -78,7 +113,7 @@ describe('SyncService', () => {
     const first = sync.syncNow();
     const second = sync.syncNow();
     expect(second).toBe(first);
-    expect(cloud.client).toHaveBeenCalledTimes(1);
+    expect(auth.lookupAccount).toHaveBeenCalledTimes(1);
     expect(sync.state()).toBe('syncing');
   });
 
@@ -90,7 +125,7 @@ describe('SyncService', () => {
 
     pending = stalledQuery();
     void sync.syncNow();
-    expect(cloud.client).toHaveBeenCalledTimes(2);
+    expect(auth.lookupAccount).toHaveBeenCalledTimes(2);
   });
 
   it('ends a stalled sync as offline when the device went offline', async () => {
@@ -139,5 +174,82 @@ describe('SyncService', () => {
 
     await sync.profileChanged();
     expect(sync.state()).toBe('idle');
+  });
+
+  it('checks the account first, then leaves the identity alone when nothing changed', async () => {
+    void sync.syncNow();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(auth.lookupAccount).toHaveBeenCalledWith('p1');
+    expect(calls).toEqual(['from']);
+  });
+
+  it('adopts newer account colors silently, before locations', async () => {
+    auth.lookupAccount.mockResolvedValue({
+      status: 'ok',
+      user: user({ grm_colors: ['G', 'W'], grm_colors_at: '2026-06-01T00:00:00.000Z' }),
+    });
+    void sync.syncNow();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(profiles.setColors).toHaveBeenCalledWith('p1', ['G', 'W'], '2026-06-01T00:00:00.000Z');
+    expect(updateUser).not.toHaveBeenCalled();
+    expect(calls).toEqual(['setColors', 'from']);
+  });
+
+  it('writes newer local colors and label in one updateUser, before locations', async () => {
+    active.set({ ...LINKED, colors: ['U'], colorsUpdatedAt: '2026-06-01T00:00:00.000Z', nameUpdatedAt: '2026-06-02T00:00:00.000Z' });
+    void sync.syncNow();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(updateUser).toHaveBeenCalledTimes(1);
+    expect(updateUser).toHaveBeenCalledWith({
+      data: {
+        grm_colors: ['U'],
+        grm_colors_at: '2026-06-01T00:00:00.000Z',
+        grm_label: 'rafa',
+        grm_label_at: '2026-06-02T00:00:00.000Z',
+      },
+    });
+    expect(calls).toEqual(['updateUser', 'from']);
+  });
+
+  it('fails the sync when the identity write fails', async () => {
+    active.set({ ...LINKED, nameUpdatedAt: '2026-06-02T00:00:00.000Z' });
+    updateUser.mockResolvedValue({ data: {}, error: { code: 'unexpected_failure' } });
+    expect(await sync.syncNow()).toBe('error');
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it('turns a gone account local and settles to idle', async () => {
+    auth.lookupAccount.mockResolvedValue({ status: 'gone' });
+    expect(await sync.syncNow()).toBe('gone');
+    expect(auth.forgetGoneAccount).toHaveBeenCalledWith('p1');
+    expect(sync.state()).toBe('idle');
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it('asks for reauth when the session is dead', async () => {
+    auth.lookupAccount.mockResolvedValue({ status: 'expired' });
+    expect(await sync.syncNow()).toBe('reauth');
+    expect(cloud.markNeedsReauth).toHaveBeenCalledWith('p1');
+    expect(sync.state()).toBe('reauth');
+  });
+
+  it('shows expired as soon as the profile needs reauth, without a sync', () => {
+    active.set({ ...LINKED, cloud: { ...LINKED.cloud!, needsReauth: true } });
+    expect(sync.state()).toBe('reauth');
+  });
+
+  it('leaves expired once the profile signs in again, without a sync', async () => {
+    auth.lookupAccount.mockResolvedValue({ status: 'expired' });
+    await sync.syncNow();
+    expect(sync.state()).toBe('reauth');
+
+    active.set(LINKED);
+    expect(sync.state()).toBe('idle');
+  });
+
+  it('reports offline when the account check can\u2019t reach the server', async () => {
+    auth.lookupAccount.mockResolvedValue({ status: 'offline' });
+    expect(await sync.syncNow()).toBe('offline');
+    expect(sync.state()).toBe('offline');
   });
 });

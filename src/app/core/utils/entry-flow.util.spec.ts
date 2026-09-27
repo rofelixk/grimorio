@@ -4,7 +4,9 @@ import {
   CopyVars,
   EntryFields,
   EntryPhase,
+  FormPhase,
   busyLabel,
+  captionFor,
   colorSourceFor,
   doneCopy,
   fieldsFor,
@@ -14,6 +16,7 @@ import {
   subtitleFor,
   titleFor,
   validate,
+  validateName,
 } from './entry-flow.util';
 
 const fields = (patch: Partial<EntryFields> = {}): EntryFields => ({
@@ -29,14 +32,13 @@ const free = { isNameTaken: () => false };
 const vars: CopyVars = {
   profile: 'rafa',
   email: 'rafa@exemplo.com',
-  linkedEmail: 'rafa@exemplo.com',
   tribe: 'Izzet',
   linked: true,
   activeName: null,
 };
 
 describe('entry-flow.util validate', () => {
-  it.each<EntryPhase>(['in', 'up', 'reset-email'])('requires a well-formed e-mail on %s', (phase) => {
+  it.each<FormPhase>(['in', 'up', 'reset-email'])('requires a well-formed e-mail on %s', (phase) => {
     expect(validate(phase, fields({ email: '  ' }), free).email).toBe(MSG.emailEmpty);
     expect(validate(phase, fields({ email: 'rafa@' }), free).email).toBe(MSG.emailBad);
     expect(validate(phase, fields({ email: ' Rafa@Exemplo.com ' }), free).email).toBeUndefined();
@@ -46,12 +48,12 @@ describe('entry-flow.util validate', () => {
     expect(validate('reauth', fields({ email: '' }), free).email).toBeUndefined();
   });
 
-  it.each<EntryPhase>(['in', 'unlock', 'reauth', 'recover-form'])('requires a password on %s', (phase) => {
+  it.each<FormPhase>(['in', 'unlock', 'reauth', 'recover-form'])('requires a password on %s', (phase) => {
     expect(validate(phase, fields({ pw: '' }), free).pw).toBe(MSG.pwEmpty);
     expect(validate(phase, fields({ pw: '1234' }), free).pw).toBeUndefined();
   });
 
-  it.each<EntryPhase>(['up', 'reset-code', 'setup', 'recover-newpw', 'profile', 'localreset-newpw'])(
+  it.each<FormPhase>(['up', 'reset-code', 'setup', 'recover-newpw', 'profile', 'localreset-newpw'])(
     'requires at least 8 characters for a new password on %s',
     (phase) => {
       expect(validate(phase, fields({ pw: '' }), free).pw).toBe(MSG.pwEmpty);
@@ -60,7 +62,7 @@ describe('entry-flow.util validate', () => {
     },
   );
 
-  it.each<EntryPhase>(['reset-email', 'unlink', 'list', 'localreset-warn'])('has no password on %s', (phase) => {
+  it.each<EntryPhase>(['reset-email', 'list', 'localreset-warn'])('has no password on %s', (phase) => {
     expect(validate(phase, fields({ pw: '' }), free).pw).toBeUndefined();
   });
 
@@ -91,29 +93,34 @@ describe('entry-flow.util copy', () => {
   it('uses the busy label per phase', () => {
     expect([primaryLabel('in'), busyLabel('in')]).toEqual([ACTION.in, ACTION.inBusy]);
     expect([primaryLabel('profile'), busyLabel('profile')]).toEqual(['Criar perfil', 'Criando perfil…']);
-    expect([primaryLabel('recover-form'), busyLabel('recover-form')]).toEqual(['Continuar', 'Verificando…']);
-    expect([primaryLabel('unlink'), busyLabel('unlink')]).toEqual(['Desvincular', 'Desvinculando…']);
+    expect([primaryLabel('recover-form'), busyLabel('recover-form')]).toEqual(['Continuar', 'Confirmando…']);
     expect(primaryLabel('list')).toBe('');
   });
 
   it('titles the list by whether a profile is active', () => {
     expect(titleFor('list', vars)).toBe('Escolha um perfil');
     expect(titleFor('list', { ...vars, activeName: 'rafa' })).toBe('Trocar de perfil');
-    expect(subtitleFor('list', 'gate', { ...vars, activeName: 'rafa' })).toBe(
+    expect(subtitleFor('list', { ...vars, activeName: 'rafa' })).toBe(
       'Você está usando rafa. Escolha outro perfil e digite a senha.',
     );
   });
 
-  it('subtitles sign-in by context', () => {
-    expect(subtitleFor('in', 'link', vars)).toBe('Vincule rafa a uma conta na nuvem para sincronizar entre aparelhos.');
-    expect(subtitleFor('in', 'device', vars)).toBe('Traga sua coleção da nuvem para este aparelho.');
-    expect(subtitleFor('in', 'gate', vars)).toBe('Traga sua coleção da nuvem para este aparelho.');
+  it('subtitles sign-in as bringing the collection to this device', () => {
+    expect(subtitleFor('in', vars)).toBe('Traga sua coleção da nuvem para este aparelho.');
+  });
+
+  it('words "Redefinir senha do perfil" for a linked profile (FR-024)', () => {
+    expect(titleFor('recover-form', vars)).toBe('Redefinir senha do perfil');
+    expect(subtitleFor('recover-form', vars)).toBe(
+      'rafa está vinculado à nuvem. Confirme a senha da conta para criar uma nova senha do perfil neste aparelho.',
+    );
+    expect(captionFor('recover-form', 'gate', {})).toBe('Redefinir a senha não apaga nada.');
   });
 
   it('names the unlock screen after the profile', () => {
     expect(titleFor('unlock', vars)).toBe('rafa');
-    expect(subtitleFor('unlock', 'gate', vars)).toBe('Izzet · Vinculado à nuvem');
-    expect(subtitleFor('unlock', 'gate', { ...vars, linked: false })).toBe('Izzet · Só neste aparelho');
+    expect(subtitleFor('unlock', vars)).toBe('Izzet · Vinculado à nuvem');
+    expect(subtitleFor('unlock', { ...vars, linked: false })).toBe('Izzet · Só neste aparelho');
   });
 
   it('uses new-password autocomplete where a password is created', () => {
@@ -129,34 +136,26 @@ describe('entry-flow.util copy', () => {
   });
 
   it('reads switch vs unlock on success', () => {
-    expect(doneCopy('unlocked', { profile: 'bia', email: '', previous: 'rafa', replacedTribe: null })).toEqual({
+    expect(doneCopy('unlocked', { profile: 'bia', previous: 'rafa' })).toEqual({
       title: 'Perfil trocado',
       body: 'bia está ativo. Os dados de rafa ficaram ocultos.',
     });
-    expect(doneCopy('unlocked', { profile: 'bia', email: '', previous: null, replacedTribe: null }).title).toBe(
-      'Perfil desbloqueado',
-    );
-    expect(doneCopy('linked', { profile: 'bia', email: 'b@x.co', previous: null, replacedTribe: 'Mono-branco' }).body).toBe(
-      'bia agora sincroniza com b@x.co. As cores da conta (Mono-branco) passaram a valer para este perfil.',
-    );
+    expect(doneCopy('unlocked', { profile: 'bia', previous: null }).title).toBe('Perfil desbloqueado');
   });
 });
 
 describe('entry-flow.util promptFor', () => {
-  const cases: [EntryPhase, 'device' | 'gate' | 'link', { ask: string; cta: string } | null, string | null][] = [
+  const cases: [EntryPhase, 'device' | 'gate', { ask: string; cta: string } | null, string | null][] = [
     ['list', 'gate', PROMPT.otherDevice, 'in'],
     ['unlock', 'gate', PROMPT.notYou, 'list'],
     ['profile', 'device', PROMPT.haveCloud, 'in'],
     ['profile', 'gate', PROMPT.haveProfileHere, 'list'],
     ['in', 'device', PROMPT.noProfile, 'profile'],
     ['in', 'gate', PROMPT.haveProfileHere, 'list'],
-    ['in', 'link', PROMPT.noCloud, 'up'],
-    ['up', 'link', PROMPT.haveAccount, 'in'],
-    ['reset-email', 'link', PROMPT.remembered, 'back'],
+    ['reset-email', 'device', PROMPT.remembered, 'back'],
     ['reset-code', 'gate', PROMPT.remembered, 'back'],
     ['setup', 'device', null, null],
-    ['reauth', 'link', null, null],
-    ['unlink', 'link', null, null],
+    ['recover-form', 'gate', null, null],
     ['localreset-warn', 'gate', null, null],
   ];
 
@@ -176,24 +175,44 @@ describe('entry-flow.util colorSourceFor', () => {
     expect(colorSourceFor('unlock', 'gate')).toBe('profile');
     expect(colorSourceFor('localreset-newpw', 'gate')).toBe('profile');
     expect(colorSourceFor('profile', 'device')).toBe('picks');
-    expect(colorSourceFor('in', 'link')).toBe('profile');
     expect(colorSourceFor('in', 'device')).toBe('default');
     expect(colorSourceFor('in', 'gate')).toBe('default');
-    expect(colorSourceFor('up', 'link')).toBe('profile');
     expect(colorSourceFor('setup', 'device')).toBe('cloud');
-    expect(colorSourceFor('reauth', 'link')).toBe('profile');
-    expect(colorSourceFor('unlink', 'link')).toBe('profile');
+    expect(colorSourceFor('recover-form', 'gate')).toBe('profile');
   });
 
   it('keeps colors unchanged through the reset flow', () => {
     expect(colorSourceFor('reset-email', 'device', { origin: 'in' })).toBe('default');
-    expect(colorSourceFor('reset-code', 'link', { origin: 'in' })).toBe('profile');
+    expect(colorSourceFor('reset-code', 'gate', { origin: 'recover-form' })).toBe('profile');
   });
 
-  it('switches to the account colors after a link or setup', () => {
-    expect(colorSourceFor('in', 'link', { done: 'linked', hasCloudColors: true })).toBe('cloud');
-    expect(colorSourceFor('in', 'link', { done: 'linked', hasCloudColors: false })).toBe('profile');
+  it('switches to the account colors after setup', () => {
+    expect(colorSourceFor('setup', 'device', { done: 'setup', hasCloudColors: false })).toBe('profile');
     expect(colorSourceFor('setup', 'device', { done: 'setup', hasCloudColors: true })).toBe('cloud');
     expect(colorSourceFor('profile', 'device', { done: 'profiled' })).toBe('picks');
   });
 });
+
+describe('validateName', () => {
+  const none = () => false;
+
+  it('rejects names outside 3–16 characters', () => {
+    expect(validateName('ab', none)).toBe(MSG.userLen);
+    expect(validateName('a'.repeat(17), none)).toBe(MSG.userLen);
+  });
+
+  it('rejects characters outside letters, digits, _ . -', () => {
+    expect(validateName('rafa!', none)).toBe(MSG.userChars);
+  });
+
+  it('rejects a taken name, checked trimmed', () => {
+    const taken: string[] = [];
+    expect(validateName(' bia ', (n) => (taken.push(n), n.toLowerCase() === 'bia'))).toBe(MSG.userTaken);
+    expect(taken).toEqual(['bia']);
+  });
+
+  it('accepts a case-only change of one’s own name when isTaken excludes it', () => {
+    expect(validateName('RAFA', none)).toBeNull();
+  });
+});
+

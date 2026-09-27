@@ -69,6 +69,14 @@ export async function closeProfileDb(keepId: string | null = null): Promise<void
   await Promise.all(closing.map(([, connection]) => connection.then((db) => db.close()).catch(() => undefined)));
 }
 
+/** Closes the profile's connection, then deletes its database (profile deletion, R9). */
+export async function deleteProfileDb(profileId: string): Promise<void> {
+  const connection = connections.get(profileId);
+  connections.delete(profileId);
+  await connection?.then((db) => db.close()).catch(() => undefined);
+  await deleteDB(profileDbName(profileId));
+}
+
 // Test-only: closes every connection and deletes every `grimorio-*` database (the device
 // registry and all profile databases), so each spec starts from a clean slate.
 export async function resetAllGrimorioDbsForTests(): Promise<void> {

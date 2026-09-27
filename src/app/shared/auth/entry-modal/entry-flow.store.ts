@@ -2,6 +2,7 @@ import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core'
 import { Color, ProfileSummary } from '@models/profile.model';
 import { CloudAuthService, CloudIdentity } from '@services/cloud-auth.service';
 import { EntryModalService, ResolvedEntryRequest } from '@services/entry-modal.service';
+import { ProfileModalService } from '@services/profile-modal.service';
 import { ProfileSessionService } from '@services/profile-session.service';
 import { ProfileStore } from '@services/profile-store.service';
 import { FieldKey, mapCloudError } from '@utils/cloud-error.util';
@@ -28,7 +29,8 @@ import {
   titleFor,
   validate,
 } from '@utils/entry-flow.util';
-import { DEFAULT_IDENTITY, rolesFor, sameColors, tribeName } from '@utils/identity.util';
+import { DEFAULT_IDENTITY, rolesFor, tribeName } from '@utils/identity.util';
+import { CloudFlowHost } from '@shared/auth/cloud-flow-host';
 
 /** The id of whichever title (phase or success) labels the modal. */
 export const ENTRY_TITLE_ID = 'grm-entry-title';
@@ -49,11 +51,12 @@ function metaOf(profile: ProfileSummary): string {
 // the EntryModal component. Pure rules (copy, validation, prompts, color sources) live in
 // entry-flow.util; this store holds the state and runs the flows against the services.
 @Injectable()
-export class EntryFlowStore {
+export class EntryFlowStore extends CloudFlowHost {
   private readonly profileStore = inject(ProfileStore);
   private readonly session = inject(ProfileSessionService);
   private readonly cloudAuth = inject(CloudAuthService);
   private readonly modal = inject(EntryModalService);
+  private readonly profileModal = inject(ProfileModalService);
 
   // ── State ────────────────────────────────────────────────────────────────
   readonly context = signal<EntryContext>('gate');
@@ -71,7 +74,6 @@ export class EntryFlowStore {
   readonly loading = signal(false);
   readonly done = signal<DoneKind | null>(null);
   readonly previousName = signal<string | null>(null);
-  readonly replacedTribe = signal<string | null>(null);
   readonly cooldown = signal(0);
   readonly resending = signal(false);
   readonly cloudColors = signal<Color[] | null>(null);
@@ -84,6 +86,7 @@ export class EntryFlowStore {
   private cooldownTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
+    super();
     inject(DestroyRef).onDestroy(() => this.stopCooldown());
   }
 
@@ -139,7 +142,6 @@ export class EntryFlowStore {
     return {
       profile: subject?.name ?? '',
       email: this.fields().email.trim(),
-      linkedEmail: subject?.cloud?.email ?? '',
       tribe: subject ? tribeName(subject.colors) : '',
       linked: !!subject?.cloud,
       activeName: this.context() === 'gate' && active ? active.name : null,
@@ -147,7 +149,7 @@ export class EntryFlowStore {
   });
 
   readonly title = computed(() => titleFor(this.phase(), this.copyVars()));
-  readonly subtitle = computed(() => subtitleFor(this.phase(), this.context(), this.copyVars()));
+  readonly subtitle = computed(() => subtitleFor(this.phase(), this.copyVars()));
   readonly primary = computed(() =>
     this.loading() ? busyLabel(this.phase()) : primaryLabel(this.phase()),
   );
@@ -171,12 +173,7 @@ export class EntryFlowStore {
       return null;
     }
     const subject = this.subject();
-    return doneCopy(kind, {
-      profile: subject?.name ?? '',
-      email: subject?.cloud?.email ?? this.fields().email.trim(),
-      previous: this.previousName(),
-      replacedTribe: this.replacedTribe(),
-    });
+    return doneCopy(kind, { profile: subject?.name ?? '', previous: this.previousName() });
   });
 
   readonly caption = computed(() => {
@@ -184,7 +181,6 @@ export class EntryFlowStore {
     return captionFor(this.phase(), this.context(), {
       done: this.done(),
       focusMeta: focus ? metaOf(focus) : null,
-      colorsReplaced: !!this.replacedTribe(),
       hasCloudColors: !!this.cloudColors(),
     });
   });
@@ -194,19 +190,12 @@ export class EntryFlowStore {
     if (this.colorSource() === 'picks') {
       return null;
     }
-    const focus = this.focusProfile();
-    if (focus) {
-      return focus.name;
-    }
-    return this.context() === 'link' ? (this.subject()?.name ?? null) : null;
+    return this.focusProfile()?.name ?? null;
   });
 
   readonly chipLabel = computed(() => {
     const focus = this.focusProfile();
-    if (focus) {
-      return `${focus.name} · ${this.tribe()}`;
-    }
-    return this.context() === 'link' ? `${this.subject()?.name ?? ''} · ${this.tribe()}` : this.tribe();
+    return focus ? `${focus.name} · ${this.tribe()}` : this.tribe();
   });
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -233,7 +222,6 @@ export class EntryFlowStore {
     this.loading.set(false);
     this.done.set(null);
     this.previousName.set(null);
-    this.replacedTribe.set(null);
     this.resending.set(false);
     this.cloudColors.set(null);
     this.picks.set([...DEFAULT_IDENTITY]);
@@ -305,7 +293,7 @@ export class EntryFlowStore {
       return;
     }
     this.backTarget.set(phase);
-    if (phase === 'reauth' || phase === 'recover-form') {
+    if (phase === 'recover-form') {
       const email = this.subject()?.cloud?.email ?? '';
       this.fields.update((f) => ({ ...f, email }));
       this.emailLocked.set(true);
@@ -313,9 +301,9 @@ export class EntryFlowStore {
     this.go('reset-email');
   }
 
-  /** "É seu? Recupere o acesso" under an e-mail already in use. */
+  /** "É seu? Recupere o acesso" under an e-mail already in use (only account creation reports one). */
   recoverAccess(): void {
-    this.backTarget.set('up');
+    this.backTarget.set(this.phase());
     this.go('reset-email');
   }
 
@@ -332,11 +320,13 @@ export class EntryFlowStore {
     this.go('unlock');
   }
 
-  /** "Vincular conta na nuvem" on "Perfil criado" (FR-014, FR-037). */
+  /**
+   * "Vincular conta na nuvem" on "Perfil criado" (FR-037): linking the active profile is the
+   * profile modal's, so hand off to it at account creation (spec 005 R3).
+   */
   linkAfterCreate(): void {
-    this.context.set('link');
-    this.selectedId.set(null);
-    this.go('up');
+    this.close();
+    this.profileModal.open({ start: 'up' });
   }
 
   editField(key: keyof EntryFields, value: string): void {
@@ -462,15 +452,6 @@ export class EntryFlowStore {
         }
         return;
       }
-      case 'up': {
-        const profile = this.subject()!;
-        await this.cloudAuth.signUp(email, pw, { label: profile.name, colors: profile.colors });
-        await this.cloudAuth.linkPending(profile.id, { writeColors: true });
-        if (!this.stale(generation)) {
-          this.finish('created');
-        }
-        return;
-      }
       case 'reset-email': {
         await this.cloudAuth.requestResetCode(email);
         if (!this.stale(generation)) {
@@ -494,20 +475,6 @@ export class EntryFlowStore {
         }
         return;
       }
-      case 'reauth': {
-        await this.cloudAuth.reauth(this.subject()!.id, pw);
-        if (!this.stale(generation)) {
-          this.finish('reauthed');
-        }
-        return;
-      }
-      case 'unlink': {
-        await this.cloudAuth.unlink(this.subject()!.id);
-        if (!this.stale(generation)) {
-          this.finish('unlinked');
-        }
-        return;
-      }
       case 'list':
       case 'localreset-warn':
         return;
@@ -519,50 +486,27 @@ export class EntryFlowStore {
     const origin = this.backTarget() ?? this.phase();
     const subject = this.subject();
 
-    if ((origin === 'reauth' || origin === 'recover-form') && subject) {
+    if (origin === 'recover-form' && subject) {
       await this.cloudAuth.adoptPending(subject.id);
       if (this.stale(generation)) {
         return;
       }
       this.backTarget.set(null);
       this.emailLocked.set(false);
-      if (origin === 'reauth') {
-        this.finish('reauthed');
-      } else {
-        this.toPhase('recover-newpw');
-      }
+      this.toPhase('recover-newpw');
       return;
     }
 
-    if (this.context() !== 'link') {
-      try {
-        this.cloudAuth.assertNotLinkedElsewhere(identity.userId);
-      } catch (failure) {
-        await this.cloudAuth.discardPending();
-        throw failure;
-      }
-      this.backTarget.set(null);
-      this.cloudColors.set(identity.colors ?? null);
-      this.fields.update((f) => ({ ...f, name: identity.label ?? '', email: identity.email || f.email }));
-      this.toPhase('setup');
-      return;
-    }
-
-    const profile = subject!;
-    const { colorsReplaced } = await this.cloudAuth.linkPending(profile.id, {
-      writeColors: !identity.colors?.length,
-    });
-    if (this.stale(generation)) {
-      return;
+    try {
+      this.cloudAuth.assertNotLinkedElsewhere(identity.userId);
+    } catch (failure) {
+      await this.cloudAuth.discardPending();
+      throw failure;
     }
     this.backTarget.set(null);
-    if (colorsReplaced) {
-      this.cloudColors.set(colorsReplaced);
-    }
-    this.replacedTribe.set(
-      colorsReplaced && !sameColors(colorsReplaced, profile.colors) ? tribeName(colorsReplaced) : null,
-    );
-    this.finish('linked');
+    this.cloudColors.set(identity.colors ?? null);
+    this.fields.update((f) => ({ ...f, name: identity.label ?? '', email: identity.email || f.email }));
+    this.toPhase('setup');
   }
 
   // Never syncs: sync starts only from the shell's sync controls (spec 004, FR-006).

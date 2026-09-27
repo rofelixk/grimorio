@@ -1,0 +1,164 @@
+<app-themed-modal
+  [open]="modal.isOpen()"
+  [roles]="identity.roles()"
+  [faceHeight]="desktopFaceHeight()"
+  [labelledBy]="titleId"
+  (closed)="store.close()"
+>
+  @if (modal.isOpen()) {
+    <app-spark-field modalSparks [count]="mobile() ? 12 : 20" [direction]="mobile() ? 'inward' : 'outward'" />
+  }
+
+  @if (!mobile()) {
+    <aside modalAside class="identity-pane">
+      <app-identity-wheel
+        mode="picker"
+        [size]="300"
+        [announce]="true"
+        [picks]="colors()"
+        (picksChange)="store.setColors($event)"
+      />
+      <p class="caption">{{ store.caption() }}</p>
+    </aside>
+  }
+
+  <section class="form-pane" [class.capped]="capped()">
+    @if (mobile()) {
+      <header class="m-header">
+        <span class="wordmark">{{ wordmark }}</span>
+        <span class="m-header-end">
+          <app-identity-chip [colors]="colors()" [label]="chipLabel()" />
+          <button type="button" class="close" [attr.aria-label]="action.close" (click)="store.close()">✕</button>
+        </span>
+      </header>
+    } @else {
+      <div class="close-row">
+        <button type="button" class="close" [attr.aria-label]="action.close" (click)="store.close()">✕</button>
+      </div>
+    }
+
+    <div class="body">
+      <div class="content" #content>
+        @if (store.done()) {
+          <app-profile-done-panel />
+        } @else {
+          <form class="form" novalidate (submit)="onSubmit($event)">
+            <div class="heading">
+              <h2 class="title" [id]="titleId">{{ store.title() }}</h2>
+              @if (store.subtitle()) {
+                <p class="subtitle">{{ store.subtitle() }}</p>
+              }
+            </div>
+
+            @if (mobile() && mobileWheel()) {
+              <div class="m-wheel">
+                <app-identity-wheel
+                  mode="picker"
+                  [size]="240"
+                  [announce]="true"
+                  [picks]="colors()"
+                  (picksChange)="store.setColors($event)"
+                />
+              </div>
+            }
+
+            @switch (store.phase()) {
+              @case ('hub') {
+                <app-profile-hub />
+              }
+              @case ('local') {
+                <app-local-screen />
+              }
+              @case ('cloud') {
+                <app-cloud-screen />
+              }
+              @case ('pw') {
+                <app-password-step />
+              }
+              @case ('cloudpw') {
+                <app-password-step />
+              }
+              @case ('unlink') {
+                <app-unlink-step />
+              }
+              @case ('delprofile') {
+                <app-delete-profile-step />
+              }
+              @case ('delcloud') {
+                <app-delete-cloud-step />
+              }
+              @case ('reset-email') {
+                <app-reset-form />
+              }
+              @case ('reset-code') {
+                <app-reset-form />
+              }
+              @default {
+                <app-cloud-form />
+              }
+            }
+
+            @if (store.formError()) {
+              <div class="form-error" role="alert">
+                <p>{{ store.formError() }}</p>
+                @if (store.formHint()) {
+                  <p class="form-hint">{{ store.formHint() }}</p>
+                }
+              </div>
+            }
+
+            @if (stepActions()) {
+              <div class="actions">
+                <button type="button" class="btn btn--ghost" (click)="store.cancel()">{{ action.cancel }}</button>
+                <button
+                  type="submit"
+                  class="btn"
+                  [class.btn--danger]="store.danger()"
+                  [class.btn--primary]="!store.danger()"
+                  [disabled]="verbLocked()"
+                >
+                  {{ store.primary() }}
+                </button>
+              </div>
+            }
+
+            @if (store.phase() === 'reset-email' || store.phase() === 'reset-code') {
+              <button type="submit" class="btn btn--primary btn--block" [disabled]="store.loading()">
+                {{ store.primary() }}
+              </button>
+            }
+            @if (store.phase() === 'reset-code') {
+              <div class="resend">
+                <button
+                  type="button"
+                  class="btn btn--secondary"
+                  [disabled]="store.cooldown() > 0 || store.isCloudBusy()"
+                  (click)="store.resend()"
+                >
+                  {{ store.resendLabel() }}
+                </button>
+                @if (!store.emailLocked()) {
+                  <button type="button" class="link-btn" (click)="store.otherEmail()">{{ action.otherEmail }}</button>
+                }
+              </div>
+            }
+          </form>
+        }
+      </div>
+
+      @if (store.prompt(); as prompt) {
+        <div class="prompt" #prompt>
+          {{ prompt.ask }}
+          <button
+            type="button"
+            class="link-btn"
+            [disabled]="prompt.target === 'switch' && store.syncBusy()"
+            (click)="store.followPrompt(prompt.target)"
+          >
+            {{ prompt.cta }}
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+</app-themed-modal>

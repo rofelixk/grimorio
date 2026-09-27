@@ -13,7 +13,7 @@ export interface SyncDisplay {
   actionLabel: string | null;
   /** offline | expired | error: shown in the danger color (FR-007a). */
   failure: boolean;
-  /** reauth | link open the entry modal, so the drawer closes first (FR-020a). */
+  /** reauth | link open the profile modal, so the drawer closes first (FR-020a). */
   opensModal: boolean;
 }
 
@@ -82,4 +82,33 @@ export function syncDisplay(input: {
     return display('synced', SYNC_AREA.synced, 'sync');
   }
   return display('last', SYNC_AREA.last(relativeSince(lastSyncedAt, now)), 'sync');
+}
+
+/**
+ * Whether a linked profile has local changes its account doesn't have yet (FR-018a, research
+ * R10): a tombstone, or a card, location, color or name change after the last sync. Decks never
+ * sync, so they never count. Conservative: clock skew can only add a warning, never hide one.
+ */
+export function hasUnsyncedChanges(input: {
+  linked: boolean;
+  lastSyncedAt: string | null;
+  cards: { updatedAt: string }[];
+  locations: { updatedAt: string }[];
+  tombstoneCount: number;
+  colorsUpdatedAt: string;
+  nameUpdatedAt: string;
+}): boolean {
+  if (!input.linked) {
+    return false;
+  }
+  if (input.tombstoneCount > 0) {
+    return true;
+  }
+  const since = input.lastSyncedAt;
+  const newer = (at: string) => since === null || at > since;
+  return (
+    input.cards.some((c) => newer(c.updatedAt)) ||
+    input.locations.some((l) => newer(l.updatedAt)) ||
+    (since !== null && (input.colorsUpdatedAt > since || input.nameUpdatedAt > since))
+  );
 }

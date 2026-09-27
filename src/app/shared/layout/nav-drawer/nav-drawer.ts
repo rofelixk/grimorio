@@ -8,23 +8,26 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { EntryModalService, EntryRequest } from '@services/entry-modal.service';
+import { EntryModalService } from '@services/entry-modal.service';
+import { ProfileModalService } from '@services/profile-modal.service';
 import { ProfileSessionService } from '@services/profile-session.service';
 import { ShellState } from '@services/shell-state.service';
 import { SyncStatusService } from '@services/sync-status.service';
 import { SHELL } from '@utils/entry-copy';
 import { SyncDisplay } from '@utils/sync-status.util';
+import { ToastOutlet } from '@shared/ds/toast/toast-outlet';
 import { NavLinks } from '@shared/layout/nav-links/nav-links';
 import { ProfileControl } from '@shared/layout/profile-control/profile-control';
 import { SyncStatus } from '@shared/layout/sync-status/sync-status';
 
 // The narrow drawer (DESIGN.md "Drawer", research R5/R6): a native modal <dialog> on the right
 // edge with the account block and the mirrored nav, driven by ShellState.drawerOpen. Every close
-// returns focus to Menu; controls that open the entry modal close the drawer first (FR-020a).
+// returns focus to Menu; controls that open a modal close the drawer first (FR-020a), so the
+// modal records Menu as its opener.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-nav-drawer',
-  imports: [NavLinks, ProfileControl, SyncStatus],
+  imports: [NavLinks, ProfileControl, SyncStatus, ToastOutlet],
   templateUrl: './nav-drawer.html',
   styleUrl: './nav-drawer.scss',
 })
@@ -32,9 +35,11 @@ export class NavDrawer {
   private readonly shell = inject(ShellState);
   private readonly session = inject(ProfileSessionService);
   private readonly entryModal = inject(EntryModalService);
+  private readonly profileModal = inject(ProfileModalService);
   private readonly status = inject(SyncStatusService);
 
   protected readonly copy = SHELL;
+  protected readonly drawerOpen = this.shell.drawerOpen;
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly closeButton = viewChild.required<ElementRef<HTMLButtonElement>>('closeButton');
 
@@ -83,22 +88,22 @@ export class NavDrawer {
     }
   }
 
+  /** The profile modal's hub, or the entry modal with no active profile (FR-001). */
   protected onProfile(): void {
-    this.openModal(this.session.active() ? { context: 'gate', start: 'list' } : {});
+    this.close();
+    if (this.session.active()) {
+      this.profileModal.open();
+    } else {
+      void this.entryModal.open();
+    }
   }
 
   protected onSyncAction(display: SyncDisplay): void {
-    if (!display.opensModal) {
-      // Sincronizar agora / Tentar de novo: the drawer stays open to show the progress.
-      this.status.act();
-      return;
+    // Sincronizar agora / Tentar de novo keep the drawer open to show the progress; Vincular and
+    // Entrar de novo open the profile modal at that step (FR-007), so the drawer closes first.
+    if (display.opensModal) {
+      this.close();
     }
-    this.openModal({ context: 'link', start: display.action === 'reauth' ? 'reauth' : 'in' });
-  }
-
-  // The drawer and the modal are never open together; the modal records Menu as its opener.
-  private openModal(request: EntryRequest): void {
-    this.close();
-    void this.entryModal.open(request);
+    this.status.act();
   }
 }

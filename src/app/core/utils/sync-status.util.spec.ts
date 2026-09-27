@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { SyncState } from '../services/sync.service';
 import { SYNC_AREA } from './entry-copy';
-import { SyncDisplayKind, relativeSince, syncDisplay } from './sync-status.util';
+import { SyncDisplayKind, hasUnsyncedChanges, relativeSince, syncDisplay } from './sync-status.util';
 
 const NOW = Date.parse('2026-09-25T12:00:00.000Z');
 const MIN = 60_000;
@@ -80,5 +80,48 @@ describe('relativeSince', () => {
     [24 * 60 * MIN, 'há 1 d'],
   ])('%i ms ago → %s', (ms, expected) => {
     expect(relativeSince(ago(ms), NOW)).toBe(expected);
+  });
+});
+
+describe('hasUnsyncedChanges', () => {
+  const SYNCED = '2026-09-20T00:00:00.000Z';
+  const BEFORE = '2026-09-19T00:00:00.000Z';
+  const AFTER = '2026-09-21T00:00:00.000Z';
+  const input = (patch: Partial<Parameters<typeof hasUnsyncedChanges>[0]> = {}) => ({
+    linked: true,
+    lastSyncedAt: SYNCED,
+    cards: [{ updatedAt: BEFORE }],
+    locations: [{ updatedAt: BEFORE }],
+    tombstoneCount: 0,
+    colorsUpdatedAt: BEFORE,
+    nameUpdatedAt: BEFORE,
+    ...patch,
+  });
+
+  it('is false for a local profile', () => {
+    expect(hasUnsyncedChanges(input({ linked: false, tombstoneCount: 3 }))).toBe(false);
+  });
+
+  it('is true with a tombstone', () => {
+    expect(hasUnsyncedChanges(input({ tombstoneCount: 1 }))).toBe(true);
+  });
+
+  it('is true with a card or location newer than the last sync', () => {
+    expect(hasUnsyncedChanges(input({ cards: [{ updatedAt: AFTER }] }))).toBe(true);
+    expect(hasUnsyncedChanges(input({ locations: [{ updatedAt: AFTER }] }))).toBe(true);
+  });
+
+  it('is true with any row when it never synced', () => {
+    expect(hasUnsyncedChanges(input({ lastSyncedAt: null }))).toBe(true);
+    expect(hasUnsyncedChanges(input({ lastSyncedAt: null, cards: [], locations: [] }))).toBe(false);
+  });
+
+  it('is true when the colors or the name changed after the last sync', () => {
+    expect(hasUnsyncedChanges(input({ colorsUpdatedAt: AFTER }))).toBe(true);
+    expect(hasUnsyncedChanges(input({ nameUpdatedAt: AFTER }))).toBe(true);
+  });
+
+  it('is false when everything is older than the last sync', () => {
+    expect(hasUnsyncedChanges(input())).toBe(false);
   });
 });

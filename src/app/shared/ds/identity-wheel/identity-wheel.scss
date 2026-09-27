@@ -30,50 +30,97 @@
   animation: spin-angle var(--duration-spin) linear infinite;
 }
 
+// v2 anatomy: disc (masks the ring line) + rim + dot; the state sets scale (--s) and opacity (--o).
 .swatch {
   position: absolute;
   width: 19%;
   height: 19%;
   padding: 0;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: 50%;
-  background: var(--hex);
-  opacity: 0.35;
-  transform: scale(0.88);
+  background: transparent;
+  transform: scale(var(--s, 0.72));
   transition:
     transform var(--duration-slow) var(--ease-standard),
-    opacity var(--duration-slow) var(--ease-standard),
-    box-shadow var(--duration-slow) var(--ease-standard);
+    opacity var(--duration-slow) var(--ease-standard);
+
+  .disc {
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    background: var(--color-bg);
+  }
+
+  .rim {
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--hex);
+    border-radius: 50%;
+    opacity: var(--o, 0.45);
+    transition: opacity var(--duration-slow) var(--ease-standard);
+  }
+
+  .dot {
+    position: absolute;
+    inset: 14%;
+    border-radius: 50%;
+    background: var(--hex);
+    opacity: var(--o, 0.45);
+    transition:
+      opacity var(--duration-slow) var(--ease-standard),
+      transform var(--duration-slow) var(--ease-standard);
+  }
 
   &.on {
-    opacity: 1;
-    transform: scale(1.06);
-    box-shadow:
-      0 0 0 3px var(--color-bg),
-      0 0 0 4px var(--hex),
-      0 0 20px rgb(from var(--hex) r g b / 50%);
+    --s: 1.06;
+    --o: 1;
+
+    .dot {
+      box-shadow: 0 0 14px rgb(from var(--hex) r g b / 55%);
+      animation: wheel-breathe 5s var(--ease-standard) infinite;
+    }
+
+    .rim {
+      box-shadow: 0 0 10px rgb(from var(--hex) r g b / 35%);
+    }
+  }
+
+  &.off {
+    --s: 0.58;
+    --o: 0.28;
+  }
+
+  &.locked {
+    --s: 0.24;
+    --o: 0.35;
+
+    .dot {
+      opacity: 0;
+      transform: scale(0.4);
+    }
   }
 
   &.neutral {
-    opacity: 0.85;
-    transform: scale(1);
-    box-shadow: none;
+    --s: 0.88;
+    --o: 0.85;
   }
 }
 
 button.swatch {
   cursor: pointer;
 
-  &:not(.on) {
-    opacity: 0.55;
+  &.off:hover {
+    --s: 0.66;
+    --o: 0.5;
   }
 
   &.locked {
     cursor: not-allowed;
   }
 
-  &.locked:not(.on) {
-    opacity: 0.3;
+  &:focus-visible {
+    outline: 2px solid var(--role-accent);
+    outline-offset: 2px;
   }
 }
 
@@ -82,6 +129,18 @@ button.swatch {
   inset: 0;
   z-index: 1;
   pointer-events: none;
+}
+
+.mote {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  margin: -1px 0 0 -1px;
+  border-radius: 50%;
+  background: var(--hex);
+  box-shadow: 0 0 4px var(--hex);
+  opacity: 0;
+  animation: wheel-mote var(--dur) linear forwards;
 }
 
 .ripple {
@@ -145,4 +204,42 @@ button.swatch {
   line-height: 1;
   color: var(--role-primary);
   text-shadow: var(--glow-title);
+}
+
+@keyframes wheel-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 14px rgb(from var(--hex) r g b / 50%);
+  }
+  50% {
+    box-shadow: 0 0 20px 1px rgb(from var(--hex) r g b / 62%);
+  }
+}
+
+@keyframes wheel-mote {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  25% {
+    opacity: var(--peak);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy));
+  }
+}
+
+// Spin, breathing, motes and bursts all stop (FR-023).
+@media (prefers-reduced-motion: reduce) {
+  .ring,
+  .swatch.on .dot {
+    animation: none;
+  }
+
+  .mote,
+  .ripple,
+  .burst {
+    display: none;
+  }
 }

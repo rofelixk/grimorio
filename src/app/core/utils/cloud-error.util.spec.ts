@@ -69,4 +69,20 @@ describe('mapCloudError', () => {
     const failure = { kind: 'form' as const, message: MSG.linkedElsewhere('bia') };
     expect(mapCloudError(failure)).toBe(failure);
   });
+
+  it('maps same_password onto the new password field', () => {
+    expect(mapCloudError(authError('same_password'))).toEqual({
+      kind: 'field',
+      field: 'pwNew',
+      message: MSG.samePassword,
+    });
+  });
+
+  it('keeps weak_password on the password field', () => {
+    expect(mapCloudError(authError('weak_password'))).toEqual({ kind: 'field', field: 'pw', message: MSG.pwMin });
+  });
+
+  it('falls back to the generic message for user_not_found', () => {
+    expect(mapCloudError(authError('user_not_found'))).toEqual({ kind: 'form', message: MSG.generic });
+  });
 });

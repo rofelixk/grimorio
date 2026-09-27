@@ -4,13 +4,14 @@ import { provideRouter } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileSummary } from '@models/profile.model';
 import { EntryModalService } from '@services/entry-modal.service';
+import { ProfileModalService } from '@services/profile-modal.service';
 import { ProfileSessionService } from '@services/profile-session.service';
 import { ShellState } from '@services/shell-state.service';
 import { SyncStatusService } from '@services/sync-status.service';
 import { SyncDisplay, syncDisplay } from '@utils/sync-status.util';
 import { NavDrawer } from './nav-drawer';
 
-const PROFILE: ProfileSummary = { id: 'p1', name: 'rafa', colors: ['U', 'R'], cloud: null, createdAt: '' };
+const PROFILE: ProfileSummary = { id: 'p1', name: 'rafa', colors: ['U', 'R'], cloud: null, createdAt: '', nameUpdatedAt: '', colorsUpdatedAt: '' };
 
 describe('NavDrawer', () => {
   const originals = {
@@ -22,6 +23,8 @@ describe('NavDrawer', () => {
   let shell: ShellState;
   let menu: HTMLButtonElement;
   let entryModal: { open: ReturnType<typeof vi.fn> };
+  let profileModal: { open: ReturnType<typeof vi.fn> };
+  const active = signal<ProfileSummary | null>(PROFILE);
   let status: { display: typeof display; busy: ReturnType<typeof signal<boolean>>; act: ReturnType<typeof vi.fn> };
 
   const dialog = () => fixture.nativeElement.querySelector('dialog') as HTMLDialogElement;
@@ -44,6 +47,8 @@ describe('NavDrawer', () => {
 
     display.set(syncDisplay({ linked: true, state: 'idle', lastSyncedAt: null, now: Date.now() }));
     entryModal = { open: vi.fn().mockResolvedValue({ activeProfileId: 'p1' }) };
+    profileModal = { open: vi.fn() };
+    active.set(PROFILE);
     status = { display, busy: signal(false), act: vi.fn() };
 
     TestBed.configureTestingModule({
@@ -51,8 +56,9 @@ describe('NavDrawer', () => {
       providers: [
         provideRouter([]),
         { provide: EntryModalService, useValue: entryModal },
+        { provide: ProfileModalService, useValue: profileModal },
         { provide: SyncStatusService, useValue: status },
-        { provide: ProfileSessionService, useValue: { active: signal(PROFILE) } },
+        { provide: ProfileSessionService, useValue: { active } },
       ],
     });
     shell = TestBed.inject(ShellState);
@@ -84,17 +90,24 @@ describe('NavDrawer', () => {
     await openDrawer();
     const closeDrawer = vi.spyOn(shell, 'closeDrawer');
     let focusedAtOpen: Element | null = null;
-    entryModal.open.mockImplementation(() => {
-      focusedAtOpen = document.activeElement;
-      return Promise.resolve({ activeProfileId: 'p1' });
-    });
+    profileModal.open.mockImplementation(() => (focusedAtOpen = document.activeElement));
 
     (fixture.nativeElement.querySelector('app-profile-control button') as HTMLButtonElement).click();
 
-    expect(entryModal.open).toHaveBeenCalledWith({ context: 'gate', start: 'list' });
-    expect(closeDrawer.mock.invocationCallOrder[0]).toBeLessThan(entryModal.open.mock.invocationCallOrder[0]);
+    expect(profileModal.open).toHaveBeenCalledWith();
+    expect(entryModal.open).not.toHaveBeenCalled();
+    expect(closeDrawer.mock.invocationCallOrder[0]).toBeLessThan(profileModal.open.mock.invocationCallOrder[0]);
     expect(dialog().open).toBe(false);
     expect(focusedAtOpen).toBe(menu);
+  });
+
+  it('opens the entry modal from the profile control with no active profile', async () => {
+    active.set(null);
+    await openDrawer();
+    (fixture.nativeElement.querySelector('app-profile-control button') as HTMLButtonElement).click();
+
+    expect(entryModal.open).toHaveBeenCalledWith();
+    expect(profileModal.open).not.toHaveBeenCalled();
   });
 
   it('keeps the drawer open for "Sincronizar agora"', async () => {
@@ -105,16 +118,15 @@ describe('NavDrawer', () => {
     expect(entryModal.open).not.toHaveBeenCalled();
   });
 
-  it('closes first, then opens the cloud sign-in for "Vincular conta na nuvem"', async () => {
+  it('closes first, then acts for "Vincular conta na nuvem" (the profile modal at sign-in)', async () => {
     display.set(syncDisplay({ linked: false, state: 'idle', lastSyncedAt: null, now: Date.now() }));
     await openDrawer();
     const closeDrawer = vi.spyOn(shell, 'closeDrawer');
 
     (fixture.nativeElement.querySelector('.action') as HTMLButtonElement).click();
 
-    expect(entryModal.open).toHaveBeenCalledWith({ context: 'link', start: 'in' });
-    expect(closeDrawer.mock.invocationCallOrder[0]).toBeLessThan(entryModal.open.mock.invocationCallOrder[0]);
+    expect(closeDrawer.mock.invocationCallOrder[0]).toBeLessThan(status.act.mock.invocationCallOrder[0]);
     expect(shell.drawerOpen()).toBe(false);
-    expect(status.act).not.toHaveBeenCalled();
+    expect(entryModal.open).not.toHaveBeenCalled();
   });
 });

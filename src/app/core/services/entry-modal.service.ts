@@ -1,10 +1,11 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, Injector, inject, signal } from '@angular/core';
 import { EntryContext, EntryPhase } from '../utils/entry-flow.util';
 import { ProfileSessionService } from './profile-session.service';
+import { ProfileModalService } from './profile-modal.service';
 import { ProfileStore } from './profile-store.service';
 
 export type { EntryContext };
-export type EntryStart = Extract<EntryPhase, 'list' | 'profile' | 'in' | 'up' | 'unlink' | 'reauth'>;
+export type EntryStart = Extract<EntryPhase, 'list' | 'profile' | 'in'>;
 
 export interface EntryRequest {
   /** Defaults to `device` when the device has no profiles, else `gate`. */
@@ -23,7 +24,7 @@ export interface ResolvedEntryRequest {
   start: EntryStart;
 }
 
-const DEFAULT_START: Record<EntryContext, EntryStart> = { device: 'profile', gate: 'list', link: 'in' };
+const DEFAULT_START: Record<EntryContext, EntryStart> = { device: 'profile', gate: 'list' };
 
 // Opens the single entry modal (rendered once in app.html) and resolves when it closes — by ✕,
 // Esc, a backdrop click or Concluir — with whichever profile is then active.
@@ -31,6 +32,8 @@ const DEFAULT_START: Record<EntryContext, EntryStart> = { device: 'profile', gat
 export class EntryModalService {
   private readonly profiles = inject(ProfileStore);
   private readonly session = inject(ProfileSessionService);
+  // Resolved lazily: ProfileModalService injects this service.
+  private readonly injector = inject(Injector);
 
   private readonly requestSignal = signal<ResolvedEntryRequest | null>(null);
   /** The open request, or null when closed. */
@@ -42,10 +45,16 @@ export class EntryModalService {
   private resolvePending: ((result: EntryResult) => void) | null = null;
   private nextId = 0;
 
-  /** A second open() while the modal is open returns the pending promise. */
+  /**
+   * A second open() while the modal is open returns the pending promise. While the profile modal
+   * is open it's a no-op that resolves at once (one modal at a time, FR-005).
+   */
   open(request: EntryRequest = {}): Promise<EntryResult> {
     if (this.pending) {
       return this.pending;
+    }
+    if (this.injector.get(ProfileModalService).isOpen()) {
+      return Promise.resolve({ activeProfileId: this.session.active()?.id ?? null });
     }
     const context = request.context ?? (this.profiles.profiles().length ? 'gate' : 'device');
     this.requestSignal.set({ id: this.nextId++, context, start: request.start ?? DEFAULT_START[context] });

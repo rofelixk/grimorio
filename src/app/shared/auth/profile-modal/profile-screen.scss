@@ -1,0 +1,71 @@
+// Shared by the profile modal's screens and steps: a column of blocks, `space-4` apart, with
+// action-row lists `space-2` apart (DESIGN.md "Action rows").
+@use 'breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.spacer {
+  display: block;
+  width: var(--wheel-mini);
+}
+
+.note {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-wrap: pretty;
+}
+
+.plate .note {
+  font-size: var(--font-size-xs);
+}
+
+.plate--block {
+  gap: var(--space-2);
+}
+
+.plate-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sync-line {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.danger-label,
+.sync-line.danger-label {
+  color: var(--color-danger);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+@include bp.mobile {
+  .actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}

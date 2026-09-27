@@ -1,0 +1,97 @@
+@use 'breakpoints' as bp;
+
+:host {
+  display: contents;
+}
+
+// The announcement lives outside the popover, so it is present even while nothing is shown.
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.toast {
+  position: fixed;
+  inset: calc(44px + var(--space-4)) var(--space-4) auto auto;
+  max-width: 380px;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--role-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: 0 0 18px -4px rgb(from var(--role-primary) r g b / 55%);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard),
+    display var(--duration-base) allow-discrete,
+    overlay var(--duration-base) allow-discrete;
+
+  &:popover-open {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  @starting-style {
+    &:popover-open {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--role-accent);
+  box-shadow: 0 0 8px var(--role-accent);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.message {
+  text-wrap: pretty;
+}
+
+.close {
+  flex: none;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+@include bp.mobile {
+  .toast {
+    inset: var(--space-3) var(--space-3) auto var(--space-3);
+    // The popover UA style sizes it to fit-content, which would ignore the left/right insets.
+    width: auto;
+    max-width: none;
+  }
+}

@@ -1,0 +1,15 @@
+@use '../../ds/themed-modal/face';
+
+.m-wheel {
+  display: flex;
+  justify-content: center;
+}
+
+.form-error p {
+  margin: 0;
+}
+
+.form-hint {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+}

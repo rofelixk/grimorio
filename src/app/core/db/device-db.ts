@@ -14,6 +14,8 @@ export interface DeviceDbSchema extends DBSchema {
 }
 
 export const DEVICE_DB_NAME = 'grimorio-device';
+/** The `meta` key holding which profile is active (`string | null`). */
+export const ACTIVE_PROFILE_KEY = 'activeProfileId';
 const DB_VERSION = 1;
 
 let dbPromise: Promise<IDBPDatabase<DeviceDbSchema>> | null = null;

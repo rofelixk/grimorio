@@ -30,8 +30,14 @@ export interface ProfileRecord {
   /** 3–16 chars, `^[A-Za-z0-9_.-]+$`, unique per device compared with `toLowerCase()`
    * (FR-003); trimmed before storing. */
   name: string;
+  /** ISO timestamp of the last rename (or creation). Decides whether a sync writes the account's
+   * `grm_label` (spec 005 R6). */
+  nameUpdatedAt: string;
   /** 1–3 distinct values of `W U B R G`, in pick order (FR-026): primary, accent, tertiary. */
   colors: Color[];
+  /** ISO timestamp of the last color change (or creation, or the account's `grm_colors_at` when
+   * adopted). Colors reconcile last-write-wins on it (spec 005 R6). */
+  colorsUpdatedAt: string;
   /** Never exposed outside ProfileStore (FR-009). */
   password: PasswordHash;
   /** `null` = "Só neste aparelho". */

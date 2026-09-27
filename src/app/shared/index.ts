@@ -25,6 +25,7 @@ export type {
 } from './common/search-results-list/search-results-list';
 export { SparkRerollDirective } from './effects/spark-reroll/spark-reroll.directive';
 export { EntryModal } from './auth/entry-modal/entry-modal';
+export { ProfileModal } from './auth/profile-modal/profile-modal';
 export { IdentityChip } from './ds/identity-chip/identity-chip';
 export { IdentityWheel } from './ds/identity-wheel/identity-wheel';
 export { MiniWheel } from './ds/mini-wheel/mini-wheel';
@@ -32,3 +33,6 @@ export { ProfileRow } from './ds/profile-row/profile-row';
 export { SparkField } from './ds/spark-field/spark-field';
 export { TextField } from './ds/text-field/text-field';
 export { ThemedModal } from './ds/themed-modal/themed-modal';
+export { ToastOutlet } from './ds/toast/toast-outlet';
+export { ActionRow } from './ds/action-row/action-row';
+export { SyncPlate } from './ds/sync-plate/sync-plate';

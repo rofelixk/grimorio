@@ -1,0 +1,15 @@
+<div class="live" role="status" aria-live="polite">
+  @if (toast(); as t) {
+    {{ t.label }}: {{ t.text }}
+  }
+</div>
+<div #popover class="toast" popover="manual">
+  @if (toast(); as t) {
+    <span class="dot" aria-hidden="true"></span>
+    <span class="text" aria-hidden="true">
+      <span class="micro-label">{{ t.label }}</span>
+      <span class="message">{{ t.text }}</span>
+    </span>
+    <button type="button" class="close" [attr.aria-label]="closeLabel" (click)="dismiss()">✕</button>
+  }
+</div>

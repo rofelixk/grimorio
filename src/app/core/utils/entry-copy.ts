@@ -1,6 +1,6 @@
-// Every PT-BR string of the entry modal and the app shell (top bar, side nav, drawer, sync status,
-// legal notice), from spec 003's and spec 004's ui.md §7 and DESIGN.md (Principle II, SC-006).
-// Nothing user-visible in those surfaces is written anywhere else.
+// Every PT-BR string of the entry modal, the profile modal, toasts and the app shell (top bar, side
+// nav, drawer, sync status, legal notice), from specs 003–005's ui.md §7 and DESIGN.md
+// (Principle II, SC-006). Nothing user-visible in those surfaces is written anywhere else.
 
 export const MSG = {
   emailEmpty: 'Digite seu e-mail.',
@@ -18,6 +18,11 @@ export const MSG = {
   linkedElsewhere: (nome: string) => `Essa conta já está vinculada ao perfil ${nome} neste aparelho.`,
   offline: 'Sem conexão. A conta na nuvem precisa de internet — o resto do app continua funcionando.',
   generic: 'Algo deu errado. Tente de novo em instantes.',
+  pwMismatch: 'As senhas não são iguais.',
+  // review: not in the handoff (spec 005 R8).
+  samePassword: 'A nova senha precisa ser diferente da atual.',
+  // review: not in the handoff (spec 005 R12).
+  goneHint: (nome: string) => `Se a conta não existe mais, Desvincular conta mantém ${nome} e os dados neste aparelho.`,
 } as const;
 
 export const TITLE = {
@@ -27,14 +32,11 @@ export const TITLE = {
   localresetNewpw: 'Nova senha do perfil',
   profile: 'Criar perfil',
   in: 'Entrar na conta',
-  up: 'Criar conta na nuvem',
   resetEmail: 'Recuperar senha',
   resetCode: 'Digite o código',
   setup: 'Configurar perfil',
-  reauth: 'Entre de novo',
-  recoverForm: 'Recuperar perfil',
+  recoverForm: 'Redefinir senha do perfil',
   recoverNewpw: 'Nova senha do perfil',
-  unlink: 'Desvincular conta',
 } as const;
 
 export const SUBTITLE = {
@@ -45,17 +47,13 @@ export const SUBTITLE = {
     `${p} não tem conta na nuvem, então qualquer pessoa que use este aparelho pode redefinir a senha dele. Os dados continuam intactos.`,
   localresetNewpw: (p: string) => `Crie uma nova senha para ${p}.`,
   profile: 'Seu perfil fica neste aparelho e funciona sem internet — sem e-mail.',
-  inLink: (p: string) => `Vincule ${p} a uma conta na nuvem para sincronizar entre aparelhos.`,
   inDevice: 'Traga sua coleção da nuvem para este aparelho.',
-  up: (p: string) => `${p} pode sincronizar entre aparelhos quando você quiser.`,
   resetEmail: 'Digite o e-mail da conta. Um código de 6 dígitos chega em alguns minutos.',
   resetCode: (email: string) => `Se houver uma conta para ${email}, um código foi enviado. Confira também o spam.`,
   setup: 'Esta conta ainda não tem perfil neste aparelho. Confirme o nome e crie uma senha local.',
-  reauth: (p: string) => `A sessão da conta expirou. Entre para voltar a sincronizar ${p}.`,
-  recoverForm: (p: string) => `Entre na conta vinculada a ${p} para criar uma nova senha local.`,
+  recoverForm: (p: string) =>
+    `${p} está vinculado à nuvem. Confirme a senha da conta para criar uma nova senha do perfil neste aparelho.`,
   recoverNewpw: (p: string) => `Crie uma nova senha para ${p} neste aparelho. Os dados continuam intactos.`,
-  unlink: (p: string, email: string) =>
-    `${p} continua neste aparelho com todos os dados e para de sincronizar. A conta ${email} e os dados dela na nuvem não são apagados.`,
 } as const;
 
 export const FIELD = {
@@ -93,9 +91,7 @@ export const ACTION = {
   unlockBusy: 'Desbloqueando…',
   saveAndUnlock: 'Salvar e desbloquear',
   continue: 'Continuar',
-  verifyBusy: 'Verificando…',
-  unlink: 'Desvincular',
-  unlinkBusy: 'Desvinculando…',
+  confirmBusy: 'Confirmando…',
   confirmReset: 'Entendi, redefinir',
   cancel: 'Cancelar',
   signOut: (p: string) => `Sair de ${p}`,
@@ -103,6 +99,7 @@ export const ACTION = {
   done: 'Concluir',
   linkCloud: 'Vincular conta na nuvem',
   forgot: 'Esqueci minha senha',
+  forgotAccount: 'Esqueci a senha da conta',
   resendCode: 'Enviar novo código',
   resendIn: (n: number) => `Reenviar em ${n}s`,
   otherEmail: 'Usar outro e-mail',
@@ -133,19 +130,8 @@ export const DONE = {
     body: (p: string) =>
       `${p} está ativo neste aparelho. Se quiser, vincule uma conta na nuvem para sincronizar — é opcional.`,
   },
-  linked: { title: 'Conta vinculada', body: (p: string, email: string) => `${p} agora sincroniza com ${email}.` },
-  colorsReplaced: (tribe: string) => `As cores da conta (${tribe}) passaram a valer para este perfil.`,
-  created: {
-    title: 'Conta criada',
-    body: (p: string, email: string) => `${p} agora sincroniza com ${email}. Suas cores foram salvas na conta.`,
-  },
   setup: { title: 'Perfil pronto', body: (p: string) => `${p} foi criado neste aparelho e está ativo.` },
-  reauthed: { title: 'Sincronização retomada', body: (p: string) => `A conta voltou a sincronizar ${p}.` },
   recovered: { title: 'Perfil desbloqueado', body: (p: string) => `${p} está ativo com todos os dados intactos.` },
-  unlinked: {
-    title: 'Conta desvinculada',
-    body: (p: string) => `${p} continua neste aparelho com todos os dados e parou de sincronizar.`,
-  },
 } as const;
 
 export const LINK_STATE = {
@@ -168,10 +154,188 @@ export const CAPTION = {
   colorsReplaced: 'As cores salvas na conta agora valem para este perfil.',
   cloudColors: 'Cores salvas na sua conta.',
   bringCollection: 'Traga sua coleção da nuvem para este aparelho.',
-  reauth: 'A sessão da conta expirou. O perfil continua funcionando neste aparelho.',
-  recover: 'Use a conta vinculada para criar uma nova senha local.',
-  unlink: 'Desvincular não apaga nada — nem aqui, nem na nuvem.',
-  optional: 'Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.',
+} as const;
+
+// The profile modal (spec 005 ui.md §7).
+export const PROFILE = {
+  hub: {
+    caption: 'Cada perfil tem sua coleção, seus decks e suas cores.',
+    localRow: { title: 'Perfil neste aparelho', meta: 'Cores, nome e senha' },
+    cloudRow: 'Conta na nuvem',
+    cloudMetaExpired: (email: string) => `Sessão expirada · ${email}`,
+    cloudMetaLocal: 'Vincular para sincronizar entre aparelhos',
+    verb: 'Abrir',
+    prompt: { ask: 'Não é você?', cta: 'Trocar de perfil' },
+  },
+  syncPlate: {
+    localMeta: 'Sem conta na nuvem — funciona sem internet.',
+  },
+  local: {
+    title: 'Perfil neste aparelho',
+    subtitleLinked: 'Cores e nome também seguem para a conta na nuvem na próxima sincronização.',
+    subtitleLocal: 'Tudo aqui funciona sem internet.',
+    caption: 'Toque nas cores da roda para mudar. A primeira tinge o app inteiro.',
+    pwRow: { title: 'Senha do perfil', meta: 'Desbloqueia o perfil neste aparelho', verb: 'Mudar' },
+    deleteRow: {
+      title: 'Excluir perfil',
+      meta: (nome: string) => `Apaga ${nome} e os dados dele deste aparelho`,
+      verb: 'Excluir',
+    },
+    save: 'Salvar',
+    saveBusy: 'Salvando…',
+  },
+  cloud: {
+    title: 'Conta na nuvem',
+    caption: 'Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.',
+    subtitleLinked: (nome: string, email: string) => `${nome} sincroniza com ${email}.`,
+    subtitleExpired: (nome: string) => `A sessão expirou. ${nome} continua funcionando neste aparelho.`,
+    subtitleLocal: (nome: string) => `Opcional — vincule para sincronizar ${nome} entre aparelhos.`,
+    plateLinked: 'Vinculado à nuvem',
+    plateExpired: 'Sessão expirada',
+    plateExpiredNote: 'O perfil continua funcionando neste aparelho. Entre de novo para voltar a sincronizar.',
+    plateLocal: 'Só neste aparelho',
+    plateLocalNote: (nome: string) => `A conta na nuvem sincroniza ${nome} entre aparelhos. O app funciona sem ela.`,
+    pwRow: { title: 'Senha da conta', meta: 'Usada para entrar na conta em outros aparelhos', verb: 'Mudar' },
+    unlinkRow: { title: 'Desvincular conta', meta: 'Os dados continuam aqui e na nuvem', verb: 'Desvincular' },
+    deleteRow: {
+      title: 'Excluir conta na nuvem',
+      meta: (email: string) => `Apaga ${email} e os dados na nuvem`,
+      verb: 'Excluir',
+    },
+    reauth: 'Entrar de novo',
+  },
+  back: 'Voltar',
+  syncBusyHint: 'Aguarde a sincronização terminar',
+  // Action steps (title · subtitle · caption · verb/busy). `in`/`up`/reset/`reauth`/`unlink` are
+  // spec 003's link-context copy, moved here.
+  steps: {
+    pw: {
+      title: 'Mudar senha do perfil',
+      subtitleLinked: (nome: string) =>
+        `Vale só para desbloquear ${nome} neste aparelho. A senha da conta na nuvem não muda.`,
+      subtitleLocal: (nome: string) => `A nova senha passa a desbloquear ${nome} neste aparelho.`,
+      caption: 'Mudar a senha não apaga nada.',
+      verb: 'Salvar senha',
+      busy: 'Salvando…',
+    },
+    cloudpw: {
+      title: 'Mudar senha da conta',
+      subtitle:
+        'A senha do perfil neste aparelho não muda. Os outros aparelhos vinculados vão pedir a nova senha.',
+      verb: 'Salvar senha da conta',
+      busy: 'Salvando…',
+    },
+    in: {
+      title: 'Entrar na conta',
+      subtitle: (nome: string) => `Vincule ${nome} a uma conta na nuvem para sincronizar entre aparelhos.`,
+    },
+    up: {
+      title: 'Criar conta na nuvem',
+      subtitle: (nome: string) => `${nome} pode sincronizar entre aparelhos quando você quiser.`,
+    },
+    reauth: {
+      title: 'Entre de novo',
+      subtitle: (nome: string) => `A sessão da conta expirou. Entre para voltar a sincronizar ${nome}.`,
+      caption: 'A sessão da conta expirou. O perfil continua funcionando neste aparelho.',
+    },
+    unlink: {
+      title: 'Desvincular conta',
+      subtitle: (nome: string, email: string) =>
+        `${nome} continua neste aparelho com todos os dados e para de sincronizar. A conta ${email} e os dados dela na nuvem não são apagados.`,
+      caption: 'Desvincular não apaga nada — nem aqui, nem na nuvem.',
+      verb: 'Desvincular',
+      busy: 'Desvinculando…',
+    },
+    delprofile: {
+      title: 'Excluir perfil',
+      subtitle: (nome: string) => `${nome} e tudo o que é dele saem deste aparelho. Não dá para desfazer.`,
+      caption: 'Os outros perfis deste aparelho não mudam.',
+      verb: 'Excluir perfil',
+      busy: 'Excluindo…',
+    },
+    delcloud: {
+      title: 'Excluir conta na nuvem',
+      subtitle: (email: string) =>
+        `A conta ${email} e todos os dados dela na nuvem serão apagados para sempre. Não dá para desfazer.`,
+      caption: 'Excluir a conta não apaga nada deste aparelho.',
+      verb: 'Excluir conta',
+      busy: 'Excluindo…',
+    },
+  },
+  field: {
+    pwCurrent: 'Senha atual do perfil',
+    pwNew: 'Nova senha do perfil',
+    pwNewHelper: 'Pelo menos 8 caracteres. Funciona sem internet.',
+    pwConfirm: 'Confirmar nova senha',
+    cloudPwCurrent: 'Senha atual da conta',
+    cloudPwNew: 'Nova senha da conta',
+    cloudPwNewHelper: 'Pelo menos 8 caracteres.',
+    pwProfile: 'Senha do perfil',
+    pwAccount: 'Senha da conta',
+  },
+  delprofile: {
+    plate: 'Sai deste aparelho',
+    items: (nome: string) => `Cartas · Locais de armazenamento · Decks · Cores · O perfil ${nome}`,
+    linkedNote: (email: string) =>
+      `A conta ${email} e os dados dela na nuvem não são apagados. Dá para configurá-la de novo neste ou em outro aparelho.`,
+    // review: not in the handoff (spec 005 FR-018a).
+    decksNote: 'Decks ainda não vão para a nuvem — saem junto com o perfil.',
+    unsynced: 'Há mudanças que ainda não foram sincronizadas. Se excluir agora, elas se perdem.',
+    syncNow: 'Sincronizar agora',
+    retry: 'Tentar de novo',
+    syncing: 'Sincronizando…',
+    synced: 'Sincronizado agora — nada se perde na nuvem.',
+  },
+  delcloud: {
+    plate: 'Sai da nuvem para sempre',
+    items: 'Cartas · Locais de armazenamento · Decks · Cores e nome salvos na conta',
+    note: (nome: string) =>
+      `Os outros aparelhos vinculados param de sincronizar. ${nome} continua neste aparelho com todos os dados.`,
+  },
+  done: {
+    linked: { title: 'Conta vinculada', body: (nome: string, email: string) => `${nome} agora sincroniza com ${email}.` },
+    colorsReplaced: (tribe: string) => `As cores da conta (${tribe}) passaram a valer para este perfil.`,
+    created: {
+      title: 'Conta criada',
+      body: (nome: string, email: string) => `${nome} agora sincroniza com ${email}. Suas cores foram salvas na conta.`,
+    },
+    reauthed: { title: 'Sincronização retomada', body: (nome: string) => `A conta voltou a sincronizar ${nome}.` },
+    unlinked: {
+      title: 'Conta desvinculada',
+      body: (nome: string) => `${nome} continua neste aparelho com todos os dados e parou de sincronizar.`,
+    },
+    pwChanged: {
+      title: 'Senha alterada',
+      body: (nome: string, linked: boolean) =>
+        `A nova senha já desbloqueia ${nome} neste aparelho.` +
+        (linked ? ' A senha da conta na nuvem continua a mesma.' : ''),
+    },
+    cloudPwChanged: {
+      title: 'Senha da conta alterada',
+      body: (email: string) =>
+        `Este aparelho continua conectado. Os outros aparelhos vinculados a ${email} vão pedir para entrar de novo com a nova senha.`,
+    },
+    cloudDeleted: {
+      title: 'Conta excluída',
+      body: (nome: string, email: string) =>
+        `A conta ${email} e os dados dela na nuvem foram apagados. ${nome} continua neste aparelho com todos os dados, agora só neste aparelho.`,
+    },
+  },
+  emptyDevice: {
+    eyebrow: 'Nenhum perfil neste aparelho',
+    line: 'Crie um perfil para começar — funciona sem internet, sem e-mail.',
+    cta: 'Criar perfil',
+  },
+} as const;
+
+// Toasts (FR-022).
+export const TOAST = {
+  saved: { label: 'Perfil', text: 'Alterações salvas.' },
+  gone: (email: string, nome: string) => ({
+    label: 'Conta na nuvem',
+    text: `A conta ${email} não existe mais. ${nome} continua neste aparelho com todos os dados.`,
+  }),
+  close: 'Fechar aviso',
 } as const;
 
 // App shell (spec 004 ui.md §7).
@@ -185,11 +349,11 @@ export const SHELL = {
   home: 'Grimorio — Início',
   signIn: ACTION.in,
   noProfile: 'Nenhum perfil ativo',
-  profileHint: 'Trocar de perfil ou sair',
+  // review: not in the handoff (spec 005 R16).
   profileBusy: 'Aguarde a sincronização terminar',
   notice: 'Aviso legal',
   profileLabel: (name: string, tribe: string, colors: string) =>
-    `Perfil ${name} — ${tribe} · ${colors}. Trocar de perfil ou sair.`,
+    `Perfil ${name} — ${tribe} · ${colors}. Gerenciar perfil.`,
 } as const;
 
 // The sync area, sync mark and drawer sync line (FR-007).

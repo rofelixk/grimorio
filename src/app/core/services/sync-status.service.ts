@@ -1,6 +1,6 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { SyncDisplay, syncDisplay } from '../utils/sync-status.util';
-import { EntryModalService } from './entry-modal.service';
+import { ProfileModalService } from './profile-modal.service';
 import { ProfileSessionService } from './profile-session.service';
 import { SyncService } from './sync.service';
 
@@ -12,7 +12,7 @@ const CLOCK_MS = 60_000;
 export class SyncStatusService {
   private readonly session = inject(ProfileSessionService);
   private readonly sync = inject(SyncService);
-  private readonly entryModal = inject(EntryModalService);
+  private readonly profileModal = inject(ProfileModalService);
 
   private readonly now = signal(Date.now());
 
@@ -49,10 +49,10 @@ export class SyncStatusService {
         void this.sync.syncNow();
         return;
       case 'link':
-        void this.entryModal.open({ context: 'link', start: 'in' });
+        this.profileModal.open({ start: 'in' });
         return;
       case 'reauth':
-        void this.entryModal.open({ context: 'link', start: 'reauth' });
+        this.profileModal.open({ start: 'reauth' });
         return;
     }
   }

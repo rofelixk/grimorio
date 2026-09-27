@@ -1,13 +1,11 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProfileSummary } from '@models/profile.model';
-import { getDeviceDb } from '../db/device-db';
+import { ACTIVE_PROFILE_KEY, getDeviceDb } from '../db/device-db';
 import { CardService } from './card.service';
 import { DeckService } from './deck.service';
 import { ProfileStore } from './profile-store.service';
 import { StorageLocationService } from './storage-location.service';
-
-const ACTIVE_PROFILE_KEY = 'activeProfileId';
 
 /**
  * Cloud side of a profile switch (data-model "Entering active(P)" steps 1, 5, 6), registered

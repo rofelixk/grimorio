@@ -90,10 +90,12 @@
                   </button>
                 </div>
               }
-              @case ('unlink') {
+              @case ('recover-form') {
                 <div class="actions">
-                  <button type="button" class="btn btn--ghost" (click)="store.close()">{{ action.cancel }}</button>
-                  <button type="submit" class="btn btn--danger" [disabled]="store.loading()">
+                  <button type="button" class="btn btn--ghost" (click)="store.cancelToUnlock()">
+                    {{ action.cancel }}
+                  </button>
+                  <button type="submit" class="btn btn--primary" [disabled]="store.loading()">
                     {{ store.primary() }}
                   </button>
                 </div>

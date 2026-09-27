@@ -245,7 +245,8 @@ There is **one** neutral shadow, `0 1px 3px rgba(0,0,0,.4)`, on the modal face a
 | **Radial wash** | `radial-gradient(circle at 0% 0%, primary 18%, transparent 58%)` — the identity pane and mobile header |
 | **Primary button** | role-primary text + border, `text-shadow 0 0 8px` at 60%, `box-shadow 0 0 20px` at 35% |
 | **List-row hover** | border → role-primary, `0 0 18px -4px` at 55% |
-| **Selected swatch** | `0 0 0 3px bg, 0 0 0 4px <hex>, 0 0 20px <hex> 50%` |
+| **Selected swatch** | dot `0 0 14px <hex> 55%` breathing to `0 0 20px 1px` 62%; rim `0 0 10px <hex> 35%` (see "Identity wheel") |
+| **Toast** | 1px role-primary border, `0 0 18px -4px` primary at 55% |
 
 Blur and transparency are used only for atmosphere: the halo, the backdrop, the name blur-in. No frosted-glass panels.
 
@@ -280,20 +281,22 @@ These are deliberate exceptions to two rules: the flowing line and the thread ar
 - The easing is always `cubic-bezier(0.4, 0, 0.2, 1)`.
 - **Durations:** 0.18s hover/focus, 0.24s modal height, 0.5s swatch state and name entrance.
 - **Name entrance:** fade + `blur(6px)` + `scale(.92)` over 0.5s, re-triggered whenever the tribe name changes.
-- **Swatch pick:** the swatch scales to 1.06 (unpicked ones 0.88–0.9). A 0.7s ripple ring (scale 1 → 1.9, fading out) plus a burst of 8 sparks (26–46px, 0.6–0.9s) in the picked color.
+- **Swatch pick:** the swatch scales to 1.06 (unpicked ones .58). A 0.7s ripple ring (scale 1 → 1.9, fading out) plus a burst of 8 sparks (26–46px, 0.6–0.9s) in the picked color.
 - **Retint on link:** when a cloud account's saved colors replace the profile's, the wheel ripples on every newly lit color.
 - **Hover preview:** in the profile list, hovering or focusing a row retints the whole modal to that profile. Leaving the *list* (not an individual row) restores it, so there's no flicker in the gaps.
 - **Band flow:** the "Fio de luz" bands move over 120s, linear, infinite (`grm-flow-long` and `grm-flow-mark` horizontally, `grm-flow-v` vertically, 2400px of travel).
 - **Drawer:** slides in from the right over 0.36s (`--duration-drawer`), and the backdrop fades over the same time.
 - **Side nav:** width, border and glow change over `base` 0.24s. It collapses 120ms after the pointer leaves.
-- **`prefers-reduced-motion`:** all ring, halo, spark, ripple and band animation stops. Rings and bands freeze, and the drawer opens and closes instantly (0s).
+- **`prefers-reduced-motion`:** all ring, halo, spark, ripple and band animation stops, as do the wheel's spin, breathing, motes and bursts. Rings and bands freeze, the drawer opens and closes instantly (0s), modal height changes are instant, and the toast appears without a transition.
 
 ## Components
 
 ### Themed modal (the blueprint)
 A native `<dialog>` with a transparent dialog, the opaque page-colored face inside the 2px ring gap, the halo and sparks. ✕ closes and fully resets fields and errors.
 
-**Modes**
+Two modals use this shell, and only one is ever open at a time.
+
+**Entry modal** — who is at the device.
 - **Local profile:**
   - Profile list
   - Unlock
@@ -301,13 +304,21 @@ A native `<dialog>` with a transparent dialog, the opaque page-colored face insi
   - Create profile (with the identity picker)
   - Local reset — warning, then new password
 - **Cloud account (optional):**
-  - Sign in
+  - Sign in (new device)
   - Create account
   - Forgot password: e-mail → 6-digit code + new password
   - New-device profile setup
-  - Session expired
-  - Recover a linked profile
-  - Unlink
+  - Redefinir senha do perfil (a linked profile's forgotten local password): account e-mail plate, "Senha da conta" + "Esqueci a senha da conta", ghost Cancelar · primary Continuar
+
+**Profile modal** — manage the active profile. Opened by the profile control and the sync area.
+- **Hub:** the profile name as title (no subtitle), the sync plate, two action rows ("Perfil neste aparelho", "Conta na nuvem"), and the prompt "Não é você? Trocar de perfil".
+- **Perfil neste aparelho:** the name field, action rows for the profile password and (danger) profile deletion, ghost Voltar · primary Salvar. Salvar is enabled only while the trimmed name differs from the saved one — color taps apply at once and never enable it.
+- **Conta na nuvem:** a plate for the link state (linked / expired / local), then its action rows or its one block button, and ghost Voltar.
+- **Action steps** (from a sub-screen or the sync area): title, subtitle, fields or plates, form error, and a button row with ghost Cancelar + the verb (danger for destructive steps). Cancelar and Concluir return to the screen the step was opened from.
+- **Done screens:** title, one sentence and a primary block Concluir.
+- **Desktop:** the 880px face, identity pane 400px (the 300px picker wheel + a two-line caption) | form pane. The pinned prompt shows on the hub, sign in, create account and the reset steps only. Minimum height 460px.
+- **Mobile:** full-bleed; header = wordmark + identity chip ("name · tribe") + ✕. No identity pane: the 240px picker wheel sits centered at the top of the body on the hub and "Perfil neste aparelho" only. Button rows stack (`column-reverse`, full width).
+- **Live identity:** a color tap retints the whole app and the modal at once (the modal's roles are the active profile's).
 
 ### Identity wheel (signature component)
 - **Layout:** five swatches on a pentagon, **clockwise from the top: W → U → B → R → G**.
@@ -316,9 +327,21 @@ A native `<dialog>` with a transparent dialog, the opaque page-colored face insi
   - Sizes: 300px desktop, 240px mobile.
 - **Center:** the **tribe name** (Grenze) plus a muted subline (profile name, or the color names in pick order).
   - With no colors, the center shows the "Grimorio" wordmark and all five swatches sit neutral at .85.
-- **States:**
-  - **Picker** (create profile only): up to 3 picks, at least 1 kept. Unpicked .55, locked .3 + `not-allowed`.
-  - **Display** (everywhere else): lit colors 1, unlit .35.
+- **Swatch anatomy:** every swatch has the same three layers:
+  - `disc` — inset −1px, page background. It masks the spinning ring line behind the swatch.
+  - `rim` — a 1px border in the swatch color.
+  - `dot` — inset 14%, filled with the swatch color.
+- **States** (0.5s standard easing on scale and opacity):
+  - **on** (picked): scale 1.06, opacity 1. Dot glow `0 0 14px` at 55%, **breathing** to `0 0 20px 1px` at 62% over 5s; rim glow `0 0 10px` at 35%.
+  - **off** (pickable, not picked): scale .58, opacity .28. Hover (`off:hover`): scale .66, opacity .5.
+  - **locked** (3 already picked): scale .24, rim opacity .35, no dot; `not-allowed` and `aria-disabled="true"` (taps do nothing, `aria-pressed` stays).
+  - **neutral** (no identity): scale .88, opacity .85.
+- **Motes:** every 700ms, each picked color has a 26% chance to emit one 2px mote from its edge. It drifts outward (away from the wheel center, ±0.7 rad) 14–28px over 2.4–3.6s, peaks at .35–.6 opacity, then fades.
+- **Modes:**
+  - **Picker:** the create-profile step, and every profile-modal screen that shows the wheel. Buttons with `aria-pressed`, named with the color. Up to 3 picks; the last pick can't be removed; the others lock at 3. Tap order is role order.
+  - **Display** (everywhere else): the same anatomy, not interactive.
+- In the profile modal, the tribe name in the center is `aria-live="polite"`, so a color change is announced.
+- **Reduced motion:** the spin, breathing, motes and pick bursts all stop.
 
 **Tribe names**
 
@@ -355,6 +378,41 @@ A native `<dialog>` with a transparent dialog, the opaque page-colored face insi
 ### Info plates
 The e-mail chip ("Conta na nuvem" eyebrow + address) and status notices ("Você saiu de rafa…"): surface background, hairline, 4px radius, `role="status"` for notices.
 
+- **Danger plate:** a `.plate` modifier with a `danger` border, for a warning that blocks nothing but loses data if ignored (the unsynced-changes block before deleting a profile). Its text is `danger`; its actions are secondary buttons.
+
+### Action rows
+The hub's and sub-screens' entries into a screen or an action step. Built like the profile list rows.
+- **Row:** one full-width `<button>`, 56px minimum, 8px radius, the `surface-raised → surface` gradient, a hairline. Hover and focus: border → role-primary, `0 0 18px -4px` at 55%.
+- **Contents:** a leading mini wheel (or a 36px spacer, to keep titles aligned) · title (Karla 700) over meta (0.75rem muted) · a trailing micro-label verb ("Abrir", "Mudar", "Excluir"), pushed right.
+- **Danger variant:** the title in `danger`. Nothing else changes.
+- **Lists:** rows in a column with `space-2` between them. Destructive rows sit in their own list, after the others.
+- **Accessible name:** "{title}. {meta}.". Disabled rows use `disabled` (opacity .5, `not-allowed`) and, while a sync runs, add "Aguarde a sincronização terminar" to their description.
+
+### Sync plate
+The hub's expanded sync area: a `.plate` with a status column (sync mark + label in 0.75rem, over the meta in 0.875rem muted, `overflow-wrap: anywhere`) and one button.
+- **Desktop:** a row, centered, `space-between`, gap `space-3`. **Mobile:** a column; the button is full width.
+
+| Link state | Mark + label | Meta | Button |
+|---|---|---|---|
+| linked | the sync area's mark and label | e-mail | secondary "Sincronizar agora" |
+| syncing | spinner, "Sincronizando…" | e-mail | none |
+| offline / error | danger mark and label | e-mail | secondary "Tentar de novo" |
+| local | hollow ring, "Sem conta na nuvem" | "Sem conta na nuvem — funciona sem internet." | secondary "Vincular conta na nuvem" |
+| expired | danger mark and label, **danger border** | e-mail | **primary** "Entrar de novo" |
+
+### Toast
+Short confirmations and notices that shouldn't shift the layout ("Alterações salvas.", an account that no longer exists). One region for the whole app: it shows above whatever is open, including a modal.
+- **Placement:** desktop fixed top-right, below the 44px bar + `space-4`, `space-4` from the right, 380px maximum. Mobile `space-3` from the top, left and right.
+- **Face:** `surface-raised`, 1px role-primary border, 8px radius, `0 0 18px -4px` primary glow at 55%, padding `space-3 space-4`, 0.875rem parchment text.
+- **Contents:** an 8px role-accent dot (`0 0 8px` glow, 6px from the top) · a column with the micro label over the text (`text-wrap: pretty`) · a 44px ✕ ("Fechar aviso"), muted, pulled into the corner.
+- **Behavior:** at most one; a new toast replaces the current one. It closes after 5s or on ✕, and doesn't pause on hover. `role="status"`, `aria-live="polite"` on a region that is always present; it never takes focus. No transition under reduced motion.
+
+### Empty-device state
+Home when the device has no profiles. Centered in the page, 360px maximum, `space-4` gap, centered text:
+- eyebrow "Nenhum perfil neste aparelho"
+- a 0.875rem muted line
+- `.btn--primary` "Criar perfil", which opens the entry modal on the create step
+
 ### App top bar
 The thin app-shell row above every screen (`role="banner"`). Its layout changes at the shell's one breakpoint, 960px.
 - **Surface:** page background, no border and no shadow. The bottom edge is the "Fio de luz" flowing line, and the wash sits behind the wordmark.
@@ -364,7 +422,7 @@ The thin app-shell row above every screen (`role="banner"`). Its layout changes 
 - **Narrow (< 960px):** wordmark · sync mark · Menu. Menu is a ghost button with muted eyebrow text, `aria-expanded` and `aria-controls` pointing at the drawer. The profile control lives in the drawer.
 
 ### Profile control
-Shows who is active and opens the profile modal at switch / sign out.
+Shows who is active. With a profile it opens the profile modal on its hub; with none, the entry modal.
 - **Active profile:** identity dots (8px circles, 3px apart, in pick order, each with a `0 0 6px` glow in its own color) + the name in Karla 700 (0.875rem in the bar, 1rem in the drawer). The name is never truncated.
 - **No profile:** "Entrar" (Karla 700). In the drawer it follows "Nenhum perfil ativo" (0.75rem muted).
 - 44px minimum, transparent, no border. Hover: text → `role-primary-hover`.
@@ -424,7 +482,13 @@ The last thing in every page's scroll area: `<aside aria-label="Aviso legal">`, 
 - **Destructive or permissive actions state the consequence:** unlinking deletes nothing; resetting an unlinked profile warns that anyone on this device can do it.
 - **Prompts at the bottom of the form pane are a question + a link:** "Ainda não tem conta na nuvem? Criar conta", "Não é você? Trocar de perfil", "Perfil em outro aparelho? Entrar com conta na nuvem".
 - **Identity is always named twice:** the tribe name for flavor, the color names for clarity. Never rely on color alone.
-  - **Shell exception:** the profile control shows only the identity dots + the profile name. The tribe and color names are in its accessible name ("Perfil {nome} — {Tribo} · {Cor} · {Cor}. Trocar de perfil ou sair.").
+  - **Shell exception:** the profile control shows only the identity dots + the profile name. The tribe and color names are in its accessible name ("Perfil {nome} — {Tribo} · {Cor} · {Cor}. Gerenciar perfil.").
+- **Profile modal messages:**
+  - "As senhas não são iguais." · "A nova senha precisa ser diferente da atual."
+  - "Se a conta não existe mais, Desvincular conta mantém {nome} e os dados neste aparelho." — under "E-mail ou senha incorretos." on "Entre de novo".
+  - Toasts: "Perfil" / "Alterações salvas."; "Conta na nuvem" / "A conta {email} não existe mais. {nome} continua neste aparelho com todos os dados."
+  - Deleting states what leaves and what stays: "Sai deste aparelho: …" / "Sai da nuvem para sempre: …", and "Não dá para desfazer."
+  - Empty device: "Nenhum perfil neste aparelho" · "Crie um perfil para começar — funciona sem internet, sem e-mail." · "Criar perfil".
 
 ## Iconography
 

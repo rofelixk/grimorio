@@ -1,0 +1,7 @@
+@if (!profiles().length) {
+  <section class="empty">
+    <span class="eyebrow">{{ copy.eyebrow }}</span>
+    <p class="line">{{ copy.line }}</p>
+    <button type="button" class="btn btn--primary" (click)="createProfile()">{{ copy.cta }}</button>
+  </section>
+}

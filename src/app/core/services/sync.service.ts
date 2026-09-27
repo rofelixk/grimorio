@@ -1,14 +1,18 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { SupabaseClient, User } from '@supabase/supabase-js';
 import { CardEntry, CardFace } from '@models/card.model';
 import { ProfileSummary } from '@models/profile.model';
 import { StorageLocation } from '@models/storage-location.model';
 import { currentDbHandle, getMeta, setMeta } from '../db/entity-store';
+import { isAuthSessionError, isNetworkError } from '../utils/cloud-error.util';
 import { reconcileEntities } from '../utils/sync-reconcile.util';
+import { reconcileIdentity } from '../utils/identity-sync.util';
 import { CardService } from './card.service';
+import { CloudAuthService, identityOf } from './cloud-auth.service';
 import { CloudSessionService } from './cloud-session.service';
 import { ConnectivityService } from './connectivity.service';
 import { ProfileSessionService } from './profile-session.service';
+import { ProfileStore } from './profile-store.service';
 import { StorageLocationService } from './storage-location.service';
 
 interface StorageLocationRow {
@@ -47,21 +51,15 @@ interface CardEntryRow {
 }
 
 export type SyncState = 'idle' | 'syncing' | 'done' | 'offline' | 'reauth' | 'error';
-/** How a syncNow() call ended; 'skipped' = nothing to sync (unlinked, or the profile changed). */
-export type SyncOutcome = 'done' | 'offline' | 'reauth' | 'error' | 'skipped';
+/**
+ * How a syncNow() call ended; 'skipped' = nothing to sync (unlinked, or the profile changed);
+ * 'gone' = the account no longer exists, so the profile turned local-only (FR-019b).
+ */
+export type SyncOutcome = 'done' | 'offline' | 'reauth' | 'error' | 'skipped' | 'gone';
 /** A sync run always settles within this bound (FR-005a); a hung request ends as a failure. */
 export const SYNC_TIMEOUT_MS = 60_000;
 
 const LAST_SYNCED_KEY = 'lastSyncedAt';
-const AUTH_ERROR_CODES = new Set([
-  'session_not_found',
-  'refresh_token_not_found',
-  'refresh_token_already_used',
-  'bad_jwt',
-  'PGRST301',
-  'PGRST302',
-  'PGRST303',
-]);
 
 function locationToRow(location: StorageLocation, userId: string): StorageLocationRow {
   return {
@@ -147,27 +145,14 @@ interface Run {
 }
 
 class AuthExpired extends Error {}
+class Offline extends Error {}
 /** The run no longer owns the outcome: the profile changed, or the run timed out. */
 class Superseded extends Error {}
 
-function isAuthError(error: unknown): boolean {
-  if (!error || typeof error !== 'object') {
-    return false;
-  }
-  const { code, status } = error as { code?: unknown; status?: unknown };
-  return (typeof code === 'string' && AUTH_ERROR_CODES.has(code)) || status === 401 || status === 403;
-}
-
-function isNetworkError(error: unknown): boolean {
-  const { name, message } = (error ?? {}) as { name?: unknown; message?: unknown };
-  return (
-    name === 'AuthRetryableFetchError' ||
-    (typeof message === 'string' && /failed to fetch|networkerror|load failed/i.test(message))
-  );
-}
-
-// Syncs the active profile's locations and cards with its linked account (R11), reusing the
-// per-item last-write-wins reconciler. Decks never sync. Sync is manual only: nothing but
+// Syncs the active profile's identity, locations and cards with its linked account (R11), reusing
+// the per-item last-write-wins reconciler. Each run first asks GoTrue about the account (spec 005
+// R12): a deleted one turns the profile local-only, a dead session asks for "Entrar de novo", and
+// otherwise the identity step reconciles the colors and label (R6). Decks never sync. Sync is manual only: nothing but
 // syncNow() starts one, and only SyncStatusService calls it (spec 004, SC-011). Single-flight
 // and bounded by SYNC_TIMEOUT_MS; a run that was switched away from or timed out never writes
 // state or applies its results.
@@ -178,9 +163,21 @@ export class SyncService {
   private readonly connectivity = inject(ConnectivityService);
   private readonly cards = inject(CardService);
   private readonly locations = inject(StorageLocationService);
+  private readonly cloudAuth = inject(CloudAuthService);
+  private readonly profiles = inject(ProfileStore);
 
   private readonly stateSignal = signal<SyncState>('idle');
-  readonly state = this.stateSignal.asReadonly();
+  /**
+   * The profile's `needsReauth` flag decides 'reauth': a dead session shows as expired as soon as
+   * it's detected, and any re-sign-in (reauth, reset code, recover) clears it without a sync.
+   */
+  readonly state = computed<SyncState>(() => {
+    if (this.session.active()?.cloud?.needsReauth) {
+      return 'reauth';
+    }
+    const state = this.stateSignal();
+    return state === 'reauth' ? 'idle' : state;
+  });
   private readonly lastSyncedAtSignal = signal<string | null>(null);
   readonly lastSyncedAt = this.lastSyncedAtSignal.asReadonly();
 
@@ -271,12 +268,22 @@ export class SyncService {
     const { profile } = run;
     const handle = currentDbHandle();
     try {
-      const client = this.cloud.client(profile.id);
-      const { data, error } = await client.auth.getSession();
+      const account = await this.cloudAuth.lookupAccount(profile.id);
       this.ensureCurrent(run);
-      if (error || !data.session) {
-        throw new AuthExpired();
+      switch (account.status) {
+        case 'gone':
+          await this.cloudAuth.forgetGoneAccount(profile.id);
+          this.setStateIfCurrent(run, 'idle');
+          return 'gone';
+        case 'expired':
+          throw new AuthExpired();
+        case 'offline':
+          throw new Offline();
+        case 'error':
+          throw account.error;
       }
+      const client = this.cloud.client(profile.id);
+      await this.syncIdentity(client, account.user, run);
       await Promise.all([this.locations.flush(), this.cards.flush()]);
       // Locations first: card_entries.location_id references storage_locations.
       await this.syncLocations(client, run);
@@ -293,12 +300,12 @@ export class SyncService {
       if (error instanceof Superseded || !this.isCurrent(run)) {
         return 'skipped';
       }
-      if (error instanceof AuthExpired || isAuthError(error)) {
+      if (error instanceof AuthExpired || isAuthSessionError(error)) {
         await this.cloud.markNeedsReauth(profile.id);
         this.setStateIfCurrent(run, 'reauth');
         return 'reauth';
       }
-      if (!this.connectivity.online() || isNetworkError(error)) {
+      if (error instanceof Offline || !this.connectivity.online() || isNetworkError(error)) {
         this.setStateIfCurrent(run, 'offline');
         return 'offline';
       }
@@ -320,6 +327,30 @@ export class SyncService {
   private setStateIfCurrent(run: Run, state: SyncState): void {
     if (this.isCurrent(run)) {
       this.stateSignal.set(state);
+    }
+  }
+
+  // Colors are last-write-wins across devices; the label records the latest rename (FR-012a).
+  private async syncIdentity(client: SupabaseClient, user: User, run: Run): Promise<void> {
+    const local = this.profiles.byId(run.profile.id);
+    if (!local) {
+      throw new Superseded();
+    }
+    const remote = identityOf(user);
+    const result = reconcileIdentity(local, {
+      colors: remote.colors,
+      colorsAt: remote.colorsAt,
+      labelAt: remote.labelAt,
+    });
+    if (result.write) {
+      const { error } = await client.auth.updateUser({ data: result.write });
+      if (error) {
+        throw error;
+      }
+    }
+    this.ensureCurrent(run);
+    if (result.adoptColors) {
+      await this.profiles.setColors(local.id, result.adoptColors.colors, result.adoptColors.at);
     }
   }
 

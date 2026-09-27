@@ -1,6 +1,6 @@
 import { MSG } from './entry-copy';
 
-export type FieldKey = 'email' | 'pw' | 'code' | 'user';
+export type FieldKey = 'email' | 'pw' | 'pwNew' | 'pwConfirm' | 'code' | 'user';
 
 export type Failure =
   | { kind: 'field'; field: FieldKey; message: string; emailInUse?: true }
@@ -21,7 +21,31 @@ function isOffline(): boolean {
   return typeof navigator !== 'undefined' && navigator.onLine === false;
 }
 
-function isNetworkError(error: unknown): boolean {
+/** Codes (and 401/403) meaning the stored cloud session is dead: the profile needs "Entrar de novo". */
+const AUTH_SESSION_CODES = new Set([
+  'session_not_found',
+  'refresh_token_not_found',
+  'refresh_token_already_used',
+  'bad_jwt',
+  'PGRST301',
+  'PGRST302',
+  'PGRST303',
+]);
+
+export function isAuthSessionError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') {
+    return false;
+  }
+  const { code, status, name } = error as { code?: unknown; status?: unknown; name?: unknown };
+  return (
+    (typeof code === 'string' && AUTH_SESSION_CODES.has(code)) ||
+    status === 401 ||
+    status === 403 ||
+    name === 'AuthSessionMissingError'
+  );
+}
+
+export function isNetworkError(error: unknown): boolean {
   if (!error || typeof error !== 'object') {
     return false;
   }
@@ -29,8 +53,15 @@ function isNetworkError(error: unknown): boolean {
   if (name === 'AuthRetryableFetchError') {
     return true;
   }
-  // fetch() rejects with a TypeError ("Failed to fetch", "NetworkError…", "Load failed").
-  return error instanceof TypeError && typeof message === 'string' && /fetch|network|load failed/i.test(message);
+  if (typeof message !== 'string') {
+    return false;
+  }
+  // fetch() rejects with a TypeError ("Failed to fetch", "NetworkError…", "Load failed");
+  // PostgREST wraps the same failure in a plain error object.
+  return (
+    (error instanceof TypeError && /fetch|network|load failed/i.test(message)) ||
+    /failed to fetch|networkerror|load failed/i.test(message)
+  );
 }
 
 // Maps any Supabase/network error to PT-BR copy (R8, Principle II). Keys on AuthError.code;
@@ -55,6 +86,8 @@ export function mapCloudError(error: unknown): Failure {
       return { kind: 'field', field: 'code', message: MSG.codeWrong };
     case 'weak_password':
       return { kind: 'field', field: 'pw', message: MSG.pwMin };
+    case 'same_password':
+      return { kind: 'field', field: 'pwNew', message: MSG.samePassword };
     default:
       return GENERIC_FAILURE;
   }

@@ -4,8 +4,8 @@ import { ACTION, CAPTION, DONE, FIELD, HELPER, MSG, PROMPT, SUBTITLE, TITLE } fr
 // Pure pieces of the entry modal's state machine (R15): which phase shows what, the
 // validation rules and the copy per phase. Everything here maps 1:1 to STATES.md rows.
 
-/** Where the modal was opened from (STATES.md "Context"). */
-export type EntryContext = 'device' | 'gate' | 'link';
+/** Where the modal was opened from (STATES.md "Context"): a device with no profile, or the gate. */
+export type EntryContext = 'device' | 'gate';
 
 export type EntryPhase =
   | 'list'
@@ -14,16 +14,19 @@ export type EntryPhase =
   | 'localreset-newpw'
   | 'profile'
   | 'in'
-  | 'up'
   | 'reset-email'
   | 'reset-code'
   | 'setup'
-  | 'reauth'
   | 'recover-form'
-  | 'recover-newpw'
-  | 'unlink';
+  | 'recover-newpw';
 
-export type DoneKind = 'unlocked' | 'profiled' | 'linked' | 'created' | 'setup' | 'reauthed' | 'recovered' | 'unlinked';
+/**
+ * Phases the shared form rules (fields, labels, validation) answer for: the entry modal's, plus
+ * the profile modal's `up` and `reauth`, which render the same CloudForm (spec 005 R2).
+ */
+export type FormPhase = EntryPhase | 'up' | 'reauth';
+
+export type DoneKind = 'unlocked' | 'profiled' | 'setup' | 'recovered';
 
 /** STATES.md "Colors" column: preview = hovered/focused row, else active profile, else default. */
 export type ColorSource = 'preview' | 'profile' | 'picks' | 'cloud' | 'default';
@@ -41,14 +44,12 @@ export type FieldErrors = Partial<Record<FieldKey, string>>;
 export interface CopyVars {
   profile: string;
   email: string;
-  linkedEmail: string;
   tribe: string;
   linked: boolean;
   activeName: string | null;
 }
 
-const CLOUD_PHASES: readonly EntryPhase[] = ['in', 'up', 'reset-email', 'reset-code', 'reauth', 'recover-form'];
-const NEW_PASSWORD_PHASES: readonly EntryPhase[] = [
+const NEW_PASSWORD_PHASES: readonly FormPhase[] = [
   'up',
   'reset-code',
   'setup',
@@ -56,20 +57,16 @@ const NEW_PASSWORD_PHASES: readonly EntryPhase[] = [
   'profile',
   'localreset-newpw',
 ];
-const LOCAL_PASSWORD_PHASES: readonly EntryPhase[] = ['setup', 'recover-newpw', 'profile', 'localreset-newpw'];
-const NO_PASSWORD_PHASES: readonly EntryPhase[] = ['reset-email', 'unlink', 'list', 'localreset-warn'];
-const EMAIL_PHASES: readonly EntryPhase[] = ['in', 'up', 'reset-email'];
-const NAME_PHASES: readonly EntryPhase[] = ['profile', 'setup'];
-const PLATE_PHASES: readonly EntryPhase[] = ['setup', 'reauth', 'recover-form'];
-const FORGOT_PHASES: readonly EntryPhase[] = ['in', 'reauth', 'recover-form', 'unlock'];
+const LOCAL_PASSWORD_PHASES: readonly FormPhase[] = ['setup', 'recover-newpw', 'profile', 'localreset-newpw'];
+const NO_PASSWORD_PHASES: readonly FormPhase[] = ['reset-email', 'list', 'localreset-warn'];
+const EMAIL_PHASES: readonly FormPhase[] = ['in', 'up', 'reset-email'];
+const NAME_PHASES: readonly FormPhase[] = ['profile', 'setup'];
+const PLATE_PHASES: readonly FormPhase[] = ['setup', 'reauth', 'recover-form'];
+const FORGOT_PHASES: readonly FormPhase[] = ['in', 'reauth', 'recover-form', 'unlock'];
 
 export const NAME_PATTERN = /^[A-Za-z0-9_.-]+$/;
 const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
 const CODE_PATTERN = /^\d{6}$/;
-
-export function isCloudPhase(phase: EntryPhase): boolean {
-  return CLOUD_PHASES.includes(phase);
-}
 
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -84,7 +81,7 @@ export interface PhaseFields {
   forgot: boolean;
 }
 
-export function fieldsFor(phase: EntryPhase): PhaseFields {
+export function fieldsFor(phase: FormPhase): PhaseFields {
   return {
     name: NAME_PHASES.includes(phase),
     email: EMAIL_PHASES.includes(phase),
@@ -95,7 +92,7 @@ export function fieldsFor(phase: EntryPhase): PhaseFields {
   };
 }
 
-export function pwLabel(phase: EntryPhase): string {
+export function pwLabel(phase: FormPhase): string {
   switch (phase) {
     case 'localreset-newpw':
     case 'recover-newpw':
@@ -111,12 +108,12 @@ export function pwLabel(phase: EntryPhase): string {
   }
 }
 
-export function pwAutocomplete(phase: EntryPhase): 'new-password' | 'current-password' {
+export function pwAutocomplete(phase: FormPhase): 'new-password' | 'current-password' {
   return NEW_PASSWORD_PHASES.includes(phase) ? 'new-password' : 'current-password';
 }
 
 /** The helper under the password field, or '' (it is also hidden while an error shows). */
-export function pwHelper(phase: EntryPhase): string {
+export function pwHelper(phase: FormPhase): string {
   if (!NEW_PASSWORD_PHASES.includes(phase)) {
     return '';
   }
@@ -137,26 +134,20 @@ export function titleFor(phase: EntryPhase, vars: CopyVars): string {
       return TITLE.profile;
     case 'in':
       return TITLE.in;
-    case 'up':
-      return TITLE.up;
     case 'reset-email':
       return TITLE.resetEmail;
     case 'reset-code':
       return TITLE.resetCode;
     case 'setup':
       return TITLE.setup;
-    case 'reauth':
-      return TITLE.reauth;
     case 'recover-form':
       return TITLE.recoverForm;
     case 'recover-newpw':
       return TITLE.recoverNewpw;
-    case 'unlink':
-      return TITLE.unlink;
   }
 }
 
-export function subtitleFor(phase: EntryPhase, context: EntryContext, vars: CopyVars): string {
+export function subtitleFor(phase: EntryPhase, vars: CopyVars): string {
   switch (phase) {
     case 'list':
       return vars.activeName ? SUBTITLE.listActive(vars.activeName) : SUBTITLE.list;
@@ -169,27 +160,21 @@ export function subtitleFor(phase: EntryPhase, context: EntryContext, vars: Copy
     case 'profile':
       return SUBTITLE.profile;
     case 'in':
-      return context === 'link' ? SUBTITLE.inLink(vars.profile) : SUBTITLE.inDevice;
-    case 'up':
-      return SUBTITLE.up(vars.profile);
+      return SUBTITLE.inDevice;
     case 'reset-email':
       return SUBTITLE.resetEmail;
     case 'reset-code':
       return SUBTITLE.resetCode(vars.email);
     case 'setup':
       return SUBTITLE.setup;
-    case 'reauth':
-      return SUBTITLE.reauth(vars.profile);
     case 'recover-form':
       return SUBTITLE.recoverForm(vars.profile);
     case 'recover-newpw':
       return SUBTITLE.recoverNewpw(vars.profile);
-    case 'unlink':
-      return SUBTITLE.unlink(vars.profile, vars.linkedEmail);
   }
 }
 
-const LABELS: Record<EntryPhase, readonly [string, string] | null> = {
+const LABELS: Record<FormPhase, readonly [string, string] | null> = {
   list: null,
   'localreset-warn': null,
   unlock: [ACTION.unlock, ACTION.unlockBusy],
@@ -201,17 +186,16 @@ const LABELS: Record<EntryPhase, readonly [string, string] | null> = {
   'reset-code': [ACTION.saveAndEnter, ACTION.saveBusy],
   setup: [ACTION.createProfile, ACTION.createProfileBusy],
   reauth: [ACTION.in, ACTION.inBusy],
-  'recover-form': [ACTION.continue, ACTION.verifyBusy],
+  'recover-form': [ACTION.continue, ACTION.confirmBusy],
   'recover-newpw': [ACTION.saveAndUnlock, ACTION.saveBusy],
-  unlink: [ACTION.unlink, ACTION.unlinkBusy],
 };
 
 /** The primary action's label, or '' for phases without a submit (list, localreset-warn). */
-export function primaryLabel(phase: EntryPhase): string {
+export function primaryLabel(phase: FormPhase): string {
   return LABELS[phase]?.[0] ?? '';
 }
 
-export function busyLabel(phase: EntryPhase): string {
+export function busyLabel(phase: FormPhase): string {
   return LABELS[phase]?.[1] ?? '';
 }
 
@@ -236,9 +220,7 @@ export function promptFor(phase: EntryPhase, context: EntryContext): Prompt | nu
     case 'profile':
       return { ...PROMPT.haveCloud, target: 'in' };
     case 'in':
-      return context === 'device' ? { ...PROMPT.noProfile, target: 'profile' } : { ...PROMPT.noCloud, target: 'up' };
-    case 'up':
-      return { ...PROMPT.haveAccount, target: 'in' };
+      return { ...PROMPT.noProfile, target: 'profile' };
     case 'reset-email':
     case 'reset-code':
       return { ...PROMPT.remembered, target: 'back' };
@@ -260,7 +242,6 @@ export function colorSourceFor(
     switch (opts.done) {
       case 'profiled':
         return 'picks';
-      case 'linked':
       case 'setup':
         return opts.hasCloudColors ? 'cloud' : 'profile';
       default:
@@ -275,7 +256,7 @@ export function colorSourceFor(
     case 'setup':
       return 'cloud';
     case 'in':
-      return context === 'link' ? 'profile' : 'default';
+      return 'default';
     case 'reset-email':
     case 'reset-code':
       return opts.origin && opts.origin !== phase ? colorSourceFor(opts.origin, context) : 'profile';
@@ -288,7 +269,7 @@ export function colorSourceFor(
 export function captionFor(
   phase: EntryPhase,
   context: EntryContext,
-  opts: { done?: DoneKind | null; focusMeta?: string | null; colorsReplaced?: boolean; hasCloudColors?: boolean },
+  opts: { done?: DoneKind | null; focusMeta?: string | null; hasCloudColors?: boolean },
 ): string {
   if (context === 'gate' && (phase === 'list' || phase === 'unlock') && !opts.done) {
     return phase === 'list' && opts.focusMeta ? opts.focusMeta : CAPTION.profiles;
@@ -299,22 +280,10 @@ export function captionFor(
   if ((phase === 'profile' && !opts.done) || opts.done === 'profiled') {
     return CAPTION.picker;
   }
-  if (opts.done === 'linked' && opts.colorsReplaced) {
-    return CAPTION.colorsReplaced;
+  if (phase === 'recover-form' || phase === 'recover-newpw') {
+    return CAPTION.localReset;
   }
-  switch (phase) {
-    case 'reauth':
-      return CAPTION.reauth;
-    case 'recover-form':
-    case 'recover-newpw':
-      return CAPTION.recover;
-    case 'unlink':
-      return CAPTION.unlink;
-  }
-  if (context !== 'link') {
-    return opts.hasCloudColors ? CAPTION.cloudColors : CAPTION.bringCollection;
-  }
-  return CAPTION.optional;
+  return opts.hasCloudColors ? CAPTION.cloudColors : CAPTION.bringCollection;
 }
 
 export interface DoneCopy {
@@ -322,10 +291,7 @@ export interface DoneCopy {
   body: string;
 }
 
-export function doneCopy(
-  kind: DoneKind,
-  vars: { profile: string; email: string; previous: string | null; replacedTribe: string | null },
-): DoneCopy {
+export function doneCopy(kind: DoneKind, vars: { profile: string; previous: string | null }): DoneCopy {
   const p = vars.profile;
   switch (kind) {
     case 'unlocked':
@@ -334,28 +300,16 @@ export function doneCopy(
         : { title: DONE.unlocked.title, body: DONE.unlocked.body(p) };
     case 'profiled':
       return { title: DONE.profiled.title, body: DONE.profiled.body(p) };
-    case 'linked':
-      return {
-        title: DONE.linked.title,
-        body:
-          DONE.linked.body(p, vars.email) + (vars.replacedTribe ? ' ' + DONE.colorsReplaced(vars.replacedTribe) : ''),
-      };
-    case 'created':
-      return { title: DONE.created.title, body: DONE.created.body(p, vars.email) };
     case 'setup':
       return { title: DONE.setup.title, body: DONE.setup.body(p) };
-    case 'reauthed':
-      return { title: DONE.reauthed.title, body: DONE.reauthed.body(p) };
     case 'recovered':
       return { title: DONE.recovered.title, body: DONE.recovered.body(p) };
-    case 'unlinked':
-      return { title: DONE.unlinked.title, body: DONE.unlinked.body(p) };
   }
 }
 
 /** Validates on submit, before any request (FR-005). Returns only the failing fields. */
 export function validate(
-  phase: EntryPhase,
+  phase: FormPhase,
   fields: EntryFields,
   deps: { isNameTaken: (name: string) => boolean },
 ): FieldErrors {
@@ -384,15 +338,23 @@ export function validate(
   }
 
   if (shown.name) {
-    const name = fields.name.trim();
-    if (name.length < 3 || name.length > 16) {
-      errors.user = MSG.userLen;
-    } else if (!NAME_PATTERN.test(name)) {
-      errors.user = MSG.userChars;
-    } else if (deps.isNameTaken(name)) {
-      errors.user = MSG.userTaken;
+    const error = validateName(fields.name, deps.isNameTaken);
+    if (error) {
+      errors.user = error;
     }
   }
 
   return errors;
+}
+
+/** The profile-name rules (FR-003, FR-009), shared by creation and rename. */
+export function validateName(name: string, isTaken: (name: string) => boolean): string | null {
+  const trimmed = name.trim();
+  if (trimmed.length < 3 || trimmed.length > 16) {
+    return MSG.userLen;
+  }
+  if (!NAME_PATTERN.test(trimmed)) {
+    return MSG.userChars;
+  }
+  return isTaken(trimmed) ? MSG.userTaken : null;
 }

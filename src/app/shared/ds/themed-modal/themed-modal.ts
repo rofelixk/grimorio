@@ -9,14 +9,17 @@ import {
   viewChild,
 } from '@angular/core';
 import { Roles } from '@utils/identity.util';
+import { ToastOutlet } from '@shared/ds/toast/toast-outlet';
 
 // The themed modal shell (DESIGN.md "Themed modal"): a native <dialog> with the conic ring,
 // halo and opaque face, themed by the identity in view. It is its own themed root
 // (data-theme-scope), so the --role-* chain resolves against `roles`. Content decides the
-// face layout: `[modalAside]` fills the desktop identity column, the rest the form column.
+// face layout: `[modalAside]` fills the desktop identity column, the rest the form column. While
+// open it hosts the toast outlet, so a toast shows above it (R13).
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-themed-modal',
+  imports: [ToastOutlet],
   templateUrl: './themed-modal.html',
   styleUrl: './themed-modal.scss',
 })

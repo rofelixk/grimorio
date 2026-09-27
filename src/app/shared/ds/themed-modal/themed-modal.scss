@@ -47,8 +47,11 @@
   background: var(--color-bg);
   box-shadow: var(--shadow-rest);
   overflow: hidden;
-  // Not decorative (the modal "never jumps"), so it stays under reduced motion.
   transition: height var(--duration-base) var(--ease-standard);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 // Mobile: full-bleed, the ring's gap runs around the screen edge.

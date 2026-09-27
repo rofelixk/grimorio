@@ -295,6 +295,11 @@ Live Supabase facts, checked on 2026-09-27 (project `hyzbkxraanzhdyhtnadf`):
 - **To verify during implementation** (quickstart V17/V18): the exact error codes from the live
   project for a deleted user and for a revoked session. If the deleted user surfaces as a session
   error, FR-019c's fallback is the specified behavior, so nothing else changes.
+- **Verified 2026-09-27** (quickstart V12, V17, V18, live project, throwaway accounts):
+  - deleted user, access token still valid: `GET /auth/v1/user` → `403 {"code":"user_not_found"}`,
+    so the `gone` path runs (the profile goes local, the toast shows and the modal returns to the hub)
+  - session revoked by R8's `scope: 'others'`: `GET /auth/v1/user` → `403 {"code":"session_not_found"}`,
+    so the `expired` path runs as designed
 
 ## R13. Toasts above a modal `<dialog>` (FR-022)
 

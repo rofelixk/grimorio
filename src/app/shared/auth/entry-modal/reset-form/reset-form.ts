@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FIELD } from '@utils/entry-copy';
 import { TextField } from '@shared/ds/text-field/text-field';
-import { EntryFlowStore } from '../entry-flow.store';
+import { CloudFlowHost } from '@shared/auth/cloud-flow-host';
 
 // Cloud password reset by 6-digit code (FR-022–FR-024): `reset-email`, then `reset-code`.
 // The resend/other-e-mail actions sit under the primary button, in the modal.
@@ -55,6 +55,6 @@ import { EntryFlowStore } from '../entry-flow.store';
   `,
 })
 export class ResetForm {
-  protected readonly store = inject(EntryFlowStore);
+  protected readonly store = inject(CloudFlowHost);
   protected readonly field = FIELD;
 }

@@ -156,6 +156,11 @@
   overflow-wrap: anywhere;
 }
 
+// A warning that blocks nothing but loses data if ignored (DESIGN.md "Danger plate").
+.plate--danger {
+  border-color: var(--color-danger);
+}
+
 .eyebrow {
   font-size: var(--font-size-xs);
   letter-spacing: var(--tracking-eyebrow);
