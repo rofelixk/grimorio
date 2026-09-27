@@ -33,4 +33,7 @@
 
 - Both clarifications resolved 2026-09-26 (see spec Clarifications): separate profile and
   cloud-account deletion, both irreversible; cloud password change from the profile modal.
+- 2026-09-27: spec re-aligned with `design_handoff_profile_modal/` (hub + sub-screens, toast,
+  quiet next-sync for name/colors, empty-device state, refined wheel, entry-modal linked reset).
+  All items still pass.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`

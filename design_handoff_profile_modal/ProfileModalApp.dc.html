@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/components.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+<script src="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/_ds_bundle.js"></script>
+<script src="IdentityWheelV2.js"></script>
+</helmet>
+<div data-theme-scope="" style="{{ frameStyle }}">
+  <div style="display:grid;grid-template-rows:auto minmax(0,1fr);height:100%;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+    <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TopBar" hint-size="100%,44px">
+      <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+        <span style="display:flex;align-items:center">
+          <sc-if value="{{ hasMe }}" hint-placeholder-val="{{ true }}">
+            <button type="button" onClick="{{ onSyncArea }}" style="{{ syncAreaStyle }}">
+              <span style="{{ markStyle }}"></span>
+              <span>{{ sync.label }}</span>
+            </button>
+            <span style="width:1px;height:20px;background:var(--color-border)"></span>
+          </sc-if>
+          <button type="button" onClick="{{ onProfileControl }}" style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);padding:0 var(--space-3);border:none;background:transparent;color:var(--color-text);font:inherit;font-weight:700;font-size:var(--font-size-sm);white-space:nowrap;cursor:pointer" style-hover="color:var(--role-primary-hover)">
+            <span style="display:inline-flex;gap:3px">
+              <sc-for list="{{ dots }}" as="d" hint-placeholder-count="2">
+                <span style="{{ d.style }}"></span>
+              </sc-for>
+            </span>
+            <span>{{ controlLabel }}</span>
+          </button>
+        </span>
+      </sc-if>
+      <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+        <span style="display:flex;align-items:center;gap:var(--space-1)">
+          <sc-if value="{{ hasMe }}" hint-placeholder-val="{{ true }}">
+            <span role="status" title="{{ sync.label }}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:var(--touch-target)"><span style="{{ markStyle }}"></span></span>
+          </sc-if>
+          <button type="button" class="btn btn--ghost" onClick="{{ openDrawer }}" style="padding:0 var(--space-2);font-size:var(--font-size-xs);letter-spacing:var(--tracking-eyebrow);text-transform:uppercase;color:var(--color-text-muted)">Menu</button>
+        </span>
+      </sc-if>
+    </x-import>
+    <main style="display:flex;align-items:center;justify-content:center;padding:var(--space-6)">
+      <sc-if value="{{ emptyDevice }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-4);max-width:360px;text-align:center">
+          <span class="eyebrow">Nenhum perfil neste aparelho</span>
+          <p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted);text-wrap:pretty">Crie um perfil para começar — funciona sem internet, sem e-mail.</p>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" on-click="{{ openEntryBtn }}" hint-size="auto,44px">Criar perfil</x-import>
+        </div>
+      </sc-if>
+      <sc-if value="{{ hasProfiles }}" hint-placeholder-val="{{ true }}">
+        <p style="margin:0;max-width:360px;text-align:center;font-size:var(--font-size-sm);color:var(--color-text-muted);text-wrap:pretty">Área do app — toque no seu nome no topo para abrir o perfil.</p>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;z-index:40;background:var(--overlay-backdrop)"></div>
+    <div style="position:absolute;top:0;right:0;bottom:0;z-index:41;width:280px;display:flex;flex-direction:column;background:var(--color-bg);border-left:1px solid var(--color-border);color:var(--color-text)">
+      <div style="display:flex;align-items:center;min-height:var(--touch-target);padding:4px 20px 4px var(--space-1)">
+        <button type="button" aria-label="Fechar" onClick="{{ closeDrawer }}" style="width:var(--touch-target);height:var(--touch-target);padding:0;border:none;background:transparent;color:var(--color-text-muted);font:inherit;cursor:pointer">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:var(--space-1);padding:var(--space-2) 28px var(--space-4) var(--space-4);text-align:right">
+        <sc-if value="{{ noMe }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;font-size:var(--font-size-xs);color:var(--color-text-muted)">Nenhum perfil ativo</p>
+        </sc-if>
+        <button type="button" onClick="{{ onProfileControl }}" style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);padding:0;border:none;background:transparent;color:var(--color-text);font:inherit;font-weight:700;font-size:var(--font-size-md);white-space:nowrap;cursor:pointer" style-hover="color:var(--role-primary-hover)">
+          <span style="display:inline-flex;gap:3px">
+            <sc-for list="{{ dots }}" as="d" hint-placeholder-count="2"><span style="{{ d.style }}"></span></sc-for>
+          </span>
+          <span>{{ controlLabel }}</span>
+        </button>
+        <sc-if value="{{ hasMe }}" hint-placeholder-val="{{ true }}">
+          <p role="status" style="{{ syncLineStyle }}"><span style="{{ markStyle }}"></span><span>{{ sync.label }}</span></p>
+          <sc-if value="{{ sync.hasAction }}" hint-placeholder-val="{{ false }}">
+            <button type="button" class="link-btn" onClick="{{ onSyncArea }}" style="{{ syncActionStyle }}">{{ sync.action }}</button>
+          </sc-if>
+        </sc-if>
+      </div>
+      <hr style="flex:none;height:1px;margin:0 20px var(--space-2) var(--space-4);border:0;background:var(--color-border)">
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ entryOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="{{ overlayStyle }}">
+      <x-import component-from-global-scope="EntryModal" from="./EntryModal.jsx" layout="{{ layout }}" profiles="{{ kitProfiles }}" set-profiles="{{ setProfilesFromKit }}" active="{{ me }}" set-active="{{ setActiveFromKit }}" on-close="{{ closeEntry }}" hint-size="100%,100%"></x-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ profileOpen }}" hint-placeholder-val="{{ true }}">
+    <div style="{{ overlayStyle }}">
+      <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.ThemedModal" layout="{{ layout }}" inline="{{ mobile }}" roles="{{ modalRoles }}" aside="{{ aside }}" caption="{{ copy.caption }}" title="{{ copy.title }}" subtitle="{{ copy.subtitle }}" title-id="{{ titleId }}" prompt="{{ prompt }}" chip="{{ chip }}" on-close="{{ close }}" hint-size="880px,460px">
+
+        <sc-if value="{{ ph.overview }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-3)">
+              <x-import component-from-global-scope="GrimorioWheel" mode="picker" picks="{{ picks }}" on-change="{{ setPicks }}" size="{{ wheelSize }}" hint-size="240px,240px"></x-import>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}">
+            <div class="plate">
+              <span class="micro-label">Vinculado à nuvem</span>
+              <span>{{ email }}</span>
+              <sc-if value="{{ av.b }}" hint-placeholder-val="{{ false }}">
+                <span style="display:flex;flex-wrap:wrap;column-gap:var(--space-4)">
+                  <button type="button" class="link-btn" onClick="{{ toCloudPw }}">Mudar senha da conta</button>
+                  <button type="button" class="link-btn" onClick="{{ toUnlink }}">Desvincular</button>
+                </span>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ link.expired }}" hint-placeholder-val="{{ false }}">
+            <div class="plate" style="gap:var(--space-2)">
+              <span style="display:flex;flex-direction:column;gap:2px">
+                <span class="micro-label" style="color:var(--color-danger)">Sessão expirada</span>
+                <span>{{ email }}</span>
+              </span>
+              <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" block="{{ true }}" on-click="{{ toReauth }}" hint-size="100%,44px">Entrar de novo</x-import>
+              <sc-if value="{{ av.b }}" hint-placeholder-val="{{ false }}">
+                <span style="display:flex"><button type="button" class="link-btn" onClick="{{ toUnlink }}">Desvincular</button></span>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ link.local }}" hint-placeholder-val="{{ false }}">
+            <div class="plate" style="gap:var(--space-2)">
+              <span style="display:flex;flex-direction:column;gap:2px">
+                <span class="micro-label">Só neste aparelho</span>
+                <span style="color:var(--color-text-muted);text-wrap:pretty">Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.</span>
+              </span>
+              <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="secondary" block="{{ true }}" on-click="{{ toLink }}" hint-size="100%,44px">Vincular conta na nuvem</x-import>
+            </div>
+          </sc-if>
+
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Nome do perfil" auto-complete="username" value="{{ f.name }}" on-change="{{ onName }}" helper="3 a 16 caracteres: letras, números, _ . ou -" error="{{ err.name }}" hint-size="100%,76px"></x-import>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" block="{{ true }}" disabled="{{ saveLocked }}" on-click="{{ saveProfile }}" hint-size="100%,44px">{{ L.saveProfile }}</x-import>
+          <div class="grm-list" role="list">
+            <button type="button" class="grm-row" onClick="{{ toPw }}">
+              <span class="text"><span class="name">Senha do perfil</span><span class="meta">Desbloqueia o perfil neste aparelho</span></span>
+              <span class="micro-label" style="margin-left:auto;flex:none">Mudar</span>
+            </button>
+          </div>
+          <sc-if value="{{ av.a }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ link.anyCloud }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+                <span class="eyebrow">Conta na nuvem</span>
+                <div class="grm-list" role="list">
+                <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}"><button type="button" class="grm-row" onClick="{{ toCloudPw }}"><span class="text"><span class="name">Senha da conta</span><span class="meta">Usada para entrar na conta em outros aparelhos</span></span><span class="micro-label" style="margin-left:auto;flex:none">Mudar</span></button></sc-if>
+                <sc-if value="{{ link.anyCloud }}" hint-placeholder-val="{{ true }}"><button type="button" class="grm-row" onClick="{{ toUnlink }}"><span class="text"><span class="name">Desvincular conta</span><span class="meta">Os dados continuam aqui e na nuvem</span></span><span class="micro-label" style="margin-left:auto;flex:none">Desvincular</span></button></sc-if>
+                </div>
+              </div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+              <span class="eyebrow">Excluir</span>
+              <div class="grm-btn-row" style="flex-wrap:wrap">
+                <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="danger" on-click="{{ toDelProfile }}" hint-size="auto,44px">Excluir perfil</x-import>
+                <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}">
+                  <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="danger" on-click="{{ toDelCloud }}" hint-size="auto,44px">Excluir conta na nuvem</x-import>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ av.b }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;column-gap:var(--space-4);padding-top:var(--space-2);border-top:1px solid var(--color-border)">
+              <button type="button" class="link-btn" onClick="{{ toDelProfile }}" style="color:var(--color-danger)">Excluir perfil</button>
+              <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}">
+                <button type="button" class="link-btn" onClick="{{ toDelCloud }}" style="color:var(--color-danger)">Excluir conta na nuvem</button>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ av.c }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+              <button type="button" class="link-btn" aria-expanded="{{ moreOpen }}" onClick="{{ toggleMore }}" style="align-self:flex-start">{{ moreLabel }}</button>
+              <sc-if value="{{ moreOpen }}" hint-placeholder-val="{{ false }}">
+                <div class="grm-list" role="list">
+                <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}"><button type="button" class="grm-row" onClick="{{ toCloudPw }}"><span class="text"><span class="name">Senha da conta</span><span class="meta">Usada para entrar na conta em outros aparelhos</span></span><span class="micro-label" style="margin-left:auto;flex:none">Mudar</span></button></sc-if>
+                <sc-if value="{{ link.anyCloud }}" hint-placeholder-val="{{ true }}"><button type="button" class="grm-row" onClick="{{ toUnlink }}"><span class="text"><span class="name">Desvincular conta</span><span class="meta">Os dados continuam aqui e na nuvem</span></span><span class="micro-label" style="margin-left:auto;flex:none">Desvincular</span></button></sc-if>
+                <button type="button" class="grm-row" onClick="{{ toDelProfile }}"><span class="text"><span class="name" style="color:var(--color-danger)">Excluir perfil</span><span class="meta">Apaga {{ meName }} e os dados dele deste aparelho</span></span></button>
+                <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}"><button type="button" class="grm-row" onClick="{{ toDelCloud }}"><span class="text"><span class="name" style="color:var(--color-danger)">Excluir conta na nuvem</span><span class="meta">Apaga {{ email }} e os dados na nuvem</span></span></button></sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ av.d }}" hint-placeholder-val="{{ false }}">
+            <div class="grm-list" role="list">
+              <button type="button" class="grm-row" onClick="{{ toManage }}"><span class="text"><span class="name">Conta e dados</span><span class="meta">{{ manageMeta }}</span></span><span class="micro-label" style="margin-left:auto;flex:none">Abrir</span></button>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ ph.hub }}" hint-placeholder-val="{{ true }}">
+          <div class="plate" role="status" style="{{ hubSyncStyle }}">
+            <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+              <span style="{{ hubSyncLineStyle }}"><span style="{{ markStyle }}"></span><span>{{ sync.label }}</span></span>
+              <span style="font-size:var(--font-size-sm);color:var(--color-text-muted);overflow-wrap:anywhere">{{ hubSyncMeta }}</span>
+            </span>
+            <sc-if value="{{ hubSyncSecondary }}" hint-placeholder-val="{{ true }}">
+              <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="secondary" block="{{ mobile }}" on-click="{{ onSyncArea }}" hint-size="auto,44px">{{ sync.action }}</x-import>
+            </sc-if>
+            <sc-if value="{{ link.expired }}" hint-placeholder-val="{{ false }}">
+              <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" block="{{ mobile }}" on-click="{{ onSyncArea }}" hint-size="auto,44px">{{ sync.action }}</x-import>
+            </sc-if>
+          </div>
+          <div class="grm-list" role="list">
+            <button type="button" class="grm-row" onClick="{{ toLocal }}"><x-import component-from-global-scope="GrimorioDesignSystem_1934c9.MiniWheel" colors="{{ meColors }}" hint-size="36px,36px"></x-import><span class="text"><span class="name">Perfil neste aparelho</span><span class="meta">Cores, nome e senha</span></span><span class="micro-label" style="margin-left:auto;flex:none">Abrir</span></button>
+            <button type="button" class="grm-row" onClick="{{ toCloud }}"><span style="flex:none;width:var(--wheel-mini)"></span><span class="text"><span class="name">Conta na nuvem</span><span class="meta">{{ cloudMeta }}</span></span><span class="micro-label" style="margin-left:auto;flex:none">Abrir</span></button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.local }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;align-items:center">
+              <x-import component-from-global-scope="GrimorioWheel" mode="picker" picks="{{ picks }}" on-change="{{ setPicks }}" size="{{ wheelSize }}" hint-size="240px,240px"></x-import>
+            </div>
+          </sc-if>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Nome do perfil" auto-complete="username" value="{{ f.name }}" on-change="{{ onName }}" helper="3 a 16 caracteres: letras, números, _ . ou -" error="{{ err.name }}" hint-size="100%,76px"></x-import>
+          <div class="grm-list" role="list">
+            <button type="button" class="grm-row" onClick="{{ toPw }}"><span class="text"><span class="name">Senha do perfil</span><span class="meta">Desbloqueia o perfil neste aparelho</span></span><span class="micro-label" style="margin-left:auto;flex:none">Mudar</span></button>
+          </div>
+          <div class="grm-list" role="list">
+            <button type="button" class="grm-row" onClick="{{ toDelProfile }}"><span class="text"><span class="name" style="color:var(--color-danger)">Excluir perfil</span><span class="meta">Apaga {{ meName }} e os dados dele deste aparelho</span></span><span class="micro-label" style="margin-left:auto;flex:none">Excluir</span></button>
+          </div>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ toOverview }}" hint-size="auto,44px">Voltar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" disabled="{{ saveLocked }}" on-click="{{ saveProfile }}" hint-size="auto,44px">{{ L.saveProfile }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.cloud }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}">
+            <div class="plate"><span class="micro-label">Vinculado à nuvem</span><span>{{ email }}</span></div>
+            <div class="grm-list" role="list">
+              <button type="button" class="grm-row" onClick="{{ toCloudPw }}"><span class="text"><span class="name">Senha da conta</span><span class="meta">Usada para entrar na conta em outros aparelhos</span></span><span class="micro-label" style="margin-left:auto;flex:none">Mudar</span></button>
+              <button type="button" class="grm-row" onClick="{{ toUnlink }}"><span class="text"><span class="name">Desvincular conta</span><span class="meta">Os dados continuam aqui e na nuvem</span></span><span class="micro-label" style="margin-left:auto;flex:none">Desvincular</span></button>
+            </div>
+            <div class="grm-list" role="list">
+              <button type="button" class="grm-row" onClick="{{ toDelCloud }}"><span class="text"><span class="name" style="color:var(--color-danger)">Excluir conta na nuvem</span><span class="meta">Apaga {{ email }} e os dados na nuvem</span></span><span class="micro-label" style="margin-left:auto;flex:none">Excluir</span></button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ link.expired }}" hint-placeholder-val="{{ false }}">
+            <div class="plate" style="gap:var(--space-2)">
+              <span style="display:flex;flex-direction:column;gap:2px">
+                <span class="micro-label" style="color:var(--color-danger)">Sessão expirada</span>
+                <span>{{ email }}</span>
+                <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">O perfil continua funcionando neste aparelho. Entre de novo para voltar a sincronizar.</span>
+              </span>
+              <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" block="{{ true }}" on-click="{{ toReauth }}" hint-size="100%,44px">Entrar de novo</x-import>
+            </div>
+            <div class="grm-list" role="list">
+              <button type="button" class="grm-row" onClick="{{ toUnlink }}"><span class="text"><span class="name">Desvincular conta</span><span class="meta">Os dados continuam aqui e na nuvem</span></span><span class="micro-label" style="margin-left:auto;flex:none">Desvincular</span></button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ link.local }}" hint-placeholder-val="{{ false }}">
+            <div class="plate" style="gap:var(--space-2)">
+              <span style="display:flex;flex-direction:column;gap:2px">
+                <span class="micro-label">Só neste aparelho</span>
+                <span style="color:var(--color-text-muted);text-wrap:pretty">A conta na nuvem sincroniza {{ meName }} entre aparelhos. O app funciona sem ela.</span>
+              </span>
+              <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="secondary" block="{{ true }}" on-click="{{ toLink }}" hint-size="100%,44px">Vincular conta na nuvem</x-import>
+            </div>
+          </sc-if>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ toOverview }}" hint-size="auto,44px">Voltar</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.danger }}" hint-placeholder-val="{{ false }}">
+          <div class="grm-list" role="list">
+            <button type="button" class="grm-row" onClick="{{ toDelProfile }}"><span class="text"><span class="name" style="color:var(--color-danger)">Excluir perfil</span><span class="meta">Apaga {{ meName }} e os dados dele deste aparelho</span></span><span class="micro-label" style="margin-left:auto;flex:none">Excluir</span></button>
+            <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}">
+              <button type="button" class="grm-row" onClick="{{ toDelCloud }}"><span class="text"><span class="name" style="color:var(--color-danger)">Excluir conta na nuvem</span><span class="meta">Apaga {{ email }} e os dados na nuvem</span></span><span class="micro-label" style="margin-left:auto;flex:none">Excluir</span></button>
+            </sc-if>
+          </div>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ toOverview }}" hint-size="auto,44px">Voltar</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.manage }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ link.anyCloud }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+              <span class="eyebrow">Conta na nuvem</span>
+              <div class="grm-list" role="list">
+                <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}"><button type="button" class="grm-row" onClick="{{ toCloudPw }}"><span class="text"><span class="name">Senha da conta</span><span class="meta">Usada para entrar na conta em outros aparelhos</span></span><span class="micro-label" style="margin-left:auto;flex:none">Mudar</span></button></sc-if>
+                <sc-if value="{{ link.anyCloud }}" hint-placeholder-val="{{ true }}"><button type="button" class="grm-row" onClick="{{ toUnlink }}"><span class="text"><span class="name">Desvincular conta</span><span class="meta">Os dados continuam aqui e na nuvem</span></span><span class="micro-label" style="margin-left:auto;flex:none">Desvincular</span></button></sc-if>
+              </div>
+            </div>
+          </sc-if>
+          <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+            <span class="eyebrow">Excluir</span>
+            <div class="grm-list" role="list">
+                <button type="button" class="grm-row" onClick="{{ toDelProfile }}"><span class="text"><span class="name" style="color:var(--color-danger)">Excluir perfil</span><span class="meta">Apaga {{ meName }} e os dados dele deste aparelho</span></span></button>
+                <sc-if value="{{ link.linked }}" hint-placeholder-val="{{ true }}"><button type="button" class="grm-row" onClick="{{ toDelCloud }}"><span class="text"><span class="name" style="color:var(--color-danger)">Excluir conta na nuvem</span><span class="meta">Apaga {{ email }} e os dados na nuvem</span></span></button></sc-if>
+            </div>
+          </div>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ toOverview }}" hint-size="auto,44px">Voltar</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.colors }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-3)">
+              <x-import component-from-global-scope="GrimorioWheel" mode="picker" picks="{{ picks }}" on-change="{{ setPicks }}" size="{{ wheelSize }}" subline="{{ meName }}" hint-size="240px,240px"></x-import>
+              <span class="field__helper" style="text-align:center">Escolha até 3 cores. A primeira tinge o app inteiro.</span>
+            </div>
+          </sc-if>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Plate" eyebrow="{{ previewEyebrow }}" hint-size="100%,56px">{{ previewLine }}</x-import>
+          <sc-if value="{{ link.anyCloud }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted);text-wrap:pretty">As cores seguem a conta: os outros aparelhos vinculados adotam a mudança na próxima sincronização.</p>
+          </sc-if>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" disabled="{{ busy }}" on-click="{{ saveColors }}" hint-size="auto,44px">{{ L.saveColors }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.name }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Nome do perfil" auto-complete="username" value="{{ f.name }}" on-change="{{ onName }}" helper="3 a 16 caracteres: letras, números, _ . ou -" error="{{ err.name }}" hint-size="100%,76px"></x-import>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" disabled="{{ busy }}" on-click="{{ saveName }}" hint-size="auto,44px">{{ L.saveName }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.pw }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Senha atual do perfil" type="password" auto-complete="current-password" value="{{ f.pw }}" on-change="{{ onPw }}" error="{{ err.pw }}" hint-size="100%,76px"></x-import>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Nova senha do perfil" type="password" auto-complete="new-password" value="{{ f.pw2 }}" on-change="{{ onPw2 }}" helper="Pelo menos 8 caracteres. Funciona sem internet." error="{{ err.pw2 }}" hint-size="100%,76px"></x-import>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Confirmar nova senha" type="password" auto-complete="new-password" value="{{ f.pw3 }}" on-change="{{ onPw3 }}" error="{{ err.pw3 }}" hint-size="100%,76px"></x-import>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" disabled="{{ busy }}" on-click="{{ savePw }}" hint-size="auto,44px">{{ L.savePw }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.cloudpw }}" hint-placeholder-val="{{ false }}">
+          <div class="plate"><span class="micro-label">Conta na nuvem</span><span>{{ email }}</span></div>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Senha atual da conta" type="password" auto-complete="current-password" value="{{ f.pw }}" on-change="{{ onPw }}" error="{{ err.pw }}" hint-size="100%,76px"></x-import>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Nova senha da conta" type="password" auto-complete="new-password" value="{{ f.pw2 }}" on-change="{{ onPw2 }}" helper="Pelo menos 8 caracteres." error="{{ err.pw2 }}" hint-size="100%,76px"></x-import>
+          <sc-if value="{{ hasFormErr }}" hint-placeholder-val="{{ false }}"><p class="grm-form-error" role="alert">{{ err.form }}</p></sc-if>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" disabled="{{ busy }}" on-click="{{ saveCloudPw }}" hint-size="auto,44px">{{ L.saveCloudPw }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.in }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="E-mail" type="email" auto-complete="email" placeholder="voce@exemplo.com" value="{{ f.email }}" on-change="{{ onEmail }}" error="{{ err.email }}" hint-size="100%,76px"></x-import>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Senha da conta" type="password" auto-complete="current-password" value="{{ f.pw }}" on-change="{{ onPw }}" error="{{ err.pw }}" hint-size="100%,76px"></x-import>
+          <div><x-import component-from-global-scope="GrimorioDesignSystem_1934c9.LinkButton" on-click="{{ toReset }}" hint-size="auto,44px">Esqueci minha senha</x-import></div>
+          <sc-if value="{{ hasFormErr }}" hint-placeholder-val="{{ false }}"><p class="grm-form-error" role="alert">{{ err.form }}</p></sc-if>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" disabled="{{ busy }}" on-click="{{ signIn }}" hint-size="auto,44px">{{ L.signIn }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.up }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="E-mail" type="email" auto-complete="email" placeholder="voce@exemplo.com" value="{{ f.email }}" on-change="{{ onEmail }}" error="{{ err.email }}" hint-size="100%,76px"></x-import>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Senha da conta" type="password" auto-complete="new-password" value="{{ f.pw }}" on-change="{{ onPw }}" helper="Pelo menos 8 caracteres." error="{{ err.pw }}" hint-size="100%,76px"></x-import>
+          <sc-if value="{{ hasFormErr }}" hint-placeholder-val="{{ false }}"><p class="grm-form-error" role="alert">{{ err.form }}</p></sc-if>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" disabled="{{ busy }}" on-click="{{ signUp }}" hint-size="auto,44px">{{ L.signUp }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.reset }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="E-mail" type="email" auto-complete="email" placeholder="voce@exemplo.com" value="{{ f.email }}" on-change="{{ onEmail }}" error="{{ err.email }}" hint-size="100%,76px"></x-import>
+          <sc-if value="{{ hasFormErr }}" hint-placeholder-val="{{ false }}"><p class="grm-form-error" role="alert">{{ err.form }}</p></sc-if>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" block="{{ true }}" disabled="{{ busy }}" on-click="{{ sendCode }}" hint-size="100%,44px">{{ L.sendCode }}</x-import>
+        </sc-if>
+
+        <sc-if value="{{ ph.code }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Código" input-mode="numeric" max-length="6" placeholder="000000" auto-complete="one-time-code" value="{{ f.code }}" on-change="{{ onCode }}" error="{{ err.code }}" hint-size="100%,76px"></x-import>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Nova senha da conta" type="password" auto-complete="new-password" value="{{ f.pw }}" on-change="{{ onPw }}" helper="Pelo menos 8 caracteres." error="{{ err.pw }}" hint-size="100%,76px"></x-import>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" block="{{ true }}" disabled="{{ busy }}" on-click="{{ saveReset }}" hint-size="100%,44px">{{ L.saveReset }}</x-import>
+        </sc-if>
+
+        <sc-if value="{{ ph.reauth }}" hint-placeholder-val="{{ false }}">
+          <div class="plate"><span class="micro-label">Conta na nuvem</span><span>{{ email }}</span></div>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Senha da conta" type="password" auto-complete="current-password" value="{{ f.pw }}" on-change="{{ onPw }}" error="{{ err.pw }}" hint-size="100%,76px"></x-import>
+          <div><x-import component-from-global-scope="GrimorioDesignSystem_1934c9.LinkButton" on-click="{{ toReset }}" hint-size="auto,44px">Esqueci minha senha</x-import></div>
+          <sc-if value="{{ hasFormErr }}" hint-placeholder-val="{{ false }}"><p class="grm-form-error" role="alert">{{ err.form }}</p></sc-if>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" disabled="{{ busy }}" on-click="{{ reauth }}" hint-size="auto,44px">{{ L.signIn }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.unlink }}" hint-placeholder-val="{{ false }}">
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="danger" disabled="{{ busy }}" on-click="{{ unlink }}" hint-size="auto,44px">{{ L.unlink }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.delprofile }}" hint-placeholder-val="{{ false }}">
+          <div class="plate">
+            <span class="micro-label">Sai deste aparelho</span>
+            <span>Cartas · Locais de armazenamento · Decks · Cores · O perfil {{ meName }}</span>
+          </div>
+          <sc-if value="{{ link.anyCloud }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted);text-wrap:pretty">A conta {{ email }} e os dados dela na nuvem não são apagados. Dá para configurá-la de novo neste ou em outro aparelho.</p>
+          </sc-if>
+          <sc-if value="{{ showUnsynced }}" hint-placeholder-val="{{ false }}">
+            <div class="plate" role="status" style="gap:var(--space-2);border-color:var(--color-danger)">
+              <span style="color:var(--color-danger)">Há mudanças que ainda não foram sincronizadas. Se excluir agora, elas se perdem.</span>
+              <sc-if value="{{ syncIdle }}" hint-placeholder-val="{{ true }}">
+                <div><x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="secondary" on-click="{{ syncNow }}" hint-size="auto,44px">Sincronizar agora</x-import></div>
+              </sc-if>
+              <sc-if value="{{ syncShown }}" hint-placeholder-val="{{ false }}">
+                <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.SyncLine" state="{{ syncLine.state }}" label="{{ syncLine.label }}" hint-size="auto,24px"></x-import>
+              </sc-if>
+              <sc-if value="{{ syncFailed }}" hint-placeholder-val="{{ false }}">
+                <div><x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="secondary" on-click="{{ syncNow }}" hint-size="auto,44px">Tentar de novo</x-import></div>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ syncedOk }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.SyncLine" state="done" label="Sincronizado agora — nada se perde na nuvem." hint-size="auto,24px"></x-import>
+          </sc-if>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Senha do perfil" type="password" auto-complete="current-password" value="{{ f.pw }}" on-change="{{ onPw }}" error="{{ err.pw }}" hint-size="100%,76px"></x-import>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="danger" disabled="{{ delLocked }}" on-click="{{ delProfile }}" hint-size="auto,44px">{{ L.delProfile }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.delcloud }}" hint-placeholder-val="{{ false }}">
+          <div class="plate">
+            <span class="micro-label">Sai da nuvem para sempre</span>
+            <span>Cartas · Locais de armazenamento · Decks · Cores e nome salvos na conta</span>
+          </div>
+          <p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted);text-wrap:pretty">Os outros aparelhos vinculados param de sincronizar. {{ meName }} continua neste aparelho com todos os dados.</p>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.TextField" label="Senha da conta" type="password" auto-complete="current-password" value="{{ f.pw }}" on-change="{{ onPw }}" error="{{ err.pw }}" hint-size="100%,76px"></x-import>
+          <sc-if value="{{ hasFormErr }}" hint-placeholder-val="{{ false }}"><p class="grm-form-error" role="alert">{{ err.form }}</p></sc-if>
+          <div class="grm-btn-row" style="{{ btnRowStyle }}">
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="ghost" on-click="{{ back }}" hint-size="auto,44px">Cancelar</x-import>
+            <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="danger" disabled="{{ busy }}" on-click="{{ delCloud }}" hint-size="auto,44px">{{ L.delCloud }}</x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ph.done }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;text-wrap:pretty">{{ doneBody }}</p>
+          <x-import component-from-global-scope="GrimorioDesignSystem_1934c9.Button" variant="primary" block="{{ true }}" on-click="{{ back }}" hint-size="100%,44px">Concluir</x-import>
+        </sc-if>
+
+      </x-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" aria-live="polite" style="{{ toastStyle }}">
+      <span style="{{ toastDotStyle }}"></span>
+      <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+        <span class="micro-label">{{ toast.label }}</span>
+        <span style="text-wrap:pretty">{{ toast.text }}</span>
+      </span>
+      <button type="button" aria-label="Fechar" onClick="{{ hideToast }}" style="flex:none;width:var(--touch-target);height:var(--touch-target);margin:calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) auto;padding:0;border:none;background:transparent;color:var(--color-text-muted);font:inherit;cursor:pointer">✕</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;layout&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop'|'mobile'&quot;},&quot;linkState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;linked&quot;,&quot;local&quot;,&quot;expired&quot;],&quot;default&quot;:&quot;linked&quot;,&quot;tsType&quot;:&quot;'linked'|'local'|'expired'&quot;},&quot;actionsVariant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;],&quot;default&quot;:&quot;d&quot;,&quot;tsType&quot;:&quot;'a'|'b'|'c'|'d'&quot;},&quot;toastVariant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;plate&quot;,&quot;glow&quot;,&quot;bar&quot;],&quot;default&quot;:&quot;glow&quot;,&quot;tsType&quot;:&quot;'plate'|'glow'|'bar'&quot;},&quot;startToast&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;saved&quot;,&quot;gone&quot;],&quot;default&quot;:&quot;none&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;cloudGone&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;startPhase&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;overview&quot;,&quot;manage&quot;,&quot;colors&quot;,&quot;name&quot;,&quot;pw&quot;,&quot;cloudpw&quot;,&quot;in&quot;,&quot;reauth&quot;,&quot;unlink&quot;,&quot;delprofile&quot;,&quot;delcloud&quot;],&quot;default&quot;:&quot;overview&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;startMore&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;unsynced&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;offline&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;startOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = this.initial();
+
+  initial() {
+    const link = this.props.linkState || 'linked';
+    return {
+      profiles: [
+        { name: 'rafa', colors: ['U', 'R'], link, linked: link !== 'local' },
+        { name: 'bia', colors: ['G', 'W'], link: 'local', linked: false },
+      ],
+      me: 'rafa', open: this.props.startOpen === false ? null : 'profile', drawer: false,
+      phase: this.props.startPhase || 'overview', picks: ['U', 'R'],
+      f: { name: 'rafa', pw: '', pw2: '', email: '', code: '' }, err: {}, busy: false,
+      done: null, notice: null, toast: this.sampleToast(), more: !!this.props.startMore, backTo: 'overview', unsynced: this.props.unsynced ?? true, sync: 'idle', syncedOk: false, areaBusy: false,
+    };
+  }
+
+  componentDidMount() {
+    this.go(this.props.startPhase || 'overview');
+  }
+
+  componentDidUpdate(prev) {
+    if (prev.linkState !== this.props.linkState) this.setState(s => ({ profiles: s.profiles.map(p => p.name === 'rafa' ? { ...p, link: this.props.linkState, linked: this.props.linkState !== 'local' } : p) }));
+    if (prev.unsynced !== this.props.unsynced) this.setState({ unsynced: this.props.unsynced });
+    if (prev.startPhase !== this.props.startPhase && this.state.me) this.openProfile(this.props.startPhase || 'overview');
+  }
+
+  sampleToast() {
+    const k = this.props.startToast;
+    if (k === 'gone') return { label: 'Conta na nuvem', text: 'A conta rafa@exemplo.com não existe mais. rafa continua neste aparelho com todos os dados.', sticky: true };
+    if (k === 'saved') return { label: 'Perfil', text: 'Alterações salvas.', sticky: true };
+    return null;
+  }
+  showToast(label, text) {
+    clearTimeout(this._tt);
+    this.setState({ toast: { label, text } });
+    this._tt = setTimeout(() => this.setState({ toast: null }), 5000);
+  }
+  cloudGone() {
+    const p = this.meP();
+    if (!this.props.cloudGone || !p || p.link === 'local') return false;
+    const email = this.email();
+    this.updMe({ link: 'local', linked: false });
+    this.go(this.state.phase === 'manage' ? 'manage' : 'overview');
+    this.showToast('Conta na nuvem', 'A conta ' + email + ' não existe mais. ' + p.name + ' continua neste aparelho com todos os dados.');
+    return true;
+  }
+  get DS() { return window.GrimorioDesignSystem_1934c9; }
+  get offline() { return !!this.props.offline; }
+  meP() { return this.state.profiles.find(p => p.name === this.state.me) || null; }
+  email() { return this.state.me ? this.state.me + '@exemplo.com' : ''; }
+
+  go(phase, extra) {
+    const p = this.meP();
+    const hubs = ['overview', 'local', 'cloud', 'danger', 'manage'];
+    const backTo = hubs.includes(phase) ? 'overview' : hubs.includes(this.state.phase) ? this.state.phase : this.state.backTo;
+    this.setState({ phase, backTo, err: {}, busy: false, notice: null, sync: 'idle', syncedOk: false,
+      f: { name: (phase === 'name' || phase === 'overview' || phase === 'local') && p ? p.name : '', pw: '', pw2: '', pw3: '', email: phase === 'code' ? this.state.f.email : (phase === 'reset' || phase === 'up' ? this.state.f.email : ''), code: '' },
+      picks: p ? p.colors.slice() : ['R'], ...(extra || {}) });
+  }
+  run(ms, fn) { this.setState({ busy: true }); setTimeout(() => { this.setState({ busy: false }); fn(); }, ms); }
+  setF(k) { return (v) => this.setState(s => ({ f: { ...s.f, [k]: v }, err: { ...s.err, [k]: undefined, form: undefined } })); }
+  updMe(patch) { this.setState(s => ({ profiles: s.profiles.map(p => p.name === s.me ? { ...p, ...patch } : p) })); }
+  setLink(link) { this.updMe({ link, linked: link !== 'local' }); }
+  openProfile(phase) { if (!this.state.me) return this.openEntry(); this.setState({ open: 'profile', drawer: false }); this.go(phase || 'overview'); }
+  openEntry() { this.setState({ open: 'entry', drawer: false }); }
+  finish(title, body) { this.go('done', { done: { title, body } }); }
+
+  validName(n) {
+    const me = this.state.me;
+    if (n.length < 3 || n.length > 16) return 'Use de 3 a 16 caracteres.';
+    if (!/^[A-Za-z0-9_.-]+$/.test(n)) return 'Use só letras, números, _ . ou -.';
+    if (this.state.profiles.some(p => p.name !== me && p.name.toLowerCase() === n.toLowerCase())) return 'Esse nome já está em uso neste aparelho.';
+    return null;
+  }
+  validEmail(e) { if (!e) return 'Digite seu e-mail.'; if (!/^\S+@\S+\.\S+$/.test(e)) return 'Esse e-mail não parece válido.'; return null; }
+
+  renderVals() {
+    const DS = this.DS, h = React.createElement;
+    const I = DS ? DS.Identity : null;
+    const s = this.state, mobile = this.props.layout === 'mobile', desktop = !mobile;
+    const p = this.meP(), me = p ? p.name : null, colors = p ? p.colors : [];
+    const linkS = p ? p.link : 'local';
+    const link = { linked: linkS === 'linked', expired: linkS === 'expired', local: linkS === 'local', anyCloud: linkS !== 'local' };
+    const tribe = I && p ? I.tribeName(colors) : '';
+    const names = I && p ? I.colorNames(colors) : '';
+    const email = this.email();
+    const linkLabel = link.linked ? 'Vinculado à nuvem' : link.expired ? 'Sessão expirada' : 'Só neste aparelho';
+    const hub = !this.props.actionsVariant;
+    const ph = {}; ph[s.phase] = true; if (hub && ph.overview) { ph.overview = false; ph.hub = true; }
+    const busy = s.busy;
+    const previewTribe = I ? I.tribeName(s.picks) : '';
+    const editing = s.phase === 'colors' || s.phase === 'local' || (s.phase === 'overview' && !hub);
+    const roles = editing ? s.picks : colors;
+
+    const copyMap = {
+      overview: { title: me, subtitle: '', caption: hub ? 'Cada perfil tem sua coleção, seus decks e suas cores.' : 'Toque nas cores da roda para mudar. A primeira tinge o app inteiro.' },
+      colors: { title: 'Mudar cores', subtitle: 'Escolha de 1 a 3 cores, na ordem que quiser. A primeira tinge o app inteiro.', caption: mobile ? '' : 'Toque nas cores da roda. A ordem dos toques define os papéis.' },
+      name: { title: 'Mudar nome', subtitle: link.anyCloud ? 'O nome muda em todo o app neste aparelho. A conta na nuvem guarda só o nome mais recente — os outros aparelhos mantêm o deles.' : 'O nome muda em todo o app neste aparelho.', caption: 'Mudar o nome não apaga nada.' },
+      pw: { title: 'Mudar senha do perfil', subtitle: link.anyCloud ? 'Vale só para desbloquear ' + me + ' neste aparelho. A senha da conta na nuvem não muda.' : 'A nova senha passa a desbloquear ' + me + ' neste aparelho.', caption: 'Mudar a senha não apaga nada.' },
+      cloudpw: { title: 'Mudar senha da conta', subtitle: 'A senha do perfil neste aparelho não muda. Os outros aparelhos vinculados vão pedir a nova senha.', caption: 'Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.' },
+      in: { title: 'Entrar na conta', subtitle: 'Vincule ' + me + ' a uma conta na nuvem para sincronizar entre aparelhos.', caption: 'Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.' },
+      up: { title: 'Criar conta na nuvem', subtitle: me + ' pode sincronizar entre aparelhos quando você quiser.', caption: 'Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.' },
+      reset: { title: 'Recuperar senha', subtitle: 'Digite o e-mail da conta. Um código de 6 dígitos chega em alguns minutos.', caption: 'Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.' },
+      code: { title: 'Digite o código', subtitle: 'Se houver uma conta para ' + (s.f.email || 'esse e-mail') + ', um código foi enviado. Confira também o spam.', caption: 'Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.' },
+      reauth: { title: 'Entre de novo', subtitle: 'A sessão da conta expirou. Entre para voltar a sincronizar ' + me + '.', caption: 'A sessão da conta expirou. O perfil continua funcionando neste aparelho.' },
+      unlink: { title: 'Desvincular conta', subtitle: me + ' continua neste aparelho com todos os dados e para de sincronizar. A conta ' + email + ' e os dados dela na nuvem não são apagados.', caption: 'Desvincular não apaga nada — nem aqui, nem na nuvem.' },
+      delprofile: { title: 'Excluir perfil', subtitle: me + ' e tudo o que é dele saem deste aparelho. Não dá para desfazer.', caption: 'Os outros perfis deste aparelho não mudam.' },
+      delcloud: { title: 'Excluir conta na nuvem', subtitle: 'A conta ' + email + ' e todos os dados dela na nuvem serão apagados para sempre. Não dá para desfazer.', caption: 'Excluir a conta não apaga nada deste aparelho.' },
+      done: { title: s.done ? s.done.title : '', subtitle: '', caption: '' },
+      hubx: 0,
+      local: { title: 'Perfil neste aparelho', subtitle: link.anyCloud ? 'Cores e nome também seguem para a conta na nuvem na próxima sincronização.' : 'Tudo aqui funciona sem internet.', caption: 'Toque nas cores da roda para mudar. A primeira tinge o app inteiro.' },
+      cloud: { title: 'Conta na nuvem', subtitle: link.local ? 'Opcional — vincule para sincronizar ' + me + ' entre aparelhos.' : link.expired ? 'A sessão expirou. ' + me + ' continua funcionando neste aparelho.' : me + ' sincroniza com ' + email + '.', caption: 'Opcional — a conta na nuvem sincroniza este perfil entre aparelhos. O app funciona sem ela.' },
+      danger: { title: 'Excluir', subtitle: 'Cada exclusão pede a senha e não dá para desfazer.', caption: 'Nada aqui acontece sem você confirmar com a senha.' },
+      manage: { title: 'Conta e dados', subtitle: 'Ações que mexem na conta na nuvem ou apagam dados. Cada uma pede confirmação.', caption: 'Nada aqui acontece sem você confirmar com a senha.' },
+    };
+    const copy = copyMap[s.phase] || copyMap.overview;
+
+    const prompts = {
+      overview: ['Não é você?', 'Trocar de perfil', () => { this.setState({ open: 'entry' }); }],
+      in: ['Ainda não tem conta na nuvem?', 'Criar conta', () => this.go('up')],
+      up: ['Já tem conta?', 'Entrar', () => this.go('in')],
+      reset: ['Lembrou a senha?', 'Voltar', () => this.go(link.expired ? 'reauth' : 'in')],
+      code: ['Lembrou a senha?', 'Voltar', () => this.go(link.expired ? 'reauth' : 'in')],
+    };
+    const pr = prompts[s.phase];
+    const prompt = DS && pr ? h(React.Fragment, null, h('span', null, pr[0]), h(DS.LinkButton, { onClick: pr[2] }, pr[1])) : null;
+    const aside = !DS || mobile ? null : editing
+      ? h(window.GrimorioWheel || DS.IdentityWheel, { mode: 'picker', picks: s.picks, onChange: (v) => this.setState({ picks: v, notice: null }) })
+      : h(window.GrimorioWheel || DS.IdentityWheel, { picks: colors });
+    const chipColors = editing ? s.picks : colors;
+    const chip = DS && p ? h(DS.IdentityChip, { colors: chipColors, label: me + ' · ' + (I ? I.tribeName(chipColors) : '') }) : null;
+
+    const markKind = !p ? 'local' : link.expired ? 'failure' : link.local ? 'local' : s.areaBusy ? 'syncing' : 'last';
+    const markStyle = { width: '8px', height: '8px', flex: 'none', borderRadius: '50%', boxSizing: 'border-box',
+      ...(markKind === 'last' ? { background: 'var(--color-text-muted)' } : {}),
+      ...(markKind === 'syncing' ? { border: '1px solid var(--color-text-muted)', borderRightColor: 'transparent', animation: 'spin 0.8s linear infinite', width: '12px', height: '12px' } : {}),
+      ...(markKind === 'local' ? { border: '1px solid var(--color-text-muted)' } : {}),
+      ...(markKind === 'failure' ? { background: 'var(--color-danger)', boxShadow: '0 0 8px var(--color-danger)' } : {}) };
+    const sync = link.expired ? { label: 'Sessão expirada', action: 'Entrar de novo', hasAction: true }
+      : link.local ? { label: 'Sem conta na nuvem', action: 'Vincular conta na nuvem', hasAction: true }
+      : s.areaBusy ? { label: 'Sincronizando…', hasAction: false } : { label: 'Sincronizado há 5 min', action: 'Sincronizar agora', hasAction: true };
+    const failColor = link.expired ? 'var(--color-danger)' : 'var(--color-text-muted)';
+    const syncAreaStyle = { display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', minHeight: 'var(--touch-target)', padding: '0 var(--space-3)', border: 'none', background: 'transparent', fontFamily: 'inherit', fontSize: 'var(--font-size-xs)', lineHeight: 'var(--line-height-tight)', whiteSpace: 'nowrap', color: failColor, cursor: 'pointer' };
+    const syncLineStyle = { margin: 0, display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', fontSize: 'var(--font-size-xs)', color: failColor, justifyContent: 'flex-end' };
+    const syncActionStyle = { fontSize: 'var(--font-size-xs)', letterSpacing: 'var(--tracking-eyebrow)', textTransform: 'uppercase', color: failColor };
+
+    const dots = colors.map(c => ({ style: { width: '8px', height: '8px', borderRadius: '50%', background: 'var(' + (I ? I.COLORS[c].token : '--identity-r') + ')', boxShadow: '0 0 6px var(' + (I ? I.COLORS[c].token : '--identity-r') + ')' } }));
+
+    const frameStyle = { ...(I ? I.themeVars(colors) : {}), position: 'relative', overflow: 'hidden', transform: 'translateZ(0)',
+      width: mobile ? '390px' : '1280px', height: mobile ? '844px' : '900px', borderRadius: mobile ? '36px' : '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg)' };
+    const overlayStyle = mobile ? { position: 'absolute', inset: 0, zIndex: 50 } : { position: 'absolute', inset: 0, zIndex: 50 };
+    const btnRowStyle = { justifyContent: 'flex-end', flexDirection: mobile ? 'column-reverse' : 'row' };
+
+    const syncLine = s.sync === 'syncing' ? { state: 'pending', label: 'Sincronizando…' }
+      : s.sync === 'failed' ? { state: 'failed', label: this.offline ? 'Sem conexão' : link.expired ? 'Sessão expirada' : 'Falha ao sincronizar' } : { state: 'done', label: '' };
+
+    return {
+      av: { [this.props.actionsVariant || 'd']: true }, moreOpen: !!s.more, moreLabel: s.more ? 'Menos opções' : 'Mais opções',
+      manageMeta: link.linked ? 'Senha da conta, desvincular e exclusões' : link.expired ? 'Desvincular e exclusões' : 'Excluir perfil',
+      wheelSize: 240,
+      hubSyncStyle: { flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'stretch' : 'center', justifyContent: 'space-between', gap: 'var(--space-3)', ...(link.expired ? { borderColor: 'var(--color-danger)' } : {}) },
+      hubSyncLineStyle: { ...syncLineStyle, justifyContent: 'flex-start' },
+      hubSyncMeta: link.local ? 'Sem conta na nuvem — funciona sem internet.' : email,
+      hubSyncSecondary: !link.expired && !!sync.hasAction,
+      cloudMeta: link.linked ? email : link.expired ? 'Sessão expirada · ' + email : 'Vincular para sincronizar entre aparelhos',
+      dangerMeta: link.linked ? 'Perfil ou conta na nuvem' : 'Excluir este perfil',
+      emptyDevice: s.profiles.length === 0, hasProfiles: s.profiles.length > 0, openEntryBtn: () => this.openEntry(),
+      hasToast: !!s.toast, toast: s.toast || { label: '', text: '' }, hideToast: () => { clearTimeout(this._tt); this.setState({ toast: null }); },
+      toastStyle: (() => {
+        const v = this.props.toastVariant || 'glow';
+        const base = { position: 'absolute', zIndex: 60, display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)', boxSizing: 'border-box', color: 'var(--color-text)', fontSize: 'var(--font-size-sm)', lineHeight: 'var(--line-height-body, 1.5)' };
+        if (v === 'glow') return { ...base, top: mobile ? 'var(--space-3)' : 'calc(44px + var(--space-4))', right: mobile ? 'var(--space-3)' : 'var(--space-4)', left: mobile ? 'var(--space-3)' : 'auto', maxWidth: mobile ? 'none' : '380px', padding: 'var(--space-3) var(--space-4)', background: 'var(--color-surface-raised)', border: '1px solid var(--role-primary)', borderRadius: '8px', boxShadow: '0 0 18px -4px color-mix(in oklch, var(--role-primary) 55%, transparent)' };
+        if (v === 'bar') return { ...base, left: 0, right: 0, bottom: 0, padding: 'var(--space-3) var(--space-5)', background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)', alignItems: 'center' };
+        return { ...base, left: '50%', bottom: 'var(--space-6)', transform: 'translateX(-50%)', width: 'max-content', maxWidth: 'min(440px, calc(100% - 32px))', padding: 'var(--space-3) var(--space-4)', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '4px', boxShadow: '0 1px 3px rgba(0,0,0,.4)' };
+      })(),
+      toastDotStyle: { flex: 'none', width: '8px', height: '8px', marginTop: '6px', borderRadius: '50%', background: 'var(--role-accent)', boxShadow: '0 0 8px var(--role-accent)' }, layout: mobile ? 'mobile' : 'desktop', mobile, desktop, frameStyle, overlayStyle, btnRowStyle,
+      hasMe: !!p, noMe: !p, me, meName: me, meColors: colors, email, link, ph, copy, prompt, aside, chip, busy,
+      titleId: 'pm-title-' + (mobile ? 'm' : 'd'),
+      modalRoles: roles, dots, controlLabel: p ? me : 'Entrar', markStyle, sync, syncAreaStyle, syncLineStyle, syncActionStyle,
+      idLine: tribe + ' · ' + names,
+      profileOpen: s.open === 'profile' && !!p, entryOpen: s.open === 'entry', drawerOpen: mobile && s.drawer,
+      notice: s.notice, hasNotice: !!s.notice, f: s.f, err: s.err, hasFormErr: !!s.err.form, picks: s.picks,
+      previewEyebrow: s.picks.join() === colors.join() ? 'Identidade atual' : 'Nova identidade',
+      previewLine: previewTribe + ' · ' + (I ? I.colorNames(s.picks) : ''),
+      doneBody: s.done ? s.done.body : '',
+      showUnsynced: link.anyCloud && s.unsynced, syncIdle: s.sync === 'idle', syncShown: s.sync === 'syncing' || s.sync === 'failed', syncFailed: s.sync === 'failed',
+      syncLine, syncedOk: s.syncedOk, delLocked: busy || s.sync === 'syncing',
+      saveLocked: busy || !(s.picks.join() !== colors.join() || s.f.name.trim() !== me),
+      saveProfile: () => {
+        const n = s.f.name.trim(); const e = {};
+        const ne = n !== me ? this.validName(n) : null; if (ne) e.name = ne;
+        if (Object.keys(e).length) return this.setState({ err: e });
+        const np = s.picks.slice(), changed = [];
+        if (np.join() !== colors.join()) changed.push('cores'); if (n !== me) changed.push('nome');
+        this.run(600, () => {
+          this.setState(st => ({ me: n, profiles: st.profiles.map(x => x.name === me ? { ...x, name: n, colors: np } : x) }));
+          setTimeout(() => { this.go(s.phase); this.showToast('Perfil', 'Alterações salvas.'); }, 0);
+        });
+      },
+      L: {
+        saveProfile: busy ? 'Salvando…' : 'Salvar',
+        saveColors: busy ? 'Salvando…' : 'Salvar cores', saveName: busy ? 'Salvando…' : 'Salvar nome', savePw: busy ? 'Salvando…' : 'Salvar senha',
+        saveCloudPw: busy ? 'Salvando…' : 'Salvar senha da conta', signIn: busy ? 'Entrando…' : 'Entrar', signUp: busy ? 'Criando conta…' : 'Criar conta',
+        sendCode: busy ? 'Enviando…' : 'Enviar código', saveReset: busy ? 'Salvando…' : 'Salvar e entrar', unlink: busy ? 'Desvinculando…' : 'Desvincular',
+        delProfile: busy ? 'Excluindo…' : 'Excluir perfil', delCloud: busy ? 'Excluindo…' : 'Excluir conta',
+      },
+      kitProfiles: s.profiles,
+      setProfilesFromKit: (u) => this.setState(st => {
+        const next = typeof u === 'function' ? u(st.profiles) : u;
+        return { profiles: next.map(x => ({ ...x, link: x.linked ? (x.link && x.link !== 'local' ? x.link : 'linked') : 'local' })) };
+      }),
+      setActiveFromKit: (n) => this.setState(st => { const np = st.profiles.find(x => x.name === n); return { me: n, f: { ...st.f, name: n || '' }, picks: np ? np.colors.slice() : st.picks }; }),
+      closeEntry: () => this.setState({ open: null }),
+      close: () => this.setState({ open: null, phase: 'overview', err: {}, busy: false, notice: null }),
+      openDrawer: () => this.setState({ drawer: true }),
+      closeDrawer: () => this.setState({ drawer: false }),
+      onProfileControl: () => (p ? this.openProfile('overview') : this.openEntry()),
+      onSyncArea: () => {
+        if (link.local) return this.openProfile('in');
+        if (link.expired) return this.openProfile('reauth');
+        if (s.areaBusy) return;
+        if (this.cloudGone()) return;
+        this.setState({ areaBusy: true, drawer: false }); setTimeout(() => this.setState({ areaBusy: false, unsynced: false }), 1400);
+      },
+      back: () => this.go(s.backTo || 'overview'),
+      toOverview: () => this.go('overview'),
+      toLocal: () => this.go('local'), toCloud: () => this.go('cloud'), toDanger: () => this.go('danger'),
+      toManage: () => this.go('manage'),
+      toggleMore: () => this.setState(st => ({ more: !st.more })),
+      toColors: () => this.go('colors'), toName: () => this.go('name'), toPw: () => this.go('pw'), toCloudPw: () => this.cloudGone() || this.go('cloudpw'),
+      toLink: () => this.go('in'), toReauth: () => this.go('reauth'), toUnlink: () => this.cloudGone() || this.go('unlink'), toReset: () => this.go('reset'),
+      toDelProfile: () => this.go('delprofile'), toDelCloud: () => this.cloudGone() || this.go('delcloud'),
+      setPicks: (v) => this.setState({ picks: v }),
+      onName: this.setF('name'), onPw: this.setF('pw'), onPw2: this.setF('pw2'), onPw3: this.setF('pw3'), onEmail: this.setF('email'), onCode: this.setF('code'),
+      saveColors: () => {
+        if (s.picks.join() === colors.join()) return this.go('overview');
+        const later = link.expired || (link.linked && this.offline);
+        this.run(500, () => { const np = s.picks.slice(); this.updMe({ colors: np });
+          this.go('overview'); this.showToast('Perfil', 'Alterações salvas.'); });
+      },
+      saveName: () => {
+        const n = s.f.name.trim();
+        if (n === me) return this.go('overview');
+        const e = this.validName(n); if (e) return this.setState({ err: { name: e } });
+        this.run(500, () => { this.setState(st => ({ me: n, profiles: st.profiles.map(x => x.name === me ? { ...x, name: n } : x) })); this.go('overview'); this.showToast('Perfil', 'Alterações salvas.'); });
+      },
+      savePw: () => {
+        const e = {};
+        if (!s.f.pw) e.pw = 'Digite sua senha.';
+        if (s.f.pw2.length < 8) e.pw2 = 'Use pelo menos 8 caracteres.';
+        else if ((s.f.pw3 || '') !== s.f.pw2) e.pw3 = 'As senhas não são iguais.';
+        if (Object.keys(e).length) return this.setState({ err: e });
+        this.run(700, () => { if (s.f.pw.length < 8) return this.setState({ err: { pw: 'Senha incorreta.' } });
+          this.finish('Senha alterada', 'A nova senha já desbloqueia ' + me + ' neste aparelho.' + (link.anyCloud ? ' A senha da conta na nuvem continua a mesma.' : '')); });
+      },
+      saveCloudPw: () => {
+        const e = {};
+        if (!s.f.pw) e.pw = 'Digite sua senha.';
+        if (s.f.pw2.length < 8) e.pw2 = 'Use pelo menos 8 caracteres.';
+        if (Object.keys(e).length) return this.setState({ err: e });
+        this.run(900, () => {
+          if (this.offline) return this.setState({ err: { form: 'Sem conexão. A conta na nuvem precisa de internet — o resto do app continua funcionando.' } });
+          if (s.f.pw.length < 8) return this.setState({ err: { form: 'E-mail ou senha incorretos.' } });
+          this.finish('Senha da conta alterada', 'Este aparelho continua conectado. Os outros aparelhos vinculados a ' + email + ' vão pedir para entrar de novo com a nova senha.');
+        });
+      },
+      signIn: () => {
+        const e = {}; const em = this.validEmail(s.f.email); if (em) e.email = em; if (!s.f.pw) e.pw = 'Digite sua senha.';
+        if (Object.keys(e).length) return this.setState({ err: e });
+        this.run(900, () => {
+          if (this.offline) return this.setState({ err: { form: 'Sem conexão. A conta na nuvem precisa de internet — o resto do app continua funcionando.' } });
+          if (s.f.pw.length < 8) return this.setState({ err: { form: 'E-mail ou senha incorretos.' } });
+          this.setLink('linked'); this.finish('Conta vinculada', me + ' agora sincroniza com ' + s.f.email + '.');
+        });
+      },
+      signUp: () => {
+        const e = {}; const em = this.validEmail(s.f.email); if (em) e.email = em; if (s.f.pw.length < 8) e.pw = 'Use pelo menos 8 caracteres.';
+        if (Object.keys(e).length) return this.setState({ err: e });
+        this.run(900, () => {
+          if (this.offline) return this.setState({ err: { form: 'Sem conexão. A conta na nuvem precisa de internet — o resto do app continua funcionando.' } });
+          this.setLink('linked'); this.finish('Conta criada', me + ' agora sincroniza com ' + s.f.email + '. Suas cores foram salvas na conta.');
+        });
+      },
+      sendCode: () => {
+        const em = this.validEmail(s.f.email); if (em) return this.setState({ err: { email: em } });
+        this.run(800, () => { if (this.offline) return this.setState({ err: { form: 'Sem conexão. A conta na nuvem precisa de internet — o resto do app continua funcionando.' } }); this.go('code'); });
+      },
+      saveReset: () => {
+        const e = {}; if (!/^\d{6}$/.test(s.f.code)) e.code = 'Digite os 6 dígitos do código.'; if (s.f.pw.length < 8) e.pw = 'Use pelo menos 8 caracteres.';
+        if (Object.keys(e).length) return this.setState({ err: e });
+        this.run(900, () => { const was = linkS; this.setLink('linked');
+          was === 'expired' ? this.finish('Sincronização retomada', 'A conta voltou a sincronizar ' + me + '.') : this.finish('Conta vinculada', me + ' agora sincroniza com ' + s.f.email + '.'); });
+      },
+      reauth: () => {
+        if (!s.f.pw) return this.setState({ err: { pw: 'Digite sua senha.' } });
+        this.run(900, () => {
+          if (this.offline) return this.setState({ err: { form: 'Sem conexão. A conta na nuvem precisa de internet — o resto do app continua funcionando.' } });
+          if (s.f.pw.length < 8) return this.setState({ err: { form: 'E-mail ou senha incorretos.' } });
+          this.setLink('linked'); this.finish('Sincronização retomada', 'A conta voltou a sincronizar ' + me + '.');
+        });
+      },
+      unlink: () => this.run(700, () => { this.setLink('local'); this.finish('Conta desvinculada', me + ' continua neste aparelho com todos os dados e parou de sincronizar.'); }),
+      syncNow: () => { this.setState({ sync: 'syncing' }); setTimeout(() => {
+        if (this.offline || link.expired) return this.setState({ sync: 'failed' });
+        this.setState({ sync: 'idle', unsynced: false, syncedOk: true }); }, 1400); },
+      delProfile: () => {
+        if (!s.f.pw) return this.setState({ err: { pw: 'Digite sua senha.' } });
+        this.run(900, () => { if (s.f.pw.length < 8) return this.setState({ err: { pw: 'Senha incorreta.' } });
+          this.setState(st => ({ profiles: st.profiles.filter(x => x.name !== st.me), me: null, open: st.profiles.length > 1 ? 'entry' : null, phase: 'overview' })); });
+      },
+      delCloud: () => {
+        if (!s.f.pw) return this.setState({ err: { pw: 'Digite sua senha.' } });
+        this.run(1100, () => {
+          if (this.offline) return this.setState({ err: { form: 'Sem conexão. A conta na nuvem precisa de internet — o resto do app continua funcionando.' } });
+          if (s.f.pw.length < 8) return this.setState({ err: { form: 'E-mail ou senha incorretos.' } });
+          this.setLink('local'); this.finish('Conta excluída', 'A conta ' + email + ' e os dados dela na nuvem foram apagados. ' + me + ' continua neste aparelho com todos os dados, agora só neste aparelho.');
+        });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
