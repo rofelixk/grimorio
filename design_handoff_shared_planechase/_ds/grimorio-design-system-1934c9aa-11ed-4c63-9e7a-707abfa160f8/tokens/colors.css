@@ -1,0 +1,23 @@
+/* Neutral scale (never retinted), danger, identity colors, default identity, role chain. */
+:root{
+--color-bg:#14110f;--color-surface:#1e1a17;--color-surface-raised:#292320;--color-border:#3a332e;--color-text:#f2ede8;--color-text-muted:#a89e96;--overlay-backdrop:rgba(0,0,0,0.75);
+--color-danger:oklch(0.72 0.16 28);--color-danger-bg:oklch(0.27 0.06 28);
+/* Success / warning: NOT DEFINED YET — add to DESIGN.md first. */
+--identity-w:#d8cdb0;--identity-w-hover:#e6dcc2;
+--identity-u:#3d6b85;--identity-u-hover:#4c7f9c;
+--identity-b:#7c5aa6;--identity-b-hover:#8f6bb8;
+--identity-r:#a8402c;--identity-r-hover:#bf4f39;
+--identity-g:#4c7a43;--identity-g-hover:#5c8f52;
+--default-primary:var(--identity-r);--default-primary-hover:var(--identity-r-hover);
+--default-accent:var(--identity-u);--default-accent-hover:var(--identity-u-hover);
+--default-tertiary:var(--identity-g);--default-tertiary-hover:var(--identity-g-hover);
+}
+/* Role chain — MUST be re-applied on every element that sets --theme-* (carry [data-theme-scope]). */
+:root,[data-theme-scope]{
+--role-primary:var(--theme-primary,var(--default-primary));
+--role-primary-hover:var(--theme-primary-hover,var(--default-primary-hover));
+--role-accent:var(--theme-accent,var(--role-primary));
+--role-accent-hover:var(--theme-accent-hover,var(--role-primary-hover));
+--role-tertiary:var(--theme-tertiary,var(--role-accent));
+--role-tertiary-hover:var(--theme-tertiary-hover,var(--role-accent-hover));
+}

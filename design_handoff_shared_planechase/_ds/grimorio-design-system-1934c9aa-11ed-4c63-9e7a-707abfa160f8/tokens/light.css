@@ -1,0 +1,11 @@
+/* Elevation is light. One neutral shadow; everything else is a role-tinted recipe. */
+:root{--shadow-rest:0 1px 3px rgba(0,0,0,0.4)}
+:root,[data-theme-scope]{
+--glow-title:0 0 24px rgb(from var(--role-primary) r g b / 35%);
+--glow-button:0 0 20px rgb(from var(--role-primary) r g b / 35%);
+--glow-button-text:0 0 8px rgb(from var(--role-primary) r g b / 60%);
+--glow-plate-hover:0 0 18px -4px rgb(from var(--role-primary) r g b / 55%);
+--wash-header:radial-gradient(circle at 0% 0%, rgb(from var(--role-primary) r g b / 18%), transparent 58%);
+--ring-gradient:conic-gradient(from var(--spin-angle), rgb(from var(--role-primary) r g b / 35%), rgb(from var(--role-accent) r g b / 25%), rgb(from var(--role-tertiary) r g b / 25%), rgb(from var(--role-primary) r g b / 35%));
+--halo-gradient:conic-gradient(from var(--spin-angle), rgb(from var(--role-primary) r g b / 24%), rgb(from var(--role-accent) r g b / 18%) 30%, rgb(from var(--role-tertiary) r g b / 18%) 50%, rgb(from var(--role-primary) r g b / 24%) 80%, rgb(from var(--role-primary) r g b / 24%));
+}

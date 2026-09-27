@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+<script src="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/_ds_bundle.js"></script>
+<style>
+html,body{margin:0;background:#14110f}
+a{color:var(--role-accent);text-decoration:none}a:hover{color:var(--role-accent-hover);text-decoration:underline}
+.g-app{height:100vh;display:grid;grid-template-rows:44px minmax(0,1fr);background:var(--color-bg);color:var(--color-text);font:var(--font-size-md)/var(--line-height-normal) var(--font-sans);overflow:hidden}
+.g-app *{box-sizing:border-box}
+.g-tb{position:relative;z-index:3;display:flex;align-items:center;gap:var(--space-1);padding:4px var(--space-4);background:var(--color-bg)}
+.g-tb::before{content:"";position:absolute;inset:0 auto 0 0;width:360px;max-width:70%;opacity:.3;background:linear-gradient(90deg,var(--role-primary),var(--role-accent) 40%,var(--role-tertiary) 70%);-webkit-mask-image:radial-gradient(ellipse 100% 150% at 0% 50%,#000,transparent 75%);mask-image:radial-gradient(ellipse 100% 150% at 0% 50%,#000,transparent 75%);pointer-events:none}
+.g-tb::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,var(--role-primary),var(--role-accent) 40%,var(--role-tertiary) 70%,var(--role-primary))}
+.g-wm{all:unset;position:relative;cursor:pointer;display:inline-flex;align-items:center;min-height:44px;font:700 var(--font-size-lg)/1 var(--font-display);color:var(--role-primary);text-shadow:var(--glow-title)}
+.g-wm:focus-visible,.g-item:focus-visible,.g-ctl:focus-visible{outline:2px solid var(--role-accent);outline-offset:2px}
+.g-ctl{all:unset;position:relative;cursor:pointer;margin-left:auto;display:inline-flex;align-items:center;min-height:44px;padding:0 var(--space-3);font-weight:700;font-size:var(--font-size-sm);transition:color var(--duration-fast) var(--ease-standard)}
+.g-ctl:hover{color:var(--role-primary-hover)}
+.g-menu{position:relative;margin-left:auto;padding:0 var(--space-2);font-size:var(--font-size-xs);letter-spacing:var(--tracking-eyebrow);text-transform:uppercase;color:var(--color-text-muted)}
+.g-shell{position:relative;display:flex;min-height:0}
+.g-spacer{flex:none;width:24px}
+.g-nav{position:absolute;left:0;top:0;bottom:0;z-index:2;width:24px;padding:10px 0;display:flex;flex-direction:column;gap:4px;overflow:hidden;background:var(--color-bg);border-right:1px solid transparent;transition:width var(--duration-base) var(--ease-standard),box-shadow var(--duration-base) var(--ease-standard),border-color var(--duration-base) var(--ease-standard)}
+.g-nav.open{width:232px;padding-right:10px;border-right-color:var(--color-border);box-shadow:var(--shadow-rest),0 0 24px -6px rgb(from var(--role-primary) r g b / 45%)}
+.g-nav::before{content:"";position:absolute;top:0;bottom:0;left:11px;width:1px;background:linear-gradient(180deg,var(--role-primary),var(--role-accent) 45%,var(--role-tertiary) 80%,var(--role-primary));box-shadow:0 0 6px rgb(from var(--role-primary) r g b / 35%)}
+.g-item{all:unset;position:relative;display:flex;align-items:center;gap:14px;min-height:44px;padding:0 4px;border-radius:0 4px 4px 0;color:var(--color-text-muted);font-size:var(--font-size-sm);white-space:nowrap;cursor:pointer;transition:color var(--duration-fast) var(--ease-standard),background var(--duration-fast) var(--ease-standard)}
+.g-item:hover{color:var(--color-text);background:linear-gradient(90deg,rgb(from var(--role-primary) r g b / 16%),transparent 75%)}
+.g-item.m{flex-direction:row-reverse;border-radius:4px 0 0 4px}
+.g-item.m:hover{background:linear-gradient(270deg,rgb(from var(--role-primary) r g b / 16%),transparent 75%)}
+.g-bead{flex:none;display:block;width:7px;height:7px;margin-left:3px;border:1px solid var(--color-border);border-radius:50%;background:var(--color-bg);transition:transform var(--duration-fast) var(--ease-standard),box-shadow var(--duration-fast) var(--ease-standard),border-color var(--duration-fast) var(--ease-standard),background var(--duration-fast) var(--ease-standard)}
+.g-item.m .g-bead{margin:0 3px 0 0}
+.g-item:hover .g-bead{border-color:var(--role-primary);transform:scale(1.3);box-shadow:0 0 0 3px var(--color-bg),0 0 8px 1px rgb(from var(--role-primary) r g b / 70%)}
+.g-item.cur{color:var(--color-text);font-weight:700}
+.g-item.cur .g-bead,.g-tile:not(.off) .g-bead{border-color:var(--role-primary);background:var(--role-primary);box-shadow:0 0 0 3px var(--color-bg),0 0 10px 1px var(--role-primary)}
+.g-view{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.g-page{flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--color-surface-raised) transparent}
+.g-dockpage{flex:1;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto}
+.g-pad{display:flex;flex-direction:column;gap:var(--space-4);max-width:1120px;padding:var(--space-5)}
+.g-pad.n{padding:var(--space-4);gap:var(--space-3)}
+.g-h1{margin:0;font:600 var(--font-size-2xl)/1.1 var(--font-display);text-shadow:var(--glow-title);text-wrap:balance}
+.g-h2{margin:0;font:600 var(--font-size-xl)/1.2 var(--font-display)}
+.g-h3{margin:0;font:600 var(--font-size-lg)/1.2 var(--font-display)}
+.g-mu{color:var(--color-text-muted);font-size:var(--font-size-sm)}
+.g-xs{font-size:var(--font-size-xs)}
+.g-ey{font-size:var(--font-size-xs);letter-spacing:var(--tracking-eyebrow);text-transform:uppercase;color:var(--color-text-muted)}
+.g-p{margin:0;font-size:var(--font-size-sm);text-wrap:pretty}
+.g-con{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--space-4);align-items:center;padding:var(--space-4) var(--space-5);border:1px solid var(--role-primary);border-radius:var(--radius-md);box-shadow:var(--glow-button)}
+.g-con.danger,.g-dock.danger{border-color:var(--color-danger);box-shadow:none}
+.g-res{margin:0;font:600 var(--font-size-2xl)/1.15 var(--font-display);text-shadow:var(--glow-title)}
+.g-dock .g-res{font-size:var(--font-size-xl)}
+.g-acts{display:flex;gap:var(--space-2);flex-wrap:wrap}
+.g-links{display:flex;gap:var(--space-4);flex-wrap:wrap;align-items:center}
+.g-dock{border-top:1px solid var(--role-primary);box-shadow:0 -8px 24px -8px rgb(from var(--role-primary) r g b / 35%);padding:var(--space-3) var(--space-4);display:flex;flex-direction:column;gap:var(--space-2);background:var(--color-bg)}
+.g-plane{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--space-5);align-items:start;background:var(--color-bg)}
+.g-plane.n{grid-template-columns:minmax(0,1fr);gap:var(--space-3)}
+.g-wrap{position:relative}
+.g-fxp{position:absolute;inset:0;pointer-events:none;z-index:5}
+.g-imgw{position:relative}
+.g-fxc{position:absolute;inset:0;pointer-events:none;z-index:0}
+.g-img{position:relative;z-index:1;aspect-ratio:1.4;background:var(--color-surface-raised);border:1px solid var(--color-border);border-radius:var(--radius-md);display:flex;flex-direction:column;gap:var(--space-1);align-items:center;justify-content:center;text-align:center;padding:var(--space-4);color:var(--color-text-muted);font-size:var(--font-size-xs);letter-spacing:var(--tracking-eyebrow);text-transform:uppercase}
+.g-img b{font:600 var(--font-size-lg)/1.2 var(--font-display);letter-spacing:0;text-transform:none;color:var(--color-text)}
+.g-tc{display:flex;flex-direction:column;gap:var(--space-2);min-width:0}
+.g-ab{display:flex;flex-direction:column;gap:var(--space-1);padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);transition:border-color var(--duration-slow) var(--ease-standard),box-shadow var(--duration-slow) var(--ease-standard),background var(--duration-slow) var(--ease-standard)}
+.g-ab.lit{border-color:var(--role-primary);background:rgb(from var(--role-primary) r g b / 12%);box-shadow:var(--glow-plate-hover)}
+.g-ab.lit .g-ey{color:var(--color-text)}
+.g-row{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:var(--space-3);width:100%;min-height:var(--list-row-min);padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:linear-gradient(var(--color-surface-raised),var(--color-surface));cursor:pointer;transition:border-color var(--duration-fast) var(--ease-standard),box-shadow var(--duration-fast) var(--ease-standard)}
+.g-row:hover,.g-row:focus-visible{border-color:var(--role-primary);box-shadow:var(--glow-plate-hover)}
+.g-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--space-2)}
+.g-tiles.n{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-tile{all:unset;box-sizing:border-box;position:relative;aspect-ratio:1.4;border:1px solid var(--role-primary);border-radius:var(--radius-sm);background:var(--color-surface-raised);display:flex;align-items:center;justify-content:center;padding:var(--space-3);text-align:center;font:600 var(--font-size-sm)/1.2 var(--font-display);cursor:pointer;transition:opacity var(--duration-fast) var(--ease-standard),border-color var(--duration-fast) var(--ease-standard),box-shadow var(--duration-fast) var(--ease-standard)}
+.g-tile.off{border-color:var(--color-border);opacity:.35}
+.g-tile:hover{box-shadow:var(--glow-plate-hover);opacity:1}
+.g-tile:focus-visible{outline:2px solid var(--role-accent);outline-offset:2px}
+.g-tile .g-bead{position:absolute;top:7px;right:7px;margin:0}
+.g-foot{border-top:1px solid var(--color-border);padding:var(--space-3) var(--space-5);display:flex;gap:var(--space-2);align-items:center;flex-wrap:wrap;background:var(--color-bg)}
+.g-foot.n{padding:var(--space-3) var(--space-4)}
+.g-foot.danger{border-top-color:var(--color-danger)}
+.g-err{margin:0;font-size:var(--font-size-sm);color:var(--color-danger)}
+.g-toc{position:sticky;top:0;display:flex;flex-direction:column;font-size:var(--font-size-sm)}
+.g-toc a{display:flex;align-items:center;min-height:44px;border-top:1px solid var(--color-border);color:var(--color-text-muted)}
+.g-toc a:hover{color:var(--color-text);text-decoration:none}
+.g-rule{display:flex;flex-direction:column;gap:var(--space-2);padding-top:var(--space-5);border-top:1px solid var(--color-border);scroll-margin-top:var(--space-4)}
+.g-rule p{margin:0;line-height:var(--line-height-normal);text-wrap:pretty}
+.g-back{position:fixed;inset:0;z-index:10;background:var(--overlay-backdrop)}
+.g-drawer{position:fixed;top:0;right:0;bottom:0;z-index:11;width:min(288px,85%);display:flex;flex-direction:column;gap:4px;padding:var(--space-1) 0 var(--space-4) var(--space-3);background:var(--color-bg);border-left:1px solid var(--color-border);box-shadow:var(--glow-overlay)}
+.g-drawer::before{content:"";position:absolute;top:0;bottom:0;right:11px;width:1px;background:linear-gradient(180deg,var(--role-primary),var(--role-accent) 45%,var(--role-tertiary) 80%);box-shadow:0 0 6px rgb(from var(--role-primary) r g b / 35%)}
+@media (prefers-reduced-motion:reduce){.g-app *{transition:none!important}}
+</style>
+</helmet>
+<div class="g-app" data-theme-scope="" style="--theme-primary:{{ tp }};--theme-primary-hover:{{ tph }};--theme-accent:{{ ta }};--theme-accent-hover:{{ tah }};--theme-tertiary:{{ tt }};--theme-tertiary-hover:{{ tth }}">
+<header class="g-tb">
+<button class="g-wm" aria-label="Início" onClick="{{ goModes }}">Grimorio</button>
+<sc-if value="{{ showRail }}" hint-placeholder-val="{{ true }}"><button class="g-ctl">Entrar</button></sc-if>
+<sc-if value="{{ noRail }}"><button class="btn btn--ghost g-menu" aria-expanded="{{ drawerOpen }}" onClick="{{ openDrawer }}">Menu</button></sc-if>
+</header>
+<div class="g-shell">
+<sc-if value="{{ showRail }}" hint-placeholder-val="{{ true }}">
+<div class="g-spacer" aria-hidden="true"></div>
+<nav class="{{ navCls }}" aria-label="Navegação" onMouseEnter="{{ navIn }}" onMouseLeave="{{ navOut }}" onFocus="{{ navIn }}" onBlur="{{ navOut }}">
+<sc-for list="{{ navItems }}" as="it" hint-placeholder-count="2"><button class="{{ it.cls }}" aria-current="{{ it.cur }}" onClick="{{ it.go }}"><span class="g-bead" aria-hidden="true"></span><span>{{ it.label }}</span></button></sc-for>
+</nav>
+</sc-if>
+<main class="g-view">
+
+<sc-if value="{{ isCollection }}">
+<div class="g-page"><div class="g-pad"><h1 class="g-h1">Coleção</h1><p class="g-mu" style="margin:0">Fora do escopo deste protótipo.</p></div></div>
+</sc-if>
+
+<sc-if value="{{ isModes }}" hint-placeholder-val="{{ true }}">
+<div class="g-page"><div class="{{ padCls }}" style="max-width:720px">
+<h1 class="g-h1">Modos de jogo</h1>
+<button class="g-row" aria-label="Planechase. Um baralho de planos compartilhado pela mesa." onClick="{{ goPlanechase }}"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><b>Planechase</b><span class="g-mu g-xs">Um baralho de planos compartilhado pela mesa.</span></span><span class="micro-label" style="margin-left:auto">{{ modesVerb }}</span></button>
+</div></div>
+</sc-if>
+
+<sc-if value="{{ isIdle }}">
+<div class="g-page" style="display:flex"><div class="{{ padCls }}" style="margin:auto;align-items:center;text-align:center;max-width:480px">
+<span class="g-ey">Nenhuma partida</span>
+<h1 class="g-h1">Planechase</h1>
+<p class="g-p g-mu" style="font-size:var(--font-size-md);max-width:40ch">Planos mudam as regras da mesa. Um baralho só, compartilhado por todos — funciona sem internet.</p>
+<div class="g-acts" style="justify-content:center"><button class="btn btn--primary" onClick="{{ start }}">Iniciar partida</button><button class="btn" onClick="{{ openRules }}">Como jogar</button></div>
+<button class="link-btn" onClick="{{ openDeck }}">{{ deckSummary }}</button>
+</div></div>
+</sc-if>
+
+<sc-if value="{{ isGameWide }}">
+<div class="g-page"><div class="g-pad" style="min-height:100%">
+<sc-if value="{{ ctlNormal }}" hint-placeholder-val="{{ true }}">
+<div class="g-con"><div role="status" aria-live="polite" style="display:flex;flex-direction:column;gap:var(--space-1);min-width:0"><span class="g-ey">{{ eyebrow }}</span><p class="g-res">{{ resultText }}</p><span class="g-mu">{{ resultSub }}</span></div>
+<div class="g-acts" style="justify-content:flex-end"><button class="btn btn--ghost" disabled="{{ noUndo }}" onClick="{{ undo }}">Desfazer</button><button class="btn" disabled="{{ lock }}" onClick="{{ resetCost }}">Zerar custo</button><button class="btn" disabled="{{ lock }}" onClick="{{ pwManual }}">Planeswalk</button><button class="btn btn--primary" onClick="{{ primary }}">{{ primaryLabel }}</button></div></div>
+</sc-if>
+<sc-if value="{{ ctlAllUsed }}">
+<div class="g-con"><div role="status" aria-live="polite" style="display:flex;flex-direction:column;gap:var(--space-1);min-width:0"><span class="g-ey">Planeswalk pendente</span><p class="g-res">Todos os planos foram usados</p><span class="g-mu">Reiniciar devolve os planos usados ao baralho e conclui o planeswalk.</span></div>
+<div class="g-acts" style="justify-content:flex-end"><button class="btn btn--ghost" disabled="{{ noUndo }}" onClick="{{ undo }}">Desfazer</button><button class="btn btn--primary" onClick="{{ resetPlanes }}">Reiniciar planos</button></div></div>
+</sc-if>
+<sc-if value="{{ ctlConfirm }}">
+<div class="g-con danger" role="alertdialog" aria-label="{{ confirmTitle }}"><div style="display:flex;flex-direction:column;gap:var(--space-1);min-width:0"><p class="g-res">{{ confirmTitle }}</p><span class="g-mu">{{ confirmBody }}</span></div>
+<div class="g-acts" style="justify-content:flex-end"><button class="btn" onClick="{{ cancelConfirm }}">Cancelar</button><button class="btn btn--danger" onClick="{{ doConfirm }}">{{ confirmVerb }}</button></div></div>
+</sc-if>
+<div class="g-wrap">
+<div class="g-plane" ref="{{ planeRef }}">
+<div class="g-imgw"><div class="g-fxc" ref="{{ chaosRef }}"></div><div class="g-img" ref="{{ imgRef }}"><b>{{ cName }}</b><span>Imagem da carta</span></div></div>
+<div class="g-tc"><h2 class="g-h2">{{ cName }}</h2><span class="g-mu">{{ cType }}</span><sc-if value="{{ cHasText }}"><p class="g-p">{{ cText }}</p></sc-if><div class="{{ abCls }}"><span class="g-ey">{{ abLabel }}</span><p class="g-p">{{ cAb }}</p></div></div>
+</div>
+<div class="g-fxp" ref="{{ pwRef }}"></div>
+</div>
+<div class="g-links" style="margin-top:auto;padding-top:var(--space-3);border-top:1px solid var(--color-border)"><span class="g-mu">{{ counts }}</span><div class="g-links" style="margin-left:auto"><button class="link-btn" onClick="{{ openRules }}">Como jogar</button><button class="link-btn" onClick="{{ openDeck }}">Baralho</button><button class="link-btn" disabled="{{ lock }}" onClick="{{ askReset }}">Reiniciar planos</button><button class="link-btn" onClick="{{ askEnd }}">Encerrar partida</button></div></div>
+</div></div>
+</sc-if>
+
+<sc-if value="{{ isGameNarrow }}">
+<div class="g-dockpage">
+<div class="g-page"><div class="g-pad n">
+<div style="display:flex;align-items:baseline;gap:var(--space-2)"><h1 class="g-h2">Planechase</h1><span class="g-mu g-xs" style="margin-left:auto">{{ counts }}</span></div>
+<div class="g-wrap">
+<div class="g-plane n" ref="{{ planeRef }}">
+<div class="g-imgw"><div class="g-fxc" ref="{{ chaosRef }}"></div><div class="g-img" ref="{{ imgRef }}"><b>{{ cName }}</b><span>Imagem da carta</span></div></div>
+<div class="g-tc"><h2 class="g-h2">{{ cName }}</h2><span class="g-mu">{{ cType }}</span><sc-if value="{{ cHasText }}"><p class="g-p">{{ cText }}</p></sc-if><div class="{{ abCls }}"><span class="g-ey">{{ abLabel }}</span><p class="g-p">{{ cAb }}</p></div></div>
+</div>
+<div class="g-fxp" ref="{{ pwRef }}"></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);padding-top:var(--space-2)"><button class="btn btn--secondary" onClick="{{ openRules }}">Como jogar</button><button class="btn btn--secondary" onClick="{{ openDeck }}">Baralho</button><button class="btn btn--ghost" style="border-color:var(--color-border)" disabled="{{ lock }}" onClick="{{ askReset }}">Reiniciar planos</button><button class="btn btn--ghost" style="border-color:var(--color-border)" onClick="{{ askEnd }}">Encerrar partida</button></div>
+</div></div>
+<sc-if value="{{ ctlNormal }}" hint-placeholder-val="{{ true }}">
+<div class="g-dock"><div role="status" aria-live="polite" style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-2)"><p class="g-res">{{ resultText }}</p><span class="g-mu" style="white-space:nowrap">{{ costShort }}</span></div><span class="g-mu g-xs">{{ resultSub }}</span></div>
+<div class="g-acts"><button class="btn btn--ghost" disabled="{{ noUndo }}" onClick="{{ undo }}">Desfazer</button><button class="btn" style="flex:1" disabled="{{ lock }}" onClick="{{ pwManual }}">Planeswalk</button><button class="btn" style="flex:1" disabled="{{ lock }}" onClick="{{ resetCost }}">Zerar custo</button></div>
+<button class="btn btn--primary btn--block" onClick="{{ primary }}">{{ primaryLabel }}</button></div>
+</sc-if>
+<sc-if value="{{ ctlAllUsed }}">
+<div class="g-dock"><div role="status" aria-live="polite" style="display:flex;flex-direction:column;gap:2px"><p class="g-res">Todos os planos foram usados</p><span class="g-mu g-xs">Reiniciar devolve os usados ao baralho e conclui o planeswalk.</span></div>
+<div class="g-acts"><button class="btn btn--ghost" disabled="{{ noUndo }}" onClick="{{ undo }}">Desfazer</button><button class="btn btn--primary" style="flex:1" onClick="{{ resetPlanes }}">Reiniciar planos</button></div></div>
+</sc-if>
+<sc-if value="{{ ctlConfirm }}">
+<div class="g-dock danger" role="alertdialog" aria-label="{{ confirmTitle }}"><p class="g-res">{{ confirmTitle }}</p><span class="g-mu g-xs">{{ confirmBody }}</span>
+<div class="g-acts"><button class="btn" style="flex:1" onClick="{{ cancelConfirm }}">Cancelar</button><button class="btn btn--danger" style="flex:1" onClick="{{ doConfirm }}">{{ confirmVerb }}</button></div></div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isRules }}">
+<div class="g-page"><div class="{{ padCls }}">
+<div style="display:grid;grid-template-columns:{{ rulesCols }};gap:var(--space-6);align-items:start">
+<sc-if value="{{ wideLayout }}"><nav class="g-toc" aria-label="Nesta página"><span class="g-ey" style="margin-bottom:var(--space-2)">Nesta página</span><sc-for list="{{ rules }}" as="r" hint-placeholder-count="6"><a href="#{{ r.id }}">{{ r.t }}</a></sc-for></nav></sc-if>
+<article style="display:flex;flex-direction:column;gap:var(--space-5);max-width:62ch">
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<button class="btn btn--ghost" style="align-self:flex-start;margin-left:calc(-1 * var(--space-3));color:var(--color-text-muted)" onClick="{{ backToPlay }}">{{ backLabel }}</button>
+<h1 class="g-h1">Como jogar</h1>
+<p class="g-p g-mu" style="font-size:var(--font-size-md);line-height:var(--line-height-normal)">Planechase compartilhado: uma variante casual em que a mesa inteira usa um só baralho de planos.</p>
+</div>
+<sc-for list="{{ rules }}" as="r" hint-placeholder-count="6"><section class="g-rule" id="{{ r.id }}"><h2 class="g-h3">{{ r.t }}</h2><p style="color: #A89E96">{{ r.b }}</p></section></sc-for>
+</article>
+</div>
+</div></div>
+</sc-if>
+
+<sc-if value="{{ isDeck }}">
+<div class="g-dockpage">
+<div class="g-page"><div class="{{ padCls }}">
+<div style="display:flex;flex-direction:column;gap:var(--space-1)">
+<button class="btn btn--ghost" style="align-self:flex-start;margin-left:calc(-1 * var(--space-3));color:var(--color-text-muted)" onClick="{{ cancelDeck }}">{{ backLabel }}</button>
+<div style="display:flex;align-items:baseline;gap:var(--space-3);flex-wrap:wrap"><h1 class="g-h1">Baralho planar</h1><span class="g-mu" aria-live="polite">{{ deckCount }}</span></div>
+<p class="g-p g-mu">Toque numa carta para ativar ou desativar. Nada muda até você salvar.</p>
+<sc-if value="{{ deckNotice }}"><p class="g-p g-mu g-xs" style="max-width:72ch">Menos de 40 cartas ou mais de 2 fenômenos: a regra pede ao menos 10 × o número de jogadores e no máximo 2 fenômenos por jogador. Dá para salvar mesmo assim.</p></sc-if>
+</div>
+<sc-for list="{{ sets }}" as="s" hint-placeholder-count="2">
+<section style="display:flex;flex-direction:column;gap:var(--space-2);padding-top:var(--space-2)">
+<div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap"><h2 class="g-ey" style="margin:0">{{ s.name }} · {{ s.on }} de {{ s.total }}</h2><div class="g-links" style="margin-left:auto;gap:var(--space-3)"><button class="link-btn" onClick="{{ s.all }}">Ativar todos</button><button class="link-btn" onClick="{{ s.none }}">Desativar todos</button></div></div>
+<div class="{{ tilesCls }}"><sc-for list="{{ s.tiles }}" as="t" hint-placeholder-count="8"><button class="{{ t.cls }}" aria-pressed="{{ t.on }}" aria-label="{{ t.aria }}" onClick="{{ t.toggle }}">{{ t.n }}<i class="g-bead" aria-hidden="true"></i></button></sc-for></div>
+</section>
+</sc-for>
+</div></div>
+<sc-if value="{{ deckPlain }}" hint-placeholder-val="{{ true }}"><div class="{{ footCls }}" style="justify-content:flex-end"><button class="btn" style="flex:{{ btnFlex }}" onClick="{{ cancelDeck }}">Cancelar</button><button class="btn btn--primary" style="flex:{{ btnFlex }}" onClick="{{ saveDeck }}">Salvar</button></div></sc-if>
+<sc-if value="{{ deckErr }}"><div class="{{ footCls }}"><p class="g-err" role="alert" style="flex:1 1 220px">{{ deckError }}</p><div class="g-acts" style="flex:1 1 auto;justify-content:flex-end"><button class="btn" style="flex:{{ btnFlex }}" onClick="{{ cancelDeck }}">Cancelar</button><button class="btn btn--primary" style="flex:{{ btnFlex }}" onClick="{{ saveDeck }}">Salvar</button></div></div></sc-if>
+<sc-if value="{{ deckAsk }}"><div class="{{ footDangerCls }}" role="alertdialog" aria-label="Salvar reinicia a partida"><div style="flex:1 1 240px;display:flex;flex-direction:column"><b style="font-size:var(--font-size-sm)">Salvar reinicia a partida em andamento.</b><span class="g-mu g-xs">Um novo plano inicial é sorteado com o baralho novo.</span></div><div class="g-acts" style="flex:1 1 auto;justify-content:flex-end"><button class="btn" style="flex:{{ btnFlex }}" onClick="{{ cancelDeck }}">Manter partida</button><button class="btn btn--danger" style="flex:{{ btnFlex }}" onClick="{{ commitDeck }}">Salvar e reiniciar</button></div></div></sc-if>
+</div>
+</sc-if>
+
+</main>
+</div>
+<sc-if value="{{ drawerOpen }}">
+<div class="g-back" onClick="{{ closeDrawer }}"></div>
+<div class="g-drawer" role="dialog" aria-label="Navegação">
+<button class="btn btn--ghost" style="align-self:flex-end;margin-right:var(--space-5)" aria-label="Fechar" onClick="{{ closeDrawer }}">✕</button>
+<sc-for list="{{ navItems }}" as="it"><button class="{{ it.clsM }}" aria-current="{{ it.cur }}" onClick="{{ it.go }}"><span class="g-bead" aria-hidden="true"></span><span>{{ it.label }}</span></button></sc-for>
+<div style="margin-top:auto;display:flex;flex-direction:column;align-items:flex-end;padding-right:var(--space-5)"><span class="g-mu g-xs">Nenhum perfil ativo</span><button class="g-ctl" style="margin-left:0;padding:0">Entrar</button></div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;identity&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;izzet&quot;,&quot;golgari&quot;,&quot;esper&quot;,&quot;selesnya&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  static KEY = 'grm-planechase-v1';
+  static SETS = [{ id: 'pc09', name: 'Planechase (2009)' }, { id: 'pc12', name: 'Planechase 2012' }];
+  static CARDS = [
+    ['tazeem', 'Tazeem', 'pc09', 'p', 'Zendikar', 'Criaturas não podem bloquear.', 'Sempre que você rolar {CAOS}, compre um card para cada terreno que você controla.'],
+    ['sokenzan', 'Sokenzan', 'pc09', 'p', 'Kamigawa', 'Todas as criaturas têm flanquear e ímpeto.', 'Sempre que você rolar {CAOS}, desvire todas as criaturas que atacaram neste turno. Depois desta fase principal, há uma fase de combate adicional seguida de uma fase principal adicional.'],
+    ['krosa', 'Krosa', 'pc09', 'p', 'Dominária', 'Todas as criaturas recebem +2/+2.', 'Sempre que você rolar {CAOS}, adicione {W}{U}{B}{R}{G}.'],
+    ['llanowar', 'Llanowar', 'pc09', 'p', 'Dominária', 'Todas as criaturas têm “{T}: Adicione {G}{G}.”', 'Sempre que você rolar {CAOS}, desvire todas as criaturas que você controla.'],
+    ['naya', 'Naya', 'pc09', 'p', 'Alara', 'Você pode jogar qualquer número de terrenos em cada um dos seus turnos.', 'Sempre que você rolar {CAOS}, a criatura alvo vermelha, verde ou branca que você controla recebe +1/+1 até o final do turno para cada terreno que você controla.'],
+    ['otaria', 'Otaria', 'pc09', 'p', 'Dominária', 'Cards de mágica instantânea e de feitiço no cemitério de um jogador têm recapitular. O custo de recapitular é igual ao custo de mana do card.', 'Sempre que você rolar {CAOS}, jogue um turno adicional depois deste.'],
+    ['ravens-run', "Raven's Run", 'pc09', 'p', 'Shadowmoor', 'Todas as criaturas têm murchar.', 'Sempre que você rolar {CAOS}, coloque um marcador -1/-1 na criatura alvo, dois em outra criatura alvo e três numa terceira criatura alvo.'],
+    ['sea-of-sand', 'Sea of Sand', 'pc09', 'p', 'Rabiah', 'Os jogadores revelam cada card que compram. Sempre que um jogador compra um terreno, ele ganha 3 pontos de vida. Sempre que compra um card que não é terreno, perde 3 pontos de vida.', 'Sempre que você rolar {CAOS}, coloque a permanente alvo no topo do grimório de seu dono.'],
+    ['turri-island', 'Turri Island', 'pc09', 'p', 'Ir', 'Mágicas de criatura custam {2} a menos para serem conjuradas.', 'Sempre que você rolar {CAOS}, revele os três cards do topo do seu grimório. Coloque os cards de criatura revelados na sua mão e o resto no seu cemitério.'],
+    ['great-forest', 'The Great Forest', 'pc09', 'p', 'Lorwyn', 'Cada criatura atribui dano de combate igual à sua resistência em vez de seu poder.', 'Sempre que você rolar {CAOS}, as criaturas que você controla recebem +0/+2 e ganham atropelar até o final do turno.'],
+    ['goldmeadow', 'Goldmeadow', 'pc09', 'p', 'Lorwyn', 'Sempre que um terreno entra no campo de batalha, o controlador dele cria três fichas de criatura Cabra branca 0/1.', 'Sempre que você rolar {CAOS}, crie uma ficha de criatura Cabra branca 0/1.'],
+    ['minamo', 'Minamo', 'pc09', 'p', 'Kamigawa', 'Sempre que um jogador conjura uma mágica, ele pode comprar um card.', 'Sempre que você rolar {CAOS}, cada jogador pode devolver um card azul do cemitério dele para a mão dele.'],
+    ['lethe-lake', 'Lethe Lake', 'pc09', 'p', 'Arkhos', 'No início da sua manutenção, coloque os dez cards do topo do seu grimório no seu cemitério.', 'Sempre que você rolar {CAOS}, o jogador alvo coloca os dez cards do topo do grimório dele no cemitério dele.'],
+    ['murasa', 'Murasa', 'pc09', 'p', 'Zendikar', 'Sempre que uma criatura que não é ficha entra no campo de batalha, o controlador dela pode procurar um terreno básico no grimório dele e colocá-lo no campo de batalha. Depois, ele embaralha.', 'Sempre que você rolar {CAOS}, o terreno alvo se torna uma criatura 4/4 que ainda é um terreno.'],
+    ['immersturm', 'Immersturm', 'pc09', 'p', 'Valla', 'Sempre que uma criatura entra no campo de batalha, o controlador dela pode fazer com que ela cause dano igual ao seu poder a qualquer alvo à escolha dele.', 'Sempre que você rolar {CAOS}, exile a criatura alvo e depois devolva-a ao campo de batalha sob o controle de seu dono.'],
+    ['akoum', 'Akoum', 'pc12', 'p', 'Zendikar', 'Os jogadores podem conjurar mágicas de encantamento como se tivessem lampejo.', 'Sempre que você rolar {CAOS}, destrua a criatura alvo que não esteja encantada.'],
+    ['gavony', 'Gavony', 'pc12', 'p', 'Innistrad', 'Todas as criaturas têm vigilância.', 'Sempre que você rolar {CAOS}, as criaturas que você controla ganham indestrutível até o final do turno.'],
+    ['kessig', 'Kessig', 'pc12', 'p', 'Innistrad', 'Previna todo o dano de combate que seria causado por criaturas que não são Lobisomem.', 'Sempre que você rolar {CAOS}, cada criatura que você controla recebe +2/+2, ganha atropelar e se torna um Lobisomem além de seus outros tipos até o final do turno.'],
+    ['nephalia', 'Nephalia', 'pc12', 'p', 'Innistrad', 'No início da sua etapa final, coloque os sete cards do topo do seu grimório no seu cemitério. Depois, devolva um card aleatório do seu cemitério para a sua mão.', 'Sempre que você rolar {CAOS}, devolva o card alvo do seu cemitério para a sua mão.'],
+    ['orzhova', 'Orzhova', 'pc12', 'p', 'Ravnica', 'Quando você fizer planeswalk para fora de Orzhova, cada jogador devolve todos os cards de criatura do cemitério dele para o campo de batalha.', 'Sempre que você rolar {CAOS}, para cada oponente, exile até um card de criatura alvo do cemitério daquele jogador.'],
+    ['prahv', 'Prahv', 'pc12', 'p', 'Ravnica', 'Se você conjurou uma mágica neste turno, você não pode atacar com criaturas. Se você atacou com criaturas neste turno, você não pode conjurar mágicas.', 'Sempre que você rolar {CAOS}, você ganha X pontos de vida, sendo X o número de cards na sua mão.'],
+    ['jund', 'Jund', 'pc12', 'p', 'Alara', 'Sempre que um jogador conjura uma mágica de criatura preta, vermelha ou verde, ela ganha devorar 5.', 'Sempre que você rolar {CAOS}, crie duas fichas de criatura Goblin vermelha 1/1.'],
+    ['truga-jungle', 'Truga Jungle', 'pc12', 'p', 'Ergamon', 'Todos os terrenos têm “{T}: Adicione um mana de qualquer cor.”', 'Sempre que você rolar {CAOS}, revele os três cards do topo do seu grimório. Coloque os terrenos revelados na sua mão e o resto no fundo do seu grimório em qualquer ordem.'],
+    ['selesnya', 'Selesnya Loft Gardens', 'pc12', 'p', 'Ravnica', 'Se um efeito for criar uma ou mais fichas, ele cria o dobro. Se um efeito for colocar um ou mais marcadores numa permanente, ele coloca o dobro.', 'Sempre que você rolar {CAOS}, até o final do turno, sempre que você virar um terreno para gerar mana, adicione um mana adicional de qualquer tipo que aquele terreno gerou.'],
+    ['chaotic-aether', 'Chaotic Aether', 'pc12', 'f', '', '', 'Quando você encontrar Chaotic Aether, cada rolagem em branco do dado planar conta como {CAOS} até que um jogador faça planeswalk para fora de um plano. (Depois, faça planeswalk para fora deste fenômeno.)'],
+    ['mutual-epiphany', 'Mutual Epiphany', 'pc12', 'f', '', '', 'Quando você encontrar Mutual Epiphany, cada jogador compra quatro cards. (Depois, faça planeswalk para fora deste fenômeno.)'],
+    ['planewide-disaster', 'Planewide Disaster', 'pc12', 'f', '', '', 'Quando você encontrar Planewide Disaster, destrua todas as criaturas. (Depois, faça planeswalk para fora deste fenômeno.)'],
+    ['time-distortion', 'Time Distortion', 'pc12', 'f', '', '', 'Quando você encontrar Time Distortion, inverta a ordem dos turnos. (Depois, faça planeswalk para fora deste fenômeno.)'],
+  ].map(([id, n, set, k, pl, tx, ab]) => ({ id, n, set, k, ty: k === 'f' ? 'Fenômeno' : `Plano — ${pl}`, tx, ab }));
+  static BY = Object.fromEntries(Component.CARDS.map(c => [c.id, c]));
+
+  planeRef = React.createRef(); pwRef = React.createRef(); chaosRef = React.createRef(); imgRef = React.createRef();
+  state = this.load();
+
+  load() {
+    let s = {};
+    try { s = JSON.parse(localStorage.getItem(Component.KEY)) || {}; } catch (e) {}
+    const g = s.game && Component.BY[s.game.current] ? s.game : null;
+    return { route: s.route || 'modes', sub: s.sub === 'rules' ? 'rules' : 'play', game: g, disabled: s.disabled || [], draft: null, confirm: null, deckAsk: false, deckError: '', w: window.innerWidth, drawer: false, nav: false };
+  }
+  componentDidMount() { this.onResize = () => this.setState({ w: window.innerWidth }); window.addEventListener('resize', this.onResize); }
+  componentWillUnmount() { window.removeEventListener('resize', this.onResize); cancelAnimationFrame(this.pwRaf); cancelAnimationFrame(this.chRaf); }
+  componentDidUpdate() {
+    const { route, sub, game, disabled } = this.state;
+    try { localStorage.setItem(Component.KEY, JSON.stringify({ route, sub, game, disabled })); } catch (e) {}
+  }
+
+  rnd(n) { return crypto.getRandomValues(new Uint32Array(1))[0] % n; }
+  clone(o) { return JSON.parse(JSON.stringify(o)); }
+  walk(g) {
+    if (!g.available.length) { g.needsReset = true; return; }
+    g.used.push(g.current);
+    g.current = g.available.splice(this.rnd(g.available.length), 1)[0];
+    g.pending = Component.BY[g.current].k === 'f';
+  }
+  act(fn, keepUndo = true) {
+    const g0 = this.state.game; if (!g0) return;
+    const g = this.clone(g0); g.prev = keepUndo ? { ...this.clone(g0), prev: null } : null;
+    fn(g);
+    const moved = g.current !== g0.current;
+    const snap = moved && this.planeRef.current ? this.planeRef.current.cloneNode(true) : null;
+    this.setState({ game: g, confirm: null }, () => {
+      if (moved) this.runPw(snap);
+      if (g.result && g.result.k === 'caos') this.runChaos();
+    });
+  }
+  reduced() { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+
+  runPw(snap) {
+    const host = this.pwRef.current; cancelAnimationFrame(this.pwRaf);
+    if (!host) return; host.innerHTML = '';
+    if (!snap || this.reduced()) return;
+    snap.style.cssText = 'position:absolute;inset:0;margin:0;';
+    host.appendChild(snap);
+    const w = host.offsetWidth, h = host.offsetHeight, maxR = Math.hypot(w, h / 2) + 80, D = 1400;
+    const roles = ['var(--role-primary)', 'var(--role-accent)', 'var(--role-tertiary)'];
+    const glows = roles.map(() => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;left:0;right:-60px;top:-80px;bottom:-80px;filter:blur(30px);mix-blend-mode:screen;opacity:0;pointer-events:none'; host.appendChild(d); return d; });
+    const sparks = Array.from({ length: 30 }, () => {
+      const x = Math.random() * w, y = Math.random() * h, dy = y - h / 2;
+      const el = document.createElement('i');
+      el.style.cssText = 'position:absolute;left:0;top:0;width:3px;height:3px;border-radius:50%;background:currentColor;box-shadow:0 0 6px 1px currentColor;opacity:0;pointer-events:none';
+      host.appendChild(el);
+      const r0 = Math.hypot(x, dy);
+      return { el, a: Math.atan2(dy, x), r0, dist: 30 + Math.random() * 60, born: null, c: roles[r0 / maxR < 0.34 ? 0 : r0 / maxR < 0.67 ? 1 : 2] };
+    });
+    const t0 = performance.now();
+    const frame = t => {
+      const p = Math.min(1, (t - t0) / D), R = -60 + p * (maxR + 60), E = R + 30;
+      const m = `radial-gradient(circle at 0 50%, transparent ${R}px, #000 ${R + 60}px)`;
+      snap.style.webkitMaskImage = m; snap.style.maskImage = m;
+      const fade = Math.min(1, p / 0.08) * Math.min(1, (1 - p) / 0.12);
+      const wts = [p < 0.25 ? 1 : Math.max(0, 1 - (p - 0.25) / 0.25), 1 - Math.min(1, Math.abs(p - 0.5) / 0.25), p > 0.75 ? 1 : Math.max(0, (p - 0.5) / 0.25)];
+      glows.forEach((d, i) => { d.style.background = `radial-gradient(circle at 0 50%, transparent ${E - 120}px, ${roles[i]} ${E}px, transparent ${E + 120}px)`; d.style.opacity = (wts[i] * fade * 0.9).toFixed(3); });
+      let live = false;
+      sparks.forEach(s => {
+        if (s.born === null && E >= s.r0) { s.born = t; s.el.style.color = s.c; }
+        if (s.born === null) { live = true; return; }
+        const q = (t - s.born) / 520;
+        if (q >= 1) { s.el.style.opacity = 0; return; }
+        live = true;
+        const r = s.r0 + q * s.dist;
+        s.el.style.transform = `translate(${Math.cos(s.a) * r}px, ${h / 2 + Math.sin(s.a) * r}px) scale(${1 - 0.7 * q})`;
+        s.el.style.opacity = (q < 0.1 ? q / 0.1 : 1 - q).toFixed(3);
+      });
+      if (p < 1 || live) this.pwRaf = requestAnimationFrame(frame); else host.innerHTML = '';
+    };
+    this.pwRaf = requestAnimationFrame(frame);
+  }
+
+  runChaos() {
+    const host = this.chaosRef.current, img = this.imgRef.current; cancelAnimationFrame(this.chRaf);
+    if (!host || this.reduced()) return; host.innerHTML = '';
+    const w = host.offsetWidth, h = host.offsetHeight, size = Math.min(w, h) * 1.2, D = 1100;
+    const ring = (c, bw) => { const d = document.createElement('div'); d.style.cssText = `position:absolute;left:50%;top:50%;width:${size}px;height:${size}px;margin:${-size / 2}px 0 0 ${-size / 2}px;border-radius:50%;border:${bw}px solid ${c};box-shadow:0 0 24px ${c},inset 0 0 18px ${c};opacity:0;pointer-events:none`; host.appendChild(d); return d; };
+    const rings = [[ring('var(--role-primary)', 2), 0], [ring('var(--role-accent)', 1), 140]];
+    const roles = ['var(--role-primary)', 'var(--role-accent)', 'var(--role-tertiary)'];
+    const sparks = Array.from({ length: 22 }, (_, i) => {
+      const el = document.createElement('i'); const c = roles[i % 3];
+      el.style.cssText = `position:absolute;left:50%;top:50%;width:3px;height:3px;border-radius:50%;background:${c};box-shadow:0 0 6px 1px ${c};opacity:0;pointer-events:none`;
+      host.appendChild(el);
+      const a = (i / 22) * Math.PI * 2 + Math.random() * 0.3;
+      return { el, a, r: size * 0.55 + Math.random() * size * 0.5, d: Math.random() * 120 };
+    });
+    const t0 = performance.now();
+    const frame = t => {
+      const e = t - t0;
+      rings.forEach(([d, delay]) => { const q = Math.max(0, Math.min(1, (e - delay) / 900)); const k = 1 - Math.pow(1 - q, 3); d.style.transform = `scale(${0.3 + 2.3 * k})`; d.style.opacity = q <= 0 ? 0 : (1 - q).toFixed(3); });
+      sparks.forEach(s => { const q = Math.max(0, Math.min(1, (e - s.d) / 700)); const k = 1 - Math.pow(1 - q, 3); s.el.style.transform = `translate(${Math.cos(s.a) * s.r * k}px, ${Math.sin(s.a) * s.r * k}px) scale(${1 - 0.7 * q})`; s.el.style.opacity = q <= 0 ? 0 : (q < 0.1 ? q / 0.1 : 1 - q).toFixed(3); });
+      if (img) { const sh = e < 320 ? Math.sin(e / 18) * 4 * (1 - e / 320) : 0; img.style.transform = sh ? `translate(${sh}px, ${sh * -0.4}px)` : ''; }
+      if (e < D + 120) this.chRaf = requestAnimationFrame(frame); else host.innerHTML = '';
+    };
+    this.chRaf = requestAnimationFrame(frame);
+  }
+
+  enabledIds(disabled) { return Component.CARDS.filter(c => !disabled.includes(c.id)).map(c => c.id); }
+  start = () => {
+    const list = this.enabledIds(this.state.disabled);
+    const planes = list.filter(id => Component.BY[id].k === 'p');
+    const cur = planes[this.rnd(planes.length)];
+    this.setState({ game: { list, current: cur, used: [], available: list.filter(x => x !== cur), cost: 0, pending: false, needsReset: false, result: { k: 'start' }, prev: null }, sub: 'play', confirm: null });
+  };
+  roll = () => this.act(g => { const r = this.rnd(6); g.cost++; if (r === 0) { g.result = { k: 'pw', n: Component.BY[g.current].n }; this.walk(g); } else g.result = { k: r === 1 ? 'caos' : 'nada' }; });
+  pwManual = () => this.act(g => { g.result = { k: 'manual', n: Component.BY[g.current].n }; this.walk(g); });
+  resetCost = () => this.act(g => { g.cost = 0; g.result = { k: 'cost' }; });
+  confirmPhen = () => this.act(g => { g.pending = false; g.result = { k: 'phen', n: Component.BY[g.current].n }; this.walk(g); });
+  undo = () => { const g = this.state.game; if (g && g.prev) this.setState({ game: { ...g.prev, prev: null }, confirm: null }); };
+  resetPlanes = () => this.act(g => {
+    g.available = g.list.filter(x => x !== g.current); g.used = []; g.result = { k: 'reset' };
+    if (g.needsReset) { g.needsReset = false; g.result = { k: 'reset-pw', n: Component.BY[g.current].n }; g.pending = false; this.walk(g); }
+  }, false);
+  endGame = () => this.setState({ game: null, confirm: null, sub: 'play' });
+
+  openDeck = () => this.setState({ sub: 'deck', draft: [...this.state.disabled], deckError: '', deckAsk: false });
+  cancelDeck = () => this.setState({ sub: 'play', draft: null, deckError: '', deckAsk: false });
+  toggle(id) { const d = this.state.draft; this.setState({ draft: d.includes(id) ? d.filter(x => x !== id) : [...d, id], deckError: '', deckAsk: false }); }
+  setAll(setId, on) { const ids = Component.CARDS.filter(c => c.set === setId).map(c => c.id); const d = this.state.draft.filter(x => !ids.includes(x)); this.setState({ draft: on ? d : [...d, ...ids], deckError: '', deckAsk: false }); }
+  sameSel(a, b) { return a.length === b.length && [...a].sort().join() === [...b].sort().join(); }
+  saveDeck = () => {
+    const { draft, disabled, game } = this.state;
+    const en = Component.CARDS.filter(c => !draft.includes(c.id));
+    if (en.length < 10) return this.setState({ deckError: `Ative pelo menos 10 cartas para salvar — agora são ${en.length}.` });
+    if (!en.some(c => c.k === 'p')) return this.setState({ deckError: 'Ative pelo menos um plano para salvar.' });
+    if (game && !this.sameSel(draft, disabled)) return this.setState({ deckAsk: true, deckError: '' });
+    this.commitDeck();
+  };
+  commitDeck = () => {
+    const { draft, disabled, game } = this.state; const changed = !this.sameSel(draft, disabled);
+    this.setState({ disabled: draft, draft: null, sub: 'play', deckAsk: false, deckError: '' }, () => { if (game && changed) this.start(); });
+  };
+
+  go(route) { this.setState({ route, drawer: false, nav: false, sub: 'play', confirm: null, draft: null }); }
+
+  renderVals() {
+    const s = this.state, B = Component.BY;
+    const ids = { default: ['r', 'u', 'g'], izzet: ['u', 'r', 'r'], golgari: ['b', 'g', 'g'], esper: ['w', 'u', 'b'], selesnya: ['g', 'w', 'w'] };
+    const pk = ids[this.props.identity ?? 'default'] || ids.default;
+    const idv = (k, hv) => `var(--identity-${k}${hv ? '-hover' : ''})`;
+    const narrow = s.w < 640, rail = s.w >= 960, g = s.game;
+    const inPc = s.route === 'planechase';
+    const c = g ? B[g.current] : B.tazeem;
+    const r = g ? g.result || { k: 'start' } : { k: 'start' };
+    const T = {
+      start: ['Plano inicial', `${c.n} abre a partida. Role o dado na fase principal do seu turno.`],
+      nada: ['Nada acontece', 'O plano continua o mesmo.'],
+      caos: ['Caos', 'Resolva a habilidade de caos destacada abaixo.'],
+      pw: ['Planeswalk', `${r.n} foi para os usados.`],
+      manual: ['Planeswalk', `${r.n} foi para os usados. O custo do dado não muda.`],
+      cost: ['Custo zerado', 'A próxima rolagem custa {0}.'],
+      phen: ['Encontro resolvido', `${r.n} foi para os usados.`],
+      reset: ['Planos reiniciados', 'Todos voltaram ao baralho, menos o plano atual.'],
+      'reset-pw': ['Planos reiniciados', `Todos voltaram ao baralho e ${r.n} foi para os usados.`],
+    };
+    const pending = !!(g && g.pending);
+    const [rt, rs] = pending ? ['Fenômeno encontrado', 'Resolva o efeito na mesa e conclua para seguir ao próximo plano.'] : (T[r.k] || T.start);
+    const CF = { reset: ['Reiniciar planos?', `Os ${g ? g.used.length : 0} planos usados voltam ao baralho. O plano atual continua na mesa.`, 'Reiniciar planos'], end: ['Encerrar partida?', 'A partida some deste aparelho. Seu baralho continua salvo.', 'Encerrar partida'] };
+    const cf = CF[s.confirm] || ['', '', ''];
+    const draft = s.draft || s.disabled;
+    const en = Component.CARDS.filter(x => !draft.includes(x.id)), enPh = en.filter(x => x.k === 'f').length;
+    const nav = [['collection', 'Coleção'], ['modes', 'Modos de jogo']].map(([id, label]) => {
+      const cur = id === 'modes' ? (s.route === 'modes' || inPc) : s.route === id;
+      return { label, cur: cur ? 'page' : undefined, cls: cur ? 'g-item cur' : 'g-item', clsM: cur ? 'g-item m cur' : 'g-item m', go: () => this.go(id) };
+    });
+    return {
+      tp: idv(pk[0]), tph: idv(pk[0], 1), ta: idv(pk[1]), tah: idv(pk[1], 1), tt: idv(pk[2]), tth: idv(pk[2], 1),
+      showRail: rail, noRail: !rail, navCls: s.nav ? 'g-nav open' : 'g-nav', navItems: nav,
+      navIn: () => !s.nav && this.setState({ nav: true }), navOut: () => this.setState({ nav: false }),
+      drawerOpen: s.drawer && !rail, openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
+      goModes: () => this.go('modes'), goPlanechase: () => this.go('planechase'),
+      modesVerb: g ? 'Continuar' : 'Abrir',
+      isCollection: s.route === 'collection', isModes: s.route === 'modes',
+      isIdle: inPc && s.sub === 'play' && !g, isGameWide: inPc && s.sub === 'play' && !!g && !narrow, isGameNarrow: inPc && s.sub === 'play' && !!g && narrow,
+      isRules: inPc && s.sub === 'rules', isDeck: inPc && s.sub === 'deck' && !!s.draft,
+      wideLayout: !narrow, padCls: narrow ? 'g-pad n' : 'g-pad', rulesCols: narrow ? 'minmax(0,1fr)' : '180px minmax(0,1fr)',
+      start: this.start, openRules: () => this.setState({ sub: 'rules', confirm: null }), backToPlay: () => this.setState({ sub: 'play' }),
+      openDeck: this.openDeck, deckSummary: `Baralho: ${this.enabledIds(s.disabled).length} cartas ativas`,
+      ctlNormal: !s.confirm && !(g && g.needsReset), ctlAllUsed: !s.confirm && !!(g && g.needsReset), ctlConfirm: !!s.confirm,
+      eyebrow: pending ? 'Fenômeno' : `Dado planar · próxima rolagem {${g ? g.cost : 0}}`,
+      costShort: pending ? 'Fenômeno' : `Próxima: {${g ? g.cost : 0}}`,
+      resultText: rt, resultSub: rs,
+      primaryLabel: pending ? 'Concluir encontro' : 'Rolar dado planar', primary: pending ? this.confirmPhen : this.roll,
+      lock: pending, noUndo: !(g && g.prev),
+      undo: this.undo, resetCost: this.resetCost, pwManual: this.pwManual, resetPlanes: this.resetPlanes,
+      askReset: () => this.setState({ confirm: 'reset' }), askEnd: () => this.setState({ confirm: 'end' }),
+      cancelConfirm: () => this.setState({ confirm: null }),
+      doConfirm: () => (s.confirm === 'end' ? this.endGame() : this.resetPlanes()),
+      confirmTitle: cf[0], confirmBody: cf[1], confirmVerb: cf[2],
+      planeRef: this.planeRef, pwRef: this.pwRef, chaosRef: this.chaosRef, imgRef: this.imgRef,
+      cName: c.n, cType: c.ty, cText: c.tx, cHasText: !!c.tx, cAb: c.ab,
+      abLabel: c.k === 'f' ? 'Ao encontrar' : 'Caos', abCls: pending || r.k === 'caos' ? 'g-ab lit' : 'g-ab',
+      counts: g ? `${g.used.length} usados · ${g.available.length} disponíveis` : '',
+      backLabel: g ? 'Voltar à partida' : 'Voltar',
+      rules: [
+        { id: 'r-o-que-e', t: 'O que é', b: 'Uma variante casual sobre uma partida normal de Magic, geralmente multiplayer. Um plano aberto na mesa adiciona regras que valem para todos. Fenômenos são eventos que acontecem uma vez.' },
+        { id: 'r-baralho', t: 'Baralho compartilhado', b: 'A mesa usa um baralho planar só. Ele precisa de pelo menos 40 cartas, ou 10 × o número de jogadores, o que for menor. No máximo 2 × o número de jogadores podem ser fenômenos, e não pode haver dois cards com o mesmo nome. O controlador planar do momento é o dono de todos os cards dele.' },
+        { id: 'r-inicio', t: 'Início', b: 'Depois dos mulligans, o primeiro jogador revela o card do topo. Se for um fenômeno, ele vai para o fundo e a revelação se repete até aparecer um plano — nada dispara enquanto isso. Esse é o plano inicial.' },
+        { id: 'r-controlador', t: 'Controlador planar', b: 'Normalmente, o jogador ativo controla o plano aberto e as habilidades dele.' },
+        { id: 'r-dado', t: 'Dado planar', b: 'Na fase principal do seu turno, com prioridade e a pilha vazia, você pode rolar o dado planar. A primeira rolagem do turno custa {0}; cada uma depois custa {1} a mais que a anterior. O dado tem uma face de planeswalk, uma de caos e quatro em branco. O app não controla o momento — a mesa é responsável.' },
+        { id: 'r-planeswalk', t: 'Planeswalk', b: 'O card aberto vai para o fundo do baralho e o próximo é revelado. Efeitos que duram “até um jogador fazer planeswalk” terminam.' },
+        { id: 'r-caos', t: 'Caos e fenômenos', b: 'Com caos, a habilidade de caos do plano atual dispara. Ao revelar um fenômeno, o efeito “ao encontrar” acontece; depois de resolvido, o controlador planar faz planeswalk de novo.' },
+      ],
+      deckCount: `${en.length} de ${Component.CARDS.length} cartas · ${enPh} fenômenos`,
+      deckNotice: en.length < 40 || enPh > 2,
+      tilesCls: narrow ? 'g-tiles n' : 'g-tiles', footCls: narrow ? 'g-foot n' : 'g-foot', footDangerCls: narrow ? 'g-foot n danger' : 'g-foot danger', btnFlex: narrow ? '1' : '0 0 auto',
+      deckPlain: !s.deckError && !s.deckAsk, deckErr: !!s.deckError, deckAsk: !!s.deckAsk && !s.deckError, deckError: s.deckError,
+      saveDeck: this.saveDeck, cancelDeck: this.cancelDeck, commitDeck: this.commitDeck,
+      sets: Component.SETS.map(st => {
+        const cards = Component.CARDS.filter(x => x.set === st.id);
+        return {
+          name: st.name, total: cards.length, on: cards.filter(x => !draft.includes(x.id)).length,
+          all: () => this.setAll(st.id, true), none: () => this.setAll(st.id, false),
+          tiles: cards.map(x => { const on = !draft.includes(x.id); return { n: x.n, on, cls: on ? 'g-tile' : 'g-tile off', aria: `${x.n}, ${x.k === 'f' ? 'fenômeno' : 'plano'}`, toggle: () => this.toggle(x.id) }; }),
+        };
+      }),
+    };
+  }
+}
+</script>
+</body>
+</html>

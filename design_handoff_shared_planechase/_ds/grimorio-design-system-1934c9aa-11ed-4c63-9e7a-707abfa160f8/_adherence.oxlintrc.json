@@ -1,0 +1,354 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "components/controls/**",
+              "components/fields/**",
+              "components/identity/**",
+              "components/modal/**",
+              "components/profile/**",
+              "components/shell/**",
+              "components/status/**",
+              "ui_kits/app/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:Grenze|Karla))/i]",
+        "message": "Font not provided by the design system. Available: Grenze, Karla."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute > JSXIdentifier[name!=/^(?:variant|block|children|key|ref|className|style|children)$/]",
+        "message": "<Button> doesn't accept that prop. Declared props: variant, block, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:primary|secondary|ghost|danger)$/]",
+        "message": "<Button> variant must be one of 'primary' | 'secondary' | 'ghost' | 'danger'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Divider'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|key|ref|className|style|children)$/]",
+        "message": "<Divider> doesn't accept that prop. Declared props: children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Eyebrow'] > JSXAttribute > JSXIdentifier[name!=/^(?:as|className|children|key|ref|className|style|children)$/]",
+        "message": "<Eyebrow> doesn't accept that prop. Declared props: as, className, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IdentityChip'] > JSXAttribute > JSXIdentifier[name!=/^(?:colors|label|key|ref|className|style|children)$/]",
+        "message": "<IdentityChip> doesn't accept that prop. Declared props: colors, label."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IdentityWheel'] > JSXAttribute > JSXIdentifier[name!=/^(?:mode|picks|neutral|subline|size|onChange|key|ref|className|style|children)$/]",
+        "message": "<IdentityWheel> doesn't accept that prop. Declared props: mode, picks, neutral, subline, size, onChange."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IdentityWheel'] > JSXAttribute[name.name='mode'] > Literal[value!=/^(?:picker|display)$/]",
+        "message": "<IdentityWheel> mode must be one of 'picker' | 'display'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='LinkButton'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|key|ref|className|style|children)$/]",
+        "message": "<LinkButton> doesn't accept that prop. Declared props: children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='MicroLabel'] > JSXAttribute > JSXIdentifier[name!=/^(?:as|className|children|key|ref|className|style|children)$/]",
+        "message": "<MicroLabel> doesn't accept that prop. Declared props: as, className, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='MiniWheel'] > JSXAttribute > JSXIdentifier[name!=/^(?:colors|key|ref|className|style|children)$/]",
+        "message": "<MiniWheel> doesn't accept that prop. Declared props: colors."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Plate'] > JSXAttribute > JSXIdentifier[name!=/^(?:eyebrow|role|children|key|ref|className|style|children)$/]",
+        "message": "<Plate> doesn't accept that prop. Declared props: eyebrow, role, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ProfileRowProfile'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|colors|linked|key|ref|className|style|children)$/]",
+        "message": "<ProfileRowProfile> doesn't accept that prop. Declared props: name, colors, linked."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SparkField'] > JSXAttribute > JSXIdentifier[name!=/^(?:count|direction|key|ref|className|style|children)$/]",
+        "message": "<SparkField> doesn't accept that prop. Declared props: count, direction."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SparkField'] > JSXAttribute[name.name='direction'] > Literal[value!=/^(?:outward|inward)$/]",
+        "message": "<SparkField> direction must be one of 'outward' | 'inward'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SyncLine'] > JSXAttribute > JSXIdentifier[name!=/^(?:state|label|key|ref|className|style|children)$/]",
+        "message": "<SyncLine> doesn't accept that prop. Declared props: state, label."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SyncLine'] > JSXAttribute[name.name='state'] > Literal[value!=/^(?:pending|done|failed)$/]",
+        "message": "<SyncLine> state must be one of 'pending' | 'done' | 'failed'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='TextField'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|id|name|type|value|onChange|helper|error|readOnly|readonly|autoComplete|inputMode|maxLength|placeholder|key|ref|className|style|children)$/]",
+        "message": "<TextField> doesn't accept that prop. Declared props: label, id, name, type, value, onChange, helper, error, readOnly, readonly, autoComplete, inputMode, maxLength, placeholder."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='TextField'] > JSXAttribute[name.name='type'] > Literal[value!=/^(?:text|email|password)$/]",
+        "message": "<TextField> type must be one of 'text' | 'email' | 'password'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='TextField'] > JSXAttribute[name.name='inputMode'] > Literal[value!=/^(?:numeric|text|email)$/]",
+        "message": "<TextField> inputMode must be one of 'numeric' | 'text' | 'email'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ThemedModal'] > JSXAttribute > JSXIdentifier[name!=/^(?:open|roles|aside|caption|title|subtitle|titleId|prompt|chip|onClose|layout|inline|sparks|children|key|ref|className|style|children)$/]",
+        "message": "<ThemedModal> doesn't accept that prop. Declared props: open, roles, aside, caption, title, subtitle, titleId, prompt, chip, onClose, layout, inline, sparks, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ThemedModal'] > JSXAttribute[name.name='layout'] > Literal[value!=/^(?:auto|desktop|mobile)$/]",
+        "message": "<ThemedModal> layout must be one of 'auto' | 'desktop' | 'mobile'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='TopBar'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|key|ref|className|style|children)$/]",
+        "message": "<TopBar> doesn't accept that prop. Declared props: children."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {
+      "Button": {
+        "replaces": []
+      },
+      "Divider": {
+        "replaces": []
+      },
+      "Eyebrow": {
+        "replaces": []
+      },
+      "IdentityChip": {
+        "replaces": []
+      },
+      "IdentityWheel": {
+        "replaces": []
+      },
+      "LinkButton": {
+        "replaces": []
+      },
+      "MicroLabel": {
+        "replaces": []
+      },
+      "MiniWheel": {
+        "replaces": []
+      },
+      "Plate": {
+        "replaces": []
+      },
+      "ProfileRowProfile": {
+        "replaces": []
+      },
+      "SparkField": {
+        "replaces": []
+      },
+      "SyncLine": {
+        "replaces": []
+      },
+      "TextField": {
+        "replaces": []
+      },
+      "ThemedModal": {
+        "replaces": []
+      },
+      "TopBar": {
+        "replaces": []
+      }
+    },
+    "tokens": [
+      "--color-bg",
+      "--color-border",
+      "--color-danger",
+      "--color-danger-bg",
+      "--color-surface",
+      "--color-surface-raised",
+      "--color-text",
+      "--color-text-muted",
+      "--default-accent",
+      "--default-accent-hover",
+      "--default-primary",
+      "--default-primary-hover",
+      "--default-tertiary",
+      "--default-tertiary-hover",
+      "--duration-base",
+      "--duration-fast",
+      "--duration-flicker",
+      "--duration-slow",
+      "--duration-spin",
+      "--ease-standard",
+      "--font-display",
+      "--font-sans",
+      "--font-size-2xl",
+      "--font-size-lg",
+      "--font-size-md",
+      "--font-size-sm",
+      "--font-size-xl",
+      "--font-size-xs",
+      "--glow-button",
+      "--glow-button-text",
+      "--glow-plate-hover",
+      "--glow-title",
+      "--halo-gradient",
+      "--identity-b",
+      "--identity-b-hover",
+      "--identity-g",
+      "--identity-g-hover",
+      "--identity-r",
+      "--identity-r-hover",
+      "--identity-u",
+      "--identity-u-hover",
+      "--identity-w",
+      "--identity-w-hover",
+      "--line-height-normal",
+      "--line-height-tight",
+      "--list-row-min",
+      "--modal-identity-pane",
+      "--modal-min-height",
+      "--modal-width",
+      "--overlay-backdrop",
+      "--radius-md",
+      "--radius-ring",
+      "--radius-sm",
+      "--ring-gradient",
+      "--role-accent",
+      "--role-accent-hover",
+      "--role-primary",
+      "--role-primary-hover",
+      "--role-tertiary",
+      "--role-tertiary-hover",
+      "--shadow-rest",
+      "--space-1",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--spin-angle",
+      "--touch-target",
+      "--tracking-eyebrow",
+      "--tracking-micro",
+      "--wash-header",
+      "--wheel-desktop",
+      "--wheel-mini",
+      "--wheel-mobile"
+    ],
+    "tokenKinds": {
+      "--color-bg": "color",
+      "--color-surface": "color",
+      "--color-surface-raised": "color",
+      "--color-border": "color",
+      "--color-text": "font",
+      "--color-text-muted": "font",
+      "--overlay-backdrop": "color",
+      "--color-danger": "color",
+      "--color-danger-bg": "color",
+      "--identity-w": "color",
+      "--identity-w-hover": "color",
+      "--identity-u": "color",
+      "--identity-u-hover": "color",
+      "--identity-b": "color",
+      "--identity-b-hover": "color",
+      "--identity-r": "color",
+      "--identity-r-hover": "color",
+      "--identity-g": "color",
+      "--identity-g-hover": "color",
+      "--default-primary": "color",
+      "--default-primary-hover": "color",
+      "--default-accent": "color",
+      "--default-accent-hover": "color",
+      "--default-tertiary": "color",
+      "--default-tertiary-hover": "color",
+      "--role-primary": "color",
+      "--role-primary-hover": "color",
+      "--role-accent": "color",
+      "--role-accent-hover": "color",
+      "--role-tertiary": "color",
+      "--role-tertiary-hover": "color",
+      "--shadow-rest": "shadow",
+      "--glow-title": "color",
+      "--glow-button": "color",
+      "--glow-button-text": "font",
+      "--glow-plate-hover": "color",
+      "--wash-header": "color",
+      "--ring-gradient": "color",
+      "--halo-gradient": "color",
+      "--font-display": "font",
+      "--font-sans": "font",
+      "--font-size-xs": "font",
+      "--font-size-sm": "font",
+      "--font-size-md": "font",
+      "--font-size-lg": "font",
+      "--font-size-xl": "font",
+      "--font-size-2xl": "font",
+      "--line-height-tight": "font",
+      "--line-height-normal": "font",
+      "--tracking-micro": "font",
+      "--tracking-eyebrow": "font",
+      "--space-1": "spacing",
+      "--space-2": "spacing",
+      "--space-3": "spacing",
+      "--space-4": "spacing",
+      "--space-5": "spacing",
+      "--space-6": "spacing",
+      "--touch-target": "spacing",
+      "--list-row-min": "spacing",
+      "--modal-width": "spacing",
+      "--modal-min-height": "spacing",
+      "--modal-identity-pane": "spacing",
+      "--wheel-desktop": "spacing",
+      "--wheel-mobile": "spacing",
+      "--wheel-mini": "spacing",
+      "--radius-sm": "radius",
+      "--radius-md": "radius",
+      "--radius-ring": "radius",
+      "--spin-angle": "other",
+      "--ease-standard": "other",
+      "--duration-fast": "other",
+      "--duration-base": "other",
+      "--duration-slow": "other",
+      "--duration-spin": "other",
+      "--duration-flicker": "other"
+    },
+    "fontFamilies": [
+      "Grenze",
+      "Karla"
+    ]
+  }
+}

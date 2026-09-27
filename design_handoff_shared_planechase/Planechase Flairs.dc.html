@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+<script src="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/_ds_bundle.js"></script>
+<style>
+html,body{margin:0;background:#0c0a09;color:#f2ede8;font-family:var(--font-sans)}
+a{color:var(--role-accent)}a:hover{color:var(--role-accent-hover)}
+@property --px{syntax:'<length>';inherits:false;initial-value:-200px}
+@property --pr{syntax:'<length>';inherits:false;initial-value:0px}
+@property --pc{syntax:'<color>';inherits:false;initial-value:transparent}
+@keyframes pw4Glow{0%,15%{--pr:-60px;--pc:var(--role-primary);opacity:0}18%{opacity:1}24%{--pc:var(--role-primary)}33%{--pc:var(--role-accent)}42%{--pc:var(--role-tertiary)}44%{opacity:.9}48%,100%{--pr:720px;--pc:var(--role-tertiary);opacity:0}}
+@property --pcspin{syntax:'<angle>';inherits:false;initial-value:0deg}
+.dv-turn{background:#0c0a09;padding:40px 44px 32px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif}
+.dv-note{margin:0 0 8px;max-width:92ch;font:12px/1.6 system-ui,sans-serif;color:#a89e96}
+.dv-grp{font:600 11px system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#a89e96;margin:32px 0 16px}
+.dv-opts{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;width:600px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(255,255,255,.12);color:#f2ede8;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 12px/1.45 system-ui,sans-serif;color:#a89e96}
+.dv-olabel b{color:#f2ede8;font-weight:600}
+.dv-next{margin:28px 0 0;font:12px/1.5 system-ui,sans-serif;color:#a89e96}
+.st{position:relative;width:600px;height:300px;overflow:hidden;background:var(--color-bg);border:1px solid #2a2420;border-radius:6px;color:var(--color-text)}
+.lyw{position:absolute;inset:24px}
+.ly{position:absolute;inset:0;display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;align-items:center;background:var(--color-bg)}
+.im{position:relative;aspect-ratio:1.4;background:var(--color-surface-raised);border:1px solid var(--color-border);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase;z-index:1}
+.tc{display:flex;flex-direction:column;gap:6px}
+.nm{margin:0;font:600 var(--font-size-xl)/1.2 var(--font-display)}
+.ty{font-size:var(--font-size-sm);color:var(--color-text-muted)}
+.tx{margin:0;font-size:var(--font-size-sm);text-wrap:pretty}
+.ab{display:flex;flex-direction:column;gap:4px;padding:8px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);font-size:var(--font-size-sm)}
+.ab.lit{border-color:var(--role-primary);background:rgb(from var(--role-primary) r g b / 12%);box-shadow:var(--glow-plate-hover)}
+.ey{font-size:var(--font-size-xs);letter-spacing:var(--tracking-eyebrow);text-transform:uppercase;color:var(--color-text-muted)}
+.fx{position:absolute;pointer-events:none}
+.sp{position:absolute;width:3px;height:3px;border-radius:50%;background:currentColor;box-shadow:0 0 6px 1px currentColor;opacity:0;z-index:3}
+.out1,.in1,.out2,.in2{animation:4.5s linear infinite}
+.out1{-webkit-mask-image:linear-gradient(90deg,transparent calc(var(--px) - 40px),#000 calc(var(--px) + 40px));mask-image:linear-gradient(90deg,transparent calc(var(--px) - 40px),#000 calc(var(--px) + 40px));animation-name:pwOut}
+.in1{-webkit-mask-image:linear-gradient(90deg,#000 calc(var(--px) - 40px),transparent calc(var(--px) + 40px));mask-image:linear-gradient(90deg,#000 calc(var(--px) - 40px),transparent calc(var(--px) + 40px));animation-name:pwIn}
+.out2{-webkit-mask-image:linear-gradient(90deg,transparent calc(var(--px) - 90px),#000 calc(var(--px) + 90px));mask-image:linear-gradient(90deg,transparent calc(var(--px) - 90px),#000 calc(var(--px) + 90px));animation-name:pwOut}
+.in2{-webkit-mask-image:linear-gradient(90deg,#000 calc(var(--px) - 90px),transparent calc(var(--px) + 90px));mask-image:linear-gradient(90deg,#000 calc(var(--px) - 90px),transparent calc(var(--px) + 90px));animation-name:pwIn}
+.out3{-webkit-mask-image:radial-gradient(circle at 0% 50%,transparent var(--pr),#000 calc(var(--pr) + 60px));mask-image:radial-gradient(circle at 0% 50%,transparent var(--pr),#000 calc(var(--pr) + 60px));animation:pw3Out 4.5s linear infinite}
+.in3{-webkit-mask-image:radial-gradient(circle at 0% 50%,#000 var(--pr),transparent calc(var(--pr) + 60px));mask-image:radial-gradient(circle at 0% 50%,#000 var(--pr),transparent calc(var(--pr) + 60px));animation:pw3In 4.5s linear infinite}
+@keyframes pwOut{0%,18%{--px:-100px;opacity:1}42%,88%{--px:652px;opacity:1}89%{--px:652px;opacity:0}90%{--px:-100px;opacity:0}100%{--px:-100px;opacity:1}}
+@keyframes pwIn{0%,18%{--px:-100px;opacity:1}42%,90%{--px:652px;opacity:1}100%{--px:652px;opacity:0}}
+@keyframes pw3Out{0%,15%{--pr:-60px;opacity:1}48%,88%{--pr:720px;opacity:1}89%{--pr:720px;opacity:0}90%{--pr:-60px;opacity:0}100%{--pr:-60px;opacity:1}}
+@keyframes pw3In{0%,15%{--pr:-60px;opacity:1}48%,90%{--pr:720px;opacity:1}100%{--pr:720px;opacity:0}}
+@keyframes pwBand{0%,18%{transform:translateX(-170px);opacity:0}20%,40%{opacity:1}42%,100%{transform:translateX(582px);opacity:0}}
+@keyframes pwFio{0%,21.2%{transform:scaleX(0);opacity:1}38.8%{transform:scaleX(1);opacity:1}55%,100%{transform:scaleX(1);opacity:0}}
+@keyframes pw3Ring{0%,15%{transform:scale(0);opacity:0}17%{opacity:1}44%{opacity:.7}48%,100%{transform:scale(1.04);opacity:0}}
+@keyframes spk{0%{opacity:0;transform:translate(0,0) scale(1)}2%{opacity:1}16%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+@keyframes chShake{0%,10%{transform:none}12%{transform:translate(-4px,1px)}14%{transform:translate(4px,-2px)}16%{transform:translate(-3px,2px)}18%{transform:translate(2px,0)}20%,100%{transform:none}}
+@keyframes chRing{0%,10%{transform:translate(-50%,-50%) scale(.3);opacity:0}11%{opacity:1}40%,100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}
+@keyframes chCorona{0%,8%{opacity:0;--pcspin:0deg;transform:scale(.94)}14%{opacity:1;transform:scale(1.05)}45%{opacity:.85}72%,100%{opacity:0;--pcspin:540deg;transform:scale(1)}}
+@keyframes chBloom{0%,9%{transform:translate(-50%,-50%) scale(.5);opacity:0}13%{opacity:.9}45%,100%{transform:translate(-50%,-50%) scale(2);opacity:0}}
+@keyframes chFlash{0%,10%{opacity:0}11%{opacity:.9}32%,100%{opacity:0}}
+@keyframes chPop{0%,10%{transform:scale(1)}12%{transform:scale(1.05)}26%,100%{transform:scale(1)}}
+@keyframes chShard{0%,10%{opacity:0;transform:translate(0,0) rotate(var(--r))}11%{opacity:1}36%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(calc(var(--r) + 200deg))}100%{opacity:0}}
+@keyframes chAb{0%,11%{box-shadow:var(--glow-plate-hover)}18%{box-shadow:0 0 28px -2px rgb(from var(--role-primary) r g b / 70%)}40%,100%{box-shadow:var(--glow-plate-hover)}}
+@media (prefers-reduced-motion:reduce){.st *{animation:none!important}}
+</style>
+</helmet>
+<section class="dv-turn" id="t2" data-theme-scope="" style="--theme-primary:{{ tp }};--theme-primary-hover:{{ tp }};--theme-accent:{{ ta }};--theme-accent-hover:{{ ta }};--theme-tertiary:{{ tt }};--theme-tertiary-hover:{{ tt }}">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Refinos — <a class="dv-oid" href="#1a">1a</a> + <a class="dv-oid" href="#1c">1c</a>, e <a class="dv-oid" href="#1d">1d</a> por trás da carta</span></div>
+<p class="dv-note">A frente curva de 1c com a largura da faixa de 1a, bem mais difusa. A cor muda enquanto viaja — primária, depois secundária, depois terciária — em vez das três ao mesmo tempo; as faíscas seguem a cor do momento.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a><span><b>Planeswalk — frente de luz.</b> Uma frente curva e larga se abre da borda esquerda; a cor flui de uma identidade para a próxima enquanto atravessa.</span></div>
+<div class="st"><div class="lyw">
+<div class="ly out3"><div class="im">Imagem — Tazeem</div><div class="tc"><p class="nm">Tazeem</p><span class="ty">Plano — Zendikar</span><p class="tx">Criaturas não podem bloquear.</p><div class="ab"><span class="ey">Caos</span>Sempre que você rolar {CAOS}, compre um card para cada terreno que você controla.</div></div></div>
+<div class="ly in3"><div class="im">Imagem — Sokenzan</div><div class="tc"><p class="nm">Sokenzan</p><span class="ty">Plano — Kamigawa</span><p class="tx">Todas as criaturas têm iniciativa e ímpeto.</p><div class="ab"><span class="ey">Caos</span>Sempre que você rolar {CAOS}, desvire todas as criaturas que atacaram neste turno.</div></div></div>
+<div class="fx" style="left:0;right:-40px;top:-60px;bottom:-60px;z-index:2;background:radial-gradient(circle at 0% 50%,transparent calc(var(--pr) - 100px),rgb(from var(--pc) r g b / 55%) calc(var(--pr) - 30px),var(--pc) calc(var(--pr) + 30px),rgb(from var(--pc) r g b / 40%) calc(var(--pr) + 70px),transparent calc(var(--pr) + 110px));filter:blur(30px);mix-blend-mode:screen;opacity:0;animation:pw4Glow 4.5s linear infinite"></div>
+<sc-for list="{{ s4 }}" as="s" hint-placeholder-count="0"><i class="sp" style="left:{{ s.x }}px;top:{{ s.y }}px;color:{{ s.c }};--dx:{{ s.dx }}px;--dy:{{ s.dy }}px;animation:spk 4.5s var(--ease-standard) {{ s.d }}ms infinite"></i></sc-for>
+</div></div>
+</div>
+
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a><span><b>Caos — onda de choque por trás.</b> É o 1d com os anéis e as faíscas nascendo atrás da carta: só o que escapa das bordas aparece.</span></div>
+<div class="st"><div class="lyw"><div class="ly">
+<div style="position:relative;isolation:isolate">
+<div class="fx" style="left:50%;top:50%;width:220px;height:220px;border-radius:50%;border:2px solid var(--role-primary);box-shadow:0 0 24px var(--role-primary),inset 0 0 18px var(--role-primary);animation:chRing 4s var(--ease-standard) infinite;opacity:0;z-index:0"></div>
+<div class="fx" style="left:50%;top:50%;width:220px;height:220px;border-radius:50%;border:1px solid var(--role-accent);box-shadow:0 0 18px var(--role-accent);animation:chRing 4s var(--ease-standard) 140ms infinite;opacity:0;z-index:0"></div>
+<sc-for list="{{ c1 }}" as="s" hint-placeholder-count="0"><i class="sp" style="z-index:0;left:50%;top:50%;color:{{ s.c }};--dx:{{ s.dx }}px;--dy:{{ s.dy }}px;animation:spk 4s var(--ease-standard) {{ s.d }}ms infinite"></i></sc-for>
+<div class="im" style="z-index:1;animation:chShake 4s linear infinite">Imagem — Tazeem</div>
+</div>
+<div class="tc"><p class="nm">Tazeem</p><span class="ty">Plano — Zendikar</span><p class="tx">Criaturas não podem bloquear.</p><div class="ab lit" style="animation:chAb 4s var(--ease-standard) infinite"><span class="ey" style="color:var(--color-text)">Caos</span>Sempre que você rolar {CAOS}, compre um card para cada terreno que você controla.</div></div>
+</div></div></div>
+</div>
+
+</div>
+<p class="dv-next">Tente: “levar <a class="dv-oid" href="#2a">2a</a> e <a class="dv-oid" href="#2b">2b</a> para a tela da partida” · “versão estreita (390) dos dois” · “efeito para fenômeno encontrado”</p>
+</section>
+
+<section class="dv-turn" id="t1" data-theme-scope="" style="--theme-primary:{{ tp }};--theme-primary-hover:{{ tp }};--theme-accent:{{ ta }};--theme-accent-hover:{{ ta }};--theme-tertiary:{{ tt }};--theme-tertiary-hover:{{ tt }}">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Flairs — Planeswalk e Caos</span></div>
+<p class="dv-note">Tudo tinge pela identidade do perfil (troque em Tweaks). As prévias repetem em loop só para revisão — no app, cada efeito toca uma vez (~1,4 s) e some; nada fica na tela. Com prefers-reduced-motion, a troca é direta, sem onda nem faíscas. O destaque da habilidade de caos continua como estado, não como efeito.</p>
+
+<div class="dv-grp">Planeswalk — transporte, esquerda para direita</div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a><span><b>Onda de luz.</b> Uma faixa larga e borrada nas três cores varre a área; o plano antigo some atrás dela e o novo aparece. Faíscas são arrastadas junto com a onda.</span></div>
+<div class="st"><div class="lyw">
+<div class="ly out1"><div class="im">Imagem — Tazeem</div><div class="tc"><p class="nm">Tazeem</p><span class="ty">Plano — Zendikar</span><p class="tx">Criaturas não podem bloquear.</p><div class="ab"><span class="ey">Caos</span>Sempre que você rolar {CAOS}, compre um card para cada terreno que você controla.</div></div></div>
+<div class="ly in1"><div class="im">Imagem — Sokenzan</div><div class="tc"><p class="nm">Sokenzan</p><span class="ty">Plano — Kamigawa</span><p class="tx">Todas as criaturas têm iniciativa e ímpeto.</p><div class="ab"><span class="ey">Caos</span>Sempre que você rolar {CAOS}, desvire todas as criaturas que atacaram neste turno.</div></div></div>
+<div class="fx" style="top:-40px;bottom:-40px;left:0;width:140px;z-index:2;background:linear-gradient(90deg,transparent,var(--role-primary) 30%,var(--role-accent) 50%,var(--role-tertiary) 70%,transparent);filter:blur(22px);mix-blend-mode:screen;animation:pwBand 4.5s linear infinite;opacity:0"></div>
+<sc-for list="{{ s1 }}" as="s" hint-placeholder-count="0"><i class="sp" style="left:{{ s.x }}px;top:{{ s.y }}px;color:{{ s.c }};--dx:{{ s.dx }}px;--dy:{{ s.dy }}px;animation:spk 4.5s var(--ease-standard) {{ s.d }}ms infinite"></i></sc-for>
+</div></div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a><span><b>Fio de luz.</b> Dois fios finos, como os da barra do app, correm por cima e por baixo; entre eles o conteúdo se dissolve com desfoque suave. Faíscas sobem de onde a dissolução passa.</span></div>
+<div class="st"><div class="lyw">
+<div class="ly out2"><div class="im">Imagem — Tazeem</div><div class="tc"><p class="nm">Tazeem</p><span class="ty">Plano — Zendikar</span><p class="tx">Criaturas não podem bloquear.</p><div class="ab"><span class="ey">Caos</span>Sempre que você rolar {CAOS}, compre um card para cada terreno que você controla.</div></div></div>
+<div class="ly in2"><div class="im">Imagem — Sokenzan</div><div class="tc"><p class="nm">Sokenzan</p><span class="ty">Plano — Kamigawa</span><p class="tx">Todas as criaturas têm iniciativa e ímpeto.</p><div class="ab"><span class="ey">Caos</span>Sempre que você rolar {CAOS}, desvire todas as criaturas que atacaram neste turno.</div></div></div>
+<div class="fx" style="left:0;right:0;top:-12px;height:1px;z-index:2;background:linear-gradient(90deg,var(--role-primary),var(--role-accent),var(--role-tertiary));box-shadow:0 0 8px 1px var(--role-primary);transform-origin:left;animation:pwFio 4.5s linear infinite"></div>
+<div class="fx" style="left:0;right:0;bottom:-12px;height:1px;z-index:2;background:linear-gradient(90deg,var(--role-tertiary),var(--role-accent),var(--role-primary));box-shadow:0 0 8px 1px var(--role-accent);transform-origin:left;animation:pwFio 4.5s linear infinite"></div>
+<sc-for list="{{ s2 }}" as="s" hint-placeholder-count="0"><i class="sp" style="left:{{ s.x }}px;top:{{ s.y }}px;color:{{ s.c }};--dx:{{ s.dx }}px;--dy:{{ s.dy }}px;animation:spk 4.5s var(--ease-standard) {{ s.d }}ms infinite"></i></sc-for>
+</div></div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a><span><b>Frente de portal.</b> Uma frente curva abre da borda esquerda como um portal se expandindo; o anel brilha nas cores da identidade e solta faíscas para fora ao longo da curva.</span></div>
+<div class="st"><div class="lyw">
+<div class="ly out3"><div class="im">Imagem — Tazeem</div><div class="tc"><p class="nm">Tazeem</p><span class="ty">Plano — Zendikar</span><p class="tx">Criaturas não podem bloquear.</p><div class="ab"><span class="ey">Caos</span>Sempre que você rolar {CAOS}, compre um card para cada terreno que você controla.</div></div></div>
+<div class="ly in3"><div class="im">Imagem — Sokenzan</div><div class="tc"><p class="nm">Sokenzan</p><span class="ty">Plano — Kamigawa</span><p class="tx">Todas as criaturas têm iniciativa e ímpeto.</p><div class="ab"><span class="ey">Caos</span>Sempre que você rolar {CAOS}, desvire todas as criaturas que atacaram neste turno.</div></div></div>
+<div class="fx" style="left:-730px;top:calc(50% - 730px);width:1460px;height:1460px;border-radius:50%;z-index:2;border:2px solid var(--role-primary);box-shadow:0 0 28px 4px var(--role-accent),inset 0 0 28px 4px var(--role-tertiary);transform:scale(0);opacity:0;animation:pw3Ring 4.5s linear infinite"></div>
+<sc-for list="{{ s3 }}" as="s" hint-placeholder-count="0"><i class="sp" style="left:{{ s.x }}px;top:{{ s.y }}px;color:{{ s.c }};--dx:{{ s.dx }}px;--dy:{{ s.dy }}px;animation:spk 4.5s var(--ease-standard) {{ s.d }}ms infinite"></i></sc-for>
+</div></div>
+</div>
+
+</div>
+
+<div class="dv-grp">Caos — explosão ao redor da imagem, o plano fica</div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a><span><b>Onda de choque.</b> Dois anéis de choque saem do centro da carta, a imagem treme de leve e faíscas explodem em todas as direções.</span></div>
+<div class="st"><div class="lyw"><div class="ly">
+<div style="position:relative">
+<div class="fx" style="left:50%;top:50%;width:220px;height:220px;border-radius:50%;border:2px solid var(--role-primary);box-shadow:0 0 24px var(--role-primary),inset 0 0 18px var(--role-primary);animation:chRing 4s var(--ease-standard) infinite;opacity:0;z-index:2"></div>
+<div class="fx" style="left:50%;top:50%;width:220px;height:220px;border-radius:50%;border:1px solid var(--role-accent);box-shadow:0 0 18px var(--role-accent);animation:chRing 4s var(--ease-standard) 140ms infinite;opacity:0;z-index:2"></div>
+<div class="im" style="animation:chShake 4s linear infinite">Imagem — Tazeem</div>
+<sc-for list="{{ c1 }}" as="s" hint-placeholder-count="0"><i class="sp" style="left:50%;top:50%;color:{{ s.c }};--dx:{{ s.dx }}px;--dy:{{ s.dy }}px;animation:spk 4s var(--ease-standard) {{ s.d }}ms infinite"></i></sc-for>
+</div>
+<div class="tc"><p class="nm">Tazeem</p><span class="ty">Plano — Zendikar</span><p class="tx">Criaturas não podem bloquear.</p><div class="ab lit" style="animation:chAb 4s var(--ease-standard) infinite"><span class="ey" style="color:var(--color-text)">Caos</span>Sempre que você rolar {CAOS}, compre um card para cada terreno que você controla.</div></div>
+</div></div></div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a><span><b>Coroa.</b> Um anel cônico nas três cores gira rápido em volta da borda da carta, uma luz se abre por trás e tudo se apaga. É o anel do modal de entrada, em versão violenta.</span></div>
+<div class="st"><div class="lyw"><div class="ly">
+<div style="position:relative">
+<div class="fx" style="left:50%;top:50%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgb(from var(--role-primary) r g b / 60%),rgb(from var(--role-accent) r g b / 25%) 45%,transparent 70%);animation:chBloom 4s var(--ease-standard) infinite;opacity:0"></div>
+<div class="fx" style="inset:-12px;border-radius:14px;background:conic-gradient(from var(--pcspin),var(--role-primary),var(--role-accent),var(--role-tertiary),var(--role-primary));filter:blur(14px);animation:chCorona 4s var(--ease-standard) infinite;opacity:0"></div>
+<div class="fx" style="inset:-3px;border-radius:11px;background:conic-gradient(from var(--pcspin),var(--role-primary),var(--role-accent),var(--role-tertiary),var(--role-primary));animation:chCorona 4s var(--ease-standard) infinite;opacity:0"></div>
+<div class="im">Imagem — Tazeem</div>
+</div>
+<div class="tc"><p class="nm">Tazeem</p><span class="ty">Plano — Zendikar</span><p class="tx">Criaturas não podem bloquear.</p><div class="ab lit" style="animation:chAb 4s var(--ease-standard) infinite"><span class="ey" style="color:var(--color-text)">Caos</span>Sempre que você rolar {CAOS}, compre um card para cada terreno que você controla.</div></div>
+</div></div></div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a><span><b>Estilhaços.</b> A carta pulsa e dá um clarão; lascas finas voam das bordas girando, como se a moldura se partisse. É o mais agressivo dos três.</span></div>
+<div class="st"><div class="lyw"><div class="ly">
+<div style="position:relative;animation:chPop 4s var(--ease-standard) infinite">
+<div class="im" style="overflow:hidden">Imagem — Tazeem<i class="fx" style="inset:0;background:radial-gradient(circle,#fff4e6,var(--role-primary) 35%,transparent 75%);mix-blend-mode:screen;animation:chFlash 4s var(--ease-standard) infinite;opacity:0"></i></div>
+<sc-for list="{{ c3 }}" as="s" hint-placeholder-count="0"><i class="fx" style="left:{{ s.x }}%;top:{{ s.y }}%;width:2px;height:16px;margin:-8px 0 0 -1px;border-radius:1px;z-index:3;background:{{ s.c }};box-shadow:0 0 8px {{ s.c }};--r:{{ s.r }}deg;--dx:{{ s.dx }}px;--dy:{{ s.dy }}px;animation:chShard 4s var(--ease-standard) {{ s.d }}ms infinite;opacity:0"></i></sc-for>
+</div>
+<div class="tc"><p class="nm">Tazeem</p><span class="ty">Plano — Zendikar</span><p class="tx">Criaturas não podem bloquear.</p><div class="ab lit" style="animation:chAb 4s var(--ease-standard) infinite"><span class="ey" style="color:var(--color-text)">Caos</span>Sempre que você rolar {CAOS}, compre um card para cada terreno que você controla.</div></div>
+</div></div></div>
+</div>
+
+</div>
+<p class="dv-next">Tente: “<a class="dv-oid" href="#1a">1a</a> com as faíscas de <a class="dv-oid" href="#1c">1c</a>” · “<a class="dv-oid" href="#1d">1d</a> mais contido no celular” · “efeito para fenômeno encontrado”</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;identity&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;izzet&quot;,&quot;golgari&quot;,&quot;esper&quot;,&quot;selesnya&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const ids = { default: ['r', 'u', 'g'], izzet: ['u', 'r', 'r'], golgari: ['b', 'g', 'g'], esper: ['w', 'u', 'b'], selesnya: ['g', 'w', 'w'] };
+    const pick = ids[this.props.identity ?? 'default'] || ids.default;
+    const v = k => `var(--identity-${k})`;
+    const cols = ['var(--role-primary)', 'var(--role-accent)', 'var(--role-tertiary)'];
+    let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const W = 552, H = 252, T = 4500;
+    const tpx = x => (T * (0.18 + 0.24 * (x + 100) / 752)) | 0;
+    const s1 = Array.from({ length: 22 }, (_, i) => { const x = rnd() * W; return { x: x | 0, y: (rnd() * H) | 0, dx: (40 + rnd() * 60) | 0, dy: ((rnd() - .5) * 50) | 0, c: cols[i % 3], d: tpx(x) - 20 }; });
+    const s2 = Array.from({ length: 22 }, (_, i) => { const x = rnd() * W; return { x: x | 0, y: (60 + rnd() * (H - 60)) | 0, dx: ((rnd() - .5) * 20) | 0, dy: -(40 + rnd() * 70) | 0, c: cols[i % 3], d: tpx(x) }; });
+    const s3 = Array.from({ length: 24 }, (_, i) => { const a = (rnd() - .5) * 2.4, r = 80 + rnd() * 480; const x = Math.cos(a) * r, y = H / 2 + Math.sin(a) * r; return { x: x | 0, y: y | 0, dx: (Math.cos(a) * (40 + rnd() * 50)) | 0, dy: (Math.sin(a) * (40 + rnd() * 50)) | 0, c: cols[i % 3], d: (T * (0.15 + 0.33 * r / 730)) | 0 }; }).filter(s => s.y > -10 && s.y < H + 10 && s.x < W);
+    const s4 = Array.from({ length: 30 }, () => { const a = (rnd() - .5) * 2.4, r = 60 + rnd() * 560; const x = Math.cos(a) * r, y = H / 2 + Math.sin(a) * r; const f = r / 730; return { x: x | 0, y: y | 0, dx: (Math.cos(a) * (30 + rnd() * 60)) | 0, dy: (Math.sin(a) * (30 + rnd() * 60)) | 0, c: cols[f < .3 ? 0 : f < .58 ? 1 : 2], d: (T * (0.15 + 0.33 * (r + 30) / 780)) | 0 }; }).filter(s => s.y > -10 && s.y < H + 10 && s.x < W);
+    const c1 = Array.from({ length: 20 }, (_, i) => { const a = (i / 20) * Math.PI * 2 + rnd() * .3, r = 130 + rnd() * 110; return { dx: (Math.cos(a) * r) | 0, dy: (Math.sin(a) * r) | 0, c: cols[i % 3], d: (400 + rnd() * 120) | 0 }; });
+    const c3 = Array.from({ length: 16 }, (_, i) => { const t = i / 16; let x, y; if (t < .25) { x = t * 400; y = 0; } else if (t < .5) { x = 100; y = (t - .25) * 400; } else if (t < .75) { x = 100 - (t - .5) * 400; y = 100; } else { x = 0; y = 100 - (t - .75) * 400; } const a = Math.atan2(y - 50, (x - 50) * 1.4), d = 60 + rnd() * 90; return { x: x | 0, y: y | 0, r: ((a * 180 / Math.PI) + 90) | 0, dx: (Math.cos(a) * d) | 0, dy: (Math.sin(a) * d) | 0, c: cols[i % 3], d: (400 + rnd() * 80) | 0 }; });
+    return { tp: v(pick[0]), ta: v(pick[1]), tt: v(pick[2]), s1, s2, s3, s4, c1, c3 };
+  }
+}
+</script>
+</body>
+</html>
