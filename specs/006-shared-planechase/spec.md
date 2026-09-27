@@ -46,7 +46,7 @@ Source: Magic: The Gathering Comprehensive Rules effective 2026-09-25, rules 311
 - During a game the page shows **no used/available lists and no counts**. This is deliberate: like a face-down deck, the table must not see what's coming. Tracking stays internal, and it only surfaces when every card has been used and the app asks to reshuffle ("Reiniciar planos"). This overrides the handoff's "{u} usados · {a} disponíveis" footer line and the count in its reset confirmation.
 - The deck settings show each card as a **tile with its card image** (on/off), grouped by set, without name or type rows. The name and type are given to assistive technology.
 - While a phenomenon waits for confirmation, "Reiniciar planos" is disabled too.
-- When every card has been used and a planeswalk is needed, the only game actions offered are "Reiniciar planos" and "Desfazer".
+- When every card has been used and a planeswalk is needed, the only game actions offered are "Reiniciar planos" and "Desfazer". "Como jogar", deck settings and "Encerrar partida" stay available.
 - Planeswalking and "Caos" each play a short one-time visual effect that leaves nothing behind. Under reduced motion there is no effect and the content just changes.
 - On a phone, the die controls stay docked at the bottom of the screen and can be reached without scrolling.
 - The gameplay menu's Planechase entry says "Continuar" instead of "Abrir" while a game is in progress.
@@ -57,6 +57,15 @@ Source: Magic: The Gathering Comprehensive Rules effective 2026-09-25, rules 311
 - **Shuffle**: the game shuffles its card list once into a face-down draw order and draws from the top, like a real planar deck. The shuffle is a Fisher–Yates shuffle fed by the platform's cryptographic random source, with rejection sampling so every order is equally likely. "Reiniciar planos" reshuffles the used cards (everything except the current plane) into a new draw order.
 - **Card data ships with the app.** A maintenance script reads Scryfall directly and writes every Planechase card's English data (non-gold-border, newest printing) to `src/app/core/data/planechase/cards.json` (`scripts/sync-planechase.ts`, run with `npm run sync:planechase`). During play, Planechase makes no requests to Supabase; only card images are loaded from the network (Scryfall's image host), and then cached.
 - **Translations are made by a Claude Code skill** (`/planechase-translate`, in `.claude/skills/planechase-translate/` with its glossary), run by the maintainer when the script says it's needed. The skill translates only cards that are new or whose English text changed, writes the result to `src/app/core/data/planechase/cards.pt-br.json`, and the game reads that file. The maintainer reviews its output before committing. Nothing is translated at runtime.
+
+### Session 2026-09-27 (clarify)
+
+- Q: Should the deck settings' set group labels be English set names or PT-BR names? → A: The official English set names, as Scryfall has them. Like card names, they are proper nouns and aren't translated.
+- Q: What does "Iniciar partida" do when a saved selection became invalid (fewer than 10 enabled cards or no enabled plane) because an update removed cards? → A: It refuses to start, says why in PT-BR, and links to the deck settings. The saved selection is not changed automatically.
+- Q: In the all-used state, do "Como jogar", deck settings and "Encerrar partida" stay available? → A: Yes. Only "Rolar dado planar", "Planeswalk" and "Zerar custo" are disabled, as in the phenomenon-pending state.
+- Q: How should SC-006 (rules understood after one read) be verified? → A: Keep it as is, as an informal goal that doesn't gate release. The maintainer will study the rules and update the "Como jogar" text when needed.
+- Q: How are the card data script and the translation skill tested? → A: By hand, by the maintainer. There are no automated tests for either.
+- Q: What does a card show when it has no translation? → A: Its English type line and rules text, with the chaos/encounter ability still highlighted. A translation made from older English text counts as missing. The card stays in the deck settings and in draws. The FR-027 coverage test is dropped, because a missing translation no longer breaks anything.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -72,7 +81,7 @@ A group sitting down to play Commander decides to use Planechase but owns no phy
 
 1. **Given** the gameplay menu, **When** the person opens it, **Then** it lists the available game modes and Planechase is the only one.
 2. **Given** no active profile, **When** the person opens Planechase, **Then** it works fully: no sign-in prompt, no profile gate.
-3. **Given** the Planechase page with no game in progress, **When** the person starts a game, **Then** the enabled cards are shuffled and the first plane in that order (never a phenomenon) becomes the current plane and is shown with its card image, its English name and its PT-BR text, with the chaos ability clearly marked.
+3. **Given** the Planechase page with no game in progress, **When** the person starts a game, **Then** the enabled cards are shuffled and the first plane in that order (never a phenomenon) becomes the current plane and is shown with its card image, its English name and its PT-BR text (English text if untranslated, FR-004a), with the chaos ability clearly marked.
 4. **Given** a game in progress, **When** the person rolls the planar die, **Then** the app draws a whole number from 1 to 6 with equal odds: 1 is "Planeswalk", 6 is "Caos" and 2 to 5 are "Nada acontece". The result is shown as a clear text label without a die animation.
 5. **Given** a "Planeswalk" result, **When** it is shown, **Then** the current plane moves to the used list and the next card in the shuffled draw order becomes current.
 6. **Given** a "Caos" result, **When** it is shown, **Then** the current plane's chaos ability is highlighted so the table can resolve it, and the plane stays the same.
@@ -100,15 +109,15 @@ Several players at the table have never played Planechase. Before starting, some
 
 ### User Story 3 - Read every card in Portuguese, the same way every time (Priority: P1)
 
-A plane's text decides what everyone at the table can do, so it must read the same way every time. For every card, the app shows a PT-BR rules text written and reviewed once and kept with the app, never produced by automatic translation at runtime. The original card image, in English, stays visible next to it for reference.
+A plane's text decides what everyone at the table can do, so it must read the same way every time. For every card, the app shows a PT-BR rules text written and reviewed once and kept with the app, never produced by automatic translation at runtime. A card that has no up-to-date translation yet shows its English text instead. The original card image, in English, stays visible next to it for reference.
 
 **Why this priority**: A wrong or unstable translation of a rules text causes arguments at the table. Most of these cards were never printed in Portuguese, so the app is the only source.
 
-**Independent Test**: Check that every catalog entry has a PT-BR text, then play until several cards have come up and confirm that each one's text is identical across reloads and devices.
+**Independent Test**: Check that a translated card shows PT-BR text and an untranslated one shows its English text, then play until several cards have come up and confirm that each one's text is identical across reloads and devices.
 
 **Acceptance Scenarios**:
 
-1. **Given** any card in the catalog, **When** it is the current card, **Then** its English name and PT-BR rules text are shown, and the English card image is available.
+1. **Given** any card in the catalog, **When** it is the current card, **Then** its English name and PT-BR rules text are shown (or its English type line and rules text if it has no up-to-date translation), and the English card image is available.
 2. **Given** no network connection, **When** a card is shown, **Then** its name and PT-BR text still appear. Its image appears if it was shown before on this device, and a placeholder appears otherwise.
 3. **Given** a phenomenon comes up, **When** it is shown, **Then** its PT-BR "ao encontrar" effect is shown, and after the table confirms it has been resolved, the app planeswalks again.
 
@@ -161,8 +170,8 @@ A player who owns a physical Planechase deck, or who dislikes certain planes, wa
 - **Card image unavailable (offline or image host down, and never shown on this device before)**: the name and PT-BR text still show, with a placeholder where the image would be. Rolls and draws still work.
 - **Selection sync conflict** (changed on two devices before syncing): not expected, since there is one user. If it happens, the whole selection with the later timestamp wins. Cards are not merged one by one.
 - **Profile switch or sign-out during a game**: the game in progress stays as it was (it belongs to the device, not the profile). The game keeps the card list it started with. The new profile's selection applies only to the next game started.
-- **A card removed from the card data by an update**: a saved selection or game that refers to it skips it: the card isn't shown and is never drawn.
-- **A card without a translation** (the card data was updated but the skill wasn't run): the card isn't offered, either in the deck settings or in a draw. The translation check (FR-027) keeps this from reaching a release.
+- **A card removed from the card data by an update**: a saved selection or game that refers to it skips it: the card isn't shown and is never drawn. If that leaves the saved selection with fewer than 10 enabled cards or no enabled plane, "Iniciar partida" refuses to start, says why and links to the deck settings (FR-007). A game already in progress keeps going with its remaining cards.
+- **A card without a translation** (the card data was updated but the skill wasn't run, or the card's English text changed since it was translated): the card is still offered in the deck settings and in draws, and shows its English type line and rules text, with the chaos/encounter ability highlighted as usual (FR-004a). The script's report (FR-024a) tells the maintainer which cards need the skill.
 - **Two cards with the same English name in different sets**: they are one catalog entry (the rules forbid duplicate names in a planar deck).
 - **Rolling outside a main phase / on another player's turn**: the app doesn't enforce timing. The rules text explains it, and the table is responsible.
 
@@ -177,14 +186,15 @@ A player who owns a physical Planechase deck, or who dislikes certain planes, wa
 
 **Card catalog and translations**
 
-- **FR-003**: The app MUST ship the Planechase card data as a file in the project, generated by the card data script (FR-024): every plane and phenomenon card with at least one non-gold-border printing, one entry per distinct English name. Each entry MUST hold a stable card identifier (one that doesn't change when a newer printing appears), the English name, type (plane or phenomenon), English type line and rules text (with the chaos or encounter ability split out), the set of its newest non-gold-border printing (its grouping in the deck settings), and that printing's image address.
-- **FR-004**: For every catalog entry, the app MUST ship a reviewed PT-BR planar type line and rules text, with the chaos ability (planes) or the encounter ability (phenomena) stored separately so it can be highlighted. These texts come from the translations file written by the translation skill (FR-025) and MUST NOT be produced by runtime automatic translation.
+- **FR-003**: The app MUST ship the Planechase card data as a file in the project, generated by the card data script (FR-024): every plane and phenomenon card with at least one non-gold-border printing, one entry per distinct English name. Each entry MUST hold a stable card identifier (one that doesn't change when a newer printing appears), the English name, type (plane or phenomenon), English type line and rules text (with the chaos or encounter ability split out), the set of its newest non-gold-border printing with its official English name (its grouping and group label in the deck settings), and that printing's image address.
+- **FR-004**: For every catalog entry, the app MUST use a reviewed PT-BR planar type line and rules text, with the chaos ability (planes) or the encounter ability (phenomena) stored separately so it can be highlighted. These texts come from the translations file written by the translation skill (FR-025) and MUST NOT be produced by runtime automatic translation.
+- **FR-004a**: A card with no translation, or whose translation was made from older English text, MUST show its English type line and rules text instead, with the chaos or encounter ability still split out and highlightable. It stays available in the deck settings and in draws.
 - **FR-005**: Card names MUST stay in English, matching the card image and how Brazilian players refer to them. Only the type line and rules text are translated.
 - **FR-006**: The app MUST load the card image from the image address in the card data. Each image MUST be kept on the device after it is first shown, and reused when there is no network. The app MUST NOT bulk-download images it hasn't shown. It MUST degrade to text only when an image was never shown on this device and can't be fetched.
 
 **Game**
 
-- **FR-007**: Starting a game MUST fix the game's card list to the enabled cards at that moment, shuffle it into a draw order (FR-008a), and make the first plane in that order the current plane. Phenomena ahead of it go to the bottom of the draw order (rule 901.5). All other cards start as available and none as used. That list MUST NOT change for the rest of the game (FR-022).
+- **FR-007**: If the saved selection (after skipping cards no longer in the card data) has fewer than 10 enabled cards or no enabled plane, starting a game MUST be refused with a PT-BR message saying why and a link to the deck settings; the selection MUST NOT be changed automatically. Otherwise, starting a game MUST fix the game's card list to the enabled cards at that moment, shuffle it into a draw order (FR-008a), and make the first plane in that order the current plane. Phenomena ahead of it go to the bottom of the draw order (rule 901.5). All other cards start as available and none as used. That list MUST NOT change for the rest of the game (FR-022).
 - **FR-008**: "Rolar dado planar" MUST draw a whole number from 1 to 6, uniformly, from the platform's cryptographic random source without modulo bias. 1 MUST mean "Planeswalk", 6 MUST mean "Caos", and 2 to 5 MUST mean "Nada acontece". The result MUST be shown as text (no die animation) and announced to assistive technology.
 - **FR-008a**: Shuffling MUST use a Fisher–Yates shuffle fed by the same cryptographic random source, with rejection sampling so every order is equally likely. The shuffled draw order is part of the game and is saved with it (FR-015), so a reload doesn't change what comes next. Games are shuffled at start, and "Reiniciar planos" reshuffles.
 - **FR-009**: The page MUST show the mana cost of the next roll this turn, starting at {0} and increasing by 1 after each roll made with the roll button. "Zerar custo" MUST reset it to {0}.
@@ -193,7 +203,7 @@ A player who owns a physical Planechase deck, or who dislikes certain planes, wa
 - **FR-011a**: A planeswalk (from the die, the "Planeswalk" action or a phenomenon confirmation) and a "Caos" result MUST each play a short one-time visual effect that leaves nothing behind, using only the identity's role colors. Under reduced motion the effect MUST NOT play, and the content just changes.
 - **FR-012**: The page MUST show the current card. During a game it MUST NOT show which cards are used or available, nor how many. The only sign of that tracking is the "all used" prompt (FR-013).
 - **FR-012a**: On a phone-sized screen, the die result, the next roll cost and the game actions ("Rolar dado planar"/confirm phenomenon, "Planeswalk", "Zerar custo", "Desfazer") MUST stay on screen without scrolling.
-- **FR-013**: When a planeswalk is needed and no enabled card is available, the app MUST say every plane has been used and offer "Reiniciar planos". The only other game action offered in that state is "Desfazer". Outside that state, "Reiniciar planos" MUST be available at any time with confirmation, except while a phenomenon waits (FR-010). The confirmation MUST NOT say how many cards are used. Resetting shuffles every card in the game's list except the current one into a new draw order and clears the used list.
+- **FR-013**: When a planeswalk is needed and no enabled card is available, the app MUST say every plane has been used and offer "Reiniciar planos". The only other game action offered in that state is "Desfazer": "Rolar dado planar", "Planeswalk" and "Zerar custo" MUST be disabled, while "Como jogar", deck settings and "Encerrar partida" stay available. Outside that state, "Reiniciar planos" MUST be available at any time with confirmation, except while a phenomenon waits (FR-010). The confirmation MUST NOT say how many cards are used. Resetting shuffles every card in the game's list except the current one into a new draw order and clears the used list.
 - **FR-014**: "Encerrar partida" MUST end the game with confirmation and return to the no-game state.
 - **FR-015**: The game in progress (current card, used list, draw order, roll cost, any pending phenomenon, the undo step) MUST survive a reload and an app restart on the same device. It is NOT tied to a profile and NOT synced.
 - **FR-015a**: "Desfazer" MUST revert the last game action (roll, planeswalk, phenomenon confirmation, "Zerar custo") to the exact prior state. Only one step can be undone. It is unavailable right after a start, a reset or an undo, and it doesn't apply to "Encerrar partida".
@@ -217,11 +227,10 @@ A player who owns a physical Planechase deck, or who dislikes certain planes, wa
 - **FR-024a**: When it finishes, the script MUST report how many cards it wrote and which are new, changed (English text or type differs) or removed since the last run, and which cards lack an up-to-date translation. If any do, it MUST end by printing the exact Claude Code command that runs the translation skill (`/planechase-translate`). If none do, it MUST say the translations are up to date.
 - **FR-025**: The project MUST include a Claude Code skill, `planechase-translate` (`.claude/skills/planechase-translate/`, invoked as `/planechase-translate`), that reads the card data file and writes the PT-BR type line, rules text and chaos/encounter ability of each card to the translations file `src/app/core/data/planechase/cards.pt-br.json`. Each translation MUST record the English text it was made from (e.g. a hash), so the skill translates only cards that are new or whose English text changed, and drops translations of removed cards. The maintainer can also name specific cards to retranslate.
 - **FR-026**: The skill MUST translate consistently: it follows a PT-BR glossary of Magic terms kept in the skill's folder (official Portuguese Magic terminology, "Caos", "fenômeno", "planeswalk"…), uses official Portuguese printings as the reference where they exist, keeps card names and `{…}` costs as written, and never edits a card whose English text hasn't changed. After running, it lists the cards it translated so the maintainer can review them.
-- **FR-027**: A unit test MUST fail when any card in the card data lacks a translation made from its current English text, so a stale or missing translation can't ship.
 
 **Language**
 
-- **FR-023**: All user-facing text (labels, results, rules, card texts, errors) MUST be PT-BR (Constitution II). The one exception is card names, which stay in English (FR-005).
+- **FR-023**: All user-facing text (labels, results, rules, card texts, errors) MUST be PT-BR (Constitution II). The only exceptions are card names (FR-005) and the set names used as group labels in the deck settings (FR-017), which stay as their official English names, and the English text of a card with no up-to-date translation (FR-004a).
 
 ### Key Entities
 
@@ -235,19 +244,20 @@ A player who owns a physical Planechase deck, or who dislikes certain planes, wa
 ### Measurable Outcomes
 
 - **SC-001**: A person with no profile can go from opening the app to seeing the starting plane in PT-BR in 3 taps or fewer.
-- **SC-002**: 100% of catalog cards show a PT-BR rules text, and the text for a card is identical on every device and every visit.
+- **SC-002**: Every card with an up-to-date translation shows its PT-BR rules text, every other card shows its English text, and the text for a card is identical on every device and every visit of the same app version.
 - **SC-003**: Over 6,000 rolls, each result's frequency is within ±2 percentage points of its expected value (16.7% / 16.7% / 66.7%).
 - **SC-004**: In a game with N enabled cards, the first N planeswalks never repeat a card.
 - **SC-005**: A roll result appears within 1 second of the tap, with or without network.
-- **SC-006**: A player new to Planechase can explain the die, the roll cost and phenomena after reading "Como jogar" once.
+- **SC-006**: A player new to Planechase can explain the die, the roll cost and phenomena after reading "Como jogar" once. (Informal goal, not a release gate. The maintainer reviews the rules text by hand.)
 - **SC-007**: A deck selection changed on one device appears on a second device linked to the same account after one sync on each.
 - **SC-008**: A full Planechase game (start, rolls, planeswalks, reset, end) makes zero Supabase requests.
-- **SC-009**: Rerunning the card data script when nothing changed on Scryfall leaves both project files unchanged and reports that no translation is needed. Running the skill after a change to one card touches only that card's translation.
+- **SC-009** (checked by hand by the maintainer): Rerunning the card data script when nothing changed on Scryfall leaves both project files unchanged and reports that no translation is needed. Running the skill after a change to one card touches only that card's translation.
 
 ## Assumptions
 
 - Visuals, layout and exact copy follow `design_handoff_shared_planechase/` (`Planechase.dc.html` is final; flairs 2a (planeswalk) and 2b (chaos) are the chosen effects). Its card images are placeholders and its PT-BR card texts are drafts. Its new design-system pieces (the game console with its inline confirm, the phone dock, the lit ability plate, card tiles and the two effects) must be added to `DESIGN.md` before they're built (Constitution Principle V). Where the handoff and this spec disagree on layout or copy, the handoff wins. Behavior conflicts are resolved by updating this spec.
 - Scryfall's data (card search, border color, release dates, image host) is the source for the card data script. Scryfall's images are loaded directly from its image host at runtime and cached on the device.
+- The card data script (FR-024/024a) and the translation skill (FR-025/026) are verified by hand by the maintainer, including SC-009. They get no automated tests.
 - The PT-BR card texts are drafted by the translation skill against current Oracle wording and reviewed by the maintainer before committing. Official Portuguese printings are used as the reference wherever they exist. The script and skill are run by hand, only when the maintainer decides an update is needed.
 - Only the shared-deck variant is in scope. Per-player planar decks, Two-Headed Giant Planechase, Grand Melee (several face-up planes) and planar-controller changes when a player leaves are out of scope.
 - The app does not track life, turns, players or the game of Magic itself. "Zerar custo" only resets the roll cost.
