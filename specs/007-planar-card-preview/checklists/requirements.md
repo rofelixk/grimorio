@@ -32,4 +32,5 @@
 ## Notes
 
 - FR-008 resolved (2026-09-27): long-press on the tile. Keyboard access moved to a dedicated key (FR-010), and the hint text now mentions the gestures (FR-008a).
+- 2026-09-27: folded in `design_handoff_planar_card_preview/` (640 px dialog breakpoint, header position, long-press glow, timings) and the default-off selection (User Story 4, FR-016–FR-018, SC-008). All items still pass.
 - FR-015 names `DESIGN.md` because Constitution V requires new visuals to be added there first; it's a governance constraint, not an implementation choice.
