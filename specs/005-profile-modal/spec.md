@@ -44,8 +44,9 @@
 - Structure: a **hub** plus two sub-screens organized by where the data lives, "Perfil neste
   aparelho" and "Conta na nuvem". Each destructive action sits inside the sub-screen that owns the
   data; there is no separate danger screen.
-- Name and colors are edited together on "Perfil neste aparelho", with one "Salvar" that is only
-  enabled when something changed. Saving keeps the person on that screen and confirms with a toast.
+- The name is edited on "Perfil neste aparelho", with a "Salvar" that is only enabled when the name
+  changed. Saving keeps the person on that screen and confirms with a toast. (The handoff also
+  routed colors through this "Salvar"; superseded by the next session.)
 - Short confirmations and notices use a **toast** (new design-system component), not inline plates.
 - Name/color changes of a linked profile reach the account **quietly at the next sync**; they're not
   written right away, and no warning is shown. Incoming color changes retint silently.
@@ -56,6 +57,14 @@
 - Deleting the **last** profile on the device shows an empty-device state in the app, not the entry
   modal.
 - A refined identity wheel replaces the current one everywhere (profile modal and entry modal).
+
+### Session 2026-09-27 (after the handoff)
+
+- Q: Where can the active profile's colors be changed, and do they need "Salvar"? → A: The identity
+  wheel is always usable for the active profile: on every profile-modal screen that shows it, tapping
+  a color changes the profile's colors at once, with no save and no preview step. Color changes no
+  longer count toward enabling "Salvar" on "Perfil neste aparelho", which covers the name only. The
+  entry modal's wheel is unchanged.
 - The entry modal's forgotten-password step for a linked profile is redesigned ("Redefinir senha do
   perfil").
 
@@ -66,8 +75,8 @@ that's active now."**
 
 | Entry modal (existing) — *who is at the device* | Profile modal (new) — *the active profile* |
 |---|---|
-| Profile list: pick a profile, "Em uso" marker, "Sair de {P}" | **Hub**: profile name, identity wheel, sync plate, entry to the two sub-screens, "Trocar de perfil" |
-| Unlock a profile with its password | **Perfil neste aparelho**: colors + name (one save), profile password, "Excluir perfil" |
+| Profile list: pick a profile, "Em uso" marker, "Sair de {P}" | **Every screen**: the identity wheel changes colors on tap. **Hub**: profile name, identity wheel, sync plate, entry to the two sub-screens, "Trocar de perfil" |
+| Unlock a profile with its password | **Perfil neste aparelho**: name ("Salvar"), profile password, "Excluir perfil" |
 | Create a new profile (with the identity picker) | **Conta na nuvem** (linked): account password, unlink, "Excluir conta na nuvem" |
 | Sign in with a cloud account on this device (new-device setup) | **Conta na nuvem** (expired): "Entrar de novo", unlink |
 | Forgotten local password: local reset, linked-profile reset ("Redefinir senha do perfil") | **Conta na nuvem** (local only): link (sign in / create account) |
@@ -104,7 +113,7 @@ switching and signing out still work.
 
 1. **Given** an active profile, **When** the person activates the profile control, **Then** the
    profile modal opens on the hub, titled with the profile name, showing the identity wheel (tribe
-   name and color names in pick order, not editable here), the sync plate, and the entries "Perfil
+   name and color names in pick order, usable as a picker per US2), the sync plate, and the entries "Perfil
    neste aparelho" (meta "Cores, nome e senha") and "Conta na nuvem" (meta: the account e-mail when
    linked, "Sessão expirada · {e-mail}" when expired, "Vincular para sincronizar entre aparelhos"
    when local only).
@@ -127,41 +136,44 @@ switching and signing out still work.
 
 ---
 
-### User Story 2 - Edit colors and name on "Perfil neste aparelho" (Priority: P1)
+### User Story 2 - Change colors anywhere, rename on "Perfil neste aparelho" (Priority: P1)
 
-A person wants their app to wear different colors or to fix their profile name. On "Perfil neste
-aparelho" they tap colors on the identity wheel (1–3, in pick order) and see the modal preview the
-new identity, and/or edit the name, then press "Salvar". The whole app retints and renames right
-away, and a toast confirms "Alterações salvas.".
+A person wants their app to wear different colors. Wherever the profile modal shows their identity
+wheel, they tap colors on it (1–3, in pick order) and the profile's colors change at once: the whole
+app retints, with nothing to save. To fix their profile name, they edit it on "Perfil neste
+aparelho" and press "Salvar"; the new name shows everywhere right away and a toast confirms
+"Alterações salvas.".
 
 **Why this priority**: Color identity is the app's most visible personal trait and, until now,
 could only be chosen once, at profile creation. Names chosen in a hurry should be fixable without
 recreating the profile and losing data.
 
-**Independent Test**: Change a profile's colors and name, save, and confirm the whole app retints,
-the new name shows everywhere, and both survive a reload; change them again, press "Voltar", and
-confirm nothing changed.
+**Independent Test**: From the hub, tap colors on the wheel and confirm the whole app retints at
+once and the colors survive closing the modal and reloading. On "Perfil neste aparelho", confirm
+tapping colors leaves "Salvar" disabled; change the name, save, and confirm it shows everywhere;
+change it again, press "Voltar", and confirm the name didn't change.
 
 **Acceptance Scenarios**:
 
-1. **Given** "Perfil neste aparelho", **When** it opens, **Then** the wheel is in picker mode with
-   the profile's current colors in pick order, the name field holds the current name, and "Salvar"
-   is disabled.
-2. **Given** changed picks, **When** the person taps colors, **Then** the modal re-themes live to
-   the unsaved picks, while the rest of the app keeps the saved colors.
-3. **Given** changed picks and/or a changed name, **When** the person saves, **Then** the profile is
-   updated, the whole app (shell, profile control, modal) retints and shows the new name and tribe
-   immediately, the person stays on this screen, and a toast shows "Alterações salvas.".
-4. **Given** unsaved edits, **When** the person presses "Voltar" or closes the modal, **Then** the
-   edits are discarded and the profile's saved colors show again.
-5. **Given** one color picked, **When** the person tries to remove it, **Then** it cannot be
+1. **Given** any profile-modal screen showing the identity wheel (the desktop identity pane, or the
+   wheel in the narrow layout), **When** it's shown, **Then** the wheel is a picker holding the
+   profile's current colors in pick order.
+2. **Given** the wheel, **When** the person taps a color, **Then** the profile's colors change
+   immediately and are kept: the modal and the whole app (shell, profile control) retint and show the
+   new tribe name at once. Closing the modal, "Voltar" or "Cancelar" never reverts them.
+3. **Given** one color picked, **When** the person tries to remove it, **Then** it cannot be
    removed (at least one color always stays selected); with 3 picked, the other colors are locked.
+4. **Given** "Perfil neste aparelho", **When** it opens, **Then** the name field holds the current
+   name and "Salvar" is disabled; tapping colors doesn't enable it, only a changed name does.
+5. **Given** a changed name, **When** the person saves, **Then** the name changes everywhere at once
+   (profile control, profile list, unlock screen), the person stays on this screen, and a toast
+   shows "Alterações salvas.". **Given** an unsaved name, "Voltar" or closing discards it.
 6. **Given** a name that breaks the name rules (3–16 characters; letters, digits, `_`, `.`, `-`) or
    is used by another profile on this device (ignoring letter case), **When** the person saves,
    **Then** the matching field error shows and nothing changes.
-7. **Given** a linked profile, **When** this screen is shown, **Then** its subtitle says colors and
-   name also go to the cloud account at the next sync; **Given** a local profile, it says everything
-   here works without internet.
+7. **Given** a linked profile, **When** "Perfil neste aparelho" is shown, **Then** its subtitle says
+   colors and name also go to the cloud account at the next sync; **Given** a local profile, it says
+   everything here works without internet.
 8. **Given** the same account is linked on two devices, **When** colors change on device A, A syncs
    and then device B syncs, **Then** device B's profile takes the new colors and retints silently;
    if both changed colors, the most recent change wins on both (FR-012a).
@@ -301,8 +313,12 @@ local profile is kept as local-only with its data.
 
 ### Edge Cases
 
-- "Salvar" on "Perfil neste aparelho" stays disabled while the picks and the trimmed name equal the
-  saved values, so a no-change save can't happen.
+- "Salvar" on "Perfil neste aparelho" stays disabled while the trimmed name equals the saved name,
+  so a no-change save can't happen; color taps never enable it.
+- Each color tap is saved on its own; a quick series of taps ends on the last state, and the
+  account receives only the latest colors at the next sync.
+- Tapping colors while an action step is busy (a request running) is allowed: colors are local and
+  never affect the step.
 - Name uniqueness ignores letter case: a rename is allowed only if no *other* profile on the device
   holds the same name in any case. Changing only the case of one's own name is allowed.
 - A linked profile's colors and name are saved locally at once; the account receives them at the
@@ -311,8 +327,8 @@ local profile is kept as local-only with its data.
 - Unlinking, renaming, recoloring, changing the local password and deleting a local profile never
   need a connection. Linking, signing in again, changing the account password and deleting the
   account do; offline they fail with the offline message.
-- Closing the profile modal mid-edit (Esc, backdrop, ✕) discards unsaved edits, restores the
-  profile's own colors, and clears every field and error.
+- Closing the profile modal mid-edit (Esc, backdrop, ✕) discards an unsaved name and clears every
+  field and error; colors already tapped stay (they were saved on tap).
 - Deleting the last profile on the device shows the empty-device state; no modal opens by itself.
 - Deleting a linked profile leaves its cloud account and cloud data untouched; the account can
   still be set up on this or another device later.
@@ -347,15 +363,14 @@ local profile is kept as local-only with its data.
   entry modal as before. This replaces spec 004 FR-004's "switch/sign out" destination.
 - **FR-002**: The profile modal MUST only ever show the active profile, and MUST never open with no
   active profile.
-- **FR-003**: The hub MUST show the profile name as its title, the identity wheel (not editable)
+- **FR-003**: The hub MUST show the profile name as its title, the identity wheel (a picker, FR-008)
   with tribe and color names, the sync plate (FR-003a), an entry to "Perfil neste aparelho" and one
   to "Conta na nuvem" (each with its meta line per US1-1), and "Trocar de perfil".
 - **FR-003a**: The hub's sync plate MUST show, per link state: linked → sync status, account e-mail
   and "Sincronizar agora" (hidden while syncing); local only → "Sem conta na nuvem" and "Vincular
   conta na nuvem"; expired → "Sessão expirada" (danger styling), the e-mail, and a primary "Entrar
   de novo".
-- **FR-004**: "Perfil neste aparelho" MUST hold the color picker, the name field and one "Salvar"
-  for both, plus entries to change the profile password and to delete the profile. "Conta na nuvem"
+- **FR-004**: "Perfil neste aparelho" MUST hold the name field with its "Salvar", plus entries to change the profile password and to delete the profile. "Conta na nuvem"
   MUST hold, per link state: linked → account password change, unlink, delete account; expired →
   "Entrar de novo" and unlink; local only → "Vincular conta na nuvem". Each sub-screen has "Voltar"
   back to the hub.
@@ -373,17 +388,18 @@ local profile is kept as local-only with its data.
 
 **Editing the profile**
 
-- **FR-008**: A person MUST be able to change the active profile's color identity to 1–3 colors in
-  pick order (primary, accent, tertiary), with at least one always selected and the rest locked once
-  3 are picked. The modal MUST re-theme live to the unsaved picks; the rest of the app MUST keep the
-  saved colors until "Salvar"; "Voltar", cancelling or closing MUST discard the picks.
+- **FR-008**: Wherever the profile modal shows the identity wheel, it MUST be a picker for the
+  active profile's colors: 1–3 colors in pick order (primary, accent, tertiary), at least one always
+  selected and the rest locked once 3 are picked. Each tap MUST save the new colors at once and
+  retint the modal and the whole app immediately; nothing (closing, "Voltar", "Cancelar") reverts
+  them. The entry modal's wheel is not affected.
 - **FR-009**: A person MUST be able to rename the active profile. The new name MUST follow the
   profile-name rules (3–16 characters; letters, digits, `_`, `.`, `-`; unique on the device among
   *other* profiles, ignoring letter case), checked on save with the same messages as profile
   creation.
-- **FR-009a**: "Salvar" MUST be enabled only while the picks or the trimmed name differ from the
-  saved values. A successful save MUST apply both app-wide at once, keep the person on "Perfil
-  neste aparelho", and show the toast "Alterações salvas.".
+- **FR-009a**: "Salvar" on "Perfil neste aparelho" MUST be enabled only while the trimmed name
+  differs from the saved name; color changes MUST NOT enable it. A successful save MUST apply the
+  name app-wide at once, keep the person on the screen, and show the toast "Alterações salvas.".
 - **FR-010**: A person MUST be able to change the active profile's local password by giving the
   current password and a new one of at least 8 characters, entered twice. A wrong current password
   MUST be rejected with "Senha incorreta."; mismatched new passwords with "As senhas não são
@@ -459,7 +475,7 @@ local profile is kept as local-only with its data.
 **Shared behavior**
 
 - **FR-020**: The profile modal MUST follow the themed-modal rules of the entry modal: tinted by
-  the active profile (or the picks being previewed), PT-BR copy only with no raw backend text,
+  the active profile's current colors, PT-BR copy only with no raw backend text,
   busy labels that lock the button while a request runs, fields and errors cleared on switching
   steps and on close, keyboard and screen-reader usable with focus kept inside and returned to the
   control that opened it, Esc closing it, and 44px touch targets. On narrow screens it is
@@ -500,8 +516,8 @@ local profile is kept as local-only with its data.
 
 - **SC-001**: From any screen, a person with an active profile reaches any profile-management
   action in at most 3 taps on wide screens and 4 on narrow screens (via "Menu").
-- **SC-002**: A person can change their color identity and see the whole app retinted in under 15
-  seconds.
+- **SC-002**: A person can change their color identity and see the whole app retinted within 5
+  seconds of opening the profile modal (no save step).
 - **SC-003**: After a rename, color change or deletion, 100% of places showing the profile (shell
   control, sync status, profile list, unlock screen) show the new state without a reload.
 - **SC-004**: After a profile is deleted, 0 items of its data are reachable on the device, and 0
