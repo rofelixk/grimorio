@@ -51,9 +51,7 @@ export class EntryModal {
   private readonly fluid = new FluidFace({
     content: this.content,
     prompt: this.promptEl,
-    screenKey: computed(() =>
-      this.modal.isOpen() ? `${this.store.phase()}|${this.store.done()}|${this.modal.request()?.id}` : '',
-    ),
+    screenKey: computed(() => `${this.store.phase()}|${this.store.done()}|${this.modal.request()?.id}`),
   });
   protected readonly desktopFaceHeight = computed(() => (this.mobile() ? null : this.fluid.faceHeight()));
   protected readonly capped = this.fluid.capped;

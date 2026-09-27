@@ -11,6 +11,10 @@
 @if (!shell.wide()) {
   <app-nav-drawer />
 }
-<app-profile-modal />
-<app-entry-modal />
+@if (profileModal.isOpen()) {
+  <app-profile-modal />
+}
+@if (entryModal.isOpen()) {
+  <app-entry-modal />
+}
 <app-toast-outlet />

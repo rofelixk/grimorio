@@ -54,6 +54,8 @@ describe('ProfileModal', () => {
   });
 
   afterEach(() => {
+    // Destroying closes the dialog, so it must happen while the stubs are still in place.
+    fixture.destroy();
     HTMLDialogElement.prototype.showModal = originals.showModal;
     HTMLDialogElement.prototype.close = originals.close;
   });

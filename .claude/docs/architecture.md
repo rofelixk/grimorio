@@ -38,7 +38,7 @@ Local profiles (`ProfileStore`, PBKDF2 hashes) are required for owned data; clou
 
 The Supabase project has "Confirm email" disabled, so sign-up signs the account in immediately.
 
-**Modals**: use the native `<dialog>` element (`showModal()`/`close()`), not a library — `ThemedModal` (`shared/ds/themed-modal/`) is the reference pattern for any future modal.
+**Modals**: use the native `<dialog>` element (`showModal()`/`close()`), not a library — `ThemedModal` (`shared/ds/themed-modal/`) is the reference pattern for any future modal. Modal components are mounted only while open (`@if` on their service's `isOpen()` in `app.html`), so nothing idles in the DOM; `ThemedModal` opens on mount and closes (restoring focus to the opener) on destroy.
 
 ## PWA
 

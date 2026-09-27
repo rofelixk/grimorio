@@ -118,7 +118,8 @@
   font: inherit;
   transition: border-color var(--duration-fast) var(--ease-standard);
 
-  &:hover {
+  // No hover tint while focused (the focus outline already frames the field) or invalid.
+  &:hover:not(:focus-visible, [aria-invalid='true']) {
     border-color: var(--role-primary);
   }
 

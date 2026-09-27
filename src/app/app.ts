@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, viewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { EntryModalService } from '@services/entry-modal.service';
 import { IdentityService } from '@services/identity.service';
+import { ProfileModalService } from '@services/profile-modal.service';
 import { ShellState } from '@services/shell-state.service';
 import { SyncService } from '@services/sync.service';
 import { EntryModal } from '@shared/auth/entry-modal/entry-modal';
@@ -36,6 +38,9 @@ const pathOf = (url: string) => url.split(/[?#]/, 1)[0];
 export class App {
   protected readonly identity = inject(IdentityService);
   protected readonly shell = inject(ShellState);
+  // Modals mount only while open (their stores, wheels and timers go with them).
+  protected readonly profileModal = inject(ProfileModalService);
+  protected readonly entryModal = inject(EntryModalService);
   private readonly main = viewChild.required<ElementRef<HTMLElement>>('main');
 
   constructor() {

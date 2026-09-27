@@ -87,6 +87,14 @@ describe('IdentityWheel', () => {
     expect(el.querySelectorAll('.mote').length).toBe(2);
   });
 
+  it('bursts on a newly lit color', async () => {
+    const { fixture, el, swatch } = render(['U']);
+    await fixture.whenStable();
+    swatch('Vermelho').click();
+    fixture.detectChanges();
+    expect(el.querySelectorAll('.ripple').length).toBe(1);
+  });
+
   it('sheds no motes under reduced motion', async () => {
     vi.stubGlobal('matchMedia', matchMediaStub(true));
     vi.useFakeTimers();

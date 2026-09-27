@@ -1,13 +1,10 @@
 <app-themed-modal
-  [open]="modal.isOpen()"
   [roles]="store.roles()"
   [faceHeight]="desktopFaceHeight()"
   [labelledBy]="titleId"
   (closed)="store.close()"
 >
-  @if (modal.isOpen()) {
-    <app-spark-field modalSparks [count]="mobile() ? 12 : 20" [direction]="mobile() ? 'inward' : 'outward'" />
-  }
+  <app-spark-field modalSparks [count]="mobile() ? 12 : 20" [direction]="mobile() ? 'inward' : 'outward'" />
 
   @if (!mobile()) {
     <aside modalAside class="identity-pane">
