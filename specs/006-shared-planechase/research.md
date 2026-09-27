@@ -14,19 +14,24 @@ Live facts checked on 2026-09-27:
   - `cards.layout = 'planar'` marks every plane and phenomenon: 184 distinct plane names and 21
     phenomena across `ohop`, `opc2`, `opca`, `moc`, `who`, `punk`, `pssc`, `dci` and `phop`. Every
     planar printing in the catalog is `lang = 'en'`.
+  - 46 of those cards have only a gold-bordered printing (the Unknown Event sets `punk` and
+    `pssc`), so they're excluded (FR-003). The first `sync:planechase` run on 2026-09-27 wrote
+    161 cards: 147 planes and 14 phenomena from `opca`, `moc`, `who` and `punk`.
   - The latest migration is `005_delete_own_account`. Default privileges for the API roles are
     revoked (`revoke_unused_default_privileges_from_api_roles`), so a new table needs explicit grants.
 - **Scryfall's image host** (`cards.scryfall.io`):
   - It answers with `Access-Control-Allow-Origin: *` and `Cache-Control: public, max-age=31556952`.
   - A `large` image is about 150 KB and a `small` one about 10 KB.
-- **Oracle wording of the ability** is irregular:
+- **Oracle wording of the ability** is irregular (in the 161 non-gold cards):
   - Planes: the ability usually starts "Whenever chaos ensues". But there are variants: "When chaos
-    ensues", "Chaos: …", a flavor-word prefix ("Praise Him — Whenever chaos ensues…"), a typo in
-    one card ("Whenever Chaos ensures", on No Way Out), and chaos folded into another trigger
-    (Shy Town, Sky Deck, Jalira's Show).
-  - One plane has no chaos ability at all (Ghirapur Grand Prix).
-  - Phenomena usually read "When you encounter …", but some Unknown-event phenomena don't
-    (Probability Flux, Year-End Review, Team-Up!).
+    ensues" (Bad Wolf Bay, Pompeii, TARDIS Bay, Temple of Atropos), an ability-word/flavor prefix
+    ("Praise Him —" on Hotel of Fears, "Red-Eye —" on Ood Sphere, "Will of the council —" on
+    Prime Minister's Cabinet Room), and chaos folded into another trigger (Shy Town, Sky Deck).
+  - Every plane has a chaos ability, and every phenomenon reads "When you encounter …".
+  - The gold-only cards excluded above had the other oddities (a "Chaos:" opening, the "Whenever
+    Chaos ensures" typo, a plane with no chaos ability, phenomena without "encounter" wording).
+    The script's pattern and `ability: null` handling still cover them in case such a card ever
+    gets a non-gold printing.
 
 ---
 
@@ -66,14 +71,13 @@ Live facts checked on 2026-09-27:
       index or `null` for cards the pattern gets wrong.
     - A plane with no match and no override gets `ability: null`.
   - The report (FR-024a) lists every plane that ended with `ability: null`, so the maintainer
-    confirms it's genuine, as it is for Ghirapur Grand Prix, or adds an override.
+    confirms it's genuine or adds an override. No current card has one.
   - In the app, a plane with `ability: null` shows no plate. A "Caos" roll on it shows the sub line
     "Este plano não tem habilidade de caos." (the card's text still applies).
-- **Rationale**: Every plane in the catalog, apart from Ghirapur Grand Prix, matches the pattern
-  (checked live). The override map covers future oddities without writing a parser for Unknown
+- **Rationale**: Every plane in the generated data matches the pattern (checked on the first run). The override map covers future oddities without writing a parser for Unknown
   flavor text.
 - **Alternatives rejected**:
-  - *Store the split by hand for all 205 cards*: that duplicates the Oracle text and drifts on
+  - *Store the split by hand for all 161 cards*: that duplicates the Oracle text and drifts on
     Oracle updates.
   - *Let the translation skill do the split*: then the English fallback (FR-004a) would have no
     split for untranslated cards.
@@ -177,7 +181,7 @@ Live facts checked on 2026-09-27:
   Principle VI's "reconciled LWW through `reconcileEntities`" instead of adding a second LWW
   implementation.
 - **Alternatives rejected**:
-  - *`user_metadata` (like `grm_colors`)*: up to about 205 UUIDs, roughly 7.5 KB, would ride in
+  - *`user_metadata` (like `grm_colors`)*: up to about 160 UUIDs, roughly 6 KB, would ride in
     every JWT.
   - *One row per disabled card*: that's per-card merging, which the spec rejects, plus tombstones
     for re-enabling.
@@ -264,8 +268,8 @@ Live facts checked on 2026-09-27:
   - A `PlanarImage` component renders it. For tiles it starts the load from an
     `IntersectionObserver` with `rootMargin: '200px'` ("about to scroll into view"). Tiles in a
     collapsed set aren't rendered at all (`@if`), so they never load.
-  - There is no eviction. Viewing everything tops out at about 205 × (150 KB + 10 KB), roughly
-    33 MB, which is acceptable for a table tool.
+  - There is no eviction. Viewing everything tops out at about 161 × (150 KB + 10 KB), roughly
+    26 MB, which is acceptable for a table tool.
 - **Rationale**:
   - It works identically under `ng serve`, the PWA and the Capacitor WebView. The Angular service
     worker is inert in dev, and is not relied on inside Capacitor.
@@ -378,15 +382,11 @@ Live facts checked on 2026-09-27:
     |---|---|
     | "Whenever chaos ensues" | the canonical chaos trigger |
     | "When chaos ensues" | the canonical chaos trigger |
-    | "Chaos:" | the canonical chaos trigger |
-    | "Whenever Chaos ensures" (typo, No Way Out) | the canonical chaos trigger |
     | "When you encounter …" | the canonical encounter opening |
-    | Phenomena with no "encounter" wording (Probability Flux, Year-End Review, Team-Up!) | translated as written, with no opening invented |
 
-    - **Chaos folded into another trigger** (Shy Town, Sky Deck, Jalira's Show: "Whenever you
-      planeswalk here or chaos ensues"): the combined trigger uses the same canonical chaos
-      wording.
-    - **Ability-word/flavor prefixes** ("Praise Him —", "Song of the Ood —", "Will of the council —"):
+    - **Chaos folded into another trigger** (Shy Town, Sky Deck: "Whenever you planeswalk here
+      and whenever chaos ensues"): the combined trigger uses the same canonical chaos wording.
+    - **Ability-word/flavor prefixes** ("Praise Him —", "Red-Eye —", "Will of the council —"):
       - kept in English when they are proper names or references
       - translated when an official PT-BR ability word exists (e.g. "Vontade do conselho")
     - The skill checks each translated `ability` for the canonical opening and lists any that

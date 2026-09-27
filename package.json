@@ -10,6 +10,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "sync:scryfall": "tsx --env-file=.env scripts/sync-scryfall.ts",
+    "sync:planechase": "tsx --env-file=.env scripts/sync-planechase.ts",
     "cap:sync": "cap sync android",
     "cap:build": "npm run build && npx cap sync android",
     "cap:open": "npx cap open android"

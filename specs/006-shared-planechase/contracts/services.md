@@ -40,6 +40,7 @@ export type SelectionCheck =
   | { ok: true; notice: boolean }                       // notice = size rule (non-blocking)
   | { ok: false; error: 'tooFew'; count: number } | { ok: false; error: 'noPlane' };
 export function validateSelection(enabled: readonly PlanarCard[]): SelectionCheck;
+// Deck view: draft enabled ids vs the saved selection's enabled ids (FR-022 "changed selection").
 export function sameEnabledSet(a: readonly string[], b: readonly string[]): boolean;
 ```
 
@@ -115,4 +116,4 @@ The step is guarded with `ensureCurrent(run)` and the abort signal, like the oth
 | `app-planar-card` | `shared/gameplay/planar-card/` | `card: PlanarCard`, `lit: boolean` | image + name + type + text + ability plate |
 | `app-planar-image` | `shared/gameplay/planar-image/` | `address`, `name`, `lazy = false` | loads through `PlanarImageService`; placeholder on null |
 | `app-planar-tile` | `shared/gameplay/planar-tile/` | `card`, `on`; `toggle` output | an `aria-pressed` button, `aria-label="{name}, plano\|fenômeno"`, lazy image |
-| `app-planeswalk-flair` / `app-chaos-flair` | `shared/gameplay/flairs/` | `play(target: HTMLElement): Promise<void>` | rAF-driven; no-op under reduced motion (R15) |
+| `PlaneswalkFlair` / `ChaosFlair` (classes, not components) | `shared/gameplay/flairs/` | `play(target: HTMLElement): Promise<void>` | rAF-driven; no-op under reduced motion (R15) |

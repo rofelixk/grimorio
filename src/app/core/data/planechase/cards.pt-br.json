@@ -1,0 +1,968 @@
+{
+  "00f00001-bd84-4dbf-a707-f4b1549100d4": {
+    "sourceHash": "4665ff0e2b0b62d2",
+    "typeLine": "Plano — Tarkir",
+    "text": "Quando você fizer planeswalk para The Great Aerie e no início de sua manutenção, reforce 3. (Escolha uma criatura com a menor resistência entre as criaturas que você controla e coloque três marcadores +1/+1 nela.)",
+    "ability": "Sempre que o caos se instaurar, escolha até uma criatura alvo que você controla e até uma criatura alvo que um oponente controla. Cada uma dessas criaturas causa à outra uma quantidade de dano igual à sua resistência."
+  },
+  "022e38c3-fcea-428f-a0d0-a6cca057faa3": {
+    "sourceHash": "a6485c3605c9a88f",
+    "typeLine": "Plano — Arcavios",
+    "text": "As mágicas instantâneas e os feitiços que os jogadores conjuram têm demonstrar. (Sempre que um jogador conjurar uma mágica instantânea ou um feitiço, ele pode copiá-lo. Se fizer isso, ele escolhe um oponente para também copiá-lo. Os jogadores podem escolher novos alvos para suas cópias.)",
+    "ability": "Sempre que o caos se instaurar, devolva até um card de mágica instantânea ou de feitiço alvo de um cemitério para a mão de seu dono."
+  },
+  "04491781-0e6a-4a30-a69f-db226702adfc": {
+    "sourceHash": "f6ab198aabb31ae5",
+    "typeLine": "Plano — Chicago",
+    "text": "Quando você fizer planeswalk para cá e no início de sua manutenção, coloque um marcador de voar na criatura alvo que não seja ficha e sem voar que você controla.\nQuando você fizer planeswalk para fora de The Windy City, remova todos os marcadores de voar de todas as criaturas.",
+    "ability": "Sempre que o caos se instaurar, exile a criatura alvo com voar. Enquanto ela permanecer exilada, seu dono pode conjurá-la pagando {2} em vez de pagar seu custo de mana."
+  },
+  "05226c5f-1f56-4608-b09a-614d0198ad1b": {
+    "sourceHash": "34e44ad2eac91975",
+    "typeLine": "Plano — Chicago",
+    "text": "No início de sua manutenção, crie uma ficha de criatura Guerreiro vermelha 2/2 com ímpeto e \"Covardes não podem bloquear Guerreiros.\"",
+    "ability": "Sempre que você fizer planeswalk para cá e sempre que o caos se instaurar, para cada oponente, coloque um marcador de timidez em até uma criatura alvo que ele controla. Aquela criatura se torna um Covarde além de seus outros tipos."
+  },
+  "065346cd-cd81-478e-8a62-2c7ea421bdcd": {
+    "sourceHash": "beb2ad0e6e0a2ce7",
+    "typeLine": "Plano — Pyrulea",
+    "text": "Todas as permanentes desviram durante a etapa de desvirar de cada jogador.",
+    "ability": "Sempre que o caos se instaurar, você pode procurar em seu grimório até três cards de terreno básico, colocá-los no campo de batalha virados e depois embaralhar."
+  },
+  "07cc253d-e23c-450c-bfaf-5cb6a3a588ce": {
+    "sourceHash": "72b5b7825b532c71",
+    "typeLine": "Plano — Zendikar",
+    "text": "Sempre que uma criatura que não seja ficha entrar, seu controlador pode procurar em seu grimório um card de terreno básico, colocá-lo no campo de batalha virado e depois embaralhar.",
+    "ability": "Sempre que o caos se instaurar, o terreno alvo se torna uma criatura 4/4 que ainda é um terreno."
+  },
+  "08427dab-3874-4a29-bd63-cbd16c1d229d": {
+    "sourceHash": "577f8cc31c9b5230",
+    "typeLine": "Plano — Dominaria",
+    "text": "Sempre que uma criatura histórica que você controla atacar, ela recebe +2/+2 até o final do turno. (Artefatos, lendários e Sagas são históricos.)",
+    "ability": "Sempre que o caos se instaurar, revele cards do topo de seu grimório até revelar um card histórico. Coloque aquele card em sua mão e o restante no fundo de seu grimório em ordem aleatória."
+  },
+  "0a4bf88d-106a-413b-9d80-8775c1ff5ded": {
+    "sourceHash": "ada551c5487ac5f9",
+    "typeLine": "Plano — Ravnica",
+    "text": "Se um efeito for criar uma ou mais fichas, em vez disso, ele cria o dobro dessas fichas.\nSe um efeito for colocar um ou mais marcadores em uma permanente, em vez disso, ele coloca o dobro desses marcadores naquela permanente.",
+    "ability": "Sempre que o caos se instaurar, até o final do turno, sempre que você virar um terreno para gerar mana, adicione um mana de qualquer tipo que aquele terreno produziu."
+  },
+  "0c1cb8e2-8ed4-4a0e-926b-4df5466c607c": {
+    "sourceHash": "c5c61edf398b5f5b",
+    "typeLine": "Plano — Kamigawa",
+    "text": "As criaturas modificadas que você controla têm atropelar e \"Sempre que esta criatura causar dano de combate a um jogador ou planeswalker, compre um card.\" (Equipamentos, Auras que você controla e marcadores são modificações.)",
+    "ability": "Sempre que o caos se instaurar, distribua três marcadores +1/+1 entre uma, duas ou três criaturas alvo que você controla."
+  },
+  "0c4679a1-f92f-44a9-9a44-066a137c8cd7": {
+    "sourceHash": "cbc5d7527f1fe9e7",
+    "typeLine": "Plano — Outside Mutter's Spiral",
+    "text": "Quando você fizer planeswalk para The Cheetah Planet e no início de sua manutenção, coloque dois marcadores +1/+1 na criatura alvo não Felino que você controla. Ela se torna um Felino além de seus outros tipos.",
+    "ability": "Sempre que o caos se instaurar, todos os Felinos ganham provocar até o final do turno. (Sempre que um Felino atacar, seu controlador pode fazer a criatura alvo que o jogador defensor controla desvirar e bloqueá-lo se possível.)"
+  },
+  "0ff2bbed-e435-4108-b02a-564a75abba40": {
+    "sourceHash": "ca6884638d943288",
+    "typeLine": "Plano — Kaldheim",
+    "text": "Quando você fizer planeswalk para Littjara e no início de sua manutenção, crie uma ficha de criatura Metamorfo azul 2/2 com polimorfo. (Ela tem todos os tipos de criatura.)",
+    "ability": "Sempre que o caos se instaurar, escolha um tipo de criatura. Coloque um marcador +1/+1 em cada criatura desse tipo que você controla."
+  },
+  "11b3fcb2-0b66-4d8b-8e66-a21a5da1c1f5": {
+    "sourceHash": "95fced6742946ce8",
+    "typeLine": "Plano — Dominaria",
+    "text": "Todas as criaturas têm \"{T}: Adicione {G}{G}.\"",
+    "ability": "Sempre que o caos se instaurar, desvire todas as criaturas que você controla."
+  },
+  "1300b5e7-d741-4723-bb15-dabd04cb0c11": {
+    "sourceHash": "e28243da82c3b363",
+    "typeLine": "Plano — Ir",
+    "text": "As mágicas de criatura custam {2} a menos para serem conjuradas.",
+    "ability": "Sempre que o caos se instaurar, revele os três cards do topo de seu grimório. Coloque todos os cards de criatura revelados dessa forma em sua mão e o restante em seu cemitério."
+  },
+  "133d8c07-4de5-4142-b141-235e5255fb6d": {
+    "sourceHash": "a84a224fbda3aa2a",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar este fenômeno, compre um card para cada broche que você estiver usando e para cada ficha de Broche anexada a criaturas que você controla. (Isso inclui os broches em sua mochila.) (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "13e801cd-e537-4ea6-8c3d-21b142bdc026": {
+    "sourceHash": "b3a88f7af78666aa",
+    "typeLine": "Plano — Phyrexia",
+    "text": "No início de sua manutenção, sacrifique uma criatura que não seja preta.",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha de criatura Zumbi preta 2/2."
+  },
+  "14066888-66f6-4903-8de2-cc961aa45d8d": {
+    "sourceHash": "f5a0843053c3d1f7",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Unleash the Flux, cada jogador sacrifica uma permanente que não seja terreno à sua escolha, depois você joga uma moeda. Se você perder o cara ou coroa, repita esse processo. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "15b979de-c8ee-4664-9ca7-6c4eb3346967": {
+    "sourceHash": "1c50eb3809f1b7d6",
+    "typeLine": "Plano — Dominaria",
+    "text": "No início de sua etapa final, se você não tiver cards na mão, compre sete cards.",
+    "ability": "Sempre que o caos se instaurar, descarte sua mão."
+  },
+  "1799d361-85e7-4c04-aa04-6f83e6499573": {
+    "sourceHash": "5ba1cc63b6610ec6",
+    "typeLine": "Plano — New Phyrexia",
+    "text": "Quando você fizer planeswalk para Furnace Layer e no início de sua manutenção, selecione o jogador alvo aleatoriamente. Aquele jogador descarta um card. Se aquele jogador descartar um card de terreno dessa forma, ele perde 3 pontos de vida.",
+    "ability": "Sempre que o caos se instaurar, você pode destruir a permanente alvo que não seja terreno."
+  },
+  "1aaa60e4-47a8-4255-8a09-5f00922ccf6d": {
+    "sourceHash": "73323ae9d5fc6ad0",
+    "typeLine": "Plano — Alara",
+    "text": "Os cards de criatura azuis, pretos e/ou vermelhos em seu cemitério têm desenterrar. O custo de desenterrar é igual ao custo de mana do card. (Pague o custo de mana do card: Devolva-o ao campo de batalha. A criatura ganha ímpeto. Exile-a no início da próxima etapa final ou se ela for sair do campo de batalha. Use desenterrar somente como um feitiço.)",
+    "ability": "Sempre que o caos se instaurar, coloque o card de criatura alvo de um cemitério no campo de batalha sob seu controle."
+  },
+  "1c4e174e-19fb-4c0a-b762-ef6d927392c9": {
+    "sourceHash": "b75b6dbb599d0706",
+    "typeLine": "Plano — Lorwyn",
+    "text": "Cada criatura recebe +1/+1 para cada outra criatura no campo de batalha que compartilha pelo menos um tipo de criatura com ela. (Por exemplo, se dois Xamãs Elementais e um Espírito Elemental estiverem no campo de batalha, cada um recebe +2/+2.)",
+    "ability": "Sempre que o caos se instaurar, a criatura alvo ganha todos os tipos de criatura até o final do turno."
+  },
+  "1f7daaf2-3206-4f52-928a-f5116b782367": {
+    "sourceHash": "c05ed6965159c493",
+    "typeLine": "Plano — Zendikar",
+    "text": "Criaturas com poder 7 ou maior não podem atacar nem bloquear.",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha de criatura Eldrazi incolor 7/7 com aniquilador 1. (Sempre que ela atacar, o jogador defensor sacrifica uma permanente à escolha dele.)"
+  },
+  "204ee01c-74ca-4c4c-92db-aebeebb89406": {
+    "sourceHash": "72cf666ad4ffbd4e",
+    "typeLine": "Plano — Unknown Planet",
+    "text": "Cada card de criatura em seu cemitério tem fuga. O custo de fuga é igual ao custo de mana do card mais exilar três outros cards de seu cemitério. (Você pode conjurar cards de seu cemitério pelo custo de fuga deles.)",
+    "ability": "Sempre que o caos se instaurar, detenha a criatura alvo que um oponente controla. (Até seu próximo turno, aquela criatura não pode atacar nem bloquear e suas habilidades ativadas não podem ser ativadas.)"
+  },
+  "2387edac-765b-4502-bd3d-88be8ba7d0a4": {
+    "sourceHash": "551566492ccf2c9e",
+    "typeLine": "Plano — Innistrad",
+    "text": "Todas as criaturas têm vigilância.",
+    "ability": "Sempre que o caos se instaurar, as criaturas que você controla ganham indestrutível até o final do turno."
+  },
+  "23fe1c21-c396-4ebf-a8b0-22d697952b34": {
+    "sourceHash": "66a253f1f7d91f81",
+    "typeLine": "Plano — Shandalar",
+    "text": "Sempre que um jogador virar uma permanente para gerar mana, aquele jogador adiciona um mana de qualquer tipo que aquela permanente produziu.",
+    "ability": "Sempre que o caos se instaurar, o jogador alvo não pode conjurar mágicas até que um jogador faça planeswalk."
+  },
+  "25650a32-4014-4065-ad01-7357c3ad3995": {
+    "sourceHash": "c4b9c17081a1a151",
+    "typeLine": "Plano — Zendikar",
+    "text": "Os jogadores podem conjurar mágicas de encantamento como se elas tivessem lampejo.",
+    "ability": "Sempre que o caos se instaurar, destrua a criatura alvo que não esteja encantada."
+  },
+  "256770fe-c17d-45dd-bf05-36eeee240324": {
+    "sourceHash": "79a501c7dfaf447e",
+    "typeLine": "Plano — Mongseng",
+    "text": "Sempre que uma criatura que você controla atacar um jogador, para cada outro oponente, você pode criar uma ficha que é uma cópia daquela criatura, virada e atacando aquele oponente. Exile aquelas fichas no início da próxima etapa final.",
+    "ability": "Sempre que o caos se instaurar, você pode sacrificar qualquer número de criaturas. Se fizer isso, Kharasha Foothills causa essa mesma quantidade de dano à criatura alvo."
+  },
+  "2732b605-7c88-4995-b46e-62dc09e68919": {
+    "sourceHash": "eec458d15ce6af1e",
+    "typeLine": "Plano — Dominaria",
+    "text": "Todas as criaturas recebem +2/+2.",
+    "ability": "Sempre que o caos se instaurar, você pode adicionar {W}{U}{B}{R}{G}."
+  },
+  "2979597d-c3cc-4585-a9b7-7fa15641b030": {
+    "sourceHash": "c65894810c5dd3c1",
+    "typeLine": "Plano — Luvion",
+    "text": "Criaturas sem voar ou travessia de ilha não podem atacar.",
+    "ability": "Sempre que o caos se instaurar, até que um jogador faça planeswalk, você não pode perder o jogo e seus oponentes não podem vencer o jogo."
+  },
+  "29e3371d-aa41-46a9-921a-96565be47eff": {
+    "sourceHash": "3d374d2610b8651b",
+    "typeLine": "Plano — Dominaria",
+    "text": "Os cards de mágica instantânea e de feitiço nos cemitérios têm recapitular. O custo de recapitular é igual ao custo de mana do card. (Seu dono pode conjurar o card de seu cemitério pelo custo de mana dele. Depois, ele o exila.)",
+    "ability": "Sempre que o caos se instaurar, jogue um turno extra após este."
+  },
+  "2a21b90a-7ea7-4090-82ec-359ba8ba1aad": {
+    "sourceHash": "30e8ffcb90b8c52b",
+    "typeLine": "Plano — Gallifrey",
+    "text": "As criaturas entram viradas.",
+    "ability": "Sempre que o caos se instaurar, para cada oponente, escolha até uma permanente alvo que não seja terreno que aquele oponente controla. Desvire aquelas permanentes. Elas saem de fase. Elas não podem entrar em fase enquanto The Doctor's Childhood Barn permanecer com a face para cima. Quando um jogador fizer planeswalk, aquelas permanentes entram em fase."
+  },
+  "2d84be6d-49a5-4200-8cd3-d8653dfd0899": {
+    "sourceHash": "fbf386f3b11d490b",
+    "typeLine": "Plano — Kyneth",
+    "text": "Criaturas com voar recebem +2/+0.\nCriaturas sem voar recebem -2/-0.",
+    "ability": "Sempre que o caos se instaurar, a criatura alvo ganha voar até o final do turno."
+  },
+  "2edd018b-6d82-4ff1-b9d0-5da9b628af3f": {
+    "sourceHash": "baa4a3356565a435",
+    "typeLine": "Plano — The Dalek Asylum",
+    "text": "Quando você fizer planeswalk para Dalek Intensive Care e no início de sua manutenção, exile uma criatura não Dalek que você controla. Se fizer isso, crie uma ficha de criatura e artefato Dalek preta 3/3 com ameaçar. Ela ganha ímpeto até o final do turno.",
+    "ability": "Sempre que o caos se instaurar, o Dalek alvo que você controla causa uma quantidade de dano igual a seu poder à criatura alvo que você não controla."
+  },
+  "2f3e71b6-0fd6-4ac5-a265-faaabe21177b": {
+    "sourceHash": "c5acac6fa2c71bbf",
+    "typeLine": "Plano — Antausia",
+    "text": "Sempre que um jogador virar um terreno para gerar mana, aquele jogador adiciona um mana de qualquer tipo que aquele terreno produziu.",
+    "ability": "Sempre que o caos se instaurar, revele cards do topo de seu baralho planar até revelar um card de plano. O caos se instaura naquele plano. Depois, coloque todos os cards revelados dessa forma no fundo de seu baralho planar em qualquer ordem."
+  },
+  "302e4ac2-522b-4a0a-850a-d856639ea2a4": {
+    "sourceHash": "8d1a41059f185177",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Morphic Tide, cada jogador embaralha todas as permanentes que possui em seu grimório, depois revela essa mesma quantidade de cards do topo de seu grimório. Cada jogador coloca todos os cards de artefato, criatura, terreno e planeswalker revelados dessa forma no campo de batalha, depois faz o mesmo com os cards de encantamento e, depois, coloca todos os cards revelados dessa forma que não foram colocados no campo de batalha no fundo de seu grimório em qualquer ordem. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "34a31865-b701-4ce1-8912-29fc41ecdda3": {
+    "sourceHash": "922385c750aac7a5",
+    "typeLine": "Plano — Ravnica",
+    "text": "Se você tiver conjurado uma mágica neste turno, você não pode atacar com criaturas.\nSe você tiver atacado com criaturas neste turno, você não pode conjurar mágicas.",
+    "ability": "Sempre que o caos se instaurar, você ganha uma quantidade de pontos de vida igual ao número de cards em sua mão."
+  },
+  "36aac8aa-d6f0-4e53-a280-73b01e040f35": {
+    "sourceHash": "418b693bc7c0aad4",
+    "typeLine": "Plano — Chicago",
+    "text": "Quando você fizer planeswalk para cá, você se torna o monarca.",
+    "ability": "Sempre que o caos se instaurar, cada jogador pode criar duas fichas de Tesouro viradas. Cada jogador que fizer isso não pode atacar você durante o próximo turno dele."
+  },
+  "381f510b-8696-4af1-a6c9-d1175e9f36d0": {
+    "sourceHash": "d580209f269b9c42",
+    "typeLine": "Plano — Moon",
+    "text": "Low Gravity — Todas as criaturas têm \"{2}: Esta criatura ganha voar até o final do turno. Ative somente como um feitiço.\"",
+    "ability": "Sempre que o caos se instaurar, para cada oponente, escolha até um card de criatura alvo no cemitério daquele jogador. Coloque aqueles cards no campo de batalha com a face para baixo sob seu controle. Eles são criaturas e artefatos Cyberman 2/2."
+  },
+  "38bdd034-0375-403c-97ca-6f93a5e12e54": {
+    "sourceHash": "79162e27a4a5f913",
+    "typeLine": "Plano — Innistrad",
+    "text": "Sempre que uma criatura causar dano a um ou mais jogadores pela primeira vez em cada turno, coloque um marcador +1/+1 nela.",
+    "ability": "Sempre que o caos se instaurar, cada criatura que você controla ganha \"{T}: Esta criatura causa 1 ponto de dano ao jogador ou planeswalker alvo\" até o final do turno."
+  },
+  "38f84e55-049c-441e-b4e2-1e207ab5dbe5": {
+    "sourceHash": "84636046e7e7d77b",
+    "typeLine": "Plano — Ravnica",
+    "text": "Sempre que uma criatura branca morrer, devolva-a ao campo de batalha sob o controle de seu dono no início da próxima etapa final.\nSempre que uma criatura que não seja branca morrer, devolva-a para a mão de seu dono no início da próxima etapa final.",
+    "ability": "Sempre que o caos se instaurar, as criaturas não podem atacar você até que um jogador faça planeswalk."
+  },
+  "3c200cc0-02b1-4a32-a910-5cd3c4d716b7": {
+    "sourceHash": "7330ef05caafee8f",
+    "typeLine": "Plano — Ixalan",
+    "text": "Ascender (Se você controlar dez ou mais permanentes, você recebe a bênção da cidade pelo resto do jogo.)\nSempre que uma ou mais criaturas que você controla causarem dano de combate a um jogador, crie uma ficha de Tesouro. Depois, compre um card se você tiver a bênção da cidade.",
+    "ability": "Sempre que o caos se instaurar, você pode colocar um card de permanente de sua mão no campo de batalha virado."
+  },
+  "3e0bcf65-1eaf-440f-a59b-0b11e1106135": {
+    "sourceHash": "8bbf45f5718be232",
+    "typeLine": "Plano — Wildfire",
+    "text": "No início de sua manutenção, coloque um marcador de chama em Naar Isle, depois Naar Isle causa a você uma quantidade de dano igual ao número de marcadores de chama nele.",
+    "ability": "Sempre que o caos se instaurar, Naar Isle causa 3 pontos de dano ao jogador ou planeswalker alvo."
+  },
+  "3e553881-bac7-4830-b739-3b8c6aa0ded6": {
+    "sourceHash": "414789c2c4adb8a7",
+    "typeLine": "Plano — Fabacin",
+    "text": "Quando você fizer planeswalk para Grove of the Dreampods e no início de sua manutenção, revele cards do topo de seu grimório até revelar um card de criatura. Coloque aquele card no campo de batalha e o restante no fundo de seu grimório em ordem aleatória.",
+    "ability": "Sempre que o caos se instaurar, devolva o card de criatura alvo de seu cemitério para o campo de batalha."
+  },
+  "3fc15821-1add-4321-aecd-33f8a8c5f9a7": {
+    "sourceHash": "f7c61b10a68b9172",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Reality Shaping, começando por você, cada jogador pode colocar um card de permanente de sua mão no campo de batalha. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "424b2702-e7c6-4056-8466-a43782d7df2b": {
+    "sourceHash": "bb8afb121579e0c7",
+    "typeLine": "Plano — Gallifrey",
+    "text": "A primeira mágica com valor de mana 2 ou maior que você conjurar durante cada um de seus turnos tem cascata. (Quando você conjurar aquela mágica, exile cards do topo de seu grimório até exilar um card que não seja terreno com custo menor. Você pode conjurá-lo sem pagar seu custo de mana. Coloque os cards exilados no fundo em ordem aleatória.)",
+    "ability": "Sempre que o caos se instaurar, ganhe o controle do artefato alvo. Depois, faça planeswalk."
+  },
+  "43a23de7-0738-4b03-b87d-5a7d1144825c": {
+    "sourceHash": "6e5426bb7cc5e5bd",
+    "typeLine": "Plano — Mirrodin",
+    "text": "Sempre que um jogador conjurar uma mágica instantânea ou um feitiço com um único alvo, aquele jogador copia aquela mágica para cada outra mágica, permanente, card fora do campo de batalha e/ou jogador que a mágica poderia ter como alvo. Cada cópia tem como alvo um diferente deles.",
+    "ability": "Sempre que o caos se instaurar, escolha a criatura alvo. Cada jogador, exceto o controlador daquela criatura, cria uma ficha que é uma cópia daquela criatura."
+  },
+  "4abae901-eb47-4318-bf64-322a893c2833": {
+    "sourceHash": "8cf8385ef1bf62ba",
+    "typeLine": "Plano — Gobakhan",
+    "text": "Previna todo o dano que seria causado às criaturas e aos planeswalkers que você controla.",
+    "ability": "Sempre que o caos se instaurar, crie três fichas de Tesouro viradas. Cada uma delas causa 1 ponto de dano a cada criatura e a cada planeswalker."
+  },
+  "4dffc1cb-e9bd-4410-9b08-184eabd2c4da": {
+    "sourceHash": "c310a8f2a46a1a61",
+    "typeLine": "Plano — Earth",
+    "text": "Still Point in Time — Todas as mágicas têm fração de segundo. (Enquanto uma mágica com fração de segundo estiver na pilha, os jogadores não podem conjurar mágicas nem ativar habilidades que não sejam habilidades de mana.)",
+    "ability": "Sempre que o caos se instaurar, Lake Silencio causa 6 pontos de dano à criatura alvo que um oponente controla. Se uma criatura que sofreu dano dessa forma for morrer neste turno, em vez disso, exile-a."
+  },
+  "4eebfaf3-18da-4661-b6a5-d874585e170a": {
+    "sourceHash": "c9806cf13fb568b1",
+    "typeLine": "Plano — Alara",
+    "text": "As mágicas de artefato custam {1} a menos para serem conjuradas.",
+    "ability": "Sempre que o caos se instaurar, as criaturas que você controla que sejam brancas, azuis e/ou pretas se tornam artefatos além de seus outros tipos até o final do turno. Depois, cada criatura artefato que você controla ganha vigilância, ameaçar e vínculo com a vida até o final do turno."
+  },
+  "4f387b4c-3e4a-419d-9dbe-95c5f797747e": {
+    "sourceHash": "a4a5fc8bfed99e9c",
+    "typeLine": "Plano — Androzani Minor",
+    "text": "Quando você fizer planeswalk para Spectrox Mines e no início de sua manutenção, você perde 3 pontos de vida e cria uma ficha de Tesouro.",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha de Comida e uma ficha de criatura Humano Ladino preta 2/2."
+  },
+  "4f8cf1ab-1359-44af-a989-dd254fa6c7b5": {
+    "sourceHash": "2a9bf3fcb0dc96f9",
+    "typeLine": "Plano — New Earth",
+    "text": "No início do combate em seu turno, até o final do turno, os artefatos que não sejam criaturas que você controla se tornam Veículos 3/3 além de seus outros tipos e ganham voar, ímpeto e tripular 1.",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha de Tesouro e uma ficha de criatura Alienígena branca 2/2."
+  },
+  "503fcc43-dafd-484b-a97f-bbd11eed66de": {
+    "sourceHash": "5a1557fc050250e5",
+    "typeLine": "Plano — Zhalfir",
+    "text": "No início de sua etapa final, se você fez planeswalk para Unyaro neste turno, desvire todas as criaturas. Elas saem de fase até que um jogador faça planeswalk. (Trate-as, e tudo o que estiver anexado a elas, como se não existissem.)",
+    "ability": "Sempre que o caos se instaurar, crie duas fichas de criatura Cavaleiro brancas e azuis 2/2 com vigilância."
+  },
+  "51a53042-6baa-442a-84ec-2f16fdc12087": {
+    "sourceHash": "0ca353cb6345951b",
+    "typeLine": "Plano — Earth",
+    "text": "Sempre que um jogador conjurar uma mágica histórica, aquele jogador compra um card. (Artefatos, lendários e Sagas são históricos.)",
+    "ability": "Sempre que o caos se instaurar, devolva o card histórico alvo de seu cemitério para sua mão."
+  },
+  "53517dbf-7b32-423a-af76-afd39b876a1a": {
+    "sourceHash": "81e04506d28b53f1",
+    "typeLine": "Plano — Mirrodin",
+    "text": "Quando você fizer planeswalk para Quicksilver Sea e no início de sua manutenção, use vidência 4. (Olhe os quatro cards do topo de seu grimório, depois coloque qualquer número deles no fundo e o restante no topo em qualquer ordem.)",
+    "ability": "Sempre que o caos se instaurar, revele o card do topo de seu grimório. Você pode jogá-lo sem pagar seu custo de mana."
+  },
+  "5503c308-560d-4d5f-a86a-4b06d9947ddc": {
+    "sourceHash": "ebf76d0caefbd120",
+    "typeLine": "Plano — Ulgrotha",
+    "text": "Sempre que um card que não seja preto for colocado no cemitério de um jogador vindo de qualquer lugar, aquele jogador perde 1 ponto de vida.",
+    "ability": "Sempre que o caos se instaurar, cada oponente descarta um card."
+  },
+  "5910ae7e-7a74-4296-9ae1-7fa093b4e640": {
+    "sourceHash": "b0802d0b8e4dc5e0",
+    "typeLine": "Plano — Mars",
+    "text": "Quando você fizer planeswalk para The Pyramid of Mars e no início de sua manutenção, vigie 2. (Olhe os dois cards do topo de seu grimório, depois coloque qualquer número deles em seu cemitério e o restante no topo de seu grimório em qualquer ordem.)",
+    "ability": "Sempre que o caos se instaurar, devolva o card de criatura alvo de seu cemitério para o campo de batalha."
+  },
+  "5b200e41-126d-4017-8e01-f50582b31af0": {
+    "sourceHash": "e04c434c6be0b4cb",
+    "typeLine": "Plano — Earth",
+    "text": "Quando você fizer planeswalk para Amy's Home e no início de sua manutenção, você pode exilar da sua mão um card que não seja terreno com um número de marcadores de tempo igual ao valor de mana dele. Se ele não tiver suspender, ele ganha suspender.",
+    "ability": "Sempre que o caos se instaurar, viaje no tempo. (Para cada card suspenso que você possui e cada permanente que você controla com um marcador de tempo, você pode adicionar ou remover um marcador de tempo.)"
+  },
+  "5dc1deab-ce04-45c0-a4ff-c526a948e500": {
+    "sourceHash": "ba67fb403b06791f",
+    "typeLine": "Plano — Earth",
+    "text": "Quando você fizer planeswalk para Pompeii e no início de sua manutenção, coloque um marcador de erupção nele.\nSempre que você rolar uma face vazia no dado planar, use vidência 2. Depois, coloque um marcador de erupção em Pompeii.",
+    "ability": "Sempre que o caos se instaurar, Pompeii causa a cada criatura e a cada jogador uma quantidade de dano igual ao número de marcadores de erupção em Pompeii. Cada jogador sacrifica um terreno à sua escolha. Depois, faça planeswalk."
+  },
+  "5ed6be01-af06-4f3d-8b43-ef8993c52c97": {
+    "sourceHash": "98d6d82e80740e73",
+    "typeLine": "Plano — Alara",
+    "text": "Você pode jogar qualquer número de terrenos em cada um de seus turnos.",
+    "ability": "Sempre que o caos se instaurar, a criatura vermelha, verde ou branca alvo que você controla recebe +1/+1 até o final do turno para cada terreno que você controla."
+  },
+  "61006acf-de38-420b-ab7a-685fbd64141c": {
+    "sourceHash": "e8a41c76642f1d3c",
+    "typeLine": "Plano — Kaldheim",
+    "text": "Os jogadores jogam com o card do topo de seus grimórios revelado.\nAs mágicas que compartilham um tipo de card com o card do topo de um grimório não podem ser conjuradas.",
+    "ability": "Sempre que o caos se instaurar, o jogador alvo perde uma quantidade de pontos de vida igual ao número de cards em sua mão."
+  },
+  "61b5984a-de6a-4d5a-8b20-e2fb3b553a34": {
+    "sourceHash": "6354da6424835607",
+    "typeLine": "Plano — Kylem",
+    "text": "Sempre que sua equipe atacar com exatamente duas criaturas, aquelas criaturas ganham golpe duplo até o final do turno.",
+    "ability": "Sempre que o caos se instaurar, desvire até duas criaturas alvo que sua equipe controla. Se for uma fase principal, há uma fase de combate adicional após esta fase, seguida por uma fase principal adicional."
+  },
+  "61c5f2cb-f39c-487c-9786-a8dad4663f4f": {
+    "sourceHash": "2ecde83f9870f5b5",
+    "typeLine": "Plano — Cridhe",
+    "text": "Quando você fizer planeswalk para Inys Haen e no início de sua manutenção, triture três cards.\nQuando você fizer planeswalk para fora de Inys Haen, cada jogador devolve todos os cards de terreno de seu cemitério para o campo de batalha virados.",
+    "ability": "Sempre que o caos se instaurar, devolva o card que não seja terreno alvo de seu cemitério para sua mão."
+  },
+  "6491f511-87e6-4504-84f5-fe5cf44768d7": {
+    "sourceHash": "569fa164136c3ebd",
+    "typeLine": "Plano — Kamigawa",
+    "text": "Sempre que um jogador conjurar uma mágica, aquele jogador pode comprar um card.",
+    "ability": "Sempre que o caos se instaurar, cada jogador pode devolver um card azul de seu cemitério para sua mão."
+  },
+  "6552e3dd-ce35-4267-a25e-f5d4dceb8311": {
+    "sourceHash": "a3732c4f4e2f4051",
+    "typeLine": "Plano — Theros",
+    "text": "As criaturas que não sejam fichas são encantamentos além de seus outros tipos.\nConstelação — Sempre que um encantamento que você controla entrar, você ganha 1 ponto de vida.",
+    "ability": "Sempre que o caos se instaurar, escolha uma cor. Adicione uma quantidade de mana daquela cor igual à sua devoção àquela cor."
+  },
+  "662e5245-73e4-49ba-aece-c73f1bea7b6a": {
+    "sourceHash": "c7bfe8f25e716e40",
+    "typeLine": "Plano — Lorwyn",
+    "text": "No final do combate, você pode trocar o controle da criatura alvo que você controla que causou dano de combate a um jogador neste combate e da criatura alvo que aquele jogador controla.",
+    "ability": "Sempre que o caos se instaurar, ganhe o controle da criatura alvo que você possui."
+  },
+  "68750b81-1309-4362-84b3-8835b3d71d28": {
+    "sourceHash": "d0fb24b6d86f29fa",
+    "typeLine": "Plano — The Library",
+    "text": "Os jogadores não têm tamanho máximo de mão.\nSempre que uma criatura que você controla causar dano de combate a um jogador, você pode comprar um card.",
+    "ability": "Sempre que o caos se instaurar, coloque um marcador de sombra na criatura alvo. (Uma criatura com sombra só pode bloquear ou ser bloqueada por criaturas com sombra.)"
+  },
+  "69f06edb-dade-4e94-b563-e36a05e567f0": {
+    "sourceHash": "d99fdbb80ba54faa",
+    "typeLine": "Plano — Shandalar",
+    "text": "Todas as criaturas são pretas e têm toque mortífero.",
+    "ability": "Sempre que o caos se instaurar, as criaturas que você controla recebem +1/+0 e ganham iniciativa até o final do turno."
+  },
+  "6ad7027a-5f13-4833-bb88-879ba8830720": {
+    "sourceHash": "7e1d15ec7d738bed",
+    "typeLine": "Plano — Earth",
+    "text": "Cada card de criatura em seu cemitério tem necrofagia. O custo de necrofagia é igual ao custo de mana dele. (Exile um card de criatura de seu cemitério e pague seu custo de mana: Coloque um número de marcadores +1/+1 igual ao poder daquele card na criatura alvo. Use necrofagia somente como um feitiço.)",
+    "ability": "Sempre que o caos se instaurar, crie duas fichas de criatura Guerreiro brancas 1/1."
+  },
+  "6dc67a65-31bf-4535-9e02-8f6d6ecefde5": {
+    "sourceHash": "ea307b5beaaba68a",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Chaotic Aether, cada rolagem vazia do dado planar é uma rolagem {CAOS} até que um jogador faça planeswalk para fora de um plano. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "6e008fdc-48f2-40ef-95bd-80d014535ca3": {
+    "sourceHash": "c6707875374d3b37",
+    "typeLine": "Plano — Kamigawa",
+    "text": "Sempre que uma criatura que você controla causar dano de combate a um jogador, você pode procurar em seu grimório um card de terreno básico, colocá-lo no campo de batalha virado e depois embaralhar.",
+    "ability": "Sempre que o caos se instaurar, a criatura alvo não pode ser bloqueada neste turno."
+  },
+  "706720f6-bb04-4a7b-8471-0f3d662d6eeb": {
+    "sourceHash": "fccdf983ef1dde09",
+    "typeLine": "Plano — Earth",
+    "text": "No início do combate em seu turno, exile até uma criatura alvo. Devolva-a ao campo de batalha sob o controle de seu dono no início da próxima etapa final.",
+    "ability": "Sempre que o caos se instaurar, os cards não podem entrar a partir do exílio neste turno. Depois, faça planeswalk."
+  },
+  "7076bc0c-9cc7-4cd7-aba5-f2f236aab0f7": {
+    "sourceHash": "39b3c81788ece9eb",
+    "typeLine": "Plano — Mars",
+    "text": "No início de sua etapa final, incite a criatura alvo controlada pelo jogador à sua esquerda. (Até seu próximo turno, aquela criatura ataca em cada combate se possível e ataca um jogador diferente de você se possível.)",
+    "ability": "Sempre que o caos se instaurar, a criatura alvo ganha travessia de ilha até o final do turno. (Ela não pode ser bloqueada enquanto o jogador defensor controlar uma Ilha.)"
+  },
+  "7099883d-0a4b-47ae-bff8-a96efa7a3a9a": {
+    "sourceHash": "4592bd61b4c58e6f",
+    "typeLine": "Plano — Spacecraft",
+    "text": "Quando você fizer planeswalk para The Dining Car, cada jogador cria uma ficha de Comida.\nSixty-Six Seconds — No início de sua manutenção, sacrifique uma criatura com a menor resistência entre as criaturas que você controla. Depois, investigue.",
+    "ability": "Sempre que o caos se instaurar, as habilidades ativadas de fichas de artefato que você controla custam {2} a menos para serem ativadas neste turno."
+  },
+  "70edae19-e278-401d-9772-508bd66320a6": {
+    "sourceHash": "2ec3e767c21ea45b",
+    "typeLine": "Plano — Dominaria",
+    "text": "Todas as criaturas têm \"{R}: Esta criatura recebe +1/+0 até o final do turno.\"",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha de criatura Dragão vermelha 5/5 com voar."
+  },
+  "71bff56b-733c-4d74-9e0c-85371a8b3787": {
+    "sourceHash": "38d56b06b570ca90",
+    "typeLine": "Plano — Kandoka",
+    "text": "Sempre que uma ou mais criaturas que você controla causarem dano de combate a um jogador, crie uma ficha de Tesouro.",
+    "ability": "Sempre que o caos se instaurar, até seu próximo turno, os artefatos que não sejam criaturas que você controla ganham \"{T}, Sacrifique este artefato: Jogue uma moeda. Se você ganhar o cara ou coroa, este artefato causa 3 pontos de dano a qualquer alvo.\""
+  },
+  "72af7529-75bb-488f-801d-7148631b9e9b": {
+    "sourceHash": "08c92add3058fc14",
+    "typeLine": "Plano — Innistrad",
+    "text": "No início de sua etapa final, triture sete cards. Depois, devolva um card aleatório de seu cemitério para sua mão.",
+    "ability": "Sempre que o caos se instaurar, devolva o card alvo de seu cemitério para sua mão."
+  },
+  "75206757-dae7-4a1e-a391-862699a100d7": {
+    "sourceHash": "6c67cd65ee4beaeb",
+    "typeLine": "Plano — Earth",
+    "text": "Todas as criaturas têm \"Vangloriar — {1}: Coloque um marcador +1/+1 nesta criatura.\" (Ative somente se aquela criatura tiver atacado neste turno e somente uma vez por turno.)",
+    "ability": "Sempre que o caos se instaurar, coloque um marcador de indestrutível na criatura alvo que você controla que atacou neste turno."
+  },
+  "7812174b-2dc1-43e8-b98f-639905e20ab7": {
+    "sourceHash": "9df7614709932728",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Interplanar Tunnel, revele cards do topo de seu baralho planar até revelar cinco cards de plano. Coloque um card de plano dentre eles no topo de seu baralho planar, depois coloque o restante dos cards revelados no fundo em ordem aleatória. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "79d3e356-9eb9-49bb-b4ba-f4f71876869e": {
+    "sourceHash": "859c8013847ff4d0",
+    "typeLine": "Plano — Spacecraft",
+    "text": "No início de sua manutenção, exile o card do topo de seu grimório. Você perde uma quantidade de pontos de vida igual ao valor de mana dele. Você pode jogar aquele card neste turno.",
+    "ability": "Praise Him — Sempre que o caos se instaurar, escolha uma cor. Coloque X marcadores +1/+1 na criatura alvo que você controla, sendo X sua devoção àquela cor. Depois, sacrifique outra criatura. (Sua devoção a uma cor é o número de símbolos de mana daquela cor nos custos de mana das permanentes que você controla.)"
+  },
+  "7a425df4-7010-462e-9cb5-20389bac721c": {
+    "sourceHash": "2d2573bdcbc90045",
+    "typeLine": "Plano — Xerex",
+    "text": "Os jogadores não têm tamanho máximo de mão.\nSempre que você rolar o dado planar, compre um card.",
+    "ability": "Sempre que o caos se instaurar, revele o card do topo de seu baralho planar. Você pode colocá-lo no fundo de seu baralho planar."
+  },
+  "7c9d6193-1d50-4035-8c85-98c384f461be": {
+    "sourceHash": "6a6188326d226d4e",
+    "typeLine": "Plano — Alfava Metraxis",
+    "text": "Byzantium Radiation — No início de sua manutenção, coloque um marcador de exposição em Aplan Mortarium. Depois, você perde uma quantidade de pontos de vida igual ao número de marcadores de exposição nele.",
+    "ability": "Sempre que o caos se instaurar, crie duas fichas de criatura e artefato Anjo Alienígena pretas 2/2 com iniciativa, vigilância e \"Sempre que um oponente conjurar uma mágica de criatura, esta ficha não é uma criatura até o final do turno.\""
+  },
+  "805f9dc2-e172-481d-bae7-9a136a3d1e49": {
+    "sourceHash": "834ba0c60fa6319c",
+    "typeLine": "Plano — Kolbahan",
+    "text": "Não mais que uma criatura pode atacar em cada combate.\nNão mais que uma criatura pode bloquear em cada combate.",
+    "ability": "Sempre que o caos se instaurar, Astral Arena causa 2 pontos de dano a cada criatura."
+  },
+  "81a0d96a-7ac8-4947-8779-2102c9b33d38": {
+    "sourceHash": "4b90922423ca5535",
+    "typeLine": "Plano — Moag",
+    "text": "Sempre que um jogador conjurar uma mágica, aquele jogador pode ganhar 2 pontos de vida.",
+    "ability": "Sempre que o caos se instaurar, você pode ganhar 10 pontos de vida."
+  },
+  "82e67c57-6d7a-44cc-ba63-77ce887ab075": {
+    "sourceHash": "f2648c956e53a8cd",
+    "typeLine": "Plano — Alara",
+    "text": "Todas as criaturas têm exaltado. (Sempre que uma criatura atacar sozinha, ela recebe +1/+1 até o final do turno para cada instância de exaltado entre as permanentes que seu controlador controla.)",
+    "ability": "Sempre que o caos se instaurar, coloque um marcador de divindade na criatura verde, branca ou azul alvo. Aquela criatura tem indestrutível enquanto tiver um marcador de divindade."
+  },
+  "85592710-8637-4726-8b92-552b9be677c0": {
+    "sourceHash": "dc85366383b943a1",
+    "typeLine": "Plano — Arkhos",
+    "text": "No início de sua manutenção, triture dez cards.",
+    "ability": "Sempre que o caos se instaurar, o jogador alvo tritura dez cards."
+  },
+  "86534917-5d51-4eba-9bf5-f9fc93c83c80": {
+    "sourceHash": "eeed979daa50665d",
+    "typeLine": "Plano — Capenna",
+    "text": "As mágicas de criatura que você conjura de sua mão têm blitz {3}. (Se você conjurar uma mágica por seu custo de blitz, ela ganha ímpeto e \"Quando esta criatura morrer, compre um card.\" Sacrifique-a no início da próxima etapa final.)",
+    "ability": "Sempre que o caos se instaurar, devolva o card de criatura alvo de seu cemitério para sua mão."
+  },
+  "87ff5801-1f16-463a-af2c-3223cef0a532": {
+    "sourceHash": "ec7a9b6d6265022c",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar este fenômeno, cada jogador abre um booster de Magic: The Gathering. Cada um pode escolher até dois cards daquele booster e exilá-los com a face para baixo. Pelo resto do jogo, os jogadores podem olhar e jogar os cards exilados dessa forma sem pagar seus custos de mana. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "8baa42cf-32bc-4d1f-b4bd-02a4fce376c4": {
+    "sourceHash": "4ceaa5334cc82e94",
+    "typeLine": "Plano — Chicago",
+    "text": "Quando você fizer planeswalk para fora daqui, destrua todas as permanentes com marcadores de vidro.",
+    "ability": "Sempre que você fizer planeswalk para cá, no início de sua manutenção ou sempre que o caos se instaurar, coloque um marcador de vidro em até uma permanente alvo que não seja terreno."
+  },
+  "8bf638e5-8325-48ca-9039-37a19761ef56": {
+    "sourceHash": "d02aa029fa3a7029",
+    "typeLine": "Plano — Horsehead Nebula",
+    "text": "Song of the Ood — As mágicas que não sejam de criatura têm convocar. (As criaturas de um jogador podem ajudar a conjurar essas mágicas. Cada criatura virada durante a conjuração de uma mágica que não seja de criatura paga {1} ou um mana da cor daquela criatura.)",
+    "ability": "Red-Eye — Sempre que o caos se instaurar, para cada oponente, incite até uma criatura alvo que aquele oponente controla. Até seu próximo turno, aquelas criaturas não podem ser viradas, a menos que estejam sendo declaradas como atacantes."
+  },
+  "8c56bb41-a8d8-4b0f-bbb7-be8466dc9ed1": {
+    "sourceHash": "58df9ed1af6bd43d",
+    "typeLine": "Plano — Lorwyn",
+    "text": "Cada criatura atribui dano de combate igual à sua resistência em vez de seu poder.",
+    "ability": "Sempre que o caos se instaurar, as criaturas que você controla recebem +0/+2 e ganham atropelar até o final do turno."
+  },
+  "8eb442a9-5e61-4e2e-983d-b49b04be2575": {
+    "sourceHash": "178bba3f4087056f",
+    "typeLine": "Plano — Iquatana",
+    "text": "Quando você fizer planeswalk para The Aether Flues e no início de sua manutenção, você pode sacrificar uma criatura. Se fizer isso, revele cards do topo de seu grimório até revelar um card de criatura, coloque aquele card no campo de batalha e depois embaralhe todos os outros cards revelados dessa forma em seu grimório.",
+    "ability": "Sempre que o caos se instaurar, você pode colocar um card de criatura de sua mão no campo de batalha."
+  },
+  "91fe554b-13db-451d-ab25-717ab2b70649": {
+    "sourceHash": "2a73f4bc803a996c",
+    "typeLine": "Plano — Dominaria",
+    "text": "Quando você fizer planeswalk para Riptide Island e no início de sua manutenção, crie duas fichas de criatura Fractius incolores 1/1.",
+    "ability": "Sempre que o caos se instaurar, os Fractius que você controla ganham ímpeto e recebem +X/+X até o final do turno, sendo X o número de Fractius que você controla."
+  },
+  "93a2967d-b7e3-497f-af7e-56984d0f8386": {
+    "sourceHash": "f9b0cd79932311ff",
+    "typeLine": "Plano — MagicCon",
+    "text": "Sempre que você atacar, crie uma ficha de Broche anexada à criatura atacante alvo que você controla. Ela é um encantamento Aura Broche com encantar criatura e \"A criatura encantada recebe +1/+1.\"",
+    "ability": "Sempre que o caos se instaurar, cada oponente perde X pontos de vida, sendo X o número total de broches anexados a você e às criaturas que você controla. (Isso inclui os broches em sua mochila.)"
+  },
+  "93b3acc1-2d41-4f5f-9225-7a30ea2d8158": {
+    "sourceHash": "e1019b2034008faa",
+    "typeLine": "Plano — Echoir",
+    "text": "Quando você fizer planeswalk para Enigma Ridges, cada jogador que controla menos terrenos que o jogador que controla mais terrenos procura em seu grimório um número de cards de terreno básico menor ou igual à diferença, revela-os, coloca-os em sua mão e depois embaralha.",
+    "ability": "Sempre que o caos se instaurar, compre um card, depois você pode colocar um card de terreno de sua mão no campo de batalha."
+  },
+  "96e26369-ae5d-4a77-adaa-d34b25af076f": {
+    "sourceHash": "3592442e38e36109",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Human—Time Lord Meta-Crisis, cada jogador escolhe uma ou duas criaturas que controla. Cada jogador cria uma ficha que é uma cópia da primeira criatura que escolheu, exceto que ela não é lendária. Depois, cada jogador que escolheu uma segunda criatura coloca na ficha que criou um número de marcadores +1/+1 igual ao poder da segunda criatura que escolheu. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "97f708de-9271-4137-a9fe-dda25b922900": {
+    "sourceHash": "8bd6153e42fdaf1b",
+    "typeLine": "Plano — Zendikar",
+    "text": "As criaturas não podem bloquear.",
+    "ability": "Sempre que o caos se instaurar, compre um card para cada terreno que você controla."
+  },
+  "99fb2128-61fc-45a6-a3f8-b116c3eb2c3d": {
+    "sourceHash": "e913972cfcf0103b",
+    "typeLine": "Plano — Darillium",
+    "text": "Cada card que não seja terreno em sua mão sem prenunciar tem prenunciar. O custo de prenunciar dele é igual a seu custo de mana reduzido em {2}. (Durante seu turno, você pode pagar {2} e exilá-lo de sua mão com a face para baixo. Conjure-o em um turno posterior por seu custo de prenunciar.)",
+    "ability": "Sempre que o caos se instaurar, você pode conjurar do exílio um card prenunciado que você possui sem pagar seu custo de mana neste turno."
+  },
+  "9aa94de8-b114-4479-a771-c7bc0297be58": {
+    "sourceHash": "4aafeb1301f94e3b",
+    "typeLine": "Plano — Alara",
+    "text": "Sempre que um jogador conjurar uma mágica de criatura preta, vermelha ou verde, ela ganha devorar 5. (Conforme aquela criatura entra, você pode sacrificar qualquer número de criaturas. Ela entra com cinco vezes esse número de marcadores +1/+1.)",
+    "ability": "Sempre que o caos se instaurar, crie duas fichas de criatura Goblin vermelhas 1/1."
+  },
+  "9c925057-ac3d-461e-b505-f80e2fd38c8c": {
+    "sourceHash": "f2434355493dcf37",
+    "typeLine": "Plano — Time",
+    "text": "No início de cada uma de suas fases principais pós-combate, há uma fase inicial adicional após esta fase. (A fase inicial inclui as etapas de desvirar, manutenção e compra.)",
+    "ability": "Sempre que o caos se instaurar, inverta a ordem dos turnos do jogo. Depois, faça planeswalk. (Por exemplo, se o jogo seguia no sentido horário ao redor da mesa, agora segue no sentido anti-horário.)"
+  },
+  "9cc34a5b-550d-4d3e-b3e5-4d4630649882": {
+    "sourceHash": "c37a860fc6c741a0",
+    "typeLine": "Plano — Spacecraft",
+    "text": "Sempre que uma criatura atacar, ela recebe +1/+1 até o final do turno para cada outra criatura que seu controlador controla que compartilha um tipo de criatura com ela.",
+    "ability": "Sempre que o caos se instaurar, vire a criatura alvo com a face para baixo. Ela se torna uma criatura e artefato Cyberman 2/2."
+  },
+  "9d58f647-3f83-4f65-a944-c6236db7c422": {
+    "sourceHash": "969283d6fc08407e",
+    "typeLine": "Plano — New Phyrexia",
+    "text": "Quando você fizer planeswalk para fora de Norn's Dominion, destrua cada permanente que não seja terreno sem um marcador de destino, depois remova todos os marcadores de destino de todas as permanentes.",
+    "ability": "Sempre que o caos se instaurar, você pode colocar um marcador de destino na permanente alvo."
+  },
+  "9f7e1607-34b5-4332-81e3-391fb49cd6ad": {
+    "sourceHash": "d085b7ca77e39152",
+    "typeLine": "Plano — Earth",
+    "text": "Sempre que você rolar o dado planar, as criaturas que você controla recebem +1/+1 e ganham ímpeto até o final do turno.",
+    "ability": "Sempre que o caos se instaurar, termine o turno. (Exile todas as mágicas e habilidades da pilha. O jogador do turno descarta até ficar com seu tamanho máximo de mão. O dano é removido e os efeitos de \"neste turno\" e \"até o final do turno\" terminam.)"
+  },
+  "a04d05ed-1b9b-4407-8780-c75c102a94dd": {
+    "sourceHash": "29e5cd69a785a4ac",
+    "typeLine": "Plano — Equilor",
+    "text": "Os jogadores pulam suas etapas de desvirar.",
+    "ability": "Sempre que o caos se instaurar, desvire todas as permanentes que você controla."
+  },
+  "a0cb118e-6af1-41d2-847f-d685ced2165d": {
+    "sourceHash": "323863c24e0d9276",
+    "typeLine": "Plano — Shenmeng",
+    "text": "Sempre que você rolar o dado planar, coloque um marcador +1/+1 em até uma criatura alvo.",
+    "ability": "Sempre que o caos se instaurar, as criaturas que você controla ganham voar até o final do turno."
+  },
+  "a2048704-0d22-435d-b819-269291f2981e": {
+    "sourceHash": "04294010cf6bf2ff",
+    "typeLine": "Plano — Amonkhet",
+    "text": "Cada card de criatura em seu cemitério tem embalsamar. O custo de embalsamar dele é igual a seu custo de mana. (Exile um card de criatura de seu cemitério e pague seu custo de embalsamar: Crie uma ficha que é uma cópia dele, exceto que é um Zumbi branco além de seus outros tipos e não tem custo de mana. Embalsame somente como um feitiço.)",
+    "ability": "Sempre que o caos se instaurar, você pode descartar um card. Se fizer isso, compre um card."
+  },
+  "a2dfbb3e-3d5f-4b6a-b910-4c7b0c9dc17a": {
+    "sourceHash": "e934fcc2b87f6414",
+    "typeLine": "Plano — Earth",
+    "text": "No início de sua manutenção, o oponente alvo compra um card e cria uma ficha de Tesouro.",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha de criatura Alienígena branca 2/2. Quando fizer isso, vire a criatura alvo que não seja ficha que um oponente controla. Coloque um marcador de atordoamento nela. (Se uma permanente com um marcador de atordoamento for ser desvirada, em vez disso, remova um marcador dela.)"
+  },
+  "a2ef6b79-faeb-4183-a510-f10b14dff417": {
+    "sourceHash": "7a6db2d7d673baa0",
+    "typeLine": "Plano — Skaro",
+    "text": "Sempre que você atacar, o oponente alvo perde X pontos de vida, sendo X o número de artefatos que você controla.",
+    "ability": "Sempre que o caos se instaurar, para cada oponente, você cria uma ficha de criatura e artefato Dalek preta 3/3 com ameaçar que ataca aquele oponente neste turno se possível. Aquelas fichas ganham ímpeto. Sacrifique-as no início da próxima etapa final."
+  },
+  "a34b272b-084b-4ff1-8b02-d95116ccfeab": {
+    "sourceHash": "4f33c7c54be43aad",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Planewide Disaster, destrua todas as criaturas. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "a7641877-1a61-467c-9365-487cf5a5656d": {
+    "sourceHash": "35c34a9eabf52601",
+    "typeLine": "Plano — Earth",
+    "text": "Quando você fizer planeswalk para UNIT Headquarters e no início de sua manutenção, crie uma ficha de criatura Soldado branca 1/1 virada.",
+    "ability": "Sempre que o caos se instaurar, coloque um marcador +1/+1 em cada criatura que você controla."
+  },
+  "a7c6b72c-f9ec-4048-8e4c-99210e4e7b85": {
+    "sourceHash": "d91e078eb0107600",
+    "typeLine": "Plano — Avishkar",
+    "text": "No início do combate em seu turno, até o final do turno, cada artefato que não seja criatura nem Veículo que você controla se torna um Veículo 5/3 além de seus outros tipos e ganha atropelar, ímpeto e tripular 2.",
+    "ability": "Sempre que o caos se instaurar, devolva o card de artefato que não seja criatura alvo de seu cemitério para sua mão."
+  },
+  "aa166578-b13b-4adb-a78e-d5183e987112": {
+    "sourceHash": "7ed8338a2b75211d",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Spatial Merging, revele cards do topo de seu baralho planar até revelar dois cards de plano. Faça planeswalk para ambos simultaneamente. Coloque todos os outros cards revelados dessa forma no fundo de seu baralho planar em qualquer ordem."
+  },
+  "ab72ff80-738a-4468-aecf-5d806143f791": {
+    "sourceHash": "c4a8e880bed7f9e0",
+    "typeLine": "Plano — New Phyrexia",
+    "text": "Quando você fizer planeswalk para Norn's Seedcore, o caos se instaura.",
+    "ability": "Sempre que o caos se instaurar, revele cards do topo de seu baralho planar até revelar um card de plano. Faça planeswalk para ele, exceto que você não faz planeswalk para fora de nenhum plano. Coloque o restante dos cards revelados no fundo de seu baralho planar em qualquer ordem."
+  },
+  "ac4fe2a2-76ff-49d9-b506-26a17b4bf892": {
+    "sourceHash": "39d98357d0cecce3",
+    "typeLine": "Plano — Azgol",
+    "text": "No início de sua manutenção, sacrifique uma criatura. Se não puder, faça planeswalk.",
+    "ability": "Sempre que o caos se instaurar, qualquer número de jogadores alvo criam, cada um, uma ficha de criatura Zumbi preta 2/2."
+  },
+  "b1eff630-b56c-48a5-ac21-836a60157b35": {
+    "sourceHash": "5827277fe6b7562b",
+    "typeLine": "Plano — Muraganda",
+    "text": "As mágicas vermelhas custam {1} a menos para serem conjuradas.\nAs mágicas verdes custam {1} a menos para serem conjuradas.",
+    "ability": "Sempre que o caos se instaurar, coloque X marcadores +1/+1 na criatura alvo, sendo X o valor de mana daquela criatura."
+  },
+  "b21a71d7-f236-43e2-b576-0b5c9280f0cc": {
+    "sourceHash": "1d192572bb24aa07",
+    "typeLine": "Plano — Mercadia",
+    "text": "Quando você fizer planeswalk para Cliffside Market e no início de sua manutenção, você pode trocar de total de pontos de vida com o jogador alvo.",
+    "ability": "Sempre que o caos se instaurar, troque o controle de duas permanentes alvo que compartilhem um tipo de card."
+  },
+  "b2c95c7a-a04c-46ef-a879-6eb08e444093": {
+    "sourceHash": "386b596941dffeec",
+    "typeLine": "Plano — Vryn",
+    "text": "As mágicas instantâneas e os feitiços têm ricochete. (O controlador da mágica a exila conforme ela é resolvida se ele a tiver conjurado de sua mão. No início da próxima manutenção daquele jogador, ele pode conjurar aquele card do exílio sem pagar seu custo de mana.)",
+    "ability": "Sempre que o caos se instaurar, você pode procurar em seu grimório um card de mágica instantânea ou de feitiço, revelá-lo, colocá-lo em sua mão e depois embaralhar."
+  },
+  "b3acbacd-7e97-4bcf-9281-fffa5ea3e70b": {
+    "sourceHash": "a695996094653c9e",
+    "typeLine": "Plano — Earth",
+    "text": "No início do combate em seu turno, até uma criatura alvo que você controla se torna uma cópia da criatura alvo que um oponente controla.",
+    "ability": "Vontade do conselho — Sempre que o caos se instaurar, começando por você, cada jogador vota em uma criatura que você não controla. Exile cada criatura com mais votos ou empatada com mais votos."
+  },
+  "b53e06af-be18-4f75-9dd0-7494ec867b13": {
+    "sourceHash": "81ec2cf2f74dc67c",
+    "typeLine": "Plano — Shadowmoor",
+    "text": "Todas as criaturas têm definhar. (Elas causam dano a criaturas na forma de marcadores -1/-1.)",
+    "ability": "Sempre que o caos se instaurar, coloque um marcador -1/-1 na criatura alvo, dois marcadores -1/-1 em outra criatura alvo e três marcadores -1/-1 em uma terceira criatura alvo."
+  },
+  "b54d9a4a-1d55-4ceb-96fd-2b1d5e46de14": {
+    "sourceHash": "8a0bd871b1a0e1a5",
+    "typeLine": "Plano — Innistrad",
+    "text": "Previna todo o dano de combate que seria causado por criaturas que não sejam Lobisomens.",
+    "ability": "Sempre que o caos se instaurar, cada criatura que você controla recebe +2/+2, ganha atropelar e se torna um Lobisomem além de seus outros tipos até o final do turno."
+  },
+  "b60e8617-fc35-4c8a-beb0-4688b88484c4": {
+    "sourceHash": "bbcf5937e8c6a5c4",
+    "typeLine": "Plano — The Abyss",
+    "text": "Quando você fizer planeswalk para The Pit, cada jogador cria, à sua escolha, uma ficha de criatura Anjo branca 3/3 com voar ou uma ficha de criatura Demônio preta 6/6 com voar, atropelar e \"No início de sua manutenção, sacrifique outra criatura. Se não puder, esta ficha causa 6 pontos de dano a você.\"",
+    "ability": "Sempre que o caos se instaurar, cada jogador sacrifica uma criatura que não seja artefato à sua escolha."
+  },
+  "b6329c2f-ea7f-4611-986c-f82bacf2a872": {
+    "sourceHash": "cbf1b1bfbc10145c",
+    "typeLine": "Plano — Karsus",
+    "text": "Sempre que um jogador conjurar uma mágica, aquele jogador joga uma moeda. Se o jogador perder o cara ou coroa, anule aquela mágica.",
+    "ability": "Sempre que o caos se instaurar, o jogador alvo revela o card do topo de seu grimório. Se for um card que não seja terreno, você pode conjurá-lo sem pagar seu custo de mana."
+  },
+  "b977ff66-6c52-4f33-8f25-e310d835be8b": {
+    "sourceHash": "a687c9c0ccbdcc87",
+    "typeLine": "Plano — Chicago",
+    "text": "Quando você fizer planeswalk para cá, cada jogador escolhe uma criatura que controla e cria uma ficha que é uma cópia dela, exceto que é um Reflexo além de seus outros tipos.\nTodos os Reflexos têm sombra. (Eles só podem bloquear ou ser bloqueados por criaturas com sombra.)",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha que é uma cópia de uma criatura que você controla, exceto que é um Reflexo além de seus outros tipos."
+  },
+  "bbb1d13c-a3ce-4151-883a-cce9bbd584d0": {
+    "sourceHash": "c6b0c6f87b577ef2",
+    "typeLine": "Plano — Kinshala",
+    "text": "Sempre que um jogador virar um terreno para gerar mana, Tember City causa 1 ponto de dano àquele jogador.",
+    "ability": "Sempre que o caos se instaurar, cada outro jogador sacrifica uma permanente que não seja terreno à sua escolha."
+  },
+  "be9870be-cf1b-44ea-a129-8f3711901b16": {
+    "sourceHash": "6660f3e378390b13",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Fixed Point in Time, até seu próximo turno, se um jogador for fazer planeswalk como resultado de rolar o dado planar, em vez disso o caos se instaura. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "c09d304a-87d0-4a2a-bcb2-e81341b2dbf2": {
+    "sourceHash": "dbf8275deffc4298",
+    "typeLine": "Plano — Kamigawa",
+    "text": "Todas as criaturas recebem +1/+1 e têm ímpeto.",
+    "ability": "Sempre que o caos se instaurar, desvire todas as criaturas que atacaram neste turno. Se for uma fase principal, há uma fase de combate adicional após esta fase, seguida por uma fase principal adicional."
+  },
+  "c265447b-a8ce-4d77-b620-865f7d4e0722": {
+    "sourceHash": "569d898b5c548bda",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Caught in a Parallel Universe, cada jogador escolhe uma criatura controlada pelo jogador à sua esquerda. Cada jogador cria uma ficha que é uma cópia da criatura que escolheu, exceto que ela tem ameaçar. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "c5f0da12-b76f-42fb-a52e-cd09535e72fb": {
+    "sourceHash": "289a5edf8f81f646",
+    "typeLine": "Plano — Fiora",
+    "text": "Quando uma ou mais criaturas que você controla causarem dano de combate a um jogador, se não houver monarca, você se torna o monarca.",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha de criatura Assassino preta 1/1 com toque mortífero e ímpeto."
+  },
+  "c7241e4b-d2c7-4801-96a3-91bb998953a1": {
+    "sourceHash": "81017df4233d84bb",
+    "typeLine": "Plano — Ravnica",
+    "text": "Quando você fizer planeswalk para fora de Orzhova, cada jogador devolve todos os cards de criatura de seu cemitério para o campo de batalha.",
+    "ability": "Sempre que o caos se instaurar, para cada oponente, exile até um card de criatura alvo do cemitério daquele jogador."
+  },
+  "c85d3740-8c8d-4fef-ad33-a6f446b883ac": {
+    "sourceHash": "24faa95d62225370",
+    "typeLine": "Plano — Dominaria",
+    "text": "A qualquer momento em que você puder conjurar um feitiço, você pode exilar da sua mão um card que não seja terreno com X marcadores de tempo, sendo X o valor de mana dele. Se o card exilado não tiver suspender, ele ganha suspender. (No início da manutenção de seu dono, ele remove um marcador de tempo. Quando o último for removido, o jogador pode conjurá-lo sem pagar seu custo de mana. Se for uma criatura, ela tem ímpeto.)",
+    "ability": "Sempre que o caos se instaurar, remova dois marcadores de tempo de cada card suspenso que você possui."
+  },
+  "c871974e-54e6-411f-8408-3708823fa2df": {
+    "sourceHash": "1c5e1f18d868018a",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Mutual Epiphany, cada jogador compra quatro cards. (Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "c907333b-eae8-444f-9da3-b193289f19e2": {
+    "sourceHash": "34e050c0497b88a1",
+    "typeLine": "Plano — Gargantikar",
+    "text": "Cada criatura com valor de mana 2 ou menor recebe +2/+2.",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha de criatura Inseto verde 1/1 com voar chamada Borboleta."
+  },
+  "cb467901-a68d-4922-8ceb-867b582c8fe7": {
+    "sourceHash": "60090fdc759e10d5",
+    "typeLine": "Plano — Belenon",
+    "text": "Se uma criatura que você controla for desvirar durante sua etapa de desvirar, em vez disso, coloque dois marcadores +1/+1 nela.",
+    "ability": "Sempre que o caos se instaurar, desvire cada criatura que você controla."
+  },
+  "cb7ae16a-9982-4782-9e20-07bb771d0601": {
+    "sourceHash": "361786d8c2cb569e",
+    "typeLine": "Plano — Eldraine",
+    "text": "Quando você fizer planeswalk para The Wilds e no início de sua manutenção, crie uma ficha de Comida.",
+    "ability": "Sempre que o caos se instaurar, o jogador alvo sacrifica uma criatura à sua escolha. Se fizer isso, você cria uma ficha de Comida. Em vez disso, você cria duas fichas de Comida se a resistência da criatura sacrificada era 4 ou maior."
+  },
+  "cd8ce6f1-9753-40a7-a625-5ed63c15c29e": {
+    "sourceHash": "d19fb1b10416b79f",
+    "typeLine": "Plano — Mirrodin",
+    "text": "Quando você fizer planeswalk para Panopticon, compre um card.\nNo início de sua etapa de compra, compre um card adicional.",
+    "ability": "Sempre que o caos se instaurar, compre um card."
+  },
+  "cde8d8c4-5e2b-452f-b3e9-bb9f2e745ec9": {
+    "sourceHash": "cc2d2e1233e53057",
+    "typeLine": "Plano — Segovia",
+    "text": "Todas as criaturas recebem -5/-0.",
+    "ability": "Sempre que o caos se instaurar, você pode destruir a criatura alvo se o poder dela for 0 ou menor."
+  },
+  "ce8139b9-31f3-464d-86ea-7efbdbfce478": {
+    "sourceHash": "b034aea541c2caf9",
+    "typeLine": "Plano — Equilor",
+    "text": "Sempre que uma criatura entrar, ela ganha golpe duplo e ímpeto até o final do turno.",
+    "ability": "Sempre que o caos se instaurar, exile a criatura alvo que não seja ficha que você controla, depois devolva-a ao campo de batalha sob seu controle."
+  },
+  "d45692d5-19e8-45ec-92bf-b79cb3919acd": {
+    "sourceHash": "23ec991028628596",
+    "typeLine": "Plano — Necros",
+    "text": "Suspended Animation — Sempre que uma criatura morrer, exile-a. O controlador dela usa vidência 1.",
+    "ability": "Sempre que o caos se instaurar, crie X fichas de criatura e artefato Dalek pretas 3/3 com ameaçar, sendo X um mais o número de cards exilados com Gardens of Tranquil Repose."
+  },
+  "d65ff607-1ff5-42bd-8db2-f082cc2f0b5e": {
+    "sourceHash": "eacba30a642dee06",
+    "typeLine": "Plano — Earth",
+    "text": "Quando você fizer planeswalk para Antarctic Research Base e no início de sua manutenção, investigue.",
+    "ability": "Sempre que o caos se instaurar, coloque X marcadores +1/+1 na criatura alvo que você controla, sendo X o número de artefatos que você controla. Ela se torna uma Planta além de seus outros tipos."
+  },
+  "d6ab4159-e04e-4991-8a9b-9da302c98e9d": {
+    "sourceHash": "1a2dea826ac621da",
+    "typeLine": "Plano — Kephalai",
+    "text": "Quando você fizer planeswalk para Aretopolis e no início de sua manutenção, coloque um marcador de pergaminho em Aretopolis, depois você ganha uma quantidade de pontos de vida igual ao número de marcadores de pergaminho nele.\nQuando Aretopolis tiver dez ou mais marcadores de pergaminho, faça planeswalk.",
+    "ability": "Sempre que o caos se instaurar, coloque um marcador de pergaminho em Aretopolis, depois compre uma quantidade de cards igual ao número de marcadores de pergaminho nele."
+  },
+  "d858e6db-9842-41d1-8006-574c8dcd98ed": {
+    "sourceHash": "f4aa7ee9d01e2232",
+    "typeLine": "Plano — Ergamon",
+    "text": "Todos os terrenos têm \"{T}: Adicione um mana de qualquer cor.\"",
+    "ability": "Sempre que o caos se instaurar, revele os três cards do topo de seu grimório. Coloque todos os cards de terreno revelados dessa forma em sua mão e o restante no fundo de seu grimório em qualquer ordem."
+  },
+  "d8aa7f2d-2280-42d4-b082-1b5d45df77c5": {
+    "sourceHash": "bee961dafaf7f7cc",
+    "typeLine": "Plano — Apalapucia",
+    "text": "Sempre que você fizer planeswalk para Two Streams Facility e no início da primeira manutenção do jogo, cada jogador escolhe âncora verde ou cachoeira vermelha.\nCada jogador que escolheu âncora verde por último pode jogar um terreno adicional durante cada um de seus turnos.\nAs criaturas controladas por jogadores que escolheram cachoeira vermelha por último recebem +2/+0 e têm ímpeto.",
+    "ability": "Sempre que o caos se instaurar, cada jogador que escolheu âncora verde por último escolhe cachoeira vermelha e vice-versa."
+  },
+  "ddea0dcf-e8d1-44ea-9ce4-009fa8bbfb95": {
+    "sourceHash": "56a198b52a2f926e",
+    "typeLine": "Plano — MagicCon",
+    "text": "Quando você fizer planeswalk para cá e no início de sua manutenção, crie uma ficha de artefato Black Lotus.",
+    "ability": "Sempre que o caos se instaurar, cada jogador compra um card para cada ficha de artefato que controla."
+  },
+  "de53c948-b371-4f79-a965-33c44d0b44de": {
+    "sourceHash": "8f0b236aafb60f9e",
+    "typeLine": "Plano — Kamigawa",
+    "text": "Sempre que uma criatura sair do campo de batalha, seu controlador compra um card.",
+    "ability": "Sempre que o caos se instaurar, devolva a criatura alvo que você controla para a mão de seu dono."
+  },
+  "e0dc9986-1099-4189-bfff-8f41bab9019d": {
+    "sourceHash": "79a4de2be56c4348",
+    "typeLine": "Plano — Regatha",
+    "text": "No início de sua etapa final, coloque um marcador de pressão em Mount Keralia.\nQuando você fizer planeswalk para fora de Mount Keralia, ele causa uma quantidade de dano igual ao número de marcadores de pressão nele a cada criatura e a cada planeswalker.",
+    "ability": "Sempre que o caos se instaurar, previna todo o dano que planos chamados Mount Keralia causariam neste jogo às permanentes que você controla."
+  },
+  "e19e8895-f8a4-4995-8dd4-2821c6469126": {
+    "sourceHash": "9fc3c0a9bc0ee348",
+    "typeLine": "Fenômeno",
+    "text": "",
+    "ability": "Quando você encontrar Time Distortion, inverta a ordem dos turnos do jogo. (Por exemplo, se o jogo seguia no sentido horário ao redor da mesa, agora segue no sentido anti-horário. Depois, faça planeswalk para fora deste fenômeno.)"
+  },
+  "e28deac5-d3c4-48e9-974c-093e3122f317": {
+    "sourceHash": "750e2dbd3cc551e6",
+    "typeLine": "Plano — Alara",
+    "text": "Quando você fizer planeswalk para The Maelstrom e no início de sua manutenção, você pode revelar o card do topo de seu grimório. Se um card de permanente for revelado dessa forma, você pode colocá-lo no campo de batalha. Se você revelou um card, mas não o colocou no campo de batalha, coloque-o no fundo de seu grimório.",
+    "ability": "Sempre que o caos se instaurar, devolva o card de permanente alvo de seu cemitério para o campo de batalha."
+  },
+  "e4b941d1-60cb-4e14-89a4-62a9785f6eda": {
+    "sourceHash": "5727d5761994ea40",
+    "typeLine": "Plano — Belenon",
+    "text": "Os jogadores jogam com o card do topo de seus grimórios revelado.\nVocê pode jogar terrenos e conjurar mágicas do topo do grimório de qualquer jogador.",
+    "ability": "Sempre que o caos se instaurar, cada jogador tritura um card."
+  },
+  "e5f8b2bb-e9bb-4a0a-aa88-7fa0299f52a9": {
+    "sourceHash": "5655be0c62053dd8",
+    "typeLine": "Plano — Ravnica",
+    "text": "Sempre que um jogador conjurar uma mágica instantânea ou um feitiço, aquele jogador a copia. O jogador pode escolher novos alvos para a cópia.",
+    "ability": "Sempre que o caos se instaurar, as mágicas instantâneas e os feitiços que você conjurar neste turno custam {3} a menos para serem conjurados."
+  },
+  "e72339e4-222e-44a2-89ad-bef9835fb1d7": {
+    "sourceHash": "651bc389393649fc",
+    "typeLine": "Plano — MagicCon",
+    "text": "Sempre que você fizer planeswalk para cá e no início de sua manutenção, exile o card do topo de seu grimório. Você pode jogar aquele card neste turno.",
+    "ability": "Sempre que o caos se instaurar, exile os seis cards do topo de seu grimório. Um oponente ou um jogador de fora do jogo escolhe um card que não seja terreno com a arte favorita dele. Depois, você pode conjurar aquela mágica sem pagar seu custo de mana."
+  },
+  "ece3b5ed-3c07-4586-bf99-72bc1aa6ccef": {
+    "sourceHash": "8a92e7826c3a34de",
+    "typeLine": "Plano — Valla",
+    "text": "Sempre que uma criatura entrar, o controlador daquela criatura pode fazê-la causar uma quantidade de dano igual a seu poder a qualquer alvo à escolha dele.",
+    "ability": "Sempre que o caos se instaurar, exile a criatura alvo, depois devolva-a ao campo de batalha sob o controle de seu dono."
+  },
+  "ed44d47b-2eea-4cb2-a091-07583bdf390f": {
+    "sourceHash": "0af4b6f2439522a7",
+    "typeLine": "Plano — Gallifrey",
+    "text": "Quando você fizer planeswalk para The Matrix of Time, cada jogador exila o card do topo de seu grimório.\nDurante seu turno, você pode jogar terrenos e conjurar mágicas entre os cards exilados com The Matrix of Time.\nSempre que você jogar um terreno ou conjurar uma mágica entre os cards exilados com The Matrix of Time, o dono daquele card perde 3 pontos de vida e exila o card do topo de seu grimório.",
+    "ability": "Sempre que o caos se instaurar, crie duas fichas de Tesouro."
+  },
+  "edd21d18-98d2-4e3f-8da1-1ba645b8f69c": {
+    "sourceHash": "dbb3426e6494bcc6",
+    "typeLine": "Plano — Rabiah",
+    "text": "Os jogadores revelam cada card que compram.\nSempre que um jogador comprar um card de terreno, aquele jogador ganha 3 pontos de vida.\nSempre que um jogador comprar um card que não seja terreno, aquele jogador perde 3 pontos de vida.",
+    "ability": "Sempre que o caos se instaurar, coloque a permanente alvo no topo do grimório de seu dono."
+  },
+  "f017380f-97db-4a36-b111-b257aa17ebaf": {
+    "sourceHash": "1b04ac0a650d1f21",
+    "typeLine": "Plano — Dominaria",
+    "text": "Sempre que uma criatura que não seja ficha entrar, seu controlador cria uma ficha que é uma cópia daquela criatura.",
+    "ability": "Sempre que o caos se instaurar, destrua a criatura alvo e todas as outras criaturas com o mesmo nome daquela criatura."
+  },
+  "f0c8ce35-b627-485c-bd64-d7eae47b8efa": {
+    "sourceHash": "881ed2dd73f88660",
+    "typeLine": "Plano — Serra's Realm",
+    "text": "Quando você fizer planeswalk para fora de Sanctum of Serra, destrua todas as permanentes que não sejam terrenos.",
+    "ability": "Sempre que o caos se instaurar, você pode fazer seu total de pontos de vida se tornar 20."
+  },
+  "f12400e5-8288-48e1-b3b7-0cc4f8d9ca67": {
+    "sourceHash": "1180e4499c3beda5",
+    "typeLine": "Plano — Lorwyn",
+    "text": "Sempre que um terreno entrar, o controlador daquele terreno cria três fichas de criatura Bode brancas 0/1.",
+    "ability": "Sempre que o caos se instaurar, crie uma ficha de criatura Bode branca 0/1."
+  },
+  "f133e42a-2962-4781-b413-ce2127f17c26": {
+    "sourceHash": "7f7471e96ac3e8e6",
+    "typeLine": "Plano — Bolas's Meditation Realm",
+    "text": "No início de sua etapa final, coloque os cards de sua mão no fundo de seu grimório em qualquer ordem, depois compre essa mesma quantidade de cards.",
+    "ability": "Sempre que o caos se instaurar, revele os três cards do topo de seu baralho planar. A habilidade de caos de cada um dos cards revelados é desencadeada. Depois, coloque os cards revelados no fundo de seu baralho planar em qualquer ordem."
+  },
+  "f3b27908-ca10-4793-ab8e-6639c73cfadd": {
+    "sourceHash": "93bcd533065e8a74",
+    "typeLine": "Plano — Ikoria",
+    "text": "Quando você fizer planeswalk para Ketria e no início de sua manutenção, coloque, à sua escolha, um marcador de vigilância, de ameaçar ou de atropelar na criatura alvo que você controla.",
+    "ability": "Sempre que o caos se instaurar, exile cards do topo de seu grimório até exilar um card de permanente que não seja terreno. Coloque aquele card no campo de batalha ou em sua mão."
+  },
+  "f3f5a033-d063-4250-9cfe-4c3c1a2725f1": {
+    "sourceHash": "06d6b28b5d3c2a9e",
+    "typeLine": "Plano — Ravnica",
+    "text": "Sempre que uma criatura causar dano de combate a um jogador, seu controlador pode comprar um card.",
+    "ability": "Sempre que o caos se instaurar, você não tem tamanho máximo de mão pelo resto do jogo."
+  },
+  "fb9651f5-1aec-4812-a044-3c1b60e6651f": {
+    "sourceHash": "5419483a7ae3e376",
+    "typeLine": "Plano — Ravnica",
+    "text": "Sempre que uma criatura morrer, seu controlador distribui um número de marcadores +1/+1 igual ao poder dela entre qualquer número de criaturas alvo que ele controla.",
+    "ability": "Sempre que o caos se instaurar, cada jogador exila todas as criaturas que controla e cria X fichas de criatura Saprolita verdes 1/1, sendo X o poder total das criaturas que exilou dessa forma. Depois, faça planeswalk."
+  },
+  "fc621e94-e7c7-49ea-9547-4ab041ea39f3": {
+    "sourceHash": "21aa878b60cae561",
+    "typeLine": "Plano — Trenzalore",
+    "text": "Se uma criatura for morrer, em vez disso, exile-a e o controlador daquela criatura perde 2 pontos de vida.",
+    "ability": "Sempre que o caos se instaurar, redistribua os totais de pontos de vida de qualquer número de jogadores. (Cada um desses jogadores recebe de volta um total de pontos de vida.)"
+  },
+  "fc650404-991c-4639-b311-c35df81a254a": {
+    "sourceHash": "426451159193667a",
+    "typeLine": "Plano — Ravnica",
+    "text": "Quando você fizer planeswalk para Kilnspire District e no início de sua primeira fase principal, coloque um marcador de carga em Kilnspire District, depois adicione {R} para cada marcador de carga nele.",
+    "ability": "Sempre que o caos se instaurar, você pode pagar {X}. Se fizer isso, Kilnspire District causa X pontos de dano a qualquer alvo."
+  },
+  "ff76b576-8ad3-44f9-8043-80003a078e84": {
+    "sourceHash": "55d127f7e3817855",
+    "typeLine": "Plano — Rath",
+    "text": "Se uma fonte for causar dano a uma permanente ou a um jogador, em vez disso, ela causa o dobro desse dano.",
+    "ability": "Sempre que o caos se instaurar, Stronghold Furnace causa 1 ponto de dano a qualquer alvo."
+  }
+}

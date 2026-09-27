@@ -97,8 +97,8 @@ backend is hosted Supabase.
 - Reduced motion disables the flairs.
 
 **Scale/Scope**:
-- About 205 cards.
-- 4 views and 8 `shared/gameplay` components.
+- 161 cards (147 planes, 14 phenomena).
+- 4 views and 7 `shared/gameplay` pieces (5 components, 2 flairs).
 - 4 new services (`PlanechaseCatalogService`, `PlanarSelectionService`, `PlanechaseGameService`,
   `PlanarImageService`) and 3 new utils (`crypto-random`, `planechase-game`, `planar-selection`).
 - 1 copy file, 1 script, 1 skill and 2 migrations.
@@ -129,14 +129,14 @@ backend is hosted Supabase.
 
 ### Spec deviations and notes (not constitutional)
 
-- **Plane with no chaos ability** (R2): Ghirapur Grand Prix has none, so it shows no plate, and a
+- **Plane with no chaos ability** (R2): no current card lacks one (the gold-only Ghirapur Grand
+  Prix is excluded), but the data format and UI still handle `ability: null`: no plate, and a
   "Caos" roll says so. The spec assumes every plane has one.
 - **Current card removed by a data update** (R11): the game draws the next card. The spec's edge
   case covers removed cards in general, not the face-up one.
 - **Cards that bend the die or the planeswalk pattern aren't modeled one by one.** Examples:
-  Chaotic Aether ("each blank roll is a chaos roll"), Bad Wolf Bay ("…Then planeswalk"), No Way Out
-  ("if a player would planeswalk… chaos ensues instead"), and Shrinking Plane ("If you can't fold
-  it, planeswalk"). The table reads the card's PT-BR text and uses the manual "Planeswalk" action
+  Chaotic Aether ("each blank roll is a chaos roll"), Bad Wolf Bay ("…Then planeswalk") and Norn's
+  Seedcore ("Planeswalk to it, except don't planeswalk away from any plane"). The table reads the card's PT-BR text and uses the manual "Planeswalk" action
   (FR-010) or simply ignores a die result. That action exists for exactly these cases, and "Como
   jogar" says so (R17).
 - **New copy, approved by the maintainer** (R17): the refused-start messages, the no-chaos sub line, the

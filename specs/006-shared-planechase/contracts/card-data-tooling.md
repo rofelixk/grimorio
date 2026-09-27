@@ -24,11 +24,11 @@ Implementation never executes them (plan.md, "Maintainer-only runs").
    `sync-scryfall.ts`:
 
    ```text
-   Wrote 205 cards (184 planes, 21 phenomena) to src/app/core/data/planechase/cards.json.
+   Wrote 161 cards (147 planes, 14 phenomena) to src/app/core/data/planechase/cards.json.
    New (2): …names
    Changed (1): …names
    Removed (0)
-   Planes with no chaos ability (1): Ghirapur Grand Prix — confirm or add an ABILITY_OVERRIDES entry.
+   Planes with no chaos ability (1): …names — confirm or add an ABILITY_OVERRIDES entry.
    Missing or outdated translations (3): …names
    Run in Claude Code: /planechase-translate
    ```

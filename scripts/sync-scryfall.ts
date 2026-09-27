@@ -34,7 +34,9 @@ const SCRYFALL_HEADERS = {
 };
 
 interface ScryfallImageUris {
+  small?: string;
   normal?: string;
+  large?: string;
 }
 
 interface ScryfallCardFace {
@@ -57,6 +59,8 @@ interface ScryfallCard {
   collector_number: string;
   lang: string;
   rarity: string;
+  border_color: string;
+  released_at: string;
   mana_cost?: string;
   cmc: number;
   type_line: string;
@@ -93,6 +97,13 @@ async function fetchDefaultCardsUri(): Promise<string> {
 
 function imageUrlOf(card: Pick<ScryfallCard, 'image_uris' | 'card_faces'>): string | null {
   return card.image_uris?.normal ?? card.card_faces?.[0]?.image_uris?.normal ?? null;
+}
+
+function imageSizeOf(
+  card: Pick<ScryfallCard, 'image_uris' | 'card_faces'>,
+  size: 'small' | 'large',
+): string | null {
+  return card.image_uris?.[size] ?? card.card_faces?.[0]?.image_uris?.[size] ?? null;
 }
 
 function toCardRow(card: ScryfallCard) {
@@ -135,6 +146,10 @@ function toPrintingRow(card: ScryfallCard) {
     lang: card.lang,
     rarity: card.rarity,
     image_url: imageUrlOf(card),
+    border_color: card.border_color,
+    released_at: card.released_at,
+    image_small: imageSizeOf(card, 'small'),
+    image_large: imageSizeOf(card, 'large'),
   };
 }
 
