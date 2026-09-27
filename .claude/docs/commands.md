@@ -10,6 +10,15 @@ npm run lint       # ESLint (angular-eslint) over src/
 
 Run a single test file: `npx ng test --include='**/home.spec.ts'` (glob is relative to the project root, matching Vitest's `include` semantics).
 
+### Card data (maintainer-run)
+
+```bash
+npm run sync:scryfall    # refresh the Supabase card catalog from Scryfall bulk data
+npm run sync:planechase  # regenerate src/app/core/data/planechase/cards.json from the catalog
+```
+
+Both read `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from `.env`. Run `sync:scryfall` before `sync:planechase`. After `sync:planechase` reports missing or outdated translations, run the `planechase-translate` skill (`/planechase-translate`) to update `cards.pt-br.json` and review its output before committing. Excluded sets live in `EXCLUDED_SETS` in `scripts/sync-planechase.ts`.
+
 ### Running as a desktop PWA
 
 ```bash

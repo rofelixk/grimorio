@@ -175,7 +175,7 @@ description: "Task list for 006 Shared Planechase — First Gameplay Mode"
 
 - [X] T049 Run `npm test` and `npm run lint`; fix failures (includes V24's randomness specs) across `src/`
 - [X] T050 Verify V20 with the `run` skill: a full game (start, rolls, planeswalks, reset, end) makes zero requests to `supabase.co`, only `cards.scryfall.io` images (SC-008) (scenarios in `specs/006-shared-planechase/quickstart.md`)
-- [ ] T051 Propose, for the user's review before editing, the fact-based updates to `.claude/docs/architecture.md` (the `shared/gameplay/` domain folder; `core/data/planechase/` shipped JSON loaded by dynamic `import()`; `PlanarSelectionService` as an entity service with `planechase_selections` sync as a single reconciled entity; the device-scoped `PlanechaseGameService` in device `meta`; `PlanarImageService` Cache Storage; the new `printings` columns) and `.claude/docs/commands.md` (`npm run sync:planechase` and the `/planechase-translate` skill, maintainer-run); apply them once approved
+- [X] T051 Propose, for the user's review before editing, the fact-based updates to `.claude/docs/architecture.md` (the `shared/gameplay/` domain folder; `core/data/planechase/` shipped JSON loaded by dynamic `import()`; `PlanarSelectionService` as an entity service with `planechase_selections` sync as a single reconciled entity; the device-scoped `PlanechaseGameService` in device `meta`; `PlanarImageService` Cache Storage; the new `printings` columns) and `.claude/docs/commands.md` (`npm run sync:planechase` and the `/planechase-translate` skill, maintainer-run); apply them once approved
 
 ---
 
