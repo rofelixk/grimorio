@@ -41,12 +41,19 @@ describe('PlanarDock', () => {
     expect(status.textContent).toContain('Próxima: {1}');
   });
 
-  it('offers the row and the block roll button, Desfazer only with an undo slot', async () => {
-    const { button } = await render(base);
+  it('offers the row, then Caos beside the growing roll button, Desfazer only with an undo slot', async () => {
+    const { button, fixture } = await render(base);
     expect(button('Desfazer').disabled).toBe(true);
     expect(button('Planeswalk').disabled).toBe(false);
     expect(button('Zerar custo').disabled).toBe(false);
-    expect(button('Rolar dado planar').classList).toContain('btn--block');
+    const roll = button('Rolar dado planar');
+    expect(roll.classList).toContain('grow');
+    const caos = button('Caos');
+    expect(caos.parentElement).toBe(roll.parentElement);
+    const chaos = vi.fn();
+    fixture.componentInstance.chaos.subscribe(chaos);
+    caos.click();
+    expect(chaos).toHaveBeenCalled();
   });
 
   it('while a phenomenon waits: "Concluir encontro", Planeswalk and Zerar custo disabled', async () => {
@@ -61,8 +68,9 @@ describe('PlanarDock', () => {
     const { button, fixture } = await render({ ...base, drawOrder: [], used: ['p02', 'f01'], pending: 'reset', result: { kind: 'allUsed' } });
     expect(button('Planeswalk').disabled).toBe(true);
     expect(button('Zerar custo').disabled).toBe(true);
+    expect(button('Caos')).toBeUndefined();
     const main = button('Reiniciar planos');
-    expect(main.classList).toContain('btn--block');
+    expect(main.classList).toContain('grow');
     const reshuffle = vi.fn();
     fixture.componentInstance.reshuffle.subscribe(reshuffle);
     main.click();

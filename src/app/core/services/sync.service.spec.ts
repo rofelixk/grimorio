@@ -5,6 +5,8 @@ import { ProfileSummary } from '@models/profile.model';
 import { CloudAuthService } from './cloud-auth.service';
 import { CloudSessionService } from './cloud-session.service';
 import { ConnectivityService } from './connectivity.service';
+import type { PlanarSelection } from '@models/planar-selection.model';
+import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileSessionService, SessionHooks } from './profile-session.service';
 import { ProfileStore } from './profile-store.service';
 import { SYNC_TIMEOUT_MS, SyncService } from './sync.service';
@@ -35,6 +37,21 @@ function stalledQuery() {
   return { query, release: () => release({ data: [], error: null }) };
 }
 
+/** A PostgREST-like query that resolves at once with `rows`, recording its upserts. */
+function settledQuery(rows: unknown[], upserts: unknown[][]) {
+  const result = Promise.resolve({ data: rows, error: null });
+  const query = {
+    select: () => query,
+    eq: () => query,
+    in: () => query,
+    upsert: (...args: unknown[]) => (upserts.push(args), query),
+    delete: () => query,
+    abortSignal: () => query,
+    then: result.then.bind(result),
+  };
+  return query;
+}
+
 describe('SyncService', () => {
   const active = signal<ProfileSummary | null>(LINKED);
   const online = signal(true);
@@ -52,6 +69,8 @@ describe('SyncService', () => {
   let from: ReturnType<typeof vi.fn>;
   let calls: string[];
   let sync: SyncService;
+  const planarSelection = signal<PlanarSelection | null>(null);
+  let applyPlanarSelection: ReturnType<typeof vi.fn>;
 
   /** The account's user, with metadata matching LINKED unless patched. */
   const user = (meta: Record<string, unknown> = {}) => ({
@@ -92,8 +111,14 @@ describe('SyncService', () => {
       byId: vi.fn(() => active()),
       setColors: vi.fn(async () => void calls.push('setColors')),
     };
+    planarSelection.set(null);
+    applyPlanarSelection = vi.fn();
     TestBed.configureTestingModule({
       providers: [
+        {
+          provide: PlanarSelectionService,
+          useValue: { selection: planarSelection, flush: async () => undefined, applySyncResult: applyPlanarSelection },
+        },
         { provide: CloudSessionService, useValue: cloud },
         { provide: CloudAuthService, useValue: auth },
         { provide: ProfileStore, useValue: profiles },
@@ -251,5 +276,45 @@ describe('SyncService', () => {
     auth.lookupAccount.mockResolvedValue({ status: 'offline' });
     expect(await sync.syncNow()).toBe('offline');
     expect(sync.state()).toBe('offline');
+  });
+
+  describe('planar deck selection', () => {
+    const OLD = '2026-06-01T00:00:00.000Z';
+    const NEW = '2026-06-02T00:00:00.000Z';
+    let upserts: unknown[][];
+
+    /** Every table answers at once; planechase_selections with `remote`. */
+    const answer = (remote: unknown[]) => {
+      upserts = [];
+      from.mockImplementation((table: string) =>
+        settledQuery(table === 'planechase_selections' ? remote : [], table === 'planechase_selections' ? upserts : []),
+      );
+    };
+
+    it('upserts a local selection newer than the account’s', async () => {
+      planarSelection.set({ disabledIds: ['a', 'b'], updatedAt: NEW });
+      answer([{ user_id: 'u1', disabled_ids: ['c'], updated_at: '2026-06-01T00:00:00+00:00' }]);
+      await sync.syncNow();
+      expect(upserts).toEqual([
+        [{ user_id: 'u1', disabled_ids: ['a', 'b'], updated_at: NEW }, { onConflict: 'user_id' }],
+      ]);
+      expect(applyPlanarSelection).not.toHaveBeenCalled();
+    });
+
+    it('applies an account selection newer than the local one, with its own stamp', async () => {
+      planarSelection.set({ disabledIds: ['a'], updatedAt: OLD });
+      answer([{ user_id: 'u1', disabled_ids: ['c'], updated_at: '2026-06-02T00:00:00+00:00' }]);
+      await sync.syncNow();
+      expect(applyPlanarSelection).toHaveBeenCalledWith({ disabledIds: ['c'], updatedAt: NEW });
+      expect(upserts).toEqual([]);
+    });
+
+    it('does nothing when neither side has a selection', async () => {
+      answer([]);
+      await sync.syncNow();
+      expect(from).toHaveBeenCalledWith('planechase_selections');
+      expect(upserts).toEqual([]);
+      expect(applyPlanarSelection).not.toHaveBeenCalled();
+    });
   });
 });

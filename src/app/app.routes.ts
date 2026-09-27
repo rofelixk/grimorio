@@ -10,6 +10,7 @@ import { Home } from './views/home/home';
 import { GameModes } from './views/game-modes/game-modes';
 import { Planechase } from './views/planechase/planechase';
 import { PlanechaseRules } from './views/planechase-rules/planechase-rules';
+import { PlanechaseDeck } from './views/planechase-deck/planechase-deck';
 import { planechaseCatalogResolver } from '@services/planechase-catalog.service';
 
 // Owned-card routes need an active local profile (FR-001). `runGuardsAndResolvers: 'always'`
@@ -30,5 +31,6 @@ export const routes: Routes = [
   { path: 'modes', component: GameModes },
   { path: 'modes/planechase', component: Planechase, ...planechaseData },
   { path: 'modes/planechase/rules', component: PlanechaseRules, ...planechaseData },
+  { path: 'modes/planechase/deck', component: PlanechaseDeck, ...planechaseData },
   { path: 'about', component: About },
 ];

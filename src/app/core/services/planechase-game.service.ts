@@ -4,6 +4,7 @@ import { RandomInt, randomInt } from '@utils/crypto-random.util';
 import {
   PlanechaseActions,
   availableActions,
+  chaos,
   confirmPhenomenon,
   planeswalk,
   repairGame,
@@ -72,6 +73,11 @@ export class PlanechaseGameService {
 
   planeswalk(): void {
     this.apply('planeswalk', (game) => planeswalk(game, this.kindOf));
+  }
+
+  /** "Caos" for a physical die: the chaos result without rolling here. */
+  chaos(): void {
+    this.apply('chaos', (game) => chaos(game));
   }
 
   confirmPhenomenon(): void {

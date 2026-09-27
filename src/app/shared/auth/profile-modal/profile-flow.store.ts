@@ -7,6 +7,7 @@ import { CloudSessionService } from '@services/cloud-session.service';
 import { ConnectivityService } from '@services/connectivity.service';
 import { DeckService } from '@services/deck.service';
 import { EntryModalService } from '@services/entry-modal.service';
+import { PlanarSelectionService } from '@services/planar-selection.service';
 import { ProfileLifecycleService } from '@services/profile-lifecycle.service';
 import { ProfileModalService, ProfileStart } from '@services/profile-modal.service';
 import { ProfileSessionService } from '@services/profile-session.service';
@@ -95,6 +96,7 @@ export class ProfileFlowStore extends CloudFlowHost {
   private readonly cards = inject(CardService);
   private readonly locations = inject(StorageLocationService);
   private readonly decks = inject(DeckService);
+  private readonly planarSelection = inject(PlanarSelectionService);
   private readonly router = inject(Router);
 
   // ── State ────────────────────────────────────────────────────────────────
@@ -638,6 +640,7 @@ export class ProfileFlowStore extends CloudFlowHost {
         tombstoneCount: cardTombstones.length + locationTombstones.length,
         colorsUpdatedAt: active.colorsUpdatedAt,
         nameUpdatedAt: active.nameUpdatedAt,
+        planarSelectionUpdatedAt: this.planarSelection.selection()?.updatedAt ?? null,
       }),
     );
   }

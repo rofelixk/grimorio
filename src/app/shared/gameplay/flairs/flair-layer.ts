@@ -19,6 +19,36 @@ export function flairLayer(css: string): HTMLDivElement {
   return layer;
 }
 
+/**
+ * Stacking inside the game view (DESIGN.md "Flairs"): the light runs above every piece of page UI
+ * (console, text, plate, dock, footer) but below the card image, which stays on top. The
+ * planeswalk's outgoing snapshot is split: its image sits just above the new image, and the rest
+ * of the block (opaque, hiding the new text) sits under the light. The view isolates this
+ * stacking; the card image's z-index is set in planar-card.scss.
+ */
+export const FLAIR_Z = { snapshotBlock: 5, light: 10, image: 20, snapshotImage: 21 } as const;
+
+/**
+ * A light layer on `stage` (the game view, positioned and isolated) covering `target`'s box, so
+ * the effect can reach past the card and paint over the page UI around it.
+ */
+export function stageLayer(stage: HTMLElement, target: HTMLElement): HTMLDivElement {
+  const s = stage.getBoundingClientRect();
+  const t = target.getBoundingClientRect();
+  const layer = flairLayer(
+    `left:${t.left - s.left}px;top:${t.top - s.top}px;width:${t.width}px;height:${t.height}px;z-index:${FLAIR_Z.light}`,
+  );
+  stage.appendChild(layer);
+  return layer;
+}
+
+/** `target`'s left edge and vertical middle, in `stage` coordinates. */
+export function leftMiddle(stage: HTMLElement, target: HTMLElement): { x: number; y: number } {
+  const s = stage.getBoundingClientRect();
+  const t = target.getBoundingClientRect();
+  return { x: t.left - s.left, y: t.top - s.top + t.height / 2 };
+}
+
 /** A 3px glowing spark in `color`, hidden until the clock moves it. */
 export function spark(color = 'currentColor'): HTMLElement {
   const el = document.createElement('i');

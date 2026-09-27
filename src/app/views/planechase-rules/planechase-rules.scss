@@ -7,6 +7,10 @@
   grid-template-columns: 180px minmax(0, 1fr);
   gap: var(--space-6);
   align-items: start;
+  width: 100%;
+  // The TOC plus the 62ch article, centered as one block.
+  max-width: calc(180px + var(--space-6) + 62ch + 2 * var(--space-5));
+  margin-inline: auto;
   padding: var(--space-5);
 
   @include bp.mobile {

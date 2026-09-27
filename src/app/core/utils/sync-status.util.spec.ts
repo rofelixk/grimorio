@@ -95,6 +95,7 @@ describe('hasUnsyncedChanges', () => {
     tombstoneCount: 0,
     colorsUpdatedAt: BEFORE,
     nameUpdatedAt: BEFORE,
+    planarSelectionUpdatedAt: null,
     ...patch,
   });
 
@@ -119,6 +120,14 @@ describe('hasUnsyncedChanges', () => {
   it('is true when the colors or the name changed after the last sync', () => {
     expect(hasUnsyncedChanges(input({ colorsUpdatedAt: AFTER }))).toBe(true);
     expect(hasUnsyncedChanges(input({ nameUpdatedAt: AFTER }))).toBe(true);
+  });
+
+  it('is true when the planar deck changed after the last sync, or ever when it never synced', () => {
+    expect(hasUnsyncedChanges(input({ planarSelectionUpdatedAt: AFTER }))).toBe(true);
+    expect(hasUnsyncedChanges(input({ planarSelectionUpdatedAt: BEFORE }))).toBe(false);
+    expect(
+      hasUnsyncedChanges(input({ lastSyncedAt: null, cards: [], locations: [], planarSelectionUpdatedAt: BEFORE })),
+    ).toBe(true);
   });
 
   it('is false when everything is older than the last sync', () => {

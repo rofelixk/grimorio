@@ -11,18 +11,6 @@
     "text": "As mágicas instantâneas e os feitiços que os jogadores conjuram têm demonstrar. (Sempre que um jogador conjurar uma mágica instantânea ou um feitiço, ele pode copiá-lo. Se fizer isso, ele escolhe um oponente para também copiá-lo. Os jogadores podem escolher novos alvos para suas cópias.)",
     "ability": "Sempre que o caos se instaurar, devolva até um card de mágica instantânea ou de feitiço alvo de um cemitério para a mão de seu dono."
   },
-  "04491781-0e6a-4a30-a69f-db226702adfc": {
-    "sourceHash": "f6ab198aabb31ae5",
-    "typeLine": "Plano — Chicago",
-    "text": "Quando você fizer planeswalk para cá e no início de sua manutenção, coloque um marcador de voar na criatura alvo que não seja ficha e sem voar que você controla.\nQuando você fizer planeswalk para fora de The Windy City, remova todos os marcadores de voar de todas as criaturas.",
-    "ability": "Sempre que o caos se instaurar, exile a criatura alvo com voar. Enquanto ela permanecer exilada, seu dono pode conjurá-la pagando {2} em vez de pagar seu custo de mana."
-  },
-  "05226c5f-1f56-4608-b09a-614d0198ad1b": {
-    "sourceHash": "34e44ad2eac91975",
-    "typeLine": "Plano — Chicago",
-    "text": "No início de sua manutenção, crie uma ficha de criatura Guerreiro vermelha 2/2 com ímpeto e \"Covardes não podem bloquear Guerreiros.\"",
-    "ability": "Sempre que você fizer planeswalk para cá e sempre que o caos se instaurar, para cada oponente, coloque um marcador de timidez em até uma criatura alvo que ele controla. Aquela criatura se torna um Covarde além de seus outros tipos."
-  },
   "065346cd-cd81-478e-8a62-2c7ea421bdcd": {
     "sourceHash": "beb2ad0e6e0a2ce7",
     "typeLine": "Plano — Pyrulea",
@@ -76,12 +64,6 @@
     "typeLine": "Plano — Ir",
     "text": "As mágicas de criatura custam {2} a menos para serem conjuradas.",
     "ability": "Sempre que o caos se instaurar, revele os três cards do topo de seu grimório. Coloque todos os cards de criatura revelados dessa forma em sua mão e o restante em seu cemitério."
-  },
-  "133d8c07-4de5-4142-b141-235e5255fb6d": {
-    "sourceHash": "a84a224fbda3aa2a",
-    "typeLine": "Fenômeno",
-    "text": "",
-    "ability": "Quando você encontrar este fenômeno, compre um card para cada broche que você estiver usando e para cada ficha de Broche anexada a criaturas que você controla. (Isso inclui os broches em sua mochila.) (Depois, faça planeswalk para fora deste fenômeno.)"
   },
   "13e801cd-e537-4ea6-8c3d-21b142bdc026": {
     "sourceHash": "b3a88f7af78666aa",
@@ -208,12 +190,6 @@
     "typeLine": "Plano — Ravnica",
     "text": "Se você tiver conjurado uma mágica neste turno, você não pode atacar com criaturas.\nSe você tiver atacado com criaturas neste turno, você não pode conjurar mágicas.",
     "ability": "Sempre que o caos se instaurar, você ganha uma quantidade de pontos de vida igual ao número de cards em sua mão."
-  },
-  "36aac8aa-d6f0-4e53-a280-73b01e040f35": {
-    "sourceHash": "418b693bc7c0aad4",
-    "typeLine": "Plano — Chicago",
-    "text": "Quando você fizer planeswalk para cá, você se torna o monarca.",
-    "ability": "Sempre que o caos se instaurar, cada jogador pode criar duas fichas de Tesouro viradas. Cada jogador que fizer isso não pode atacar você durante o próximo turno dele."
   },
   "381f510b-8696-4af1-a6c9-d1175e9f36d0": {
     "sourceHash": "d580209f269b9c42",
@@ -509,18 +485,6 @@
     "text": "As mágicas de criatura que você conjura de sua mão têm blitz {3}. (Se você conjurar uma mágica por seu custo de blitz, ela ganha ímpeto e \"Quando esta criatura morrer, compre um card.\" Sacrifique-a no início da próxima etapa final.)",
     "ability": "Sempre que o caos se instaurar, devolva o card de criatura alvo de seu cemitério para sua mão."
   },
-  "87ff5801-1f16-463a-af2c-3223cef0a532": {
-    "sourceHash": "ec7a9b6d6265022c",
-    "typeLine": "Fenômeno",
-    "text": "",
-    "ability": "Quando você encontrar este fenômeno, cada jogador abre um booster de Magic: The Gathering. Cada um pode escolher até dois cards daquele booster e exilá-los com a face para baixo. Pelo resto do jogo, os jogadores podem olhar e jogar os cards exilados dessa forma sem pagar seus custos de mana. (Depois, faça planeswalk para fora deste fenômeno.)"
-  },
-  "8baa42cf-32bc-4d1f-b4bd-02a4fce376c4": {
-    "sourceHash": "4ceaa5334cc82e94",
-    "typeLine": "Plano — Chicago",
-    "text": "Quando você fizer planeswalk para fora daqui, destrua todas as permanentes com marcadores de vidro.",
-    "ability": "Sempre que você fizer planeswalk para cá, no início de sua manutenção ou sempre que o caos se instaurar, coloque um marcador de vidro em até uma permanente alvo que não seja terreno."
-  },
   "8bf638e5-8325-48ca-9039-37a19761ef56": {
     "sourceHash": "d02aa029fa3a7029",
     "typeLine": "Plano — Horsehead Nebula",
@@ -544,12 +508,6 @@
     "typeLine": "Plano — Dominaria",
     "text": "Quando você fizer planeswalk para Riptide Island e no início de sua manutenção, crie duas fichas de criatura Fractius incolores 1/1.",
     "ability": "Sempre que o caos se instaurar, os Fractius que você controla ganham ímpeto e recebem +X/+X até o final do turno, sendo X o número de Fractius que você controla."
-  },
-  "93a2967d-b7e3-497f-af7e-56984d0f8386": {
-    "sourceHash": "f9b0cd79932311ff",
-    "typeLine": "Plano — MagicCon",
-    "text": "Sempre que você atacar, crie uma ficha de Broche anexada à criatura atacante alvo que você controla. Ela é um encantamento Aura Broche com encantar criatura e \"A criatura encantada recebe +1/+1.\"",
-    "ability": "Sempre que o caos se instaurar, cada oponente perde X pontos de vida, sendo X o número total de broches anexados a você e às criaturas que você controla. (Isso inclui os broches em sua mochila.)"
   },
   "93b3acc1-2d41-4f5f-9225-7a30ea2d8158": {
     "sourceHash": "e1019b2034008faa",
@@ -719,12 +677,6 @@
     "text": "Sempre que um jogador conjurar uma mágica, aquele jogador joga uma moeda. Se o jogador perder o cara ou coroa, anule aquela mágica.",
     "ability": "Sempre que o caos se instaurar, o jogador alvo revela o card do topo de seu grimório. Se for um card que não seja terreno, você pode conjurá-lo sem pagar seu custo de mana."
   },
-  "b977ff66-6c52-4f33-8f25-e310d835be8b": {
-    "sourceHash": "a687c9c0ccbdcc87",
-    "typeLine": "Plano — Chicago",
-    "text": "Quando você fizer planeswalk para cá, cada jogador escolhe uma criatura que controla e cria uma ficha que é uma cópia dela, exceto que é um Reflexo além de seus outros tipos.\nTodos os Reflexos têm sombra. (Eles só podem bloquear ou ser bloqueados por criaturas com sombra.)",
-    "ability": "Sempre que o caos se instaurar, crie uma ficha que é uma cópia de uma criatura que você controla, exceto que é um Reflexo além de seus outros tipos."
-  },
   "bbb1d13c-a3ce-4151-883a-cce9bbd584d0": {
     "sourceHash": "c6b0c6f87b577ef2",
     "typeLine": "Plano — Kinshala",
@@ -839,12 +791,6 @@
     "text": "Sempre que você fizer planeswalk para Two Streams Facility e no início da primeira manutenção do jogo, cada jogador escolhe âncora verde ou cachoeira vermelha.\nCada jogador que escolheu âncora verde por último pode jogar um terreno adicional durante cada um de seus turnos.\nAs criaturas controladas por jogadores que escolheram cachoeira vermelha por último recebem +2/+0 e têm ímpeto.",
     "ability": "Sempre que o caos se instaurar, cada jogador que escolheu âncora verde por último escolhe cachoeira vermelha e vice-versa."
   },
-  "ddea0dcf-e8d1-44ea-9ce4-009fa8bbfb95": {
-    "sourceHash": "56a198b52a2f926e",
-    "typeLine": "Plano — MagicCon",
-    "text": "Quando você fizer planeswalk para cá e no início de sua manutenção, crie uma ficha de artefato Black Lotus.",
-    "ability": "Sempre que o caos se instaurar, cada jogador compra um card para cada ficha de artefato que controla."
-  },
   "de53c948-b371-4f79-a965-33c44d0b44de": {
     "sourceHash": "8f0b236aafb60f9e",
     "typeLine": "Plano — Kamigawa",
@@ -880,12 +826,6 @@
     "typeLine": "Plano — Ravnica",
     "text": "Sempre que um jogador conjurar uma mágica instantânea ou um feitiço, aquele jogador a copia. O jogador pode escolher novos alvos para a cópia.",
     "ability": "Sempre que o caos se instaurar, as mágicas instantâneas e os feitiços que você conjurar neste turno custam {3} a menos para serem conjurados."
-  },
-  "e72339e4-222e-44a2-89ad-bef9835fb1d7": {
-    "sourceHash": "651bc389393649fc",
-    "typeLine": "Plano — MagicCon",
-    "text": "Sempre que você fizer planeswalk para cá e no início de sua manutenção, exile o card do topo de seu grimório. Você pode jogar aquele card neste turno.",
-    "ability": "Sempre que o caos se instaurar, exile os seis cards do topo de seu grimório. Um oponente ou um jogador de fora do jogo escolhe um card que não seja terreno com a arte favorita dele. Depois, você pode conjurar aquela mágica sem pagar seu custo de mana."
   },
   "ece3b5ed-3c07-4586-bf99-72bc1aa6ccef": {
     "sourceHash": "8a92e7826c3a34de",

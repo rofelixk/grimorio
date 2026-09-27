@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { SupabaseClient, User } from '@supabase/supabase-js';
 import { CardEntry, CardFace } from '@models/card.model';
+import type { PlanarSelection } from '@models/planar-selection.model';
 import { ProfileSummary } from '@models/profile.model';
 import { StorageLocation } from '@models/storage-location.model';
 import { currentDbHandle, getMeta, setMeta } from '../db/entity-store';
@@ -11,6 +12,7 @@ import { CardService } from './card.service';
 import { CloudAuthService, identityOf } from './cloud-auth.service';
 import { CloudSessionService } from './cloud-session.service';
 import { ConnectivityService } from './connectivity.service';
+import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileSessionService } from './profile-session.service';
 import { ProfileStore } from './profile-store.service';
 import { StorageLocationService } from './storage-location.service';
@@ -49,6 +51,15 @@ interface CardEntryRow {
   notes: string | null;
   updated_at: string;
 }
+
+interface PlanarSelectionRow {
+  user_id: string;
+  disabled_ids: string[];
+  updated_at: string;
+}
+
+/** The one selection a profile has, as the single entity the reconciler compares. */
+const PLANAR_SELECTION_ID = 'planar-selection';
 
 export type SyncState = 'idle' | 'syncing' | 'done' | 'offline' | 'reauth' | 'error';
 /**
@@ -149,7 +160,7 @@ class Offline extends Error {}
 /** The run no longer owns the outcome: the profile changed, or the run timed out. */
 class Superseded extends Error {}
 
-// Syncs the active profile's identity, locations and cards with its linked account (R11), reusing
+// Syncs the active profile's identity, locations, cards and planar deck selection with its linked account (R11), reusing
 // the per-item last-write-wins reconciler. Each run first asks GoTrue about the account (spec 005
 // R12): a deleted one turns the profile local-only, a dead session asks for "Entrar de novo", and
 // otherwise the identity step reconciles the colors and label (R6). Decks never sync. Sync is manual only: nothing but
@@ -163,6 +174,7 @@ export class SyncService {
   private readonly connectivity = inject(ConnectivityService);
   private readonly cards = inject(CardService);
   private readonly locations = inject(StorageLocationService);
+  private readonly planarSelection = inject(PlanarSelectionService);
   private readonly cloudAuth = inject(CloudAuthService);
   private readonly profiles = inject(ProfileStore);
 
@@ -288,6 +300,7 @@ export class SyncService {
       // Locations first: card_entries.location_id references storage_locations.
       await this.syncLocations(client, run);
       await this.syncCards(client, run);
+      await this.syncPlanarSelection(client, run);
 
       const syncedAt = new Date().toISOString();
       this.ensureCurrent(run);
@@ -442,5 +455,46 @@ export class SyncService {
     this.ensureCurrent(run);
     this.cards.applySyncResult(result.merged);
     await this.cards.clearTombstones(result.tombstonesToClear);
+  }
+
+  // One row per account, last-write-wins on updatedAt; never deleted, so no tombstones (FR-021).
+  private async syncPlanarSelection(client: SupabaseClient, run: Run): Promise<void> {
+    const signal = run.abort.signal;
+    const userId = run.profile.cloud!.userId;
+    await this.planarSelection.flush();
+    const { data, error } = await client
+      .from('planechase_selections')
+      .select('user_id, disabled_ids, updated_at')
+      .eq('user_id', userId)
+      .abortSignal(signal);
+    if (error) {
+      throw error;
+    }
+    this.ensureCurrent(run);
+    const local = this.planarSelection.selection();
+    const row = (data as PlanarSelectionRow[])[0];
+    // timestamptz comes back as "…+00:00"; ISO keeps the string comparison with the local stamp exact.
+    const remote: PlanarSelection | null = row
+      ? { disabledIds: row.disabled_ids, updatedAt: new Date(row.updated_at).toISOString() }
+      : null;
+    const asEntity = (selection: PlanarSelection | null) =>
+      selection ? [{ id: PLANAR_SELECTION_ID, ...selection }] : [];
+    const result = reconcileEntities(asEntity(local), asEntity(remote), []);
+
+    if (local && result.toUpsertRemote.length > 0) {
+      const { error: upsertError } = await client
+        .from('planechase_selections')
+        .upsert(
+          { user_id: userId, disabled_ids: local.disabledIds, updated_at: local.updatedAt },
+          { onConflict: 'user_id' },
+        )
+        .abortSignal(signal);
+      if (upsertError) {
+        throw upsertError;
+      }
+    } else if (remote && (!local || remote.updatedAt > local.updatedAt)) {
+      this.ensureCurrent(run);
+      this.planarSelection.applySyncResult(remote);
+    }
   }
 }

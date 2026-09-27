@@ -1,11 +1,18 @@
 @use 'breakpoints' as bp;
 
-// DESIGN.md "Gameplay: Planechase". The view fills the view area, so the wide footer and the phone
-// dock rest at the bottom of short pages; the dock is sticky inside `.game` (R16).
+// DESIGN.md "Gameplay: Planechase". The view fills the view area, so the wide footer rests at the
+// bottom of short pages; the phone dock is fixed to the screen, outside this flow. The flairs reach
+// past the card (the chaos rings grow to ~3× the image), so the view clips them: `clip`, unlike
+// `hidden`, makes no scroll container, and the view area's scroll size never changes mid-flair.
+// It's also the flairs' stage: positioned, and isolated so their light (above the page UI, below
+// the card image) never mixes with the shell's stacking.
 :host {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
+  overflow: clip;
 }
 
 .page-title,
@@ -71,12 +78,11 @@ a.btn {
   flex: 1 0 auto;
   gap: var(--space-4);
   width: 100%;
-  max-width: 1120px;
   padding: var(--space-5);
 
   @include bp.mobile {
     gap: var(--space-3);
-    padding: var(--space-4) var(--space-4) 0;
+    padding: var(--space-4);
   }
 }
 
@@ -115,10 +121,6 @@ a.btn {
 
 .btn--outlined {
   border-color: var(--color-border);
-}
-
-app-planar-dock {
-  margin: 0 calc(-1 * var(--space-4));
 }
 
 .visually-hidden {

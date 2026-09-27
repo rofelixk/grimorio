@@ -29,7 +29,7 @@ Source: Magic: The Gathering Comprehensive Rules effective 2026-09-25, rules 311
 
 ### Session 2026-09-27
 
-- Q: Which cards make up the catalog? → A (from rules research against the card catalog): every plane and phenomenon card that has at least one non-gold-border printing, one entry per distinct English name. That is about 160 cards from Planechase Anthology (which reprints Planechase 2009 and 2012), March of the Machine Commander, Doctor Who and the black-bordered Unknown event planes. Gold-bordered Secret Lair Showcase and Unknown Planechase planes are excluded.
+- Q: Which cards make up the catalog? → A (from rules research against the card catalog): every plane and phenomenon card that has at least one non-gold-border printing, one entry per distinct English name. That is about 150 cards from Planechase Anthology (which reprints Planechase 2009 and 2012), March of the Machine Commander and Doctor Who. Gold-bordered Secret Lair Showcase and Unknown Planechase planes are excluded, and so is the Black Lotus Unknown Planechase set (`punk`, whose only images are photos of unfinished playtest prints), by maintainer decision on 2026-09-27.
 - Q: Should card names be translated? → A: No. Names stay in English. Only the type line and rules text are translated.
 - Q: Do deck-settings changes save on each toggle or through an explicit save? → A: The person edits a draft. "Salvar" checks the limits and saves, and "Cancelar" throws the draft away. The draft may pass through invalid states while it is being edited.
 - Q: Can an accidental roll or planeswalk be undone? → A: Yes, one step. "Desfazer" reverts only the last game action.

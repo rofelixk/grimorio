@@ -22,6 +22,9 @@
   flex-direction: column;
   overflow-x: hidden;
   overflow-y: auto;
+  // A fixed bottom bar (the Planechase phone dock) publishes its height here while it's mounted,
+  // so the view area's last content scrolls clear of it.
+  padding-bottom: var(--bottom-bar-height, 0px);
   scrollbar-width: thin;
   scrollbar-color: var(--color-surface-raised) transparent;
 

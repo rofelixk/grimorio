@@ -4,7 +4,6 @@
 }
 
 .tile {
-  --planar-radius: var(--radius-sm);
   --planar-name-size: var(--font-size-sm);
   --planar-border: var(--role-primary);
 
@@ -13,7 +12,8 @@
   width: 100%;
   padding: 0;
   border: none;
-  border-radius: var(--radius-sm);
+  // Matches the image's corners, so the hover glow follows them.
+  border-radius: var(--planechase-radius);
   background: none;
   color: inherit;
   font: inherit;
@@ -33,10 +33,14 @@
   }
 }
 
+// Tucked into the rounded corner: the corner's arc crosses the diagonal at ~0.29 × its radius from
+// each edge, and the bead keeps a 6px gap inside that point, whatever the radius.
 .bead {
+  --bead-inset: calc(var(--planechase-radius) * 0.29 + 6px);
+
   position: absolute;
-  top: 7px;
-  right: 7px;
+  top: var(--bead-inset);
+  right: var(--bead-inset);
   z-index: 1;
   width: var(--bead);
   height: var(--bead);

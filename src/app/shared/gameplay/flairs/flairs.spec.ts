@@ -25,17 +25,23 @@ function driveFrames() {
 
 function block(): HTMLElement {
   const el = document.createElement('div');
-  el.innerHTML = '<div class="frame"><div data-flair-shake>image</div></div><h2>Old plane</h2>';
+  el.innerHTML = '<div class="frame"><div data-flair-shake data-flair-image>image</div></div><h2>Old plane</h2>';
   document.body.appendChild(el);
   return el;
 }
 
 describe('flairs', () => {
+  let stage: HTMLElement;
   let target: HTMLElement;
 
-  beforeEach(() => (target = block()));
+  beforeEach(() => {
+    stage = document.createElement('section');
+    document.body.appendChild(stage);
+    target = block();
+    stage.appendChild(target);
+  });
   afterEach(() => {
-    target.remove();
+    stage.remove();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
@@ -44,45 +50,55 @@ describe('flairs', () => {
     beforeEach(() => stubReducedMotion(true));
 
     it('the planeswalk flair resolves at once and adds nothing', async () => {
-      const play = new PlaneswalkFlair().capture(target);
+      const play = new PlaneswalkFlair().capture(target, stage);
       await play();
-      expect(target.querySelector('.grm-flair')).toBeNull();
+      expect(stage.querySelector('.grm-flair')).toBeNull();
     });
 
     it('the chaos flair resolves at once and adds nothing', async () => {
-      await new ChaosFlair().play(target.querySelector('.frame')!);
-      expect(target.querySelector('.grm-flair')).toBeNull();
+      await new ChaosFlair().play(target.querySelector('.frame')!, stage);
+      expect(stage.querySelector('.grm-flair')).toBeNull();
     });
   });
 
   describe('with motion', () => {
     beforeEach(() => stubReducedMotion(false));
 
-    it('the planeswalk flair overlays the captured card, then removes every node', async () => {
+    it('the planeswalk flair covers the new card with the snapshot, lights the stage, then removes every node', async () => {
       const drive = driveFrames();
-      const play = new PlaneswalkFlair().capture(target);
+      const play = new PlaneswalkFlair().capture(target, stage);
       target.querySelector('h2')!.textContent = 'New plane';
       const done = play();
 
-      const layer = target.querySelector('.grm-flair')!;
-      expect(layer.getAttribute('aria-hidden')).toBe('true');
-      expect(layer.textContent).toContain('Old plane');
+      // The old block sits under the light; only its image shows above the new image (z 20).
+      const [block, cover] = target.querySelectorAll<HTMLElement>(':scope > .grm-flair');
+      expect(block.getAttribute('aria-hidden')).toBe('true');
+      expect(block.textContent).toContain('Old plane');
+      expect(block.style.zIndex).toBe('5');
+      expect(cover.style.zIndex).toBe('21');
+      const copy = cover.firstElementChild as HTMLElement;
+      expect(copy.style.visibility).toBe('hidden');
+      expect(copy.querySelector<HTMLElement>('[data-flair-image]')!.style.visibility).toBe('visible');
+      const lights = [...stage.querySelectorAll<HTMLElement>(':scope > .grm-flair')];
+      expect(lights.map((l) => l.style.zIndex)).toEqual(['10', '10']);
 
       drive();
       await done;
-      expect(target.querySelector('.grm-flair')).toBeNull();
+      expect(stage.querySelector('.grm-flair')).toBeNull();
       expect(target.textContent).toContain('New plane');
     });
 
-    it('the chaos flair plays behind the image, shakes it, then cleans up', async () => {
+    it('the chaos flair plays on the stage below the image, shakes it, then cleans up', async () => {
       const drive = driveFrames();
       const frame = target.querySelector<HTMLElement>('.frame')!;
-      const done = new ChaosFlair().play(frame);
-      expect(frame.firstElementChild!.classList).toContain('grm-flair');
+      const done = new ChaosFlair().play(frame, stage);
+      const light = stage.querySelector<HTMLElement>(':scope > .grm-flair')!;
+      expect(light.style.zIndex).toBe('10');
+      expect(frame.querySelector('.grm-flair')).toBeNull();
 
       drive();
       await done;
-      expect(target.querySelector('.grm-flair')).toBeNull();
+      expect(stage.querySelector('.grm-flair')).toBeNull();
       expect(frame.querySelector<HTMLElement>('[data-flair-shake]')!.style.transform).toBe('');
     });
   });

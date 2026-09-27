@@ -4,8 +4,8 @@
   [class.is-off]="!on()"
   [attr.aria-pressed]="on()"
   [attr.aria-label]="label()"
-  (click)="toggle.emit()"
+  (click)="toggled.emit()"
 >
-  <app-planar-image [address]="card().images.small" [name]="card().name" [lazy]="true" />
+  <app-planar-image [address]="card().images.large" [name]="card().name" [lazy]="true" />
   <span class="bead" aria-hidden="true"></span>
 </button>

@@ -38,7 +38,7 @@ describe('PlanarTile', () => {
     const { fixture, button } = await render('p02', true);
     expect(button.querySelector('.name')!.textContent).toBe('Card P02');
     const toggle = vi.fn();
-    fixture.componentInstance.toggle.subscribe(toggle);
+    fixture.componentInstance.toggled.subscribe(toggle);
     button.click();
     expect(toggle).toHaveBeenCalledTimes(1);
   });

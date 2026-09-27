@@ -34,7 +34,6 @@ Every encounter ability on a phenomenon starts with the **canonical encounter op
 |---|---|
 | "Whenever chaos ensues, …" | Sempre que o caos se instaurar, … |
 | "When chaos ensues, …" | Sempre que o caos se instaurar, … |
-| "Whenever you planeswalk here and whenever chaos ensues, …" (Shy Town), "Whenever you planeswalk here, at the beginning of your upkeep, or whenever chaos ensues, …" (Sky Deck) | the chaos part uses the canonical wording ("…ou sempre que o caos se instaurar, …") — **documented exception** to the "starts with" check, don't flag |
 | "When you encounter [this phenomenon], …" | Quando você encontrar [este fenômeno], … |
 
 A card that uses "this plane"/"this phenomenon" or its own name in the opening keeps that choice

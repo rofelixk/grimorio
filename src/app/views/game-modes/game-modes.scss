@@ -7,6 +7,7 @@
   gap: var(--space-4);
   width: 100%;
   max-width: 720px;
+  margin-inline: auto;
   padding: var(--space-5);
 
   @include bp.mobile {

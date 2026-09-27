@@ -33,6 +33,9 @@
         <button type="button" class="btn" [disabled]="!actions().planeswalk" (click)="planeswalk.emit()">
           {{ copy.planeswalk }}
         </button>
+        <button type="button" class="btn" [disabled]="!actions().chaos" (click)="chaos.emit()">
+          {{ copy.chaos }}
+        </button>
       }
       <button type="button" class="btn btn--primary" [disabled]="!primaryEnabled()" (click)="primary()">
         {{ primaryLabel() }}

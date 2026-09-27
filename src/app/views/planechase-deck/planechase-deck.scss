@@ -1,0 +1,176 @@
+@use 'breakpoints' as bp;
+
+// DESIGN.md "Card tile", "Collapsible set group" and "Deck footer": a scrolling body with the
+// footer pinned to the bottom of the view area (sticky, so the view area stays the only scroll
+// container).
+:host {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  flex: 1 0 auto;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+
+  @include bp.mobile {
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.back {
+  align-self: flex-start;
+  margin-left: calc(-1 * var(--space-3));
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.page-title {
+  margin: 0;
+  font: 600 var(--font-size-2xl) / 1.1 var(--font-display);
+  text-shadow: var(--glow-title);
+}
+
+.counter,
+.hint {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.notice {
+  max-width: 72ch;
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-wrap: pretty;
+}
+
+.set {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.set-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.set-toggle {
+  min-height: var(--touch-target);
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.set-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.tiles {
+  display: grid;
+  // Big enough to read the card text: 4 per row, 1 on phones.
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+
+  &:empty {
+    display: none;
+  }
+
+  @include bp.mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+
+  @include bp.mobile {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+.footer--confirm {
+  justify-content: space-between;
+  border-top-color: var(--color-danger);
+}
+
+.error {
+  flex: 1 1 20ch;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+}
+
+.footer-actions {
+  display: flex;
+  gap: var(--space-2);
+
+  @include bp.mobile {
+    flex: 1 1 100%;
+
+    .btn {
+      flex: 1;
+    }
+  }
+}
+
+a.btn {
+  text-decoration: none;
+}
+
+.confirm-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.confirm-title {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.confirm-body {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

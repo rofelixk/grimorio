@@ -1,0 +1,69 @@
+<div class="body">
+  <header class="header">
+    <a class="btn btn--ghost back" routerLink="/modes/planechase">{{ copy.back }}</a>
+    <div class="title-row">
+      <h1 #heading class="page-title" tabindex="-1">{{ copy.title }}</h1>
+      <p class="counter" aria-live="polite">{{ counter() }}</p>
+    </div>
+    <p class="hint">{{ copy.hint }}</p>
+    @if (notice()) {
+      <p class="notice">{{ copy.notice }}</p>
+    }
+  </header>
+
+  @for (set of sets(); track set.code) {
+    <section class="set">
+      <div class="set-header">
+        <button
+          type="button"
+          class="set-toggle eyebrow"
+          [attr.aria-expanded]="!collapsed().has(set.code)"
+          [attr.aria-controls]="'set-' + set.code"
+          (click)="toggleCollapsed(set)"
+        >
+          <span lang="en">{{ set.name }}</span> · {{ onCount(set) }} de {{ set.cards.length }}
+        </button>
+        <span class="set-actions">
+          <button type="button" class="link-btn" (click)="setAll(set, true)">{{ copy.enableAll }}</button>
+          <button type="button" class="link-btn" (click)="setAll(set, false)">{{ copy.disableAll }}</button>
+        </span>
+      </div>
+      <div class="tiles" [id]="'set-' + set.code">
+        @if (!collapsed().has(set.code)) {
+          @for (card of set.cards; track card.id) {
+            <app-planar-tile [card]="card" [on]="isOn(card)" (toggled)="toggle(card)" />
+          }
+        }
+      </div>
+    </section>
+  }
+</div>
+
+@if (confirming()) {
+  <footer
+    class="footer footer--confirm"
+    role="alertdialog"
+    aria-labelledby="deck-confirm-title"
+    aria-describedby="deck-confirm-body"
+    (keydown.escape)="keep()"
+  >
+    <div class="confirm-text">
+      <p id="deck-confirm-title" class="confirm-title">{{ copy.confirmTitle }}</p>
+      <p id="deck-confirm-body" class="confirm-body">{{ copy.confirmBody }}</p>
+    </div>
+    <div class="footer-actions">
+      <button #keepButton type="button" class="btn btn--secondary" (click)="keep()">{{ copy.keep }}</button>
+      <button type="button" class="btn btn--danger" (click)="restart()">{{ copy.restart }}</button>
+    </div>
+  </footer>
+} @else {
+  <footer class="footer">
+    @if (error(); as error) {
+      <p class="error" role="alert">{{ error }}</p>
+    }
+    <div class="footer-actions">
+      <a class="btn btn--secondary" routerLink="/modes/planechase">{{ copy.cancel }}</a>
+      <button #saveButton type="button" class="btn btn--primary" (click)="save()">{{ copy.save }}</button>
+    </div>
+  </footer>
+}

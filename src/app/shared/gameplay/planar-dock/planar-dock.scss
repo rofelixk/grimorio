@@ -1,7 +1,10 @@
-// DESIGN.md "Phone dock": sticky inside the view, so the view area stays the only scroll container.
+// DESIGN.md "Phone dock": fixed to the bottom of the screen, outside the page flow; the view area
+// pads its end by the dock's height (`--bottom-bar-height`, app.scss) so nothing hides under it.
 :host {
-  position: sticky;
+  position: fixed;
+  right: 0;
   bottom: 0;
+  left: 0;
   z-index: 2;
   display: block;
 }
@@ -10,7 +13,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
   border-top: 1px solid var(--role-primary);
   background: var(--color-bg);
   box-shadow: 0 -8px 24px -8px rgb(from var(--role-primary) r g b / 35%);
@@ -50,6 +53,13 @@
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   text-wrap: pretty;
+}
+
+// The result line always reserves 3 lines, so the dock keeps its height from plane to plane
+// whatever the card name or result.
+.summary .detail {
+  display: block;
+  min-height: 3lh;
 }
 
 .row {

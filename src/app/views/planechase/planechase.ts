@@ -78,6 +78,8 @@ export class Planechase {
   private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
   private readonly card = viewChild(PlanarCard);
   private readonly cardElement = viewChild(PlanarCard, { read: ElementRef });
+  /** The view is the flairs' stage (planechase.scss): they paint over its UI, under the card image. */
+  private readonly stage = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly walkFlair = new PlaneswalkFlair();
   private readonly chaosFlair = new ChaosFlair();
 
@@ -112,6 +114,11 @@ export class Planechase {
 
   protected planeswalk(): void {
     this.withFlairs(() => this.service.planeswalk());
+  }
+
+  /** "Caos" for a physical die: the plate lights and the chaos flair plays, as on a rolled Caos. */
+  protected chaos(): void {
+    this.withFlairs(() => this.service.chaos());
   }
 
   protected confirmPhenomenon(): void {
@@ -175,7 +182,7 @@ export class Planechase {
     this.stopFlairs();
     const before = this.game();
     const host = this.cardElement()?.nativeElement as HTMLElement | undefined;
-    const playWalk = host ? this.walkFlair.capture(host) : null;
+    const playWalk = host ? this.walkFlair.capture(host, this.stage) : null;
     action();
     const after = this.game();
     if (!before || !after || after === before) {
@@ -186,7 +193,7 @@ export class Planechase {
     } else if (after.result.kind === 'chaos') {
       const card = this.card();
       if (card) {
-        void this.chaosFlair.play(card.imageFrame());
+        void this.chaosFlair.play(card.imageFrame(), this.stage);
       }
     }
   }

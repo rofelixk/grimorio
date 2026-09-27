@@ -1,28 +1,31 @@
-import { ROLE_COLORS, easeOutCubic, flairLayer, reducedMotion, spark } from './flair-layer';
+import { ROLE_COLORS, easeOutCubic, reducedMotion, spark, stageLayer } from './flair-layer';
 
 const DURATION = 1100;
 const RING_LIFE = 900;
-const SPARKS = 22;
+const SPARKS = 198;
 const SPARK_LIFE = 700;
 const SHAKE = 320;
 
 // The chaos shockwave (DESIGN.md "Flairs", handoff 2b): two role rings and a burst of sparks
-// behind the card image, so only what escapes its edges shows, and a short decaying shake of the
-// image (`[data-flair-shake]`). One rAF clock drives all of it (R15).
+// centered on the card image and below it, so only what escapes its edges shows — over the rest of
+// the page — and a short decaying shake of the image (`[data-flair-shake]`). One rAF clock drives
+// all of it (R15).
 export class ChaosFlair {
   private frame = 0;
   private layer: HTMLElement | null = null;
   private shaken: HTMLElement | null = null;
 
-  /** Plays behind `target`, the positioned image frame; resolves at once under reduced motion. */
-  play(target: HTMLElement): Promise<void> {
+  /**
+   * Plays around `target` (the image frame) on `stage` (the game view); resolves at once under
+   * reduced motion.
+   */
+  play(target: HTMLElement, stage: HTMLElement): Promise<void> {
     this.stop();
     if (reducedMotion()) {
       return Promise.resolve();
     }
-    const layer = flairLayer('inset:0;z-index:0');
+    const layer = stageLayer(stage, target);
     this.layer = layer;
-    target.prepend(layer);
     this.shaken = target.querySelector<HTMLElement>('[data-flair-shake]');
 
     const size = Math.min(layer.offsetWidth, layer.offsetHeight) * 1.2;

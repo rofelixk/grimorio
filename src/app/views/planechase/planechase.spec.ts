@@ -112,7 +112,22 @@ describe('Planechase', () => {
     expect(control('Desfazer').disabled).toBe(true);
   });
 
-  it('a pending phenomenon disables roll, Planeswalk, Zerar custo and Reiniciar planos', async () => {
+  it('"Caos" marks a physical-die chaos: plate lit, same card, cost unchanged, undoable', async () => {
+    const { el, service, click } = await setUp();
+    await click('Iniciar partida');
+    await click('Caos');
+    expect(service.game()!.current).toBe('p01');
+    expect(service.game()!.cost).toBe(0);
+    expect(el.querySelector('[role="status"]')!.textContent).toContain(
+      'Resolva a habilidade de caos destacada abaixo. O custo do dado não muda.',
+    );
+    expect(el.querySelector('.ability')!.classList).toContain('is-lit');
+
+    await click('Desfazer');
+    expect(service.game()!.result).toEqual({ kind: 'start' });
+  });
+
+  it('a pending phenomenon disables roll, Planeswalk, Caos, Zerar custo and Reiniciar planos', async () => {
     const { el, click, control } = await setUp();
     await click('Iniciar partida');
     for (let i = 0; i < 6; i++) {
@@ -120,6 +135,7 @@ describe('Planechase', () => {
     }
     expect(el.textContent).toContain('Fenômeno encontrado');
     expect(control('Planeswalk').disabled).toBe(true);
+    expect(control('Caos').disabled).toBe(true);
     expect(control('Zerar custo').disabled).toBe(true);
     expect(control('Reiniciar planos').disabled).toBe(true);
     expect(control('Rolar dado planar')).toBeUndefined();
@@ -158,14 +174,14 @@ describe('Planechase', () => {
   });
 
   it('confirms "Reiniciar planos" inline; Cancelar keeps the game and returns focus', async () => {
-    const { el, service, click, control } = await setUp();
+    const { fixture, el, service, click, control } = await setUp();
     await click('Iniciar partida');
     await click('Planeswalk');
     const before = service.game();
 
     const link = control('Reiniciar planos');
     link.click();
-    await TestBed.inject(PlanechaseGameService).flush();
+    await fixture.whenStable();
     const dialog = el.querySelector('[role="alertdialog"]')!;
     expect(dialog.textContent).toContain('Reiniciar planos?');
     await click('Cancelar');
@@ -174,20 +190,20 @@ describe('Planechase', () => {
     expect(document.activeElement).toBe(link);
 
     control('Reiniciar planos').click();
-    await TestBed.inject(PlanechaseGameService).flush();
+    await fixture.whenStable();
     el.querySelector<HTMLButtonElement>('[role="alertdialog"] .btn--danger')!.click();
     expect(service.game()!.used).toEqual([]);
     expect(service.game()!.result).toEqual({ kind: 'reset' });
   });
 
   it('"Encerrar partida" confirms, then returns to the no-game state', async () => {
-    const { el, service, click, control } = await setUp();
+    const { fixture, el, service, click, control } = await setUp();
     await click('Iniciar partida');
     control('Encerrar partida').click();
-    await TestBed.inject(PlanechaseGameService).flush();
+    await fixture.whenStable();
     const dialog = el.querySelector('[role="alertdialog"]')!;
     dialog.querySelector<HTMLButtonElement>('.btn--danger')!.click();
-    await TestBed.inject(PlanechaseGameService).flush();
+    await fixture.whenStable();
     expect(service.game()).toBeNull();
     await click('Iniciar partida');
     expect(service.inProgress()).toBe(true);
@@ -204,7 +220,8 @@ describe('Planechase', () => {
       result: { kind: 'allUsed' },
       undo: null,
     };
-    const { el, service, control } = await setUp({ game });
+    // The reshuffle deals the 13 cards other than p11 in order, so p01 comes up next.
+    const { el, service, control } = await setUp({ game, random: IN_ORDER.slice(1) });
     expect(el.textContent).toContain('Todos os planos foram usados');
     control('Reiniciar planos').click();
     expect(el.querySelector('[role="alertdialog"]')).toBeNull();

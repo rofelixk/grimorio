@@ -1,20 +1,26 @@
-// DESIGN.md "Card image frame": a landscape 1.4 frame. The card uses the 8px container radius; a
-// tile sets `--planar-radius` to 4px, `--planar-name-size` to 0.875rem and tints `--planar-border`.
+// DESIGN.md "Card image frame": a landscape 1.4 frame with `--planechase-radius` corners. A tile
+// sets `--planar-name-size` to 0.875rem and tints `--planar-border`.
 :host {
   display: block;
   position: relative;
   aspect-ratio: 1.4;
   overflow: hidden;
   border: 1px solid var(--planar-border, var(--color-border));
-  border-radius: var(--planar-radius, var(--radius-md));
+  border-radius: var(--planechase-radius, var(--radius-md));
   background: var(--color-surface-raised);
 }
 
+// Scryfall serves planar cards as portrait images with the card turned a quarter counter-clockwise,
+// so the image is sized to the frame's swapped sides and turned back upright.
 .image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: calc(100% / 1.4);
+  height: 140%;
   object-fit: cover;
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 
 .placeholder {

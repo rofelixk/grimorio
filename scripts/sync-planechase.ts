@@ -28,6 +28,10 @@ const PAGE_SIZE = 1000;
 // the paragraph index to use, or null for a plane that genuinely has none.
 const ABILITY_OVERRIDES: Record<string, number | null> = {};
 
+// Sets left out of the planar deck entirely; a card with no printing outside them is dropped.
+// punk (Black Lotus Unknown Planechase): event cards, only as photos of unfinished playtest prints.
+const EXCLUDED_SETS = ['punk'];
+
 const CHAOS_PATTERN = /\bchaos ensue[sd]?\b|\bchaos ensures\b|^chaos:/i;
 
 interface CatalogCard {
@@ -91,6 +95,7 @@ async function readCatalog(): Promise<{ cards: CatalogCard[]; printings: Catalog
         )
         .in('oracle_id', ids)
         .eq('lang', 'en')
+        .not('set_code', 'in', `(${EXCLUDED_SETS.join(',')})`)
         // A plain neq would drop null borders (null <> 'gold' is null), hiding a
         // catalog that sync:scryfall hasn't filled in yet from the check below.
         .or('border_color.is.null,border_color.neq.gold')

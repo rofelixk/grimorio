@@ -33,8 +33,15 @@
         {{ copy.resetCost }}
       </button>
     </div>
-    <button type="button" class="btn btn--primary btn--block" [disabled]="!primaryEnabled()" (click)="primary()">
-      {{ primaryLabel() }}
-    </button>
+    <div class="row">
+      @if (display().mode === 'normal') {
+        <button type="button" class="btn" [disabled]="!actions().chaos" (click)="chaos.emit()">
+          {{ copy.chaos }}
+        </button>
+      }
+      <button type="button" class="btn btn--primary grow" [disabled]="!primaryEnabled()" (click)="primary()">
+        {{ primaryLabel() }}
+      </button>
+    </div>
   </section>
 }

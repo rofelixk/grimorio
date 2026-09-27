@@ -58,8 +58,8 @@ describe('PlanarImage', () => {
         constructor(callback: (entries: Partial<IntersectionObserverEntry>[]) => void) {
           notify = callback;
         }
-        observe() {}
-        disconnect() {}
+        observe = () => undefined;
+        disconnect = () => undefined;
       },
     );
     url.mockResolvedValue('blob:2');

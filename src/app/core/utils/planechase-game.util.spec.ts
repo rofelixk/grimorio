@@ -4,6 +4,7 @@ import { PLANAR_RECORDS, planarKindOf as kindOf, scriptedRandom } from '@testing
 import { randomInt } from './crypto-random.util';
 import {
   abilityLit,
+  chaos,
   availableActions,
   confirmPhenomenon,
   planeswalk,
@@ -32,8 +33,8 @@ function game(partial: Partial<PlanechaseGame> = {}): PlanechaseGame {
 }
 
 function stateOf(g: PlanechaseGame): PlanechaseGameState {
-  const { undo: _undo, ...state } = g;
-  return state;
+  const { list, current, used, drawOrder, cost, pending, result } = g;
+  return { list, current, used, drawOrder, cost, pending, result };
 }
 
 /** current, used and drawOrder are pairwise distinct and together make up the list. */
@@ -140,6 +141,7 @@ describe('phenomena', () => {
     expect(availableActions(g)).toEqual({
       roll: false,
       planeswalk: false,
+      chaos: false,
       resetCost: false,
       confirm: true,
       reshuffle: false,
@@ -170,6 +172,7 @@ describe('phenomena', () => {
     expect(availableActions(g)).toEqual({
       roll: false,
       planeswalk: false,
+      chaos: false,
       resetCost: false,
       confirm: false,
       reshuffle: true,
@@ -256,11 +259,34 @@ describe('availableActions', () => {
     expect(availableActions(game())).toEqual({
       roll: true,
       planeswalk: true,
+      chaos: true,
       resetCost: true,
       confirm: false,
       reshuffle: true,
       undo: false,
     });
+  });
+});
+
+describe('chaos (manual, physical die)', () => {
+  it('gives the Caos result and lights the plate, leaving the card and the cost alone', () => {
+    const before = game({ cost: 2 });
+    const g = chaos(before);
+    expect(g.result).toEqual({ kind: 'chaos', manual: true });
+    expect(g.current).toBe(before.current);
+    expect(g.cost).toBe(2);
+    expect(g.drawOrder).toEqual(before.drawOrder);
+    expect(abilityLit(g)).toBe(true);
+  });
+
+  it('is undoable', () => {
+    const before = game({ cost: 2 });
+    expect(undo(chaos(before))).toEqual({ ...before, undo: null });
+  });
+
+  it('is refused while a phenomenon waits or the planes are all used', () => {
+    expect(() => chaos(game({ pending: 'phenomenon' }))).toThrow();
+    expect(() => chaos(game({ pending: 'reset' }))).toThrow();
   });
 });
 

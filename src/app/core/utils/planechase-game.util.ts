@@ -11,6 +11,7 @@ export type CardKindOf = (id: string) => 'plane' | 'phenomenon';
 export interface PlanechaseActions {
   roll: boolean;
   planeswalk: boolean;
+  chaos: boolean;
   resetCost: boolean;
   confirm: boolean;
   reshuffle: boolean;
@@ -18,8 +19,8 @@ export interface PlanechaseActions {
 }
 
 function stateOf(game: PlanechaseGame): PlanechaseGameState {
-  const { undo: _undo, ...state } = game;
-  return state;
+  const { list, current, used, drawOrder, cost, pending, result } = game;
+  return { list, current, used, drawOrder, cost, pending, result };
 }
 
 function undoable(next: PlanechaseGameState, previous: PlanechaseGame): PlanechaseGame {
@@ -93,6 +94,12 @@ export function planeswalk(game: PlanechaseGame, kindOf: CardKindOf): Planechase
   return undoable(draw(stateOf(game), kindOf, { kind: 'manual', from: game.current }), game);
 }
 
+/** The manual chaos, for a physical die: the Caos result without a roll, cost unchanged. */
+export function chaos(game: PlanechaseGame): PlanechaseGame {
+  assertAllowed(game.pending === null, 'chaos');
+  return undoable({ ...stateOf(game), result: { kind: 'chaos', manual: true } }, game);
+}
+
 /** The encounter is resolved: planeswalk again, possibly onto another phenomenon (312.7). */
 export function confirmPhenomenon(game: PlanechaseGame, kindOf: CardKindOf): PlanechaseGame {
   assertAllowed(game.pending === 'phenomenon', 'confirmPhenomenon');
@@ -137,11 +144,11 @@ export function availableActions(game: PlanechaseGame): PlanechaseActions {
   const undo = game.undo !== null;
   switch (game.pending) {
     case 'phenomenon':
-      return { roll: false, planeswalk: false, resetCost: false, confirm: true, reshuffle: false, undo };
+      return { roll: false, planeswalk: false, chaos: false, resetCost: false, confirm: true, reshuffle: false, undo };
     case 'reset':
-      return { roll: false, planeswalk: false, resetCost: false, confirm: false, reshuffle: true, undo };
+      return { roll: false, planeswalk: false, chaos: false, resetCost: false, confirm: false, reshuffle: true, undo };
     case null:
-      return { roll: true, planeswalk: true, resetCost: true, confirm: false, reshuffle: true, undo };
+      return { roll: true, planeswalk: true, chaos: true, resetCost: true, confirm: false, reshuffle: true, undo };
   }
 }
 

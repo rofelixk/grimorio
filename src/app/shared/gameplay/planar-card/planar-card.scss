@@ -5,7 +5,10 @@
 :host {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  // The image leads, up to 60% of the width, but never taller than the window leaves room for
+  // after the top bar, the console and the footer links, so the game fits without scrolling
+  // (the frame is 1.4:1).
+  grid-template-columns: min(60%, calc((100dvh - 20rem) * 1.4)) minmax(0, 1fr);
   gap: var(--space-5);
   align-items: start;
   background: var(--color-bg);
@@ -20,32 +23,53 @@
   position: relative;
 }
 
+// Above the flairs' light layer (FLAIR_Z in flairs/flair-layer.ts): the effects never cover the art.
 .image {
   position: relative;
-  z-index: 1;
+  z-index: 20;
 }
 
+// Beside the big image on wide screens the text reads a size up the scale, so the column doesn't
+// feel empty; phones keep the compact sizes.
 .text {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
   min-width: 0;
+
+  @include bp.mobile {
+    gap: var(--space-2);
+  }
 }
 
 .name {
   margin: 0;
-  font: 600 var(--font-size-xl) / var(--line-height-tight) var(--font-display);
+  font: 600 var(--font-size-2xl) / var(--line-height-tight) var(--font-display);
+
+  @include bp.mobile {
+    font-size: var(--font-size-xl);
+  }
 }
 
 .type {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   color: var(--color-text-muted);
+
+  @include bp.mobile {
+    font-size: var(--font-size-sm);
+  }
 }
 
 .line {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-normal);
   text-wrap: pretty;
+
+  @include bp.mobile {
+    font-size: var(--font-size-sm);
+    line-height: inherit;
+  }
 }
 
 .ability {

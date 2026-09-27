@@ -5,7 +5,8 @@
 export type PlanarResult =
   | { kind: 'start' }
   | { kind: 'blank' }
-  | { kind: 'chaos' }
+  /** `manual`: set with the Caos button for a physical die; the cost doesn't change. */
+  | { kind: 'chaos'; manual?: true }
   | { kind: 'planeswalk'; from: string }
   | { kind: 'manual'; from: string }
   | { kind: 'cost' }

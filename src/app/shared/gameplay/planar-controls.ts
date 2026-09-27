@@ -16,6 +16,7 @@ export abstract class PlanarControls {
 
   readonly roll = output<void>();
   readonly planeswalk = output<void>();
+  readonly chaos = output<void>();
   readonly resetCost = output<void>();
   readonly undo = output<void>();
   readonly confirmPhenomenon = output<void>();

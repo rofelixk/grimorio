@@ -15,7 +15,7 @@ import { PlanarImage } from '@shared/gameplay/planar-image/planar-image';
 export class PlanarTile {
   readonly card = input.required<PlanarCard>();
   readonly on = input.required<boolean>();
-  readonly toggle = output<void>();
+  readonly toggled = output<void>();
 
   protected readonly label = computed(
     () => `${this.card().name}, ${this.card().kind === 'phenomenon' ? PLANAR_CARD.phenomenon : PLANAR_CARD.plane}`,

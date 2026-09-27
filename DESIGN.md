@@ -472,35 +472,35 @@ The last thing in every page's scroll area: `<aside aria-label="Aviso legal">`, 
 ### Gameplay: Planechase
 The first gameplay mode (spec 006). All of it is routed pages inside the view area, never a modal. Card names, English set names and untranslated card text carry `lang="en"`.
 
-**Page columns.** Menu 720px, no-game state 480px (centered, text-center, gap `space-4`), game 1120px, rules article 62ch. Page padding `space-5` (mobile `space-4`). Page titles are Grenze 600 2rem/1.1 with the title glow.
+**Page columns.** Menu 720px, no-game state 480px (centered, text-center, gap `space-4`), rules article 62ch — each centered in the view area. The game fills the view area's width (it follows the side nav when pinned), so its console, card and footer hairline span the page like the legal notice below it. Page padding `space-5` (mobile `space-4`). Page titles are Grenze 600 2rem/1.1 with the title glow.
 
 **Game console** (wide, > 640px) — the focus of the game page.
 - A grid `minmax(0,1fr) auto`, gap `space-4`, centered, padding `space-4 space-5`, 1px role-primary border, 8px radius, `--glow-button`.
 - Left, a `role="status" aria-live="polite"` column (gap `space-1`): eyebrow "Dado planar · próxima rolagem {N}" → result title (Grenze 600, 2rem/1.15, title glow) → sub line (0.875rem muted).
-- Right, actions (wrap, gap `space-2`, right-aligned): ghost Desfazer · Zerar custo · Planeswalk · primary Rolar dado planar.
-- **Phenomenon pending:** eyebrow "Fenômeno"; the primary becomes Concluir encontro; Zerar custo and Planeswalk are disabled.
+- Right, actions (wrap, gap `space-2`, right-aligned): ghost Desfazer · Zerar custo · Planeswalk · Caos · primary Rolar dado planar. Planeswalk and Caos are the physical-die buttons: the result without a roll, the cost unchanged.
+- **Phenomenon pending:** eyebrow "Fenômeno"; the primary becomes Concluir encontro; Zerar custo, Planeswalk and Caos are disabled.
 - **All used:** eyebrow "Planeswalk pendente"; actions are Desfazer + primary Reiniciar planos only.
 - **Inline confirm:** the console's content is replaced; `role="alertdialog"` with `aria-labelledby`/`aria-describedby`; **danger border, no glow**; title + body; Cancelar (focused on open) · danger verb. Esc cancels.
 
-**Phone dock** (≤ 640px) — the console's mobile form, `position: sticky; bottom: 0` inside the view, so the view area stays the only scroll container.
+**Phone dock** (≤ 640px) — the console's mobile form, fixed to the bottom of the screen, outside the page flow: the page (card, links, then the legal notice) scrolls under it, and the view area pads its end by the dock's height (`--bottom-bar-height`, published by the dock while mounted) so its last content clears it. Bottom padding adds the safe-area inset.
 - Page background, border-top 1px role-primary, `0 -8px 24px -8px` primary at 35%, padding `space-3 space-4`, gap `space-2`.
-- Row: result (Grenze 600, 1.25rem) · "Próxima: {N}" right, muted. Sub line 0.75rem muted.
-- Row: ghost Desfazer · Planeswalk (flex 1) · Zerar custo (flex 1). Then a primary block button (Rolar dado planar / Concluir encontro / Reiniciar planos).
+- Row: result (Grenze 600, 1.25rem) · "Próxima: {N}" right, muted. Sub line 0.75rem muted, always reserving 3 lines so the dock keeps one height across results and planes.
+- Row: ghost Desfazer · Planeswalk (flex 1) · Zerar custo (flex 1). Then a row of Caos (only with nothing pending) · the primary (flex 1: Rolar dado planar / Concluir encontro / Reiniciar planos).
 - The confirm variant mirrors the console: danger border-top, no glow, buttons flex 1.
 
-**Card block.** Image | text column, `1fr 1fr`, gap `space-5` (mobile: stacked, gap `space-3`). Text column gap `space-2`: name `h2` (Grenze 600 1.5rem, English), type line (0.875rem muted), static text (0.875rem, omitted for phenomena, one paragraph per line), ability plate.
+**Card block.** Image | text column, gap `space-5` (mobile: stacked, gap `space-3`). The image leads: its column is `min(60%, (100dvh − 20rem) × 1.4)`, so it grows with the width but the whole game (console, card and footer links) stays within the window's height, with no scrolling; the text takes the rest. Text column gap `space-3`: name `h2` (Grenze 600 2rem, English), type line (1rem muted), static text and ability text (1.25rem, line-height normal; static text omitted for phenomena, one paragraph per line), ability plate. Mobile keeps the compact sizes: gap `space-2`, name 1.5rem, type line and text 0.875rem.
 
-**Card image frame.** Aspect ratio 1.4 (landscape), 8px radius, 1px border, `surface-raised`. While loading, or without an image, it shows the card name (Grenze 600 1.25rem) centered; once the image can't load it adds "Imagem indisponível sem conexão" as an eyebrow under the name. The image is `alt="{name}"`.
+**Card image frame.** Aspect ratio 1.4 (landscape), `--planechase-radius` corners (1.25rem), 1px border, `surface-raised`. While loading, or without an image, it shows the card name (Grenze 600 1.25rem) centered; once the image can't load it adds "Imagem indisponível sem conexão" as an eyebrow under the name. The image is `alt="{name}"`.
 
 **Ability plate, lit.** The `.plate` holding the chaos ("Caos") or encounter ("Ao encontrar") ability, with an eyebrow label. Lit after a Caos result and while a phenomenon waits: border role-primary, background primary at 12%, `--glow-plate-hover`, eyebrow in `text`. It changes over `slow` 0.5s; instantly under reduced motion. A plane with no chaos ability has no plate.
 
 **Game footer.** Hairline top, `margin-top: auto`, padding-top `space-3`; right-aligned `.link-btn`s Como jogar · Baralho · Reiniciar planos · Encerrar partida. Mobile: a 2 × 2 grid of 44px buttons (secondary Como jogar, Baralho; ghost with a `border` hairline Reiniciar planos, Encerrar partida). **No used/available counts anywhere** during a game: the handoff's counts are overridden by the spec.
 
-**Card tile** (deck settings). A native `<button aria-pressed>` holding the card image (aspect 1.4, 4px radius), `aria-label="{name}, plano|fenômeno"`.
-- **On:** 1px role-primary border, and a lit 7px bead top-right (7px in): role-primary fill, `0 0 0 3px bg, 0 0 10px 1px primary`.
+**Card tile** (deck settings). A native `<button aria-pressed>` holding the card image (aspect 1.4, `--planechase-radius` corners like the image), `aria-label="{name}, plano|fenômeno"`.
+- **On:** 1px role-primary border, and a lit 7px bead top-right, tucked into the rounded corner (inset `0.29 × radius + 6px`, following the corner radius): role-primary fill, `0 0 0 3px bg, 0 0 10px 1px primary`.
 - **Off:** `border` hairline, opacity .35, an empty bead (a `border` ring on the page background).
 - Hover: `--glow-plate-hover`, opacity 1. Without an image, the name shows centered (Grenze 600 0.875rem).
-- Grid `repeat(auto-fill, minmax(150px, 1fr))`, gap `space-2`; mobile 2 columns.
+- Grid of 4 columns, gap `space-3`; mobile 1 column. Tiles use the card's large image, so its text is readable.
 
 **Collapsible set group.** A header row: a disclosure `<button aria-expanded aria-controls>` in eyebrow type ("{Set} · {on} de {total}"; no glyph marker, hover turns it to `text`), then `.link-btn`s Ativar todos · Desativar todos pushed right. Collapsed, only the header renders (no tiles, no image loads). Sets start expanded; the collapsed state isn't saved.
 
@@ -508,9 +508,9 @@ The first gameplay mode (spec 006). All of it is routed pages inside the view ar
 
 **Rules page.** Wide: grid `180px | minmax(0,1fr)`, gap `space-6`; a sticky TOC (eyebrow "Nesta página", then anchors 44px high with a hairline top, muted → text on hover). Mobile: the article only. Sections: padding-top `space-5`, hairline top, `h2` Grenze 600 1.25rem, body 1rem/1.5 muted.
 
-**Flairs** — one-time light effects, played from the action that caused them (never on reload or undo). Each runs on a single `requestAnimationFrame` clock (mask, glow and sparks together), uses only `--role-primary/-accent/-tertiary`, is `aria-hidden` and `pointer-events: none`, and removes every node when done. **Under reduced motion neither plays; the content just swaps.**
-- **Planeswalk — light front (1.4s, linear).** The outgoing card block is cloned over the new one and dissolved by `radial-gradient(circle at 0 50%, transparent R, #000 R+60px)`, R from −60px to `hypot(w, h/2) + 80`. Three blurred (30px) screen-blended glow layers at the front (E = R + 30, a band E ± 120px) cross-fade primary → accent → tertiary as it travels, fading in over the first 8% and out over the last 12%, max .9. About 30 sparks (3px, `0 0 6px 1px` of their color) spawn as the front reaches them and fly 30–90px outward over 520ms, shrinking to .3.
-- **Caos — shockwave (~1.1s).** A layer *behind* the image, so only what escapes its edges shows. Two rings (1.2 × min(w, h)), primary 2px and accent 1px (+140ms), `0 0 24px c, inset 0 0 18px c`, scale .3 → 2.6 easeOutCubic over 900ms while fading out. 22 sparks fly radially 0.55–1.05 × size over 700ms (0–120ms stagger), cycling the roles. The image shakes ±4px (decaying sine) for 320ms. The ability plate lights.
+**Flairs** — one-time light effects, played from the action that caused them (never on reload or undo). Each runs on a single `requestAnimationFrame` clock (mask, glow and sparks together), uses only `--role-primary/-accent/-tertiary`, is `aria-hidden` and `pointer-events: none`, and removes every node when done. **Stacking:** the light (glows, rings, sparks) runs above every piece of the game page (console, dock, text, plate, footer) but always below the card image; the planeswalk's outgoing snapshot sits just above the new image while it dissolves. The game view is the stage: positioned, isolated, and clipping overflow, so the light never changes the page's scroll size. **Under reduced motion neither plays; the content just swaps.**
+- **Planeswalk — light front (1.4s, linear).** The outgoing card block is cloned over the new one and dissolved by `radial-gradient(circle at 0 50%, transparent R, #000 R+60px)`, R from −60px to `hypot(w, h/2) + 80`. Three blurred (30px) screen-blended glow layers at the front (E = R + 30, a band E ± 120px) cross-fade primary → accent → tertiary as it travels, fading in over the first 8% and out over the last 12%, max .9. About 270 sparks (3px, `0 0 6px 1px` of their color) spawn as the front reaches them and fly 30–90px outward over 520ms, shrinking to .3.
+- **Caos — shockwave (~1.1s).** A layer *behind* the image, so only what escapes its edges shows. Two rings (1.2 × min(w, h)), primary 2px and accent 1px (+140ms), `0 0 24px c, inset 0 0 18px c`, scale .3 → 2.6 easeOutCubic over 900ms while fading out. 198 sparks fly radially 0.55–1.05 × size over 700ms (0–120ms stagger), cycling the roles. The image shakes ±4px (decaying sine) for 320ms. The ability plate lights.
 
 ## Content
 

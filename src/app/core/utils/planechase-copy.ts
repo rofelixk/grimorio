@@ -35,6 +35,7 @@ export const PLANECHASE = {
   allUsedEyebrow: 'Planeswalk pendente',
   roll: 'Rolar dado planar',
   planeswalk: 'Planeswalk',
+  chaos: 'Caos',
   resetCost: 'Zerar custo',
   undo: 'Desfazer',
   confirmPhenomenon: 'Concluir encontro',
@@ -60,6 +61,8 @@ export const RESULT = {
   start: (name: string) => ['Plano inicial', `${name} abre a partida. Role o dado na fase principal do seu turno.`],
   blank: ['Nada acontece', 'O plano continua o mesmo.'],
   chaos: ['Caos', 'Resolva a habilidade de caos destacada abaixo.'],
+  // review: not in the handoff — the Caos button for a physical die (added 2026-09-27).
+  chaosManual: ['Caos', 'Resolva a habilidade de caos destacada abaixo. O custo do dado não muda.'],
   // review: not in the handoff (R2, R17, approved 2026-09-27).
   chaosNone: ['Caos', 'Este plano não tem habilidade de caos.'],
   planeswalk: (from: string) => ['Planeswalk', `${from} foi para os usados.`],
@@ -99,7 +102,7 @@ export function planarDisplay(
       case 'blank':
         return RESULT.blank;
       case 'chaos':
-        return noChaos ? RESULT.chaosNone : RESULT.chaos;
+        return noChaos ? RESULT.chaosNone : result.manual ? RESULT.chaosManual : RESULT.chaos;
       case 'planeswalk':
         return RESULT.planeswalk(nameOf(result.from));
       case 'manual':
@@ -214,6 +217,8 @@ export const RULES_SECTIONS: readonly RulesSection[] = [
       'O card aberto vai para o fundo do baralho e o próximo é revelado. Efeitos que duram “até um jogador fazer planeswalk” terminam.',
       // Approved by the maintainer on 2026-09-27 (ui.md §2).
       'O botão Planeswalk troca de plano sem rolar o dado. Use quando uma carta mandar fazer planeswalk ou quando a mesa usar um dado físico. Se uma carta mudar o que o dado faz, vale o texto da carta.',
+      // review: added with the Caos button (2026-09-27), not yet approved.
+      'Com um dado físico, o botão Caos marca o resultado de caos: a habilidade do plano acende e o custo do dado não muda.',
     ],
   },
   {
