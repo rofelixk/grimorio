@@ -1,0 +1,40 @@
+@if (confirmCopy(); as confirm) {
+  <section
+    class="dock is-confirm"
+    role="alertdialog"
+    [attr.aria-labelledby]="titleId"
+    [attr.aria-describedby]="bodyId"
+    (keydown.escape)="confirmCancel.emit()"
+  >
+    <p class="title" [id]="titleId">{{ confirm.title }}</p>
+    <span class="detail" [id]="bodyId">{{ confirm.body }}</span>
+    <div class="row">
+      <button #cancel type="button" class="btn grow" (click)="confirmCancel.emit()">{{ copy.cancel }}</button>
+      <button type="button" class="btn btn--danger grow" (click)="confirmAccept.emit()">{{ confirm.verb }}</button>
+    </div>
+  </section>
+} @else {
+  <section class="dock">
+    <div class="summary" role="status" aria-live="polite">
+      <div class="head">
+        <p class="title">{{ display().title }}</p>
+        <span class="cost">{{ display().costShort }}</span>
+      </div>
+      <span class="detail">{{ display().detail }}</span>
+    </div>
+    <div class="row">
+      <button type="button" class="btn btn--ghost" [disabled]="!actions().undo" (click)="undo.emit()">
+        {{ copy.undo }}
+      </button>
+      <button type="button" class="btn grow" [disabled]="!actions().planeswalk" (click)="planeswalk.emit()">
+        {{ copy.planeswalk }}
+      </button>
+      <button type="button" class="btn grow" [disabled]="!actions().resetCost" (click)="resetCost.emit()">
+        {{ copy.resetCost }}
+      </button>
+    </div>
+    <button type="button" class="btn btn--primary btn--block" [disabled]="!primaryEnabled()" (click)="primary()">
+      {{ primaryLabel() }}
+    </button>
+  </section>
+}

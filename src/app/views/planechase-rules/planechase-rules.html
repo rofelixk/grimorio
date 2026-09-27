@@ -1,0 +1,23 @@
+<nav class="toc" [attr.aria-label]="copy.toc">
+  <span class="eyebrow toc-title">{{ copy.toc }}</span>
+  @for (section of sections; track section.id) {
+    <a class="toc-link" [href]="'#rules-' + section.id" (click)="jump($event, 'rules-' + section.id)">{{ section.title }}</a>
+  }
+</nav>
+<article class="article">
+  <header class="header">
+    <a class="btn btn--ghost back" routerLink="/modes/planechase">
+      {{ inProgress() ? copy.backToGame : copy.back }}
+    </a>
+    <h1 #heading class="page-title" tabindex="-1">{{ copy.title }}</h1>
+    <p class="intro">{{ copy.intro }}</p>
+  </header>
+  @for (section of sections; track section.id) {
+    <section class="rule" [id]="'rules-' + section.id">
+      <h2 class="rule-title">{{ section.title }}</h2>
+      @for (paragraph of section.paragraphs; track $index) {
+        <p class="rule-text">{{ paragraph }}</p>
+      }
+    </section>
+  }
+</article>

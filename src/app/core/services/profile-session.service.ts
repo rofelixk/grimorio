@@ -4,6 +4,7 @@ import { ProfileSummary } from '@models/profile.model';
 import { ACTIVE_PROFILE_KEY, getDeviceDb } from '../db/device-db';
 import { CardService } from './card.service';
 import { DeckService } from './deck.service';
+import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileStore } from './profile-store.service';
 import { StorageLocationService } from './storage-location.service';
 
@@ -28,6 +29,7 @@ export class ProfileSessionService {
     inject(CardService),
     inject(StorageLocationService),
     inject(DeckService),
+    inject(PlanarSelectionService),
   ] as const;
 
   private readonly activeId = signal<string | null>(null);

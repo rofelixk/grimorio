@@ -1,0 +1,35 @@
+// DESIGN.md "Card image frame": a landscape 1.4 frame. The card uses the 8px container radius; a
+// tile sets `--planar-radius` to 4px, `--planar-name-size` to 0.875rem and tints `--planar-border`.
+:host {
+  display: block;
+  position: relative;
+  aspect-ratio: 1.4;
+  overflow: hidden;
+  border: 1px solid var(--planar-border, var(--color-border));
+  border-radius: var(--planar-radius, var(--radius-md));
+  background: var(--color-surface-raised);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  height: 100%;
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.name {
+  font: 600 var(--planar-name-size, var(--font-size-lg)) / var(--line-height-tight) var(--font-display);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}

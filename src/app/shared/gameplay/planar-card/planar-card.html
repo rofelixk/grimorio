@@ -1,0 +1,18 @@
+<div class="frame" #frame>
+  <app-planar-image class="image" data-flair-shake [address]="card().images.large" [name]="card().name" />
+</div>
+<div class="text">
+  <h2 class="name" lang="en">{{ card().name }}</h2>
+  <span class="type" [attr.lang]="lang()">{{ card().typeLine }}</span>
+  @for (line of text(); track $index) {
+    <p class="line" [attr.lang]="lang()">{{ line }}</p>
+  }
+  @if (ability(); as ability) {
+    <div class="plate ability" [class.is-lit]="lit()">
+      <span class="eyebrow">{{ plateLabel() }}</span>
+      @for (line of ability; track $index) {
+        <p class="line" [attr.lang]="lang()">{{ line }}</p>
+      }
+    </div>
+  }
+</div>

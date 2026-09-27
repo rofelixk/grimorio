@@ -7,10 +7,16 @@ import { Collection } from './views/collection/collection';
 import { CollectionDetail } from './views/collection-detail/collection-detail';
 import { CollectionImport } from './views/collection-import/collection-import';
 import { Home } from './views/home/home';
+import { GameModes } from './views/game-modes/game-modes';
+import { Planechase } from './views/planechase/planechase';
+import { PlanechaseRules } from './views/planechase-rules/planechase-rules';
+import { planechaseCatalogResolver } from '@services/planechase-catalog.service';
 
 // Owned-card routes need an active local profile (FR-001). `runGuardsAndResolvers: 'always'`
 // lets a sign-out or switch re-run the guard on the page the person is on (R12).
 const gated = { canActivate: [profileGuard], runGuardsAndResolvers: 'always' as const };
+// Gameplay needs no profile (FR-002); the Planechase pages wait for the lazy card data (R4).
+const planechaseData = { resolve: { catalog: planechaseCatalogResolver } };
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -21,5 +27,8 @@ export const routes: Routes = [
   { path: 'decks/:id', component: DeckDetail, ...gated },
   // The old account page is hidden until a follow-up spec rebuilds it (FR-030).
   { path: 'profile', redirectTo: '' },
+  { path: 'modes', component: GameModes },
+  { path: 'modes/planechase', component: Planechase, ...planechaseData },
+  { path: 'modes/planechase/rules', component: PlanechaseRules, ...planechaseData },
   { path: 'about', component: About },
 ];

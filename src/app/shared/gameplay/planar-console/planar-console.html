@@ -1,0 +1,42 @@
+@if (confirmCopy(); as confirm) {
+  <section
+    class="console is-confirm"
+    role="alertdialog"
+    [attr.aria-labelledby]="titleId"
+    [attr.aria-describedby]="bodyId"
+    (keydown.escape)="confirmCancel.emit()"
+  >
+    <div class="summary">
+      <p class="title" [id]="titleId">{{ confirm.title }}</p>
+      <span class="detail" [id]="bodyId">{{ confirm.body }}</span>
+    </div>
+    <div class="actions">
+      <button #cancel type="button" class="btn" (click)="confirmCancel.emit()">{{ copy.cancel }}</button>
+      <button type="button" class="btn btn--danger" (click)="confirmAccept.emit()">{{ confirm.verb }}</button>
+    </div>
+  </section>
+} @else {
+  <section class="console">
+    <div class="summary" role="status" aria-live="polite">
+      <span class="eyebrow">{{ display().eyebrow }}</span>
+      <p class="title">{{ display().title }}</p>
+      <span class="detail">{{ display().detail }}</span>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn btn--ghost" [disabled]="!actions().undo" (click)="undo.emit()">
+        {{ copy.undo }}
+      </button>
+      @if (display().mode !== 'allUsed') {
+        <button type="button" class="btn" [disabled]="!actions().resetCost" (click)="resetCost.emit()">
+          {{ copy.resetCost }}
+        </button>
+        <button type="button" class="btn" [disabled]="!actions().planeswalk" (click)="planeswalk.emit()">
+          {{ copy.planeswalk }}
+        </button>
+      }
+      <button type="button" class="btn btn--primary" [disabled]="!primaryEnabled()" (click)="primary()">
+        {{ primaryLabel() }}
+      </button>
+    </div>
+  </section>
+}

@@ -1,0 +1,7 @@
+<h1 class="page-title" tabindex="-1">{{ copy.title }}</h1>
+<app-action-row
+  [title]="copy.planechase"
+  [meta]="copy.planechaseMeta"
+  [verb]="inProgress() ? copy.resume : copy.open"
+  (activate)="openPlanechase()"
+/>

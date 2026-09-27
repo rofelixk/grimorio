@@ -1,0 +1,75 @@
+@if (game(); as game) {
+  <div class="game">
+    <h1 #heading class="game-title" [class.visually-hidden]="!mobile()" tabindex="-1">{{ copy.title }}</h1>
+
+    @if (!mobile()) {
+      <app-planar-console
+        [display]="display()!"
+        [actions]="actions()!"
+        [confirm]="confirm()"
+        (roll)="roll()"
+        (planeswalk)="planeswalk()"
+        (resetCost)="resetCost()"
+        (undo)="undo()"
+        (confirmPhenomenon)="confirmPhenomenon()"
+        (reshuffle)="reshuffle()"
+        (confirmAccept)="acceptConfirm()"
+        (confirmCancel)="cancelConfirm()"
+      />
+    }
+
+    @if (current(); as card) {
+      <app-planar-card [card]="card" [lit]="lit()" />
+    }
+
+    @if (mobile()) {
+      <div class="links links--grid">
+        <a class="btn btn--secondary" routerLink="/modes/planechase/rules">{{ copy.rules }}</a>
+        <a class="btn btn--secondary" routerLink="/modes/planechase/deck">{{ copy.deck }}</a>
+        <button type="button" class="btn btn--ghost btn--outlined" [disabled]="!actions()!.reshuffle" (click)="askReset($event)">
+          {{ copy.reshuffle }}
+        </button>
+        <button type="button" class="btn btn--ghost btn--outlined" (click)="askEnd($event)">{{ copy.end }}</button>
+      </div>
+      <app-planar-dock
+        [display]="display()!"
+        [actions]="actions()!"
+        [confirm]="confirm()"
+        (roll)="roll()"
+        (planeswalk)="planeswalk()"
+        (resetCost)="resetCost()"
+        (undo)="undo()"
+        (confirmPhenomenon)="confirmPhenomenon()"
+        (reshuffle)="reshuffle()"
+        (confirmAccept)="acceptConfirm()"
+        (confirmCancel)="cancelConfirm()"
+      />
+    } @else {
+      <footer class="links">
+        <a class="link-btn" routerLink="/modes/planechase/rules">{{ copy.rules }}</a>
+        <a class="link-btn" routerLink="/modes/planechase/deck">{{ copy.deck }}</a>
+        <button type="button" class="link-btn" [disabled]="!actions()!.reshuffle" (click)="askReset($event)">
+          {{ copy.reshuffle }}
+        </button>
+        <button type="button" class="link-btn" (click)="askEnd($event)">{{ copy.end }}</button>
+      </footer>
+    }
+  </div>
+} @else {
+  <section class="idle">
+    <span class="eyebrow">{{ copy.idleEyebrow }}</span>
+    <h1 #heading class="page-title" tabindex="-1">{{ copy.title }}</h1>
+    <p class="intro">{{ copy.idleIntro }}</p>
+    <div class="idle-actions">
+      <button type="button" class="btn btn--primary" (click)="start()">{{ copy.start }}</button>
+      <a class="btn" routerLink="/modes/planechase/rules">{{ copy.rules }}</a>
+    </div>
+    <a class="link-btn" routerLink="/modes/planechase/deck">{{ copy.deckSummary(enabledCount()) }}</a>
+    @if (refusal(); as refusal) {
+      <div class="refusal" role="alert">
+        <p class="refusal-text">{{ refusal }}</p>
+        <a class="link-btn" routerLink="/modes/planechase/deck">{{ copy.adjustDeck }}</a>
+      </div>
+    }
+  </section>
+}

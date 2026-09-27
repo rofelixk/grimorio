@@ -1,0 +1,131 @@
+@use 'breakpoints' as bp;
+
+// DESIGN.md "Gameplay: Planechase". The view fills the view area, so the wide footer and the phone
+// dock rest at the bottom of short pages; the dock is sticky inside `.game` (R16).
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
+.page-title,
+.game-title {
+  margin: 0;
+  font: 600 var(--font-size-2xl) / 1.1 var(--font-display);
+  text-shadow: var(--glow-title);
+  text-wrap: balance;
+}
+
+// ── No game ─────────────────────────────────────────────────────────────────
+.idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 480px;
+  margin: auto;
+  padding: var(--space-5);
+  text-align: center;
+
+  @include bp.mobile {
+    padding: var(--space-4);
+  }
+}
+
+.intro {
+  max-width: 40ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  text-wrap: pretty;
+}
+
+.idle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+a.btn {
+  text-decoration: none;
+}
+
+.refusal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.refusal-text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  text-wrap: pretty;
+}
+
+// ── Game ────────────────────────────────────────────────────────────────────
+.game {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 1120px;
+  padding: var(--space-5);
+
+  @include bp.mobile {
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-4) 0;
+  }
+}
+
+.game-title {
+  @include bp.mobile {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-tight);
+    text-shadow: none;
+  }
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+
+  .link-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+}
+
+.links--grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: none;
+}
+
+.btn--outlined {
+  border-color: var(--color-border);
+}
+
+app-planar-dock {
+  margin: 0 calc(-1 * var(--space-4));
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

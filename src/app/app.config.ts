@@ -4,6 +4,7 @@ import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 import { ProfileStore } from '@services/profile-store.service';
 import { ProfileSessionService } from '@services/profile-session.service';
+import { PlanechaseGameService } from '@services/planechase-game.service';
 import { runLegacyCleanup } from './core/db/legacy-cleanup';
 
 export const appConfig: ApplicationConfig = {
@@ -14,14 +15,15 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
-    // Holds initial render until the profile registry and the restored active profile's
-    // data have hydrated, so no component ever observes pre-hydration state.
+    // Holds initial render until the profile registry, the restored active profile's data and
+    // the device's Planechase game have hydrated, so no component ever observes pre-hydration state.
     provideAppInitializer(async () => {
       const store = inject(ProfileStore);
       const session = inject(ProfileSessionService);
+      const planechase = inject(PlanechaseGameService);
       await runLegacyCleanup();
       await store.whenReady();
-      await session.whenReady();
+      await Promise.all([session.whenReady(), planechase.whenReady()]);
     }),
   ],
 };

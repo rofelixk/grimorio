@@ -1,0 +1,46 @@
+// DESIGN.md "Game console".
+:host {
+  display: block;
+}
+
+.console {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--role-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--glow-button);
+
+  &.is-confirm {
+    border-color: var(--color-danger);
+    box-shadow: none;
+  }
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font: 600 var(--font-size-2xl) / 1.15 var(--font-display);
+  text-shadow: var(--glow-title);
+}
+
+.detail {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}

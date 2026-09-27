@@ -1,0 +1,55 @@
+// DESIGN.md "Card tile".
+:host {
+  display: block;
+}
+
+.tile {
+  --planar-radius: var(--radius-sm);
+  --planar-name-size: var(--font-size-sm);
+  --planar-border: var(--role-primary);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+
+  &.is-off {
+    --planar-border: var(--color-border);
+    opacity: 0.35;
+  }
+
+  &:hover {
+    box-shadow: var(--glow-plate-hover);
+    opacity: 1;
+  }
+}
+
+.bead {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 1;
+  width: var(--bead);
+  height: var(--bead);
+  border: 1px solid var(--role-primary);
+  border-radius: 50%;
+  background: var(--role-primary);
+  box-shadow:
+    0 0 0 3px var(--color-bg),
+    0 0 10px 1px var(--role-primary);
+
+  .is-off & {
+    border-color: var(--color-border);
+    background: var(--color-bg);
+    box-shadow: none;
+  }
+}

@@ -42,5 +42,8 @@ export class ActionRow {
   readonly activate = output<void>();
 
   protected readonly hintId = `grm-row-hint-${nextId++}`;
-  protected readonly label = computed(() => `${this.title()}. ${this.meta()}.`);
+  protected readonly label = computed(() => {
+    const meta = this.meta();
+    return `${this.title()}. ${meta}${meta.endsWith('.') ? '' : '.'}`;
+  });
 }

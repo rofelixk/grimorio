@@ -1,0 +1,62 @@
+// DESIGN.md "Phone dock": sticky inside the view, so the view area stays the only scroll container.
+:host {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: block;
+}
+
+.dock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--role-primary);
+  background: var(--color-bg);
+  box-shadow: 0 -8px 24px -8px rgb(from var(--role-primary) r g b / 35%);
+
+  &.is-confirm {
+    border-top-color: var(--color-danger);
+    box-shadow: none;
+  }
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  font: 600 var(--font-size-lg) / var(--line-height-tight) var(--font-display);
+  text-shadow: var(--glow-title);
+}
+
+.cost {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.detail {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-wrap: pretty;
+}
+
+.row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.grow {
+  flex: 1;
+}

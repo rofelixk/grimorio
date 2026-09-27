@@ -6,4 +6,7 @@ export interface NavDestination {
 }
 
 /** The shell's destinations (FR-011). There is no Home entry: the wordmark is Home. */
-export const NAV_DESTINATIONS: readonly NavDestination[] = [{ label: SHELL.collection, path: '/collection' }];
+export const NAV_DESTINATIONS: readonly NavDestination[] = [
+  { label: SHELL.collection, path: '/collection' },
+  { label: SHELL.modes, path: '/modes' },
+];

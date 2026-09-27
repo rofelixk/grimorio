@@ -1,0 +1,11 @@
+<button
+  type="button"
+  class="tile"
+  [class.is-off]="!on()"
+  [attr.aria-pressed]="on()"
+  [attr.aria-label]="label()"
+  (click)="toggle.emit()"
+>
+  <app-planar-image [address]="card().images.small" [name]="card().name" [lazy]="true" />
+  <span class="bead" aria-hidden="true"></span>
+</button>
