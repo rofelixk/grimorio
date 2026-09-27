@@ -468,7 +468,9 @@ local profile is kept as local-only with its data.
   warn that those changes will be lost and offer "Sincronizar agora" in place. The sync runs only
   when the person chooses it; while it runs, deletion MUST be locked; its outcome MUST show in place
   (done: nothing is lost in the cloud; failed: "Sem conexão", "Sessão expirada" or "Falha ao
-  sincronizar", with "Tentar de novo"). Deleting without syncing MUST stay allowed.
+  sincronizar", with "Tentar de novo"). Deleting without syncing MUST stay allowed. For a linked
+  profile that has decks, the confirmation MUST also say decks don't go to the cloud and leave with
+  the profile.
 - **FR-018b**: Whenever the device has no profiles (after deleting the last one, or on a fresh
   device), Home MUST show an empty-device state ("Nenhum perfil neste aparelho", a line saying a profile works without
   internet or e-mail, and "Criar perfil" opening the entry modal's create-profile step). Gated

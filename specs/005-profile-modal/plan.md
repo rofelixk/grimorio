@@ -88,7 +88,7 @@ Popover API (`popover="manual"`) is baseline in the supported engines.
 | Principle | Status | Notes |
 |---|---|---|
 | I. Physical-World Fidelity | Pass | Owned-card and location data are never altered by this feature. They are only deleted with their own profile (local) or with their own account (cloud), both explicitly confirmed. Other profiles are untouched by construction (one DB per profile). |
-| II. PT-BR-First | Pass | All new copy goes in `entry-copy.ts`, from the handoff. The new Supabase error paths (`same_password`, `user_not_found`, the RPC errors) are mapped to PT-BR, and nothing raw reaches the UI. Three new strings are flagged for review (research R8, R12, R16). |
+| II. PT-BR-First | Pass | All new copy goes in `entry-copy.ts`, from the handoff. The new Supabase error paths (`same_password`, `user_not_found`, the RPC errors) are mapped to PT-BR, and nothing raw reaches the UI. Four new strings are flagged for review (research R8, R12, R16, and the delete step's decks note). |
 | III. Free and Accessible | Pass | No monetization surface. |
 | IV. Local-First, Cloud-Optional | Pass | Every local edit and profile deletion is offline-capable. The cloud actions are optional, and a gone or expired account never deletes or blocks local data (FR-019b). Home stays ungated. |
 | V. Zoneless, Signal-Driven Angular | Pass | Standalone + OnPush. `computed` covers derivation (Salvar enablement, link state, unsynced), and `effect` is only for dialog/popover side effects and timers. No UI framework. **DESIGN.md is updated first** (R20) for the toast, action rows, sync plate, danger plate, empty-device state, wheel v2 and the profile modal's modes. |
@@ -107,8 +107,9 @@ guidance. It's checked with `get_advisors` after applying.
   Quickstart V18 records which happens.
 - **Old dev profiles**: profiles created before this feature lack the new timestamp fields. There is
   no migration (the project rule), so start from a clean device (quickstart prerequisites).
-- **Copy flagged for review**: `MSG.samePassword`, `MSG.goneHint`, and the profile control's new
-  "Gerenciar perfil" hint. None are in the handoff.
+- **Copy flagged for review**: `MSG.samePassword`, `MSG.goneHint`, the profile control's new
+  "Gerenciar perfil" hint, and `PROFILE.delprofileDecksNote` (decks don't sync, so a linked
+  profile's delete confirmation says they leave with it). None are in the handoff.
 
 ## Project Structure
 

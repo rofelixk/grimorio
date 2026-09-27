@@ -299,6 +299,8 @@ No flow starts a sync except "Sincronizar agora" / "Tentar de novo" (FR-016).
   during implementation, from `ProfileModalApp.dc.html` `ph.delprofile`.
 - Unsynced block: "Há mudanças que ainda não foram sincronizadas. Se excluir agora, elas se perdem."
   and "Sincronizar agora"
+- Decks note (linked, has decks): "Decks ainda não vão para a nuvem — saem junto com o perfil."
+  (not in the handoff; flagged for review)
 - Sync line: "Sincronizando…" / "Sincronizado agora — nada se perde na nuvem." / the failure label +
   "Tentar de novo"
 

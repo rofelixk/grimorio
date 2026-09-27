@@ -272,7 +272,8 @@ Live Supabase facts, checked on 2026-09-27 (project `hyzbkxraanzhdyhtnadf`):
     2. `setCloud(id, null)`, with local data intact
     3. shows the toast "A conta {e-mail} não existe mais. {nome} continua neste aparelho com todos os
        dados."
-    4. bumps an `accountGone` signal. `ProfileFlowStore` watches it and returns to the hub
+    4. bumps an `accountGone` signal. `ProfileFlowStore` doesn't watch it: every gone result
+       reaching an open modal comes through the store's own calls, which return to the hub
   - `SyncService` gains the outcome `gone`: the state goes back to `idle`, and the display then shows
     `local`.
   - **On `expired`**, the existing `markNeedsReauth` path runs.

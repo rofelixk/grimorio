@@ -158,7 +158,8 @@ phase === 'local' && fields.name.trim() !== active.name && !loading
   | `delcloud` | `done = 'cloudDeleted'` |
   | `delprofile` | the modal closes, then the entry modal opens on `list`, or the app navigates to `/` (R9) |
 
-- **Account gone** (the `accountGone` signal changes for the active profile): `phase = 'hub'` and the
-  step state is cleared. The toast comes from the service.
+- **Account gone** (a `gone` result from `openStep`'s `checkAccount`, the `unlink` submit or the
+  `delprofile` block sync): after `forgetGoneAccount`, the store's `toGoneHub()` sets `phase = 'hub'`,
+  `origin = 'hub'` and clears the step state. No `effect`. The toast comes from the service.
 - **Trocar de perfil** (disabled while syncing): close, then `entryModal.open({ start: 'list' })`.
 - **close()** (✕, Esc, backdrop): reset everything. Colors already tapped stay (FR-008).

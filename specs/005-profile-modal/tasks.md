@@ -157,8 +157,9 @@ forms that every story builds on.
   become "Gerenciar perfil"; the new "Redefinir senha do perfil" strings (subtitle, "Esqueci a senha
   da conta", "Cancelar"/"Continuar"/"Confirmando…", caption "Redefinir a senha não apaga nada.").
   Move the `reauth`/`unlink` titles/subtitles/captions/done copy into `PROFILE` (they are deleted
-  from the entry-modal sections in T045). Mark the three review strings (`samePassword`, `goneHint`,
-  the shell hint) with a `// review:` comment.
+  from the entry-modal sections in T045). Add `PROFILE.delprofileDecksNote` "Decks ainda não vão
+  para a nuvem — saem junto com o perfil.". Mark the four review strings (`samePassword`,
+  `goneHint`, the shell hint, `delprofileDecksNote`) with a `// review:` comment.
 - [ ] T014 [P] In `src/app/core/utils/cloud-error.util.ts`: extend `FieldKey` with `pwNew` and
   `pwConfirm`; map `same_password` → field `pwNew`, `MSG.samePassword`; keep `weak_password` → field
   `pw`, `MSG.pwMin`; `user_not_found` falls to `GENERIC_FAILURE`. Add cases to
@@ -253,8 +254,8 @@ entry modal opens; during a shell sync nothing opens.
   passwords, code, errors, hint and done; keeps the e-mail), `openStep(step)` (`origin = phase`, then
   `go(step)`), `cancel()`/`concluir()` (→ `origin`), `close()` (reset everything), and
   `switchProfile()` (disabled while `SyncStatusService.busy()`: `ProfileModalService.close()` then
-  synchronously `EntryModalService.open({ start: 'list' })`). It implements `CloudFlowHost` (members
-  may be stubs until US3). Depends on T016, T021, T023.
+  synchronously `EntryModalService.open({ start: 'list' })`). It implements `CloudFlowHost` (members,
+  and `openStep('in' | 'reauth')`, are no-ops until US3's T042). Depends on T016, T021, T023.
 - [ ] T025 [P] [US1] Create the `ActionRow` DS primitive in
   `src/app/shared/ds/action-row/action-row.ts|.html|.scss`: inputs `title`, `meta`, `verb`, `danger?`,
   `disabled?`, `hint?` (appended to the description, e.g. "Aguarde a sincronização terminar"); a
@@ -541,7 +542,9 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
 - [ ] T060 [US5] Create `DeleteProfileStep` in
   `src/app/shared/auth/profile-modal/delete-profile-step/delete-profile-step.ts|.html|.scss` (FR-017,
   FR-018a): the "Sai deste aparelho:" plate (Cartas · Locais de armazenamento · Decks · Cores · O
-  perfil {nome}); the linked note (cloud account and data are not deleted); when `store.unsynced()`,
+  perfil {nome}); the linked note (cloud account and data are not deleted); the decks note
+  (`PROFILE.delprofileDecksNote`) when `linkState !== 'local' && DeckService.decks().length > 0`
+  (FR-018a); when `store.unsynced()`,
   a danger plate "Há mudanças que ainda não foram sincronizadas. Se excluir agora, elas se perdem."
   with secondary "Sincronizar agora" and the `blockSync` line ("Sincronizando…" with spinner /
   "Sincronizado agora — nada se perde na nuvem." / the SyncLine failure label + "Tentar de novo");
@@ -551,7 +554,7 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
   `unsynced` with `hasUnsyncedChanges` from `CardService`, `StorageLocationService`
   (`getTombstones()`), `SyncService.lastSyncedAt()` and the active profile; `blockSync()` runs
   `SyncService.syncNow()` and maps `done` → `'done'` (re-evaluate `unsynced`), `offline`/`reauth`/
-  `error` → that state, `gone` → the account-gone path; submit → `ProfileLifecycleService.deleteProfile`
+  `error` → that state, `gone` → `toGoneHub()` (T066); submit → `ProfileLifecycleService.deleteProfile`
   → close the modal, then `EntryModalService.open({ start: 'list' })` when profiles remain, else
   `router.navigateByUrl('/')`. Wire the `LocalScreen` danger `ActionRow` "Excluir perfil" / "Apaga
   {nome} e os dados dele deste aparelho" / "Excluir" → `openStep('delprofile')`, disabled with the
@@ -585,8 +588,10 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
   copy and the `cloudDeleted` done copy to `profile-flow.util.ts`; `openStep('cloudpw' | 'delcloud')`
   runs `checkAccount` when online (`gone` → `forgetGoneAccount`; `expired` → back to `cloud`, now
   showing the expired state); `delcloud` submit → `deleteAccount`, `done = 'cloudDeleted'`; the
-  `unlink` submit's `'gone'` result takes the gone path; an `effect` on
-  `CloudAuthService.accountGone` for the active profile sets `phase = 'hub'` and clears step state;
+  `unlink` submit's `'gone'` result takes the gone path; add a private `toGoneHub()` (after
+  `forgetGoneAccount`: `phase = 'hub'`, `origin = 'hub'`, clear step state) and call it from every
+  gone result the store receives — `openStep`'s `checkAccount`, the `unlink` submit, and T061's
+  `blockSync`. No `effect`; `accountGone` stays for the shell's consumers;
   on `reauth`, an `invalid_credentials` failure sets `formError = MSG.wrongCloud` and `formHint =
   MSG.goneHint(nome)` (FR-019c), rendered under the form error. The `CloudScreen` "Excluir conta na
   nuvem" row is only rendered in the linked (not expired) state. Depends on T063, T064, T065.
@@ -601,7 +606,8 @@ account atomically via `delete_own_account()`; other devices detect a gone accou
   kept), `deleteAccount` (offline, wrong password, success calls `rpc('delete_own_account')` then
   unlinks), and gone-aware `unlink`; `sync.service.spec.ts` for the `gone` and `expired` outcomes;
   `profile-flow.store.spec.ts` for `delprofile` (unsynced evaluation, delete locked while syncing,
-  entry list vs navigate `/`), `delcloud`, gone → hub, and the `reauth` `goneHint`.
+  entry list vs navigate `/`, the decks note shown for a linked profile with decks and hidden for a
+  local profile or one with no decks), `delcloud`, gone → hub, and the `reauth` `goneHint`.
 
 **Checkpoint**: All stories work — quickstart V14–V19.
 
@@ -681,8 +687,10 @@ Task: "T026 Create SyncPlate in src/app/shared/ds/sync-plate/"
 
 1. Phase 1 (DESIGN.md, migration) and Phase 2 (foundation).
 2. US1: the control opens the hub, sub-screens navigate, "Trocar de perfil" works → quickstart V1–V3.
-3. US2: live colors and rename → V4–V6. This is the smallest shippable profile modal; linking still
-   works through the old entry-modal path until US3 removes it.
+3. US2: live colors and rename → V4–V6. This is the smallest shippable profile modal. Until US3,
+   the hub sync plate's "Vincular conta na nuvem" and "Entrar de novo" are inert (store stubs);
+   linking and re-sign-in still work from the shell's sync area, which keeps the entry-modal path
+   until T045/T047.
 
 ### Incremental delivery
 
