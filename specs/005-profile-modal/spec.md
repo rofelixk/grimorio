@@ -67,6 +67,15 @@
   entry modal's wheel is unchanged.
 - The entry modal's forgotten-password step for a linked profile is redesigned ("Redefinir senha do
   perfil").
+- Q: Where does the empty-device state appear, and when? → A: On Home, whenever the device has no
+  profiles (after deleting the last one, and on a fresh device). Deleting the last profile navigates
+  to Home; gated routes keep opening the entry modal as before.
+- Q: What if a device can't tell a deleted account from an expired session? → A: FR-019b applies
+  whenever the deletion is detectable; otherwise the device shows "Sessão expirada", and if "Entrar
+  de novo" then fails, the error also suggests "Desvincular conta" in case the account no longer
+  exists.
+- Q: Are toasts limited to the profile modal? → A: No. Toasts are app-wide: one region shown above
+  whatever is open (modal or page), so a notice appears whether or not a modal is open.
 
 ## Modal responsibilities *(context)*
 
@@ -287,8 +296,8 @@ local profile is kept as local-only with its data.
    confirms, **Then** the deletion happens, no profile is active, the app returns to the default
    identity, and the entry modal opens on the profile list.
 3. **Given** the correct password and it's the last profile on the device, **When** the person
-   confirms, **Then** the deletion happens, the modal closes, and the app shows the empty-device
-   state ("Nenhum perfil neste aparelho", with "Criar perfil" opening the entry modal's create step).
+   confirms, **Then** the deletion happens, the modal closes, the app navigates to Home, and Home
+   shows the empty-device state ("Nenhum perfil neste aparelho", with "Criar perfil" opening the entry modal's create step).
 4. **Given** a wrong password, **When** the person confirms, **Then** "Senha incorreta." shows and
    nothing is deleted.
 5. **Given** other profiles on the device, **When** one profile is deleted, **Then** the others and
@@ -329,14 +338,18 @@ local profile is kept as local-only with its data.
   account do; offline they fail with the offline message.
 - Closing the profile modal mid-edit (Esc, backdrop, ✕) discards an unsaved name and clears every
   field and error; colors already tapped stay (they were saved on tap).
-- Deleting the last profile on the device shows the empty-device state; no modal opens by itself.
+- Deleting the last profile on the device navigates to Home, which shows the empty-device state; no
+  modal opens by itself. Visiting a gated route afterwards opens the entry modal, as for any device
+  with no active profile.
 - Deleting a linked profile leaves its cloud account and cloud data untouched; the account can
   still be set up on this or another device later.
 - A cloud account deleted from one device leaves other devices' profiles linked to a missing
   account. On those devices, the first cloud action (sync, opening the account-password step,
   unlinking, deleting the account) finds the account gone: the profile keeps all its local data,
-  becomes local-only, the modal returns to the hub, and a toast says the account no longer exists.
-  Nothing local is ever deleted because of a remote account deletion.
+  becomes local-only, the modal (if open) returns to the hub, and a toast says the account no longer exists.
+  Nothing local is ever deleted because of a remote account deletion. If the deletion can't be told
+  apart from an expired session, the profile shows "Sessão expirada" instead, and a failed "Entrar de
+  novo" adds a hint to use "Desvincular conta" in case the account no longer exists (FR-019c).
 - If the connection drops mid-way through a cloud account deletion, the account is either fully
   deleted or not at all; the person sees the outcome, and a partial deletion is never reported as
   success.
@@ -447,7 +460,8 @@ local profile is kept as local-only with its data.
 - **FR-018**: Deleting a profile MUST remove it and all its owned data (cards, storage locations,
   decks, color identity, cloud sign-in) from the device, leave no profile active and return to the
   default identity. If other profiles remain, the entry modal MUST open on the profile list; if none
-  remain, the modal MUST close and the app MUST show the empty-device state (FR-018b). Other
+  remain, the modal MUST close and the app MUST navigate to Home, which shows the empty-device state
+  (FR-018b). Other
   profiles and their data MUST be unaffected. It MUST need no connection, and MUST NOT delete the
   linked cloud account or any cloud data; the confirmation MUST say so for a linked profile.
 - **FR-018a**: For a linked profile with local changes not yet synced, the delete confirmation MUST
@@ -455,9 +469,10 @@ local profile is kept as local-only with its data.
   when the person chooses it; while it runs, deletion MUST be locked; its outcome MUST show in place
   (done: nothing is lost in the cloud; failed: "Sem conexão", "Sessão expirada" or "Falha ao
   sincronizar", with "Tentar de novo"). Deleting without syncing MUST stay allowed.
-- **FR-018b**: With no profiles on the device and no modal open, the app's main area MUST show an
-  empty-device state ("Nenhum perfil neste aparelho", a line saying a profile works without
-  internet or e-mail, and "Criar perfil" opening the entry modal's create-profile step).
+- **FR-018b**: Whenever the device has no profiles (after deleting the last one, or on a fresh
+  device), Home MUST show an empty-device state ("Nenhum perfil neste aparelho", a line saying a profile works without
+  internet or e-mail, and "Criar perfil" opening the entry modal's create-profile step). Gated
+  routes are unchanged: with no active profile they open the entry modal.
 - **FR-019**: For a linked profile with a valid session, a person MUST be able to delete the cloud
   account ("Excluir conta na nuvem") after a confirmation step that names the account e-mail, lists
   what leaves the cloud for good, states that other linked devices stop syncing, that it is
@@ -469,8 +484,12 @@ local profile is kept as local-only with its data.
   delete nothing and show the generic wrong-credentials message.
 - **FR-019b**: A profile on another device linked to a deleted account MUST, at its first cloud
   action (sync, account-password change, unlink, account deletion), become local-only with its
-  local data intact, return the modal to the hub, and show the toast "A conta {e-mail} não existe
-  mais. {nome} continua neste aparelho com todos os dados.".
+  local data intact, return the modal to the hub if it is open, and show the toast (FR-022) "A
+  conta {e-mail} não existe mais. {nome} continua neste aparelho com todos os dados.".
+- **FR-019c**: When a deleted account can't be distinguished from an expired session, the profile
+  MUST fall back to the expired-session state. A failed "Entrar de novo" in that state MUST show the
+  generic wrong-credentials message plus a hint that, if the account no longer exists, "Desvincular
+  conta" keeps the profile and its data on this device.
 
 **Shared behavior**
 
@@ -483,7 +502,9 @@ local profile is kept as local-only with its data.
 - **FR-021**: Every change made in the profile modal (name, colors, link state, deletion) MUST be
   reflected immediately in the shell's profile control and sync status and in the entry modal's
   profile list.
-- **FR-022**: Short confirmations and notices MUST use a toast: announced politely to assistive
+- **FR-022**: Short confirmations and notices MUST use a toast, shown in a single app-wide region
+  above whatever is open (a modal or the page), so a notice appears whether or not a modal is open:
+  announced politely to assistive
   technology, dismissible, gone after 5 seconds, and replaced by any newer toast. Toasts MUST NOT
   shift the modal's layout.
 - **FR-023**: The refined identity wheel from the handoff MUST replace the current identity wheel
@@ -508,7 +529,8 @@ local profile is kept as local-only with its data.
   password can be changed while signed in; it can be deleted along with all its cloud data.
 - **Owned data** (cards, storage locations, decks): always belongs to exactly one profile; removed
   with it on deletion.
-- **Toast**: a short, transient message (a label and one sentence), at most one at a time.
+- **Toast**: a short, transient message (a label and one sentence), at most one at a time across
+  the whole app.
 
 ## Success Criteria *(mandatory)*
 
