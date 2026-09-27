@@ -84,7 +84,7 @@ h2 Planechase
   roll means (e.g. Chaotic Aether), follow the card over the app's result. Proposed copy: "O botão
   Planeswalk troca de plano sem rolar o dado. Use quando uma carta mandar fazer planeswalk ou
   quando a mesa usar um dado físico. Se uma carta mudar o que o dado faz, vale o texto da carta."
-  It's added to the handoff's section text and needs the maintainer's review.
+  It's added to the handoff's section text. The maintainer approved it on 2026-09-27.
 
 ### Baralho planar
 ```text
