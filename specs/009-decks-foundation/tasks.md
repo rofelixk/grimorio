@@ -286,14 +286,14 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **Independent Test**: The two-device steps in quickstart.md scenario 12, plus unit coverage of `syncDecks` against a mocked client.
 
-- [ ] T027 [US4] Apply migration `009_decks` exactly as in contracts/supabase.md through the Supabase MCP `apply_migration` (project `hyzbkxraanzhdyhtnadf`). It has `name text not null check (char_length(name) between 1 and 40)`, `format` checked in the 8 ids, `updated_at timestamptz not null default now()`, primary key `(user_id, id)`, the four owner-only policies, and `grant select, insert, update, delete on public.decks to authenticated`. Then run `get_advisors` (security) and fix any finding on `decks`. **Confirm with the user before applying**: it changes the live project.
-- [ ] T028 [P] [US4] Add `repairDeckNames(merged, remoteIds, now)` to `src/app/core/utils/deck.util.ts` (research R6):
+- [X] T027 [US4] Apply migration `009_decks` exactly as in contracts/supabase.md through the Supabase MCP `apply_migration` (project `hyzbkxraanzhdyhtnadf`). It has `name text not null check (char_length(name) between 1 and 40)`, `format` checked in the 8 ids, `updated_at timestamptz not null default now()`, primary key `(user_id, id)`, the four owner-only policies, and `grant select, insert, update, delete on public.decks to authenticated`. Then run `get_advisors` (security) and fix any finding on `decks`. **Confirm with the user before applying**: it changes the live project.
+- [X] T028 [P] [US4] Add `repairDeckNames(merged, remoteIds, now)` to `src/app/core/utils/deck.util.ts` (research R6):
   - Group by `normalizeDeckName`. In each group of 2+, the single member in `remoteIds` survives unchanged; otherwise the lowest id survives.
   - Every other member, in id order, takes the lowest free `suffixedName(base, k)` (`k ≥ 2`, imported from `collection-tree.util`), checked against all used normalized names and stamped `updatedAt: now`.
   - It returns `{ decks, renamed }`.
 
   Extend `deck.util.spec.ts`: the remote member keeps the name; the local one becomes "Elfos (2)"; three duplicates → (2), (3); an existing "Elfos (2)" is skipped → (3); a 40-character base is cut to fit; no duplicates → no renames.
-- [ ] T029 [US4] In `src/app/core/services/sync.service.ts`, add `syncDecks(client, run)`, mirroring `syncCollections`:
+- [X] T029 [US4] In `src/app/core/services/sync.service.ts`, add `syncDecks(client, run)`, mirroring `syncCollections`:
   - `interface DeckRow { id; user_id; name; format; updated_at }`, `deckToRow` (ISO `updated_at`), and `deckFromRow` (`format: formatOf(row.format)`, `updatedAt: new Date(row.updated_at).toISOString()`).
   - Select `'id, user_id, name, format, updated_at'` filtered by `user_id`, with the abort signal, then `ensureCurrent`.
   - Run `reconcileEntities(decks.decks(), remote, await decks.getTombstones())`, then `repairDeckNames(result.merged, remoteIds, new Date().toISOString())`, and merge the renamed rows into `toUpsertRemote` (replacing any entry with the same id).
@@ -303,12 +303,12 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - Replace "Decks never sync" in the class comment with the deck step.
 
   Extend `sync.service.spec.ts` (mocked client): a local deck is upserted; a remote deck is applied; a tombstoned deck is deleted remotely and its tombstone cleared; a remote-newer edit wins; a local edit newer than a remote deletion keeps the deck, and a remote deletion newer than a local edit removes it (spec Edge Cases); a duplicate is renamed and uploaded; an upsert error on `decks` ends the sync in the same failure state as a collections error, with no raw Supabase text reaching the UI (FR-014); the step order is collections → decks → cards (depends on T028).
-- [ ] T030 [P] [US4] In `src/app/core/utils/sync-status.util.ts`, add `decks: { updatedAt: string }[]` to the `hasUnsyncedChanges` input, counted like `collections`, and remove "Decks never sync, so they never count." from its comment.
+- [X] T030 [P] [US4] In `src/app/core/utils/sync-status.util.ts`, add `decks: { updatedAt: string }[]` to the `hasUnsyncedChanges` input, counted like `collections`, and remove "Decks never sync, so they never count." from its comment.
   - In `src/app/shared/auth/profile-modal/profile-flow.store.ts`, pass `DeckService.decks()` and include `DeckService.getTombstones()` in the tombstone count. Remove `decksNote`.
   - In `src/app/shared/auth/profile-modal/delete-profile-step/delete-profile-step.ts`, remove its `@if (store.decksNote())` block.
   - In `src/app/core/utils/entry-copy.ts`, remove `decksNote`.
   - Update `sync-status.util.spec.ts` (a newer deck → true, an older one → false) and `profile-flow.store.spec.ts` (drop the `decksNote` cases; a deck tombstone counts as unsynced).
-- [ ] T031 [US4] Checkpoint: run the full suite and lint through `test-runner`, and fix everything. Then commit Phase 6.
+- [X] T031 [US4] Checkpoint: run the full suite and lint through `test-runner`, and fix everything. Then commit Phase 6.
 
 **Checkpoint**: Decks sync like collections; profiles without a linked account send nothing.
 
