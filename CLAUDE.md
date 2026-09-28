@@ -10,6 +10,15 @@ Features are specified and built through spec-kit (`specs/NNN-*/`, `.specify/`):
 
 Early-development rework, single user. Never add backward-compatibility code, migrations, or edge-case handling for old conventions.
 
+## Subagents
+
+Project agents live in `.claude/agents/`. Use them at these points (they override the spec-kit skills' "read everything" steps):
+
+- **`/speckit-implement`**: the main thread reads only `tasks.md` and `plan.md`, then hands each phase to **`phase-implementer`** in order, with the feature dir, the task IDs and pointers to the relevant plan/data-model/contracts/ui sections. Disjoint `[P]` groups inside one phase may go to parallel `phase-implementer`s (same working tree, never the same file). After each phase, verify the checkpoint with **`test-runner`** (full suite) before starting the next.
+- **UI changes**: after any phase or change that touches `.html`/`.scss`/component `.ts`, and always before reporting a feature complete, run **`design-auditor`** and fix what it reports.
+- **Tests and lint**: any `npm test`, single-spec or `npm run lint` run from the main thread goes through **`test-runner`**.
+- Small single-file edits outside `/speckit-implement` stay inline, with no agents.
+
 @.claude/docs/commands.md
 
 @.claude/docs/architecture.md
