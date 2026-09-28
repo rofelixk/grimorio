@@ -8,14 +8,6 @@ Grimorio is a free, personal Magic: The Gathering collection/deck manager built 
 
 Features are specified and built through spec-kit (`specs/NNN-*/`, `.specify/`): `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`, governed by `.specify/memory/constitution.md`. `.specify/templates/overrides/plan-template.md` adds a `ui.md` Phase 1 artifact for features with UI.
 
-### Implementation branch ritual
-
-Before `/speckit-implement` begins:
-
-1. Check out a new branch named `feature/NNN-description`, where `NNN-description` matches the spec folder (e.g. `feature/009-decks-foundation`).
-2. Make the branch's first commit: every file for the spec (`specs/NNN-*/`) plus its design handoff folder (`design_handoff_*/`), and nothing else.
-3. Commit each `tasks.md` phase on the branch, after its checkpoint passes, before starting the next phase.
-
 Early-development rework, single user. Never add backward-compatibility code, migrations, or edge-case handling for old conventions.
 
 ## Subagents
