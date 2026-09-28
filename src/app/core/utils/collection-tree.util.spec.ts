@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CardEntry } from '@models/card.model';
-import type { Collection } from '@models/collection.model';
+import { COLLECTION_COLORS, type Collection } from '@models/collection.model';
 import {
   buildChildrenOf,
   compareByName,
@@ -17,7 +17,7 @@ import {
 function makeCollection(overrides: Partial<Collection> & { id: string }): Collection {
   return {
     name: 'Coleção',
-    color: 'branco',
+    color: '#d8cdb0',
     parentId: null,
     updatedAt: '2026-01-01T00:00:00.000Z',
     ...overrides,
@@ -88,32 +88,15 @@ describe('validateCollectionName', () => {
 describe('defaultColor', () => {
   it('picks the first unused palette color', () => {
     const siblings = [
-      makeCollection({ id: '1', color: 'branco' }),
-      makeCollection({ id: '2', color: 'azul' }),
+      makeCollection({ id: '1', color: '#d8cdb0' }),
+      makeCollection({ id: '2', color: '#3d6b85' }),
     ];
-    expect(defaultColor(siblings)).toBe('violeta');
+    expect(defaultColor(siblings)).toBe('#7c5aa6');
   });
 
-  it('falls back to branco when every color is used', () => {
-    const siblings = [
-      'branco',
-      'azul',
-      'violeta',
-      'vermelho',
-      'verde',
-      'carvao',
-      'nevoa',
-      'anil',
-      'vinho',
-      'ocre',
-      'salvia',
-      'cinza',
-      'turquesa',
-      'rosa',
-      'laranja',
-      'dourado',
-    ].map((color, i) => makeCollection({ id: `${i}`, color: color as Collection['color'] }));
-    expect(defaultColor(siblings)).toBe('branco');
+  it('falls back to Branco when every color is used', () => {
+    const siblings = COLLECTION_COLORS.map((color, i) => makeCollection({ id: `${i}`, color: color.hex }));
+    expect(defaultColor(siblings)).toBe('#d8cdb0');
   });
 });
 

@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { CollectionColorId } from '@models/collection.model';
+import type { CollectionColorHex } from '@models/collection.model';
 import { describe, expect, it } from 'vitest';
 import { ColorPicker } from './color-picker';
 
@@ -9,7 +9,7 @@ import { ColorPicker } from './color-picker';
   template: `<app-color-picker [value]="value()" (valueChange)="value.set($event)" />`,
 })
 class Host {
-  readonly value = signal<CollectionColorId>('azul');
+  readonly value = signal<CollectionColorHex>('#3d6b85');
 }
 
 describe('ColorPicker', () => {
@@ -32,8 +32,8 @@ describe('ColorPicker', () => {
     const group = el.querySelector('[role="radiogroup"]')!;
     const label = el.querySelector(`#${group.getAttribute('aria-labelledby')}`)!;
     expect(label.textContent!.replace(/\s+/g, ' ').trim()).toBe('Cor · Azul');
-    expect(radios()[5].getAttribute('aria-label')).toBe('Carvão');
-    expect(radios()[5].getAttribute('title')).toBe('Carvão');
+    expect(radios()[5].getAttribute('aria-label')).toBe('Ônix');
+    expect(radios()[5].getAttribute('title')).toBe('Ônix');
   });
 
   it('has a single tab stop on the checked swatch', () => {
@@ -48,23 +48,23 @@ describe('ColorPicker', () => {
     const { fixture, radios, host } = render();
     radios()[10].click();
     fixture.detectChanges();
-    expect(host.value()).toBe('salvia');
+    expect(host.value()).toBe('#8ea24a');
   });
 
   it('moves with the arrow keys, wrapping, and jumps with Home/End', () => {
     const { key, host, radios } = render();
     key('ArrowRight');
-    expect(host.value()).toBe('violeta');
+    expect(host.value()).toBe('#7c5aa6');
     expect(document.activeElement).toBe(radios()[2]);
     key('ArrowUp');
     key('ArrowLeft');
     key('ArrowLeft');
-    expect(host.value()).toBe('dourado');
+    expect(host.value()).toBe('#c49a3c');
     key('ArrowDown');
-    expect(host.value()).toBe('branco');
+    expect(host.value()).toBe('#d8cdb0');
     key('End');
-    expect(host.value()).toBe('dourado');
+    expect(host.value()).toBe('#c49a3c');
     key('Home');
-    expect(host.value()).toBe('branco');
+    expect(host.value()).toBe('#d8cdb0');
   });
 });

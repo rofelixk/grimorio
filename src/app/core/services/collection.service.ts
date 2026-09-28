@@ -1,7 +1,7 @@
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import {
   Collection,
-  CollectionColorId,
+  CollectionColorHex,
   CollectionKind,
   CollectionStats,
   MAX_DEPTH,
@@ -118,7 +118,7 @@ export class CollectionService {
     return totals && totals.directEntries > 0 ? 'cards' : 'empty';
   }
 
-  defaultColor(parentId: string | null): CollectionColorId {
+  defaultColor(parentId: string | null): CollectionColorHex {
     return defaultColorFor(this.childrenOf().get(parentId) ?? []);
   }
 
@@ -129,7 +129,7 @@ export class CollectionService {
   create(input: {
     parentId: string | null;
     name: string;
-    color: CollectionColorId;
+    color: CollectionColorHex;
   }): { ok: true; collection: Collection; moved: number } | { ok: false; error: NameError | 'too-deep' | 'no-parent' } {
     const { parentId, color } = input;
     if (parentId !== null) {
@@ -163,7 +163,7 @@ export class CollectionService {
   /** Renames and/or recolors one collection; writes that one row and never a card (FR-011, FR-021). */
   update(
     id: string,
-    patch: { name?: string; color?: CollectionColorId },
+    patch: { name?: string; color?: CollectionColorHex },
   ): { ok: true } | { ok: false; error: NameError | 'not-found' } {
     const current = this.byId().get(id);
     if (!current) return { ok: false, error: 'not-found' };

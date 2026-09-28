@@ -7,7 +7,7 @@ import {
   COLLECTION_COLORS,
   MAX_NAME,
   type Collection,
-  type CollectionColorId,
+  type CollectionColorHex,
   type CollectionStats,
   type CollectionTotals,
   type NameError,
@@ -43,11 +43,11 @@ export function validateCollectionName(
   return taken ? 'taken' : null;
 }
 
-/** The first palette color no sibling uses, else `'branco'`. */
-export function defaultColor(siblings: Collection[]): CollectionColorId {
-  const used = new Set(siblings.map((sibling) => sibling.color));
-  const unused = COLLECTION_COLORS.find((color) => !used.has(color.id));
-  return unused ? unused.id : 'branco';
+/** The first palette color no sibling uses, else the first palette color (Branco). */
+export function defaultColor(siblings: Collection[]): CollectionColorHex {
+  const used = new Set<string>(siblings.map((sibling) => sibling.color));
+  const unused = COLLECTION_COLORS.find((color) => !used.has(color.hex));
+  return (unused ?? COLLECTION_COLORS[0]).hex;
 }
 
 /** Groups collections by `parentId`, each list sorted with {@link compareByName}. */

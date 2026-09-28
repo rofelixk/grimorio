@@ -16,11 +16,7 @@ create table public.collections (
   user_id uuid not null references auth.users (id) on delete cascade,
   id uuid not null,
   name text not null check (char_length(name) between 1 and 40),
-  color text not null check (color in (
-    'branco', 'azul', 'violeta', 'vermelho', 'verde',
-    'carvao', 'nevoa', 'anil', 'vinho', 'ocre', 'salvia',
-    'cinza', 'turquesa', 'rosa', 'laranja', 'dourado'
-  )),
+  color text not null, -- the palette hex; the id check was dropped by migration collections_color_hex
   parent_id uuid,
   updated_at timestamptz not null default now(),
   primary key (user_id, id)

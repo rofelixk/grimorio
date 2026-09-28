@@ -8,11 +8,10 @@ import {
   viewChildren,
 } from '@angular/core';
 import {
-  CARVAO_RING,
   COLLECTION_COLORS,
   colorOf,
   type CollectionColor,
-  type CollectionColorId,
+  type CollectionColorHex,
 } from '@models/collection.model';
 import { COLLECTION } from '@utils/collection-copy';
 
@@ -38,21 +37,21 @@ const ROWS: readonly (readonly CollectionColor[])[] = [
     <div class="grid" role="radiogroup" [attr.aria-labelledby]="labelId">
       @for (row of rows; track $index) {
         <div class="row" [class.row--indented]="$index !== 1">
-          @for (color of row; track color.id) {
+          @for (color of row; track color.hex) {
             <button
               #swatch
               type="button"
               class="swatch"
               role="radio"
-              [class.selected]="color.id === value()"
-              [attr.aria-checked]="color.id === value()"
+              [class.selected]="color.hex === value()"
+              [attr.aria-checked]="color.hex === value()"
               [attr.aria-label]="color.name"
               [attr.title]="color.name"
-              [attr.tabindex]="color.id === value() ? 0 : -1"
+              [attr.tabindex]="color.hex === value() ? 0 : -1"
               [style.background]="color.hex"
-              [style.--ring]="color.id === 'carvao' ? carvaoRing : color.hex"
+              [style.--ring]="color.ring ?? color.hex"
               [style.--glow]="color.hex + '80'"
-              (click)="valueChange.emit(color.id)"
+              (click)="valueChange.emit(color.hex)"
               (keydown)="onKeydown($event)"
             ></button>
           }
@@ -63,12 +62,11 @@ const ROWS: readonly (readonly CollectionColor[])[] = [
   styleUrl: './color-picker.scss',
 })
 export class ColorPicker {
-  readonly value = input.required<CollectionColorId>();
-  readonly valueChange = output<CollectionColorId>();
+  readonly value = input.required<CollectionColorHex>();
+  readonly valueChange = output<CollectionColorHex>();
 
   protected readonly copy = COLLECTION;
   protected readonly rows = ROWS;
-  protected readonly carvaoRing = CARVAO_RING;
   protected readonly labelId = `grm-color-label-${nextId++}`;
   protected readonly selected = computed(() => colorOf(this.value()));
 
@@ -76,7 +74,7 @@ export class ColorPicker {
 
   protected onKeydown(event: KeyboardEvent): void {
     const last = COLLECTION_COLORS.length - 1;
-    const current = COLLECTION_COLORS.findIndex((color) => color.id === this.value());
+    const current = COLLECTION_COLORS.findIndex((color) => color.hex === this.value());
     let next: number;
     switch (event.key) {
       case 'ArrowRight':
@@ -97,7 +95,7 @@ export class ColorPicker {
         return;
     }
     event.preventDefault();
-    this.valueChange.emit(COLLECTION_COLORS[next].id);
+    this.valueChange.emit(COLLECTION_COLORS[next].hex);
     this.swatches()[next]?.nativeElement.focus();
   }
 }

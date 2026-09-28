@@ -20,7 +20,6 @@ import { COLLECTION } from '@utils/collection-copy';
         <span class="name">{{ collection().name }}</span>
         <span class="meta">{{ meta() }}</span>
       </span>
-      <span class="micro-label verb" aria-hidden="true">{{ copy.open }}</span>
     </button>
   `,
   styleUrl: './collection-row.scss',

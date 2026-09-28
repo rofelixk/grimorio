@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { Collection, CollectionColorId, CollectionTotals } from '@models/collection.model';
+import type { Collection, CollectionColorHex, CollectionTotals } from '@models/collection.model';
 import { describe, expect, it } from 'vitest';
 import { CollectionRow } from './collection-row';
 
@@ -9,12 +9,12 @@ import { CollectionRow } from './collection-row';
   template: `<app-collection-row [collection]="collection()" [totals]="totals()" (open)="opens = opens + 1" />`,
 })
 class Host {
-  readonly collection = signal<Collection>(collection('Fichário azul', 'azul'));
+  readonly collection = signal<Collection>(collection('Fichário azul', '#3d6b85'));
   readonly totals = signal<CollectionTotals>({ cards: 1240, sale: 85, subs: 5, directEntries: 0 });
   opens = 0;
 }
 
-function collection(name: string, color: CollectionColorId): Collection {
+function collection(name: string, color: CollectionColorHex): Collection {
   return { id: 'c1', name, color, parentId: null, updatedAt: '2026-09-28T00:00:00.000Z' };
 }
 
@@ -32,7 +32,6 @@ describe('CollectionRow', () => {
       'Fichário azul, cor Azul. 1.240 cartas · 85 à venda · 5 subcoleções.',
     );
     expect(button.querySelector('.name')?.textContent).toBe('Fichário azul');
-    expect(button.querySelector('.verb')?.textContent).toBe('Abrir');
     expect(button.querySelector('.swatch')?.getAttribute('aria-hidden')).toBe('true');
   });
 
@@ -51,13 +50,13 @@ describe('CollectionRow', () => {
     expect(button.querySelector('.meta')?.textContent).toBe('1 carta · 0 à venda');
   });
 
-  it('outlines the Carvão swatch', () => {
+  it('outlines the Ônix swatch', () => {
     const { fixture, button } = render();
-    fixture.componentInstance.collection.set(collection('Caixa', 'carvao'));
+    fixture.componentInstance.collection.set(collection('Caixa', '#2e2a2a'));
     fixture.detectChanges();
     const swatch = button.querySelector<HTMLElement>('.swatch')!;
     expect(swatch.style.borderColor).toBe('rgb(107, 99, 92)');
-    expect(button.getAttribute('aria-label')).toContain('cor Carvão.');
+    expect(button.getAttribute('aria-label')).toContain('cor Ônix.');
   });
 
   it('emits open on click', () => {

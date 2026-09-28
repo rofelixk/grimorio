@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
-import { MAX_NAME, type Collection, type CollectionColorId, type NameError } from '@models/collection.model';
+import { MAX_NAME, type Collection, type CollectionColorHex, type NameError } from '@models/collection.model';
 import { CollectionService } from '@services/collection.service';
 import { IdentityService } from '@services/identity.service';
 import { CompactModal } from '@shared/ds/compact-modal/compact-modal';
@@ -53,7 +53,7 @@ export class CollectionFormDialog {
   });
 
   protected readonly name = linkedSignal(() => this.editing()?.name ?? '');
-  protected readonly color = linkedSignal<CollectionColorId>(
+  protected readonly color = linkedSignal<CollectionColorHex>(
     () => this.editing()?.color ?? this.collections.defaultColor(this.parentId()),
   );
   protected readonly error = signal<NameError | null>(null);

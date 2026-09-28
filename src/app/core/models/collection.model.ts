@@ -1,63 +1,47 @@
 // Collection model (spec 008): a physical storage place for owned cards, nested up to 3 levels.
 // Counts, depth and kind are never stored — they're derived by CollectionService (data-model.md).
 
-/** The 16-color palette id set, in palette order (data-model.md table). */
-export type CollectionColorId =
-  | 'branco'
-  | 'azul'
-  | 'violeta'
-  | 'vermelho'
-  | 'verde'
-  | 'carvao'
-  | 'nevoa'
-  | 'anil'
-  | 'vinho'
-  | 'ocre'
-  | 'salvia'
-  | 'cinza'
-  | 'turquesa'
-  | 'rosa'
-  | 'laranja'
-  | 'dourado';
+// The 16-color palette, in row order (DESIGN.md "Collection colors"). The hex is the stored value.
+const PALETTE = [
+  { name: 'Branco', hex: '#d8cdb0' },
+  { name: 'Azul', hex: '#3d6b85' },
+  { name: 'Violeta', hex: '#7c5aa6' },
+  { name: 'Vermelho', hex: '#a8402c' },
+  { name: 'Verde', hex: '#4c7a43' },
+  { name: 'Ônix', hex: '#2e2a2a', outline: '#6b635c', ring: '#8a837e' },
+  { name: 'Pedra-da-lua', hex: '#b6b8c2' },
+  { name: 'Lápis', hex: '#2f4a86' },
+  { name: 'Granada', hex: '#7a2e3a' },
+  { name: 'Âmbar', hex: '#b8732e' },
+  { name: 'Peridoto', hex: '#8ea24a' },
+  { name: 'Água-marinha', hex: '#6fa3a6' },
+  { name: 'Esmeralda', hex: '#2f7a5c' },
+  { name: 'Quartzo rosa', hex: '#c7939a' },
+  { name: 'Turmalina', hex: '#a0507a' },
+  { name: 'Topázio', hex: '#c49a3c' },
+] as const;
+
+/** A palette hex: what `Collection.color` stores. */
+export type CollectionColorHex = (typeof PALETTE)[number]['hex'];
 
 export interface Collection {
   id: string;
   name: string;
-  color: CollectionColorId;
+  color: CollectionColorHex;
   parentId: string | null;
   updatedAt: string;
 }
 
 export interface CollectionColor {
-  id: CollectionColorId;
   name: string;
-  hex: string;
-  /** Carvão only: the list-swatch outline (`#6b635c`); the selected-ring color is `CARVAO_RING`. */
+  hex: CollectionColorHex;
+  /** A dark swatch's outline, so it reads against the page (Ônix: `#6b635c`). */
   outline?: string;
+  /** The selected ring's color when the hex itself would vanish (Ônix: `#8a837e`). */
+  ring?: string;
 }
 
-/** The 16 palette colors, in row order (data-model.md). */
-export const COLLECTION_COLORS: readonly CollectionColor[] = [
-  { id: 'branco', name: 'Branco', hex: '#d8cdb0' },
-  { id: 'azul', name: 'Azul', hex: '#3d6b85' },
-  { id: 'violeta', name: 'Violeta', hex: '#7c5aa6' },
-  { id: 'vermelho', name: 'Vermelho', hex: '#a8402c' },
-  { id: 'verde', name: 'Verde', hex: '#4c7a43' },
-  { id: 'carvao', name: 'Carvão', hex: '#3a3531', outline: '#6b635c' },
-  { id: 'nevoa', name: 'Névoa', hex: '#a3b4b6' },
-  { id: 'anil', name: 'Anil', hex: '#565f99' },
-  { id: 'vinho', name: 'Vinho', hex: '#7a3553' },
-  { id: 'ocre', name: 'Ocre', hex: '#7d5c2e' },
-  { id: 'salvia', name: 'Sálvia', hex: '#a6b07c' },
-  { id: 'cinza', name: 'Cinza', hex: '#8a837e' },
-  { id: 'turquesa', name: 'Turquesa', hex: '#2e8279' },
-  { id: 'rosa', name: 'Rosa', hex: '#d197a0' },
-  { id: 'laranja', name: 'Laranja', hex: '#c86a28' },
-  { id: 'dourado', name: 'Dourado', hex: '#cfab45' },
-] as const;
-
-/** Carvão's selected-ring color (distinct from its list-swatch `outline`). */
-export const CARVAO_RING = '#8a837e';
+export const COLLECTION_COLORS: readonly CollectionColor[] = PALETTE;
 
 export const MAX_NAME = 40;
 export const MAX_DEPTH = 3;
@@ -81,7 +65,10 @@ export interface CollectionStats {
   holding: { cards: number; sale: number };
 }
 
-/** Looks up a palette record by id. */
-export function colorOf(id: CollectionColorId): CollectionColor {
-  return COLLECTION_COLORS.find((c) => c.id === id)!;
+/**
+ * The palette record for a stored hex. The cloud column is unconstrained text, so a hex outside
+ * the palette falls back to the first color rather than breaking the page.
+ */
+export function colorOf(hex: string): CollectionColor {
+  return COLLECTION_COLORS.find((c) => c.hex === hex) ?? COLLECTION_COLORS[0];
 }

@@ -28,7 +28,7 @@ describe('CollectionDeleteDialog', () => {
   });
 
   function make(name: string, parentId: string | null = null): Collection {
-    const result = collections.create({ parentId, name, color: 'azul' });
+    const result = collections.create({ parentId, name, color: '#3d6b85' });
     if (!result.ok) throw new Error(result.error);
     return result.collection;
   }

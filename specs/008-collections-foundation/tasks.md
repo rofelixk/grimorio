@@ -499,7 +499,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T037 Update `.claude/docs/architecture.md` with the lasting conventions from plan.md "Docs to update", after showing the user the proposed edit (CLAUDE.md "Maintaining these files"):
+- [X] T037 Update `.claude/docs/architecture.md` with the lasting conventions from plan.md "Docs to update", after showing the user the proposed edit (CLAUDE.md "Maintaining these files"):
   - "Domain model": `StorageLocation` → `Collection` (16-color palette ids, derived counts/kind, the dangling-reference holding box);
   - the persistence pattern note on `writeRows` per-row/cross-store transactions;
   - "Sync": `collections` plus `repairCollectionTree`;
@@ -508,7 +508,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - the card-import service kept, unused, for a future spec.
 - [X] T038 Run the `design-auditor` agent over every new or changed `.html`/`.scss`/component `.ts` (T011–T032) against `DESIGN.md` and `ui.md`, and fix what it reports.
 - [X] T039 Run the full suite and lint through the `test-runner` agent (`npm test`, `npm run lint`), and fix any failure or unused import left by the deletions (T008).
-- [ ] T040 Walk quickstart.md steps 1–10 on the running dev server (the user runs `npm start`), including 320px width, reduced motion and the 50,000-copy scale seed. Record any deviation.
+- [X] T040 Walk quickstart.md steps 1–10 on the running dev server (the user runs `npm start`), including 320px width, reduced motion and the 50,000-copy scale seed. Record any deviation.
 
 ---
 

@@ -53,8 +53,8 @@ describe('openProfileDb', () => {
 });
 
 describe('writeRows', () => {
-  const collectionA: Collection = { id: 'c1', name: 'A', color: 'branco', parentId: null, updatedAt: 't1' };
-  const collectionB: Collection = { id: 'c2', name: 'B', color: 'azul', parentId: null, updatedAt: 't2' };
+  const collectionA: Collection = { id: 'c1', name: 'A', color: '#d8cdb0', parentId: null, updatedAt: 't1' };
+  const collectionB: Collection = { id: 'c2', name: 'B', color: '#3d6b85', parentId: null, updatedAt: 't2' };
 
   it('applies puts and deletes across stores atomically', async () => {
     await setActiveProfileDb('p1');

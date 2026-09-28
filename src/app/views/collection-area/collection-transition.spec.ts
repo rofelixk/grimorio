@@ -74,6 +74,23 @@ describe('CollectionTransition', () => {
     expect(transition.orbs()).toEqual([]);
   });
 
+  it('eases the height over 480ms on phone, releasing after it', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('max-width: 640px'),
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    }));
+    const transition = create();
+    expect(transition.heightMs()).toBe(480);
+    transition.go(list, depthOf, measure);
+    transition.go(top, depthOf, measure);
+
+    vi.advanceTimersByTime(140 + 480 + 39);
+    expect(transition.lockHeight()).toBe(180);
+    vi.advanceTimersByTime(1);
+    expect(transition.lockHeight()).toBeNull();
+  });
+
   it('goes up with dir −1', () => {
     stubReducedMotion(false);
     const transition = create();

@@ -26,7 +26,7 @@ describe('entity services load() isolation', () => {
   it("hides profile A's data under profile B and with no profile, and restores it for A", async () => {
     const card = cards.add(mockCardEntryWithoutId());
     collections.applySyncResult([
-      { id: 'col-a', name: 'Caixa A', color: 'branco', parentId: null, updatedAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'col-a', name: 'Caixa A', color: '#d8cdb0', parentId: null, updatedAt: '2026-01-01T00:00:00.000Z' },
     ]);
     const deck = decks.add({ name: 'Deck A', commander: null, cards: [] });
 
@@ -43,7 +43,7 @@ describe('entity services load() isolation', () => {
     await loadAll('A');
     expect(cards.cards()).toEqual([card]);
     expect(collections.collections()).toEqual([
-      { id: 'col-a', name: 'Caixa A', color: 'branco', parentId: null, updatedAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'col-a', name: 'Caixa A', color: '#d8cdb0', parentId: null, updatedAt: '2026-01-01T00:00:00.000Z' },
     ]);
     expect(decks.decks()).toEqual([deck]);
   });

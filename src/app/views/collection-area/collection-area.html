@@ -8,6 +8,7 @@
   [class.is-in]="phase === 'in' && !transition.entering()"
   [style.height.px]="transition.lockHeight()"
   [style.--dir]="transition.dir()"
+  [style.--height-ms]="transition.heightMs() + 'ms'"
 >
   <div #inner class="inner">
     @switch (transition.shown().kind) {
@@ -158,7 +159,6 @@
                 </div>
               </div>
 
-              <p class="meta">{{ copy.colorLevel(currentColor()!.name, depth()) }}</p>
 
               @switch (kind()) {
                 @case ('subcollections') {
@@ -233,7 +233,8 @@
 
 @if (transition.orbs().length > 0) {
   <div class="orbs" aria-hidden="true">
-    @for (orb of transition.orbs(); track $index) {
+    <!-- Tracked by object: each burst gets fresh elements, so a quick second navigation replays. -->
+    @for (orb of transition.orbs(); track orb) {
       <span
         class="orb"
         [class]="orbRole(orb.role)"

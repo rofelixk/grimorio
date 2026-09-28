@@ -29,17 +29,17 @@ colors:
   collection-violeta: "#7c5aa6"
   collection-vermelho: "#a8402c"
   collection-verde: "#4c7a43"
-  collection-carvao: "#3a3531"
-  collection-nevoa: "#a3b4b6"
-  collection-anil: "#565f99"
-  collection-vinho: "#7a3553"
-  collection-ocre: "#7d5c2e"
-  collection-salvia: "#a6b07c"
-  collection-cinza: "#8a837e"
-  collection-turquesa: "#2e8279"
-  collection-rosa: "#d197a0"
-  collection-laranja: "#c86a28"
-  collection-dourado: "#cfab45"
+  collection-onix: "#2e2a2a"
+  collection-pedra-da-lua: "#b6b8c2"
+  collection-lapis: "#2f4a86"
+  collection-granada: "#7a2e3a"
+  collection-ambar: "#b8732e"
+  collection-peridoto: "#8ea24a"
+  collection-agua-marinha: "#6fa3a6"
+  collection-esmeralda: "#2f7a5c"
+  collection-quartzo-rosa: "#c7939a"
+  collection-turmalina: "#a0507a"
+  collection-topazio: "#c49a3c"
 typography:
   display:
     fontFamily: "'Grenze', Georgia, serif"
@@ -227,22 +227,23 @@ A 16-color palette for labeling collections (the physical-storage feature), unre
 | 1 | Violeta | `#7c5aa6` |
 | 1 | Vermelho | `#a8402c` |
 | 1 | Verde | `#4c7a43` |
-| 2 | Carvão | `#3a3531` (plus a 1px `#6b635c` outline on the swatch, `#8a837e` for the selected ring) |
-| 2 | Névoa | `#a3b4b6` |
-| 2 | Anil | `#565f99` |
-| 2 | Vinho | `#7a3553` |
-| 2 | Ocre | `#7d5c2e` |
-| 2 | Sálvia | `#a6b07c` |
-| 3 | Cinza | `#8a837e` |
-| 3 | Turquesa | `#2e8279` |
-| 3 | Rosa | `#d197a0` |
-| 3 | Laranja | `#c86a28` |
-| 3 | Dourado | `#cfab45` |
+| 2 | Ônix | `#2e2a2a` (plus a 1px `#6b635c` outline on the swatch, `#8a837e` for the selected ring) |
+| 2 | Pedra-da-lua | `#b6b8c2` |
+| 2 | Lápis | `#2f4a86` |
+| 2 | Granada | `#7a2e3a` |
+| 2 | Âmbar | `#b8732e` |
+| 2 | Peridoto | `#8ea24a` |
+| 3 | Água-marinha | `#6fa3a6` |
+| 3 | Esmeralda | `#2f7a5c` |
+| 3 | Quartzo rosa | `#c7939a` |
+| 3 | Turmalina | `#a0507a` |
+| 3 | Topázio | `#c49a3c` |
 
 How the palette was chosen:
-- **Row 1:** the five identity colors (W U B R G). The B tone is named "Violeta" here so it isn't confused with Carvão.
-- **Row 2:** the colors between each neighboring pair on the wheel (W–U, U–B, B–R, R–G, G–W), plus a true dark.
-- **Row 3:** common colors the wheel doesn't cover.
+- **Row 1:** the five identity colors (W U B R G). The B tone is named "Violeta" here so it isn't confused with Ônix.
+- **Rows 2–3:** gemstone tones, named after the stone, starting with a true dark (Ônix).
+
+The stored value is the hex itself (`Collection.color`), in `COLLECTION_COLORS` palette order; there are no separate color ids.
 
 **Swatches only, never UI chrome — the Identity Rule still holds.** Always name the color in text, never rely on it alone.
 
@@ -335,7 +336,7 @@ These are deliberate exceptions to two rules: the flowing line and the thread ar
 - **Drawer:** slides in from the right over 0.36s (`--duration-drawer`), and the backdrop fades over the same time.
 - **Side nav:** width, border and glow change over `base` 0.24s. It collapses 120ms after the pointer leaves.
 - **`prefers-reduced-motion`:** all ring, halo, spark, ripple and band animation stops, as do the wheel's spin, breathing, motes and bursts. Rings and bands freeze, the drawer opens and closes instantly (0s), modal height changes are instant, and the toast appears without a transition.
-- **Collections page transition** (list ↔ collection ↔ holding box): out 140ms — the content column fades to opacity 0 and slides `translateX(-dir*8px)`, standard easing. Swap: the view is replaced, the content starting at opacity 0 and `translateX(dir*12px)` with no transition. In 240ms — fades to opacity 1 and slides to `translateX(0)`. `dir = +1` going deeper or sideways, `-1` going up. Height is locked to the outgoing content just before "out" (`overflow: hidden`), transitions to the new content's height over the 240ms "in", and releases to `auto` about 280ms after the swap, so the page never flickers.
+- **Collections page transition** (list ↔ collection ↔ holding box): out 140ms — the content column fades to opacity 0 and slides `translateX(-dir*8px)`, standard easing. Swap: the view is replaced, the content starting at opacity 0 and `translateX(dir*12px)` with no transition. In 240ms — fades to opacity 1 and slides to `translateX(0)`. `dir = +1` going deeper or sideways, `-1` going up. Height is locked to the outgoing content just before "out" (`overflow: hidden`), transitions to the new content's height over the 240ms "in", and releases to `auto` about 280ms after the swap, so the page never flickers. On phone (≤ 640px) the height change takes 480ms and releases about 520ms after the swap, so a tall ↔ short swap doesn't snap on the narrow screen; the fade and slide keep their timings.
   - **Light orbs:** 23 of them, in an `aria-hidden`, `pointer-events: none`, `overflow: hidden`, `mix-blend-mode: screen` layer, starting with "out" and lasting about 1.5s. Size `(5 + r*11) * 0.4` (2–6.4px). Colors cycle `--role-primary`, `--role-accent`, `--role-tertiary`. Fill `radial-gradient(circle, c 0%, c/67% 40%, transparent 72%)` plus a glow `0 0 {1.6*size}px {0.4*size}px c/40%`. Start position: left 8–63% going deeper, 35–90% going up; top 10–80%. Keyframe `grm-orb`: 0% opacity 0 scale .5, 25% opacity 1, 100% opacity 0 and `translate(dx, dy) scale(1.1)`, with `dx = dir*(50…160)px`, `dy = -(15…75)px`. Duration 750–1250ms, delay 0–220ms, standard easing.
   - **`prefers-reduced-motion`:** no fade, slide, height animation or orbs — the view swaps instantly, matching the global rule.
 
@@ -572,7 +573,7 @@ The collection area (spec 008): a list of collections, a per-collection page, an
 
 **Page column.** 760px, centered; 1080px with the 220px filters aside at ≥ 960px (`minmax(0,1fr) 220px`, gap `space-6`). Padding `space-5` (`space-4` at ≤ 640px); the content stack is a flex column, gap `space-4`.
 
-**Collection row** (`app-collection-row`). Built like an action row: a full-width `<button>`, min-height 56px, padding `space-2 space-3`, 1px border, 8px radius, `surface-raised → surface` gradient. Hover/focus: border role-primary, `--glow-plate-hover`, `fast` easing. Lead: a 20px color swatch (Carvão adds its 1px `#6b635c` outline). Text: the name (700, one line, ellipsis) over the meta (0.75rem muted). Trailing `.micro-label` "Abrir". Meta format: "{n} cartas · {s} à venda · {k} subcoleções", pt-BR grouping and singular forms, the subcollection part omitted when there are none, "Vazia" when both are zero — counts roll up the whole subtree. Accessible name: "{nome}, cor {Cor}. {meta}." — the swatch and the row's own text are `aria-hidden` in favor of it, since color is never the only cue.
+**Collection row** (`app-collection-row`). Built like an action row: a full-width `<button>`, min-height 56px, padding `space-2 space-3`, 1px border, 8px radius, `surface-raised → surface` gradient. Hover/focus: border role-primary, `--glow-plate-hover`, `fast` easing. Lead: a 20px color swatch (Ônix adds its 1px `#6b635c` outline). Text: the name (700, one line, ellipsis) over the meta (0.75rem muted). Trailing `.micro-label` "Abrir". Meta format: "{n} cartas · {s} à venda · {k} subcoleções", pt-BR grouping and singular forms, the subcollection part omitted when there are none, "Vazia" when both are zero — counts roll up the whole subtree. Accessible name: "{nome}, cor {Cor}. {meta}." — the swatch and the row's own text are `aria-hidden` in favor of it, since color is never the only cue.
 
 **Dashed create row** (`app-create-row`). Ends the list on phone, or opens a subcollection/split action inside a collection. Same size as a collection row, but a 1px **dashed** border, transparent, muted text; "+" centered in a 36px slot, then a bold label ("Nova coleção", "Nova subcoleção", "Dividir em subcoleções") and an optional 0.75rem sub-line. Hover/focus: text → `text`, border → role-accent.
 
@@ -592,7 +593,7 @@ The collection area (spec 008): a list of collections, a per-collection page, an
 
 **Compact modal** (`app-compact-modal`, the create/edit and delete dialogs). A narrow themed-modal ring: `width: min(480px, 100vw - 2rem)`, 2px padding, 10px radius, the same ring/halo recipe as the auth blueprint. Phone (≤ 640px): full-bleed, no ring or halo, a header with the "Grimorio" wordmark (Grenze 700 1.25rem, role-primary, title glow) and ✕, hairline below, `--wash-header`; buttons stack full-width in `column-reverse` order.
 
-**Color picker.** A centered `role="radiogroup"`, 16 swatches in a 5/6/5 honeycomb from `COLLECTION_COLORS` order; rows 1 and 3 indented 24px so they nest between row 2's swatches. Row gap 6px, swatch gap 12px. Each swatch is a 36px circular `button role="radio"`, named and titled with the color name. Selected: `box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 4px {hex}, 0 0 20px {hex}80` over `slow` 0.5s (Carvão's ring uses `#8a837e`).
+**Color picker.** A centered `role="radiogroup"`, 16 swatches in a 5/6/5 honeycomb from `COLLECTION_COLORS` order; rows 1 and 3 indented 24px so they nest between row 2's swatches. Row gap 6px, swatch gap 12px. Each swatch is a 36px circular `button role="radio"`, named and titled with the color name. Selected: `box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 4px {hex}, 0 0 20px {hex}80` over `slow` 0.5s (Ônix's ring uses `#8a837e`).
 
 **Delete radios.** Two full-width radio rows (padding `space-3`, 8px radius, the row gradient), each with an 18px indicator (1px border, an inset 4px `--color-bg` ring, filled when selected). "Mover para a caixa temporária" selected: border and fill role-primary plus `--glow-plate-hover`. "Excluir as cartas" selected: border and fill danger, its sub-text in danger. Nothing is selected by default.
 

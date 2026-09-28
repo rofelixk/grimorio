@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { NavigationEnd, Router, provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import type { CardEntry } from '@models/card.model';
-import type { Collection, CollectionColorId } from '@models/collection.model';
+import type { Collection, CollectionColorHex } from '@models/collection.model';
 import { CardService } from '@services/card.service';
 import { CollectionService } from '@services/collection.service';
 import { ToastService } from '@services/toast.service';
@@ -31,7 +31,7 @@ function stubMedia({ mobile = false, wide = false, reduced = true }: Media = {})
   }));
 }
 
-function col(id: string, name: string, parentId: string | null = null, color: CollectionColorId = 'branco'): Collection {
+function col(id: string, name: string, parentId: string | null = null, color: CollectionColorHex = '#d8cdb0'): Collection {
   return { id, name, color, parentId, updatedAt: '2026-01-01T00:00:00.000Z' };
 }
 
@@ -76,11 +76,11 @@ const rowNames = (el: HTMLElement) => [...el.querySelectorAll('app-collection-ro
 
 // A tree: Fichário (> Azuis > Lote 1, > Vermelhas), Caixa de trocas (cards), Álbum (empty).
 const tree = [
-  col('fich', 'Fichário', null, 'azul'),
+  col('fich', 'Fichário', null, '#3d6b85'),
   col('azuis', 'Azuis', 'fich'),
   col('lote', 'Lote 1', 'azuis'),
   col('verm', 'vermelhas', 'fich'),
-  col('trocas', 'Caixa de trocas', null, 'carvao'),
+  col('trocas', 'Caixa de trocas', null, '#2e2a2a'),
   col('album', 'Álbum'),
 ];
 const treeCards = [
@@ -173,7 +173,6 @@ describe('CollectionArea', () => {
       const path = el.querySelector('nav[aria-label="Caminho"]')!;
       expect([...path.querySelectorAll('a')].map(text)).toEqual(['Coleção', 'Fichário', 'Azuis']);
       expect(path.querySelector('[aria-current="page"]')?.textContent).toBe('Lote 1');
-      expect(text(el.querySelector('.meta'))).toBe('Cor: Branco · Nível 3 de 3');
 
       path.querySelectorAll('a')[1].click();
       await settle(harness);
@@ -474,6 +473,22 @@ describe('CollectionArea', () => {
       await settle(harness);
       expect(router.url).toBe('/collection');
       expect(harness.routeNativeElement!.querySelector('.holding-tag')).toBeNull();
+    });
+  });
+
+  describe('quick navigation', () => {
+    it('replays the orbs with fresh elements when a second move starts mid-burst', async () => {
+      await seed('p1', tree);
+      const { el, harness, router } = await setUp('/collection', { reduced: false });
+      await router.navigate(['/collection', 'fich']);
+      await settle(harness);
+      const firstBurst = el.querySelector('.orb')!;
+      expect(firstBurst).not.toBeNull();
+
+      await router.navigate(['/collection', 'azuis']);
+      await settle(harness);
+      expect(firstBurst.isConnected).toBe(false);
+      expect(el.querySelectorAll('.orb')).toHaveLength(ORB_COUNT);
     });
   });
 

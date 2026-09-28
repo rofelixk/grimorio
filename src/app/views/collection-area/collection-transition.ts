@@ -1,9 +1,13 @@
-import { DestroyRef, Injectable, inject, signal } from '@angular/core';
-import { REDUCED_MOTION_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { MOBILE_QUERY, REDUCED_MOTION_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { ORB_COUNT, makeOrbs, transitionDir, type Orb, type Place } from '@utils/collection-transition.util';
 
 const OUT_MS = 140;
-const RELEASE_MS = 280;
+/** The height change's duration, desktop / phone (DESIGN.md Motion). */
+const HEIGHT_MS = 240;
+const HEIGHT_MS_PHONE = 480;
+/** Release the lock this long after the height change should have finished. */
+const RELEASE_SLACK_MS = 40;
 const ORB_CLEAR_MS = 1500;
 
 /** How the content column measures itself, so `go()` can lock/animate its height. */
@@ -21,6 +25,10 @@ export interface TransitionMeasure {
 @Injectable()
 export class CollectionTransition {
   private readonly reducedMotion = mediaQuerySignal(REDUCED_MOTION_QUERY);
+  private readonly phone = mediaQuerySignal(MOBILE_QUERY);
+
+  /** The height change's duration; the view binds it as `--height-ms`. */
+  readonly heightMs = computed(() => (this.phone() ? HEIGHT_MS_PHONE : HEIGHT_MS));
 
   readonly shown = signal<Place>({ kind: 'list' });
   readonly phase = signal<'idle' | 'out' | 'in'>('idle');
@@ -68,6 +76,7 @@ export class CollectionTransition {
     }
 
     this.dir.set(dir);
+    this.entering.set(false);
     this.lockHeight.set(measure.outer());
     this.orbs.set(makeOrbs(ORB_COUNT, dir, Math.random));
     this.phase.set('out');
@@ -84,7 +93,7 @@ export class CollectionTransition {
       });
     });
 
-    this.after(OUT_MS + RELEASE_MS, () => {
+    this.after(OUT_MS + this.heightMs() + RELEASE_SLACK_MS, () => {
       if (run !== this.runId) return;
       this.lockHeight.set(null);
       this.phase.set('idle');

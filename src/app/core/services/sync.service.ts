@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { SupabaseClient, User } from '@supabase/supabase-js';
 import { CardEntry, CardFace } from '@models/card.model';
-import { Collection, CollectionColorId } from '@models/collection.model';
+import { Collection, CollectionColorHex } from '@models/collection.model';
 import type { PlanarSelection } from '@models/planar-selection.model';
 import { ProfileSummary } from '@models/profile.model';
 import { currentDbHandle, getMeta, setMeta } from '../db/entity-store';
@@ -48,7 +48,7 @@ interface CollectionRow {
   id: string;
   user_id: string;
   name: string;
-  color: CollectionColorId;
+  color: CollectionColorHex;
   parent_id: string | null;
   updated_at: string;
 }

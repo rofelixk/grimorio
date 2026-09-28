@@ -53,15 +53,15 @@ describe('CollectionFormDialog', () => {
     return { fixture, el, input, type, submit, checked, saved, closes: () => closes };
   }
 
-  function make(name: string, parentId: string | null = null, color: Collection['color'] = 'branco'): Collection {
+  function make(name: string, parentId: string | null = null, color: Collection['color'] = '#d8cdb0'): Collection {
     const result = collections.create({ parentId, name, color });
     if (!result.ok) throw new Error(result.error);
     return result.collection;
   }
 
   it('titles a new collection and preselects the first unused color', async () => {
-    make('Um', null, 'branco');
-    make('Dois', null, 'azul');
+    make('Um', null, '#d8cdb0');
+    make('Dois', null, '#3d6b85');
     const { el, input, checked } = await render({ mode: 'create' });
     expect(el.querySelector('h2')?.textContent).toBe('Nova coleção');
     expect(el.querySelector('dialog')?.getAttribute('aria-labelledby')).toBe(el.querySelector('h2')?.id);
@@ -111,7 +111,7 @@ describe('CollectionFormDialog', () => {
     fixture.detectChanges();
     submit();
     expect(saved).toHaveLength(1);
-    expect(saved[0]).toMatchObject({ name: 'Fichário vermelho', color: 'vermelho', parentId: null });
+    expect(saved[0]).toMatchObject({ name: 'Fichário vermelho', color: '#a8402c', parentId: null });
   });
 
   it('cancels without saving', async () => {
@@ -123,16 +123,16 @@ describe('CollectionFormDialog', () => {
   });
 
   it('prefills edit mode and saves the new name and color', async () => {
-    const existing = make('Raras', null, 'ocre');
+    const existing = make('Raras', null, '#b8732e');
     const { el, input, type, submit, checked, saved } = await render({ mode: 'edit', collectionId: existing.id });
     expect(el.querySelector('h2')?.textContent).toBe('Editar coleção');
     expect(input.value).toBe('Raras');
-    expect(checked()).toBe('Ocre');
+    expect(checked()).toBe('Âmbar');
     expect(el.querySelector('.btn--primary')?.textContent).toBe('Salvar');
 
     type('Raras e míticas');
     submit();
-    expect(saved[0]).toMatchObject({ id: existing.id, name: 'Raras e míticas', color: 'ocre' });
+    expect(saved[0]).toMatchObject({ id: existing.id, name: 'Raras e míticas', color: '#b8732e' });
   });
 
   describe('subcollections', () => {

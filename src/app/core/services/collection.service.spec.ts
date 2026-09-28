@@ -12,7 +12,7 @@ function mockCollection(overrides: Partial<Collection> = {}): Collection {
   return {
     id: 'col-1',
     name: 'Raras',
-    color: 'branco',
+    color: '#d8cdb0',
     parentId: null,
     updatedAt: '2026-01-01T00:00:00.000Z',
     ...overrides,
@@ -111,10 +111,10 @@ describe('CollectionService', () => {
 
   describe('create (top level)', () => {
     it('stamps id and updatedAt, trims the name and persists across a reload', async () => {
-      const result = service.create({ parentId: null, name: '  Fichário vermelho ', color: 'vermelho' });
+      const result = service.create({ parentId: null, name: '  Fichário vermelho ', color: '#a8402c' });
       expect(result.ok).toBe(true);
       if (!result.ok) return;
-      expect(result.collection).toMatchObject({ name: 'Fichário vermelho', color: 'vermelho', parentId: null });
+      expect(result.collection).toMatchObject({ name: 'Fichário vermelho', color: '#a8402c', parentId: null });
       expect(result.collection.id).toBeTruthy();
       expect(result.collection.updatedAt).toBeTruthy();
       expect(result.moved).toBe(0);
@@ -129,12 +129,12 @@ describe('CollectionService', () => {
       await seed('p1', [mockCollection({ id: 'a', name: 'Fichário' })]);
       await service.load('p1');
 
-      expect(service.create({ parentId: null, name: '   ', color: 'azul' })).toEqual({ ok: false, error: 'empty' });
-      expect(service.create({ parentId: null, name: 'x'.repeat(41), color: 'azul' })).toEqual({
+      expect(service.create({ parentId: null, name: '   ', color: '#3d6b85' })).toEqual({ ok: false, error: 'empty' });
+      expect(service.create({ parentId: null, name: 'x'.repeat(41), color: '#3d6b85' })).toEqual({
         ok: false,
         error: 'too-long',
       });
-      expect(service.create({ parentId: null, name: ' FICHÁRIO ', color: 'azul' })).toEqual({
+      expect(service.create({ parentId: null, name: ' FICHÁRIO ', color: '#3d6b85' })).toEqual({
         ok: false,
         error: 'taken',
       });
@@ -150,29 +150,29 @@ describe('CollectionService', () => {
     }
 
     it('creates levels 2 and 3 and rejects level 4 or a missing parent', () => {
-      const l1 = created(service.create({ parentId: null, name: 'Fichário', color: 'azul' }));
-      const l2 = created(service.create({ parentId: l1.id, name: 'Azuis', color: 'azul' }));
-      const l3 = created(service.create({ parentId: l2.id, name: 'Lote', color: 'azul' }));
+      const l1 = created(service.create({ parentId: null, name: 'Fichário', color: '#3d6b85' }));
+      const l2 = created(service.create({ parentId: l1.id, name: 'Azuis', color: '#3d6b85' }));
+      const l3 = created(service.create({ parentId: l2.id, name: 'Lote', color: '#3d6b85' }));
       expect(service.depth(l3.id)).toBe(3);
-      expect(service.create({ parentId: l3.id, name: 'Fundo', color: 'azul' })).toEqual({
+      expect(service.create({ parentId: l3.id, name: 'Fundo', color: '#3d6b85' })).toEqual({
         ok: false,
         error: 'too-deep',
       });
-      expect(service.create({ parentId: 'missing', name: 'X', color: 'azul' })).toEqual({
+      expect(service.create({ parentId: 'missing', name: 'X', color: '#3d6b85' })).toEqual({
         ok: false,
         error: 'no-parent',
       });
-      expect(service.create({ parentId: l1.id, name: ' azuis', color: 'azul' })).toEqual({ ok: false, error: 'taken' });
+      expect(service.create({ parentId: l1.id, name: ' azuis', color: '#3d6b85' })).toEqual({ ok: false, error: 'taken' });
     });
 
     it('moves every direct card of a "cards" parent into the new subcollection, other fields unchanged', async () => {
-      const parent = created(service.create({ parentId: null, name: 'Caixa', color: 'azul' }));
+      const parent = created(service.create({ parentId: null, name: 'Caixa', color: '#3d6b85' }));
       const a = cards.add(mockCardEntryWithoutId({ locationId: parent.id, quantity: 3, forSale: true, notes: 'x' }));
       const b = cards.add(mockCardEntryWithoutId({ locationId: parent.id, quantity: 2 }));
       await cards.flush();
       expect(service.kind(parent.id)).toBe('cards');
 
-      const result = service.create({ parentId: parent.id, name: 'Primeira', color: 'verde' });
+      const result = service.create({ parentId: parent.id, name: 'Primeira', color: '#4c7a43' });
       expect(result.ok && result.moved).toBe(5);
       const child = created(result);
       expect(service.kind(parent.id)).toBe('subcollections');
@@ -189,7 +189,7 @@ describe('CollectionService', () => {
     });
 
     it('writes neither the collection nor the moved cards when the transaction fails', async () => {
-      const parent = created(service.create({ parentId: null, name: 'Caixa', color: 'azul' }));
+      const parent = created(service.create({ parentId: null, name: 'Caixa', color: '#3d6b85' }));
       cards.add(mockCardEntryWithoutId({ locationId: parent.id }));
       await cards.flush();
       await service.flush();
@@ -198,7 +198,7 @@ describe('CollectionService', () => {
       cards.applySyncResult([good, { ...good, id: undefined as unknown as string }]);
       await cards.flush();
 
-      const result = service.create({ parentId: parent.id, name: 'Primeira', color: 'verde' });
+      const result = service.create({ parentId: parent.id, name: 'Primeira', color: '#4c7a43' });
       expect(result.ok).toBe(true);
       await service.flush();
 
@@ -209,13 +209,13 @@ describe('CollectionService', () => {
     });
 
     it('moves 5,000 cards in under 3 s', async () => {
-      const parent = created(service.create({ parentId: null, name: 'Caixa', color: 'azul' }));
+      const parent = created(service.create({ parentId: null, name: 'Caixa', color: '#3d6b85' }));
       cards.addMany(Array.from({ length: 5000 }, () => mockCardEntryWithoutId({ locationId: parent.id })));
       await cards.flush();
       await service.flush();
 
       const start = performance.now();
-      const result = service.create({ parentId: parent.id, name: 'Primeira', color: 'verde' });
+      const result = service.create({ parentId: parent.id, name: 'Primeira', color: '#4c7a43' });
       await service.flush();
       expect(performance.now() - start).toBeLessThan(3000);
       expect(result.ok && result.moved).toBe(5000);
@@ -300,7 +300,7 @@ describe('CollectionService', () => {
 
   describe('update', () => {
     it('renames one collection row and writes no card', async () => {
-      const root = mockCollection({ id: 'root', name: 'Raras', color: 'azul' });
+      const root = mockCollection({ id: 'root', name: 'Raras', color: '#3d6b85' });
       await seed('p1', [root, mockCollection({ id: 'other', name: 'Outra' })]);
       await service.load('p1');
       const card = cards.add(mockCardEntryWithoutId({ locationId: 'root' }));
@@ -311,7 +311,7 @@ describe('CollectionService', () => {
 
       const persisted = await getAllFromStore<Collection>('collections');
       const renamed = persisted.find((c) => c.id === 'root')!;
-      expect(renamed).toMatchObject({ name: 'Raras e míticas', color: 'azul' });
+      expect(renamed).toMatchObject({ name: 'Raras e míticas', color: '#3d6b85' });
       expect(renamed.updatedAt).not.toBe(root.updatedAt);
       expect(persisted.find((c) => c.id === 'other')?.updatedAt).toBe(root.updatedAt);
       const [storedCard] = await getAllFromStore<CardEntry>('cards');
@@ -319,11 +319,11 @@ describe('CollectionService', () => {
     });
 
     it('recolors and keeps the name', async () => {
-      await seed('p1', [mockCollection({ id: 'root', name: 'Raras', color: 'azul' })]);
+      await seed('p1', [mockCollection({ id: 'root', name: 'Raras', color: '#3d6b85' })]);
       await service.load('p1');
 
-      expect(service.update('root', { name: 'Raras', color: 'ocre' })).toEqual({ ok: true });
-      expect(service.byId().get('root')).toMatchObject({ name: 'Raras', color: 'ocre' });
+      expect(service.update('root', { name: 'Raras', color: '#b8732e' })).toEqual({ ok: true });
+      expect(service.byId().get('root')).toMatchObject({ name: 'Raras', color: '#b8732e' });
     });
 
     it('validates a changed name against the siblings, excluding itself', async () => {

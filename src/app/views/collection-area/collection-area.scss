@@ -1,9 +1,13 @@
 @use 'breakpoints' as bp;
 
-// The orb layer is positioned over the view (DESIGN.md Motion "Collections page transition").
+// The view fills the view area (like Planechase), so short pages leave no dead space and the legal
+// notice rests at the bottom. The orb layer is positioned over the whole of it (DESIGN.md Motion
+// "Collections page transition"); the height-locked stage keeps its natural height inside.
 :host {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
 }
 
 // ── Transition wrapper ─────────────────────────────────────────────────────
@@ -35,7 +39,7 @@
     transition:
       opacity 240ms var(--ease-standard),
       transform 240ms var(--ease-standard),
-      height 240ms var(--ease-standard);
+      height var(--height-ms, 240ms) var(--ease-standard);
   }
 }
 

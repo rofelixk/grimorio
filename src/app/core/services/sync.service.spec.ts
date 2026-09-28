@@ -373,13 +373,13 @@ describe('SyncService', () => {
     };
 
     it('upserts a local collection newer than the remote row, and applies the merge', async () => {
-      const local: Collection = { id: 'c1', name: 'Caixa 1', color: 'branco', parentId: null, updatedAt: NEW };
+      const local: Collection = { id: 'c1', name: 'Caixa 1', color: '#d8cdb0', parentId: null, updatedAt: NEW };
       localCollections.set([local]);
-      answer([{ id: 'c1', user_id: 'u1', name: 'Antiga', color: 'azul', parent_id: null, updated_at: OLD }]);
+      answer([{ id: 'c1', user_id: 'u1', name: 'Antiga', color: '#3d6b85', parent_id: null, updated_at: OLD }]);
       await sync.syncNow();
       expect(upserts).toEqual([
         [
-          [{ id: 'c1', user_id: 'u1', name: 'Caixa 1', color: 'branco', parent_id: null, updated_at: NEW }],
+          [{ id: 'c1', user_id: 'u1', name: 'Caixa 1', color: '#d8cdb0', parent_id: null, updated_at: NEW }],
           { onConflict: 'user_id,id' },
         ],
       ]);
@@ -387,14 +387,14 @@ describe('SyncService', () => {
     });
 
     it('adopts a remote collection newer than the local row', async () => {
-      const local: Collection = { id: 'c1', name: 'Antiga', color: 'azul', parentId: null, updatedAt: OLD };
+      const local: Collection = { id: 'c1', name: 'Antiga', color: '#3d6b85', parentId: null, updatedAt: OLD };
       localCollections.set([local]);
-      const remoteRow = { id: 'c1', user_id: 'u1', name: 'Caixa 1', color: 'branco', parent_id: null, updated_at: NEW };
+      const remoteRow = { id: 'c1', user_id: 'u1', name: 'Caixa 1', color: '#d8cdb0', parent_id: null, updated_at: NEW };
       answer([remoteRow]);
       await sync.syncNow();
       expect(upserts).toEqual([]);
       expect(collectionsService.applySyncResult).toHaveBeenCalledWith([
-        { id: 'c1', name: 'Caixa 1', color: 'branco', parentId: null, updatedAt: NEW },
+        { id: 'c1', name: 'Caixa 1', color: '#d8cdb0', parentId: null, updatedAt: NEW },
       ]);
     });
 
@@ -428,7 +428,7 @@ describe('SyncService', () => {
       const col = (id: string, name: string, parentId: string | null, updatedAt: string): Collection => ({
         id,
         name,
-        color: 'branco',
+        color: '#d8cdb0',
         parentId,
         updatedAt,
       });
@@ -544,7 +544,7 @@ describe('SyncService', () => {
     it('deletes a tombstoned collection from the remote and clears its tombstone', async () => {
       localCollections.set([]);
       collectionsService.getTombstones.mockResolvedValue([{ id: 'c1', deletedAt: NEW }]);
-      answer([{ id: 'c1', user_id: 'u1', name: 'Caixa 1', color: 'branco', parent_id: null, updated_at: OLD }]);
+      answer([{ id: 'c1', user_id: 'u1', name: 'Caixa 1', color: '#d8cdb0', parent_id: null, updated_at: OLD }]);
       await sync.syncNow();
       expect(deletes).toEqual([['c1']]);
       expect(collectionsService.applySyncResult).toHaveBeenCalledWith([]);

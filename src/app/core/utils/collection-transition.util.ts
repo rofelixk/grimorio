@@ -35,7 +35,7 @@ export interface Orb {
 }
 
 /** The production orb count (`CollectionTransition` always calls `makeOrbs(ORB_COUNT, …)`). */
-export const ORB_COUNT = 23;
+export const ORB_COUNT = 28;
 
 /**
  * `count` orbs for a transition in direction `dir`. `random` is injected so callers can seed it
