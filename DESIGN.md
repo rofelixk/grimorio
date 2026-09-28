@@ -323,6 +323,7 @@ These are deliberate exceptions to two rules: the flowing line and the thread ar
 - Radius 10px for the ring (8px + the 2px gap).
 - 50% for swatches, pips and the wheel.
 - Every border is exactly **1px**, solid; the create-row is dashed. No heavier weights. The "Fio de luz" line and thread are the only gradient edges.
+- **Exception — deck fans:** the deck sleeves use a 14px radius and the card window 12px, the only radii outside 4/8/10 (like the create row's dashed border is the only non-solid one).
 
 ## Motion
 
@@ -339,6 +340,21 @@ These are deliberate exceptions to two rules: the flowing line and the thread ar
 - **Collections page transition** (list ↔ collection ↔ holding box): out 140ms — the content column fades to opacity 0 and slides `translateX(-dir*8px)`, standard easing. Swap: the view is replaced, the content starting at opacity 0 and `translateX(dir*12px)` with no transition. In 240ms — fades to opacity 1 and slides to `translateX(0)`. `dir = +1` going deeper or sideways, `-1` going up. Height is locked to the outgoing content just before "out" (`overflow: hidden`), transitions to the new content's height over the 240ms "in", and releases to `auto` about 280ms after the swap, so the page never flickers. On phone (≤ 640px) the height change takes 480ms and releases about 520ms after the swap, so a tall ↔ short swap doesn't snap on the narrow screen; the fade and slide keep their timings.
   - **Light orbs:** 23 of them, in an `aria-hidden`, `pointer-events: none`, `overflow: hidden`, `mix-blend-mode: screen` layer, starting with "out" and lasting about 1.5s. Size `(5 + r*11) * 0.4` (2–6.4px). Colors cycle `--role-primary`, `--role-accent`, `--role-tertiary`. Fill `radial-gradient(circle, c 0%, c/67% 40%, transparent 72%)` plus a glow `0 0 {1.6*size}px {0.4*size}px c/40%`. Start position: left 8–63% going deeper, 35–90% going up; top 10–80%. Keyframe `grm-orb`: 0% opacity 0 scale .5, 25% opacity 1, 100% opacity 0 and `translate(dx, dy) scale(1.1)`, with `dx = dir*(50…160)px`, `dy = -(15…75)px`. Duration 750–1250ms, delay 0–220ms, standard easing.
   - **`prefers-reduced-motion`:** no fade, slide, height animation or orbs — the view swaps instantly, matching the global rule.
+- **Decks page turn** (list ↔ deck): the list inside the view becomes a page turned like a book.
+  - **Page:** `transform-origin: 0 50%` (the spine is the view's left edge), `transform-style: preserve-3d`. The front face is the list (`backface-visibility: hidden`, on `bg`); the back face is flat `surface` with a 1px `border` left edge. The deck page renders underneath.
+  - **Perspective** on the view host: 2800px desktop, 1100px on phone (≤ 640px).
+  - **Turn:** `rotateY(0 → -180deg)` to open, the reverse to close, over 1300ms with the standard easing. On close the deck page stays underneath until the list lands. Input is blocked (`inert`) while turning.
+  - **Triggers:** opening a deck from its tile; returning from a deck page by its back link, side-nav "Decks", or browser/Android back. A direct load, the wordmark (Home), landing on the list after a delete, and the missing-deck redirect never animate.
+  - **Dust:** a DPR-scaled `<canvas>` over the view, `aria-hidden`, `pointer-events: none`.
+    - Count: 260 desktop, 110 phone; random positions each run.
+    - Radius `0.45 + r^2.2 × 1.1`px, drawn as a pre-rendered sprite at 5× radius: parchment core 0–12% → the speck color to 45% → transparent, alpha 1 → .55 at 20% → 0. Draw alpha is `a × 0.7`. Colors cycle through the deck's colors; parchment (`--color-text`) until decks have colors.
+    - Page-edge screen x each frame: `off + W/2 + (W·cosθ − W/2) · P / (P + W·sinθ)`; `vex` is its per-frame delta.
+    - Push (only while turning): `w = exp(-d²/(2σ²))`, `d = x − edgeX`, `σ = 30 · (W/300)^0.6`; `kx += vex·w·0.3·jitter(0.6–1.4)`, `ky += (sin(seed + t·0.004)·0.55 − 0.2)·|vex|·w·0.25`.
+    - Swirl proportional to speed: `kx += sin(y·0.04 + t·0.0021 + seed)·0.06·min(1,|k|)`, `ky += cos(x·0.04 + t·0.0017 + seed)·0.06·min(1,|k|)`. Clamp |k| to `3.5·√(W/300)`, damping 0.95.
+    - Ambient drift: ±0.003 sin/cos plus 0.002 gravity, damping 0.955 — never bright enough to show.
+    - **Visibility = motion:** while turning, the alpha target is `clamp((|k| − 0.12) / (1.1·√(W/300)), 0, 1)`, rising 0.3 and falling 0.04 per frame.
+    - **Settle:** each speck gets a random delay of 0–600ms and a fade of 0.6–1.4s, so specks leave one by one. All are gone ≤ 2s after the page settles; then the canvas is cleared and the loop stopped.
+  - **`prefers-reduced-motion`:** an instant swap and no dust (no canvas at all).
 
 ## Components
 
@@ -597,6 +613,30 @@ The collection area (spec 008): a list of collections, a per-collection page, an
 
 **Delete radios.** Two full-width radio rows (padding `space-3`, 8px radius, the row gradient), each with an 18px indicator (1px border, an inset 4px `--color-bg` ring, filled when selected). "Mover para a caixa temporária" selected: border and fill role-primary plus `--glow-plate-hover`. "Excluir as cartas" selected: border and fill danger, its sub-text in danger. Nothing is selected by default.
 
+### Decks
+The deck area (spec 009): a list of deck fans, a header-only deck page, and the page turn between them (Motion, "Decks page turn").
+
+**List column.** 1080px, centered, padding `space-6` (`space-4` at ≤ 640px), a flex column with gap `space-4`. The grid is `repeat(4, minmax(0, 1fr))` with a 32px row / 24px column gap; on phone, one centered column.
+
+**List header.** The `h1` "Decks" (Grenze 600, 2xl, line-height 1.1, title glow) and a primary "Novo deck", hidden ≤ 640px. On phone the dashed create row "+ Novo deck" ends the list instead. With no decks neither shows: the empty-state CTA is the only create action.
+
+**Deck fan** (`app-deck-fan`, `aria-hidden`). A 320×392 stage. On desktop it renders at 0.75 scale as one transform, inside a box reserved at the scaled size (240×294); on phone at 1.0. Three 256×352 sleeves at `left: 32px; top: 20px`, `transform-origin: 50% 100%`, 14px radius:
+- back: 1px role-tertiary on `surface`, `rotate(-9deg)`;
+- middle: 1px role-accent on `surface-raised`, `rotate(-4deg)`;
+- front: 1px role-primary on `bg`, padding 5px, `box-shadow: 0 0 20px -4px` role-primary at 55%. On tile hover/focus it lifts `translateY(-8px)` with the shadow at `0 0 28px -4px` 70%, over 0.5s standard easing (no lift under reduced motion).
+
+**Card window.** Inside the front sleeve: exactly 244×340 (63:88), 12px radius, `object-fit: contain`. The placeholder is a `surface` fill with `radial-gradient` role-primary at 26% at 50% 38%, fading to transparent at 68%, holding the `.micro-label` "Carta em destaque" over the 0.75rem muted hint "Chega com as cartas do deck.". **Card images are never cropped, masked or altered — only the whole image may be translated or scaled.**
+
+**Deck tile** (`app-deck-tile`). One link wrapping the fan and the caption, accessible name "{nome}, {formato}" (fan and caption `aria-hidden`). Caption centered: the name (700, `line-height 1.2`, wraps with `overflow-wrap: anywhere`, never truncated) over the format (0.875rem muted). Focus: `outline: 2px solid var(--role-accent); outline-offset: 2px`.
+
+**Empty state.** The same recipe as Collections: only the `h1`, then a centered 360px section (margin `space-6 auto`, gap `space-4`) — `.eyebrow`, `h2` with the title glow, muted 0.875rem copy, primary CTA.
+
+**Deck page header.** A 760px column (same padding and gap as the list). The `.link-btn` "Voltar para decks" (sm, 44px target, margin-bottom −12px), then a wrapping row (gap 12px, aligned to the start): the `h1` name (2xl, title glow, `text-wrap: balance`, `overflow-wrap: anywhere`) over the muted 0.875rem format (gap 4px), and "Editar" (secondary) plus "Excluir" (danger), dropping to a full-width 50/50 row on phone. **No wash and no role override:** the deck page keeps the profile's colors; a deck's colors appear only in the dust.
+
+**Format picker.** A `role="radiogroup"` of 8 text buttons in a grid of 4 columns (2 on phone — always full rows), min-height 44px, 1px border, 4px radius, muted text. Selected: border and text role-primary, 700, `--glow-button` plus `--glow-button-text`. Its label is "Formato · {selected}". Below it, a `.plate` (padding `space-3`) lists the selected format's rules as bullets (sm, muted, gap `space-1`) — information only, it never blocks anything.
+
+**Name counter.** `n/40` right-aligned on the label row, tabular numbers, muted; danger above 40.
+
 ## Content
 
 - **PT-BR only.** Second person, imperative, no "we", no exclamation marks, no emoji. Em dashes are welcome.
@@ -623,6 +663,21 @@ The collection area (spec 008): a list of collections, a per-collection page, an
   - Name errors: "Dê um nome à coleção." · "Use no máximo 40 caracteres." · "Já existe uma coleção com esse nome aqui."
   - Delete consequences are always spelled out: "As {n} cartas ficam guardadas, com todos os dados, até você colocá-las em outra coleção." (move) vs. "As {n} cartas saem do app. Não dá para desfazer." (delete, in danger), plus "A subcoleção vai junto." / "As {N} subcoleções vão junto." when the subtree isn't empty.
   - Toasts, labelled "Coleção": "{nome} foi excluída. {n} cartas foram para a caixa temporária." · "{nome} e {n} cartas foram excluídas." · "{nome} foi excluída." — all with singular forms for a count of 1 ("1 carta foi para a caixa temporária.", "{nome} e 1 carta foram excluídas.").
+- **Decks** (`DECK` in `core/utils/deck-copy.ts`):
+  - Name errors: "Dê um nome ao deck." · "Use no máximo 40 caracteres." · "Já existe um deck com esse nome."
+  - Delete: "As {n} cartas deste deck vão para a caixa temporária, com todos os dados, até você guardá-las em outro lugar. Nada mais é afetado." (singular: "A carta deste deck vai para a caixa temporária, com todos os dados, até você guardá-la em outro lugar. Nada mais é afetado.") · "Não há cartas aqui. Nada mais é afetado."
+  - Toasts, labelled "Deck": "{nome} foi excluído." · "{nome} foi excluído. {n} cartas foram para a caixa temporária." (singular: "1 carta foi para a caixa temporária.").
+  - Format names as players say them in Brazil: Commander · Pauper · Modern · Standard · Pioneer · Legacy · Vintage · Casual. Rules, one bullet per sentence — structural only, never ban lists or rotation dates:
+    - **Commander:** Exatamente 100 cartas, contando o comandante. · Uma cópia de cada carta, exceto terrenos básicos. · O comandante é uma criatura lendária. · Todas as cartas na identidade de cor do comandante. · Sem sideboard.
+    - **60-card base** (Pauper, Modern, Standard, Pioneer, Legacy, Vintage): Mínimo de 60 cartas. · Sideboard de até 15 cartas. · Até 4 cópias de cada carta, exceto terrenos básicos. Then:
+      - Pauper: Só cartas impressas como comuns.
+      - Modern: Cartas de coleções a partir da Oitava Edição.
+      - Standard: Só cartas das coleções mais recentes, que rodam com o tempo.
+      - Pioneer: Cartas de coleções a partir de Retorno a Ravnica.
+      - Legacy: Cartas de todas as coleções, com lista de banidas própria.
+      - Vintage: Cartas de todas as coleções. · Cartas da lista de restritas: só 1 cópia.
+    - **Casual:** Sem regras fixas: o deck segue o que o seu grupo de jogo combinar.
+  - The format rules were reviewed with the user when this section was added (spec 009).
 
 ## Iconography
 
