@@ -22,6 +22,10 @@
   <canvas #dust class="dust" aria-hidden="true"></canvas>
 }
 
+@if (form(); as f) {
+  <app-deck-form-dialog [mode]="f.mode" [deckId]="f.deckId" (closed)="form.set(null)" (saved)="form.set(null)" />
+}
+
 <ng-template #listPlace>
   <div class="column column--list">
     <div class="header">

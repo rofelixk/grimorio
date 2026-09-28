@@ -1,0 +1,66 @@
+@use 'breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+}
+
+// 8 formats always fill full rows: 4 × 2, or 2 × 4 on phone.
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+
+  @include bp.mobile {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.option {
+  min-height: var(--touch-target);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--role-accent);
+    outline-offset: 2px;
+  }
+
+  &.selected {
+    border-color: var(--role-primary);
+    color: var(--role-primary);
+    font-weight: 700;
+    box-shadow: var(--glow-button);
+    text-shadow: var(--glow-button-text);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.rules {
+  gap: var(--space-1);
+  padding: var(--space-3);
+  padding-left: calc(var(--space-3) + 1.1em);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

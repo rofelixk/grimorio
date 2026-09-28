@@ -221,30 +221,30 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **Independent Test**: Offline, create "Krenko goblins" keeping Commander; check the rules plate and that picking Vintage updates it at once; see the tile. Try an empty, 41-character and "krênko GOBLINS" name. Edit the name and format on the deck page, reload, and check persistence.
 
-- [ ] T018 [P] [US2] Add `create` and `update` to `src/app/core/services/deck.service.ts` (contracts/services.md):
+- [X] T018 [P] [US2] Add `create` and `update` to `src/app/core/services/deck.service.ts` (contracts/services.md):
   - `create({ name, format })` runs `validateDeckName(name, decks())`. On error it returns `{ ok: false, error }` and writes nothing. Otherwise it builds `{ id: crypto.randomUUID(), name: name.trim(), format, updatedAt: new Date().toISOString() }`, appends it to the signal, bumps `changeCount`, and enqueues `writeRows([{ store: 'decks', put }], handle)`.
   - `update(id, { name?, format? })` returns `'not-found'` for an unknown id. It validates only when the trimmed name differs from the current one (excluding `id`), then writes one row with a fresh `updatedAt` and bumps `changeCount`.
 
   Extend `deck.service.spec.ts`: create persists across a reload; the three errors write nothing; a rename writes exactly one `decks` row; an unchanged-name update with a new format succeeds; accent-duplicate → taken.
-- [ ] T019 [P] [US2] Create `src/app/shared/decks/format-picker/format-picker.ts` (+ `.scss`/`.spec.ts`):
+- [X] T019 [P] [US2] Create `src/app/shared/decks/format-picker/format-picker.ts` (+ `.scss`/`.spec.ts`):
   - It's a `model<DeckFormatId>('commander')`-driven `role="radiogroup"` with `aria-labelledby` pointing to its own label "Formato · {DECK.formats[value].name}" (`DECK.formatLabel`).
   - It has 8 `button role="radio"` items in `DECK_FORMATS` order, with `aria-checked` and roving `tabindex` (0 on the selected one). ArrowRight/Down move to the next and ArrowLeft/Up to the previous, wrapping and selecting; Home/End go to the ends. The grid is 4 columns, 2 at ≤ 640px, with 44px minimum targets and the selected style from DESIGN.md (T001).
   - Below it, a `.plate` with `aria-live="polite"` renders the selected format's `rules` as a list (FR-016). It's information only and never disables anything.
   - Spec: all 8 render in order; clicking or pressing an arrow changes the value and the plate text immediately; Home/End; only the selected radio is tabbable.
-- [ ] T020 [US2] Create `src/app/shared/decks/deck-form-dialog/deck-form-dialog.ts|html|scss` (+ spec), modelled on `collection-form-dialog`, inside `app-compact-modal` (`[roles]` from `IdentityService.roles`, `labelledBy` the title id):
+- [X] T020 [US2] Create `src/app/shared/decks/deck-form-dialog/deck-form-dialog.ts|html|scss` (+ spec), modelled on `collection-form-dialog`, inside `app-compact-modal` (`[roles]` from `IdentityService.roles`, `labelledBy` the title id):
   - **Inputs and outputs**: `mode: 'create' | 'edit'`, `deckId?`, then `closed` and `saved(Deck)`.
   - **Title**: `DECK.formTitles` by mode.
   - **Name field** (`.field`, `[data-autofocus]`): label `DECK.nameLabel`, a right-aligned `n/40` counter (tabular numbers, danger when over 40), and the helper `DECK.nameHelper` replaced by the `.field__error` text on error, with `aria-invalid` and `aria-describedby` pointing to the helper or error and the counter.
   - **`app-format-picker`** bound to a `linkedSignal` of the editing deck's format, or `DEFAULT_FORMAT` (FR-003).
   - **Actions**: `DECK.verbs.cancel` (ghost) and `DECK.verbs.create` or `DECK.verbs.save` (primary). Submit calls `DeckService.create`/`update` and maps `'empty' | 'too-long' | 'taken'` to `DECK.errEmpty | errLong | errTaken`. The error clears on the next input; `'not-found'` just closes.
   - Spec: Commander is preselected on create; the three errors show the exact PT-BR text; the error clears on input; edit prefills name and format; save emits `saved` (depends on T018, T019).
-- [ ] T021 [US2] Wire create and edit into `src/app/views/deck-area/deck-area.ts|html`:
+- [X] T021 [US2] Wire create and edit into `src/app/views/deck-area/deck-area.ts|html`:
   - a `form = signal<{ mode: 'create' | 'edit'; deckId?: string } | null>(null)`;
   - the header "Novo deck", the phone create row and the empty-state "Criar deck" open `{ mode: 'create' }`, and the deck page's "Editar" opens `{ mode: 'edit', deckId }`;
   - render `@if (form(); as f) { <app-deck-form-dialog … (closed)="form.set(null)" (saved)="form.set(null)" /> }`. The person stays on the current place after either.
 
   Extend `deck-area.spec.ts`: creating from the empty state shows the tile; editing on the deck page updates the header; there's no navigation (depends on T020).
-- [ ] T022 [US2] Update `src/app/core/services/entity-load-isolation.spec.ts` to create decks through `DeckService.create` now that it exists (replacing the T008 seed). Checkpoint: run the full suite through `test-runner`, then `design-auditor` on T019–T021, and fix what it reports. Then commit Phase 4.
+- [X] T022 [US2] Update `src/app/core/services/entity-load-isolation.spec.ts` to create decks through `DeckService.create` now that it exists (replacing the T008 seed). Checkpoint: run the full suite through `test-runner`, then `design-auditor` on T019–T021, and fix what it reports. Then commit Phase 4.
 
 **Checkpoint**: A person can build their deck list offline. US1 plus US2 is the MVP.
 

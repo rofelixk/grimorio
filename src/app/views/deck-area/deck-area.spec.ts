@@ -3,7 +3,8 @@ import { Router, provideRouter, withComponentInputBinding } from '@angular/route
 import { RouterTestingHarness } from '@angular/router/testing';
 import type { Deck } from '@models/deck.model';
 import { DeckService } from '@services/deck.service';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { stubDialog } from '@testing/dialog';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { deckMatcher } from '../../app.routes';
 import { DeckArea } from './deck-area';
 import { TURN_MS } from './deck-turn';
@@ -133,6 +134,46 @@ describe('DeckArea', () => {
     expect(el.querySelector('.page')).toBeNull();
     expect(el.querySelector('canvas')).toBeNull();
     expect(text(el.querySelector('h1'))).toBe('Elfos');
+  });
+
+  describe('create and edit', () => {
+    let restore: () => void;
+    beforeEach(() => (restore = stubDialog()));
+    afterEach(() => restore());
+
+    it('creates the first deck from the empty state and stays on the list', async () => {
+      const { el, harness, router } = await setUp('/decks');
+      el.querySelector<HTMLButtonElement>('.empty-state .btn')!.click();
+      await settle(harness);
+
+      const input = el.querySelector<HTMLInputElement>('app-deck-form-dialog .field__input')!;
+      input.value = 'Krenko goblins';
+      input.dispatchEvent(new Event('input'));
+      el.querySelector('app-deck-form-dialog form')!.dispatchEvent(new Event('submit', { cancelable: true }));
+      await settle(harness);
+
+      expect(el.querySelector('app-deck-form-dialog')).toBeNull();
+      expect([...el.querySelectorAll('app-deck-tile .name')].map(text)).toEqual(['Krenko goblins']);
+      expect(router.url).toBe('/decks');
+    });
+
+    it('edits the deck from its page and updates the header', async () => {
+      const { el, harness, router, created } = await setUp('/decks/:first', ['Elfos']);
+      el.querySelector<HTMLButtonElement>('.header-actions .btn--secondary')!.click();
+      await settle(harness);
+
+      const input = el.querySelector<HTMLInputElement>('app-deck-form-dialog .field__input')!;
+      input.value = 'Elfos do Legacy';
+      input.dispatchEvent(new Event('input'));
+      el.querySelectorAll<HTMLButtonElement>('app-deck-form-dialog [role="radio"]')[5].click();
+      el.querySelector('app-deck-form-dialog form')!.dispatchEvent(new Event('submit', { cancelable: true }));
+      await settle(harness);
+
+      expect(el.querySelector('app-deck-form-dialog')).toBeNull();
+      expect(text(el.querySelector('h1'))).toBe('Elfos do Legacy');
+      expect(text(el.querySelector('.format'))).toBe('Legacy');
+      expect(router.url).toBe(`/decks/${created[0].id}`);
+    });
   });
 
   it('focuses the heading after a swap', async () => {

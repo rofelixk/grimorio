@@ -1,0 +1,39 @@
+<app-compact-modal [roles]="roles()" [labelledBy]="titleId" (closed)="closed.emit()">
+  <form class="form" novalidate (submit)="submit($event)">
+    <div class="heading">
+      <h2 class="title" [id]="titleId">{{ title() }}</h2>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <label class="field__label" [for]="inputId">{{ copy.nameLabel }}</label>
+        <span class="counter" [id]="counterId" [class.counter--over]="name().length > maxName"
+          >{{ name().length }}/{{ maxName }}</span
+        >
+      </div>
+      <input
+        class="field__input"
+        type="text"
+        autocomplete="off"
+        data-autofocus
+        [id]="inputId"
+        [value]="name()"
+        [attr.aria-invalid]="error() ? true : null"
+        [attr.aria-describedby]="hintId + ' ' + counterId"
+        (input)="onInput($any($event.target).value)"
+      />
+      @if (error()) {
+        <span class="field__error" [id]="hintId">{{ errorText() }}</span>
+      } @else {
+        <span class="field__helper" [id]="hintId">{{ copy.nameHelper }}</span>
+      }
+    </div>
+
+    <app-format-picker [(value)]="format" />
+
+    <div class="actions">
+      <button type="button" class="btn btn--ghost" (click)="closed.emit()">{{ copy.verbs.cancel }}</button>
+      <button type="submit" class="btn btn--primary">{{ verb() }}</button>
+    </div>
+  </form>
+</app-compact-modal>

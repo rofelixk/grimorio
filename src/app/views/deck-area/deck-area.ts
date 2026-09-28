@@ -19,6 +19,7 @@ import { type Deck, formatOf } from '@models/deck.model';
 import { DeckService } from '@services/deck.service';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { CreateRow } from '@shared/collections/create-row/create-row';
+import { DeckFormDialog } from '@shared/decks/deck-form-dialog/deck-form-dialog';
 import { DeckTile } from '@shared/decks/deck-tile/deck-tile';
 import { DECK } from '@utils/deck-copy';
 import { type DeckPlace, samePlace } from '@utils/deck-turn.util';
@@ -32,7 +33,7 @@ import { DeckTurn } from './deck-turn';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-deck-area',
-  imports: [NgTemplateOutlet, RouterLink, CreateRow, DeckTile],
+  imports: [NgTemplateOutlet, RouterLink, CreateRow, DeckFormDialog, DeckTile],
   providers: [DeckTurn],
   styleUrl: './deck-area.scss',
   templateUrl: './deck-area.html',
