@@ -5,6 +5,8 @@ import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { DECK } from '@utils/deck-copy';
 import { DeckFan } from '../deck-fan/deck-fan';
 
+const NARROW_QUERY = '(max-width: 359px)';
+
 // One deck in the list (DESIGN.md "Decks" → "Deck tile"): a single link to its page carrying
 // `info.deckTurn`, so opening it turns the page (research R8). Fan and caption are aria-hidden in
 // favor of the link's own name.
@@ -23,7 +25,7 @@ import { DeckFan } from '../deck-fan/deck-fan';
       (focus)="onFocus($event)"
       (blur)="focusVisible.set(false)"
     >
-      <app-deck-fan [scale]="mobile() ? 1 : 0.75" [class.is-lifted]="hovered() || focusVisible()" />
+      <app-deck-fan [scale]="scale()" [class.is-lifted]="hovered() || focusVisible()" />
       <span class="caption" aria-hidden="true">
         <span class="name">{{ deck().name }}</span>
         <span class="format">{{ formatName() }}</span>
@@ -35,7 +37,10 @@ import { DeckFan } from '../deck-fan/deck-fan';
 export class DeckTile {
   readonly deck = input.required<Deck>();
 
-  protected readonly mobile = mediaQuerySignal(MOBILE_QUERY);
+  private readonly mobile = mediaQuerySignal(MOBILE_QUERY);
+  private readonly narrow = mediaQuerySignal(NARROW_QUERY);
+  /** 0.75 on desktop, 1 on phone, 0.85 on the narrowest phones so the fan fits a 288px column. */
+  protected readonly scale = computed(() => (this.narrow() ? 0.85 : this.mobile() ? 1 : 0.75));
   protected readonly turnInfo = { deckTurn: true };
   protected readonly hovered = signal(false);
   protected readonly focusVisible = signal(false);

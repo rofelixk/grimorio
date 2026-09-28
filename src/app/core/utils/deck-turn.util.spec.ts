@@ -26,8 +26,9 @@ describe('turnFor (research R8)', () => {
     expect(turnFor(deck, list, imperative())).toBe('close');
   });
 
-  it('closes on browser/Android back', () => {
+  it('closes on browser/Android back, which the router marks replaceUrl', () => {
     expect(turnFor(deck, list, popstate)).toBe('close');
+    expect(turnFor(deck, list, { ...popstate, replaceUrl: true })).toBe('close');
   });
 
   it('does not turn when landing on the list after a delete', () => {

@@ -620,7 +620,7 @@ The deck area (spec 009): a list of deck fans, a header-only deck page, and the 
 
 **List header.** The `h1` "Decks" (Grenze 600, 2xl, line-height 1.1, title glow) and a primary "Novo deck", hidden ≤ 640px. On phone the dashed create row "+ Novo deck" ends the list instead. With no decks neither shows: the empty-state CTA is the only create action.
 
-**Deck fan** (`app-deck-fan`, `aria-hidden`). A 320×392 stage. On desktop it renders at 0.75 scale as one transform, inside a box reserved at the scaled size (240×294); on phone at 1.0. Three 256×352 sleeves at `left: 32px; top: 20px`, `transform-origin: 50% 100%`, 14px radius:
+**Deck fan** (`app-deck-fan`, `aria-hidden`). A 320×392 stage. On desktop it renders at 0.75 scale as one transform, inside a box reserved at the scaled size (240×294); on phone at 1.0, and at 0.85 below 360px wide so the fan fits the 288px column. Three 256×352 sleeves at `left: 32px; top: 20px`, `transform-origin: 50% 100%`, 14px radius:
 - back: 1px role-tertiary on `surface`, `rotate(-9deg)`;
 - middle: 1px role-accent on `surface-raised`, `rotate(-4deg)`;
 - front: 1px role-primary on `bg`, padding 5px, `box-shadow: 0 0 20px -4px` role-primary at 55%. On tile hover/focus it lifts `translateY(-8px)` with the shadow at `0 0 28px -4px` 70%, over 0.5s standard easing (no lift under reduced motion).

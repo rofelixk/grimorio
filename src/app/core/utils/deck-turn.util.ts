@@ -31,7 +31,9 @@ export function turnFor(from: DeckPlace | null, to: DeckPlace, nav: DeckNav | nu
     return deckTurnInfo(nav) === true ? 'open' : null;
   }
   if (from.kind === 'deck' && to.kind === 'list') {
-    return nav?.replaceUrl === true || deckTurnInfo(nav) === false ? null : 'close';
+    // The router marks every popstate navigation `replaceUrl`, so only an imperative one is the redirect.
+    const redirect = nav?.trigger === 'imperative' && nav.replaceUrl === true;
+    return redirect || deckTurnInfo(nav) === false ? null : 'close';
   }
   return null;
 }

@@ -316,13 +316,13 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T032 Update `.claude/docs/architecture.md` with plan.md "Docs to update", after showing the user the proposed edit (CLAUDE.md "Maintaining these files"):
+- [X] T032 Update `.claude/docs/architecture.md` with plan.md "Docs to update", after showing the user the proposed edit (CLAUDE.md "Maintaining these files"):
   - "Domain model": the new `Deck` (name, format id, `updatedAt`) replaces the `Deck`/`DeckCard` entry, and a deck id in `CardEntry.locationId` places a card in a deck; the holding box is cards matching no collection and no deck;
   - "Sync": decks sync through `decks` with tombstones and the duplicate rename; remove "Not extended to decks…" and the `DeckCardIdentity` sentence;
   - "Routing": the deck area is one matcher route (`deckMatcher`), like the collection area.
-- [ ] T033 Run the `design-auditor` agent over every new or changed `.html`/`.scss`/component `.ts` (T011, T015, T016, T019–T021, T024, T025, nav links) against `DESIGN.md` and `ui.md`, and fix what it reports.
-- [ ] T034 Run the full suite and lint through `test-runner` (`npm test`, `npm run lint`), and fix any failure or unused import left by the deletions (T008) or the removed `decksNote`.
-- [ ] T035 Walk quickstart.md scenarios 1–11 on the running dev server (the user runs `npm start`), including 320px and 390px widths, reduced motion, and a 200-deck seed for SC-002. In scenario 2, count the interactions after typing the name (at most 3, SC-001). Scenario 12 (two devices) goes to the user. Record any deviation. Then commit Phase 7.
+- [X] T033 Run the `design-auditor` agent over every new or changed `.html`/`.scss`/component `.ts` (T011, T015, T016, T019–T021, T024, T025, nav links) against `DESIGN.md` and `ui.md`, and fix what it reports.
+- [X] T034 Run the full suite and lint through `test-runner` (`npm test`, `npm run lint`), and fix any failure or unused import left by the deletions (T008) or the removed `decksNote`.
+- [X] T035 Walk quickstart.md scenarios 1–11 on the running dev server (the user runs `npm start`), including 320px and 390px widths, reduced motion, and a 200-deck seed for SC-002. In scenario 2, count the interactions after typing the name (at most 3, SC-001). Scenario 12 (two devices) goes to the user. Record any deviation. Then commit Phase 7.
 
 ---
 
