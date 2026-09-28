@@ -256,25 +256,25 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **Independent Test**: Delete a deck (confirm → the list plus a toast; cancel → nothing). With a card seeded with that deck's id, the delete dialog and toast mention it and the card appears in the collection area's holding box with its fields unchanged. While the delete runs, Esc, ✕ and the backdrop do nothing.
 
-- [ ] T023 [P] [US3] Add `remove(id): Promise<{ cards: number }>` to `src/app/core/services/deck.service.ts` (FR-009, research R1):
+- [X] T023 [P] [US3] Add `remove(id): Promise<{ cards: number }>` to `src/app/core/services/deck.service.ts` (FR-009, research R1):
   - an unknown id resolves `{ cards: 0 }` and writes nothing;
   - otherwise it captures `cards = cardCount(id)`, removes the deck from the signal, bumps `changeCount`, and enqueues **one** `writeRows([{ store: 'decks', delete: id }, { store: 'tombstones', put: { key: 'decks:' + id, entity: 'decks', id, deletedAt } }], handle)`. It resolves `{ cards }` on commit and rejects on failure. It writes **no card row**.
 
   Extend `deck.service.spec.ts`: the row and tombstone are written together; a failing transaction leaves both unwritten; a seeded card with `locationId === id` is unchanged in IndexedDB and now counts in `CollectionService.stats().holding.cards` (SC-004).
-- [ ] T024 [P] [US3] Create `src/app/shared/decks/deck-delete-dialog/deck-delete-dialog.ts|html|scss` (+ spec), modelled on `collection-delete-dialog` without the radios:
+- [X] T024 [P] [US3] Create `src/app/shared/decks/deck-delete-dialog/deck-delete-dialog.ts|html|scss` (+ spec), modelled on `collection-delete-dialog` without the radios:
   - **Inputs and outputs**: `deckId`, then `closed` and `deleted({ name: string; cards: number })`.
   - On init it snapshots `{ name, cards: DeckService.cardCount(id) }`.
   - **Title**: `DECK.deleteTitle(name)`. **Body**: `DECK.deleteWithCards(cards)` when `cards > 0`, else `DECK.deleteNoCards`.
   - **Actions**: `DECK.verbs.cancel` (ghost) and `DECK.deleteVerb` (danger).
   - Confirm sets `busy`: the label becomes `DECK.deleting`, both actions are `aria-disabled`, and `app-compact-modal` gets `[locked]="busy()"` (Esc, backdrop and ✕ are ignored). It awaits `DeckService.remove`, emits `deleted`, and on error clears `busy`.
   - Spec: both bodies' text; the lock while pending; a second confirm is ignored; the emitted payload (depends on T023).
-- [ ] T025 [US3] Wire delete into `src/app/views/deck-area/deck-area.ts|html`:
+- [X] T025 [US3] Wire delete into `src/app/views/deck-area/deck-area.ts|html`:
   - "Excluir" opens `del = signal<string | null>`.
   - `onDeleted({ name, cards })` awaits `router.navigate(['/decks'], { info: { deckTurn: false } })` (no turn, research R8), then clears `del` and calls `ToastService.show(DECK.toastLabel, cards > 0 ? DECK.toastMoved(name, cards) : DECK.toastDeleted(name))`.
   - The missing-deck redirect effect must not fire while the delete is running or its navigation is in flight: skip it while `del()` is set, as `CollectionArea` does with its subtree. Because `del` is cleared only after the navigation lands, exactly one navigation happens.
 
   Extend `deck-area.spec.ts`: a confirmed delete lands on `/decks` with no `.page` layer, through exactly one navigation (no `replaceUrl` redirect), and the toast text matches; while the delete is pending, the header still shows the deck's name and format; cancel keeps the deck (depends on T024).
-- [ ] T026 [US3] Checkpoint: run the full suite through `test-runner`, then `design-auditor` on T024–T025, and fix what it reports. Then commit Phase 5.
+- [X] T026 [US3] Checkpoint: run the full suite through `test-runner`, then `design-auditor` on T024–T025, and fix what it reports. Then commit Phase 5.
 
 **Checkpoint**: Delete is complete. A deck's cards (seeded) land in the holding box, and nothing else changes.
 

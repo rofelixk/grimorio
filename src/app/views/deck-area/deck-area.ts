@@ -17,8 +17,10 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { type Deck, formatOf } from '@models/deck.model';
 import { DeckService } from '@services/deck.service';
+import { ToastService } from '@services/toast.service';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { CreateRow } from '@shared/collections/create-row/create-row';
+import { DeckDeleteDialog, type DeckDeleted } from '@shared/decks/deck-delete-dialog/deck-delete-dialog';
 import { DeckFormDialog } from '@shared/decks/deck-form-dialog/deck-form-dialog';
 import { DeckTile } from '@shared/decks/deck-tile/deck-tile';
 import { DECK } from '@utils/deck-copy';
@@ -33,7 +35,7 @@ import { DeckTurn } from './deck-turn';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-deck-area',
-  imports: [NgTemplateOutlet, RouterLink, CreateRow, DeckFormDialog, DeckTile],
+  imports: [NgTemplateOutlet, RouterLink, CreateRow, DeckDeleteDialog, DeckFormDialog, DeckTile],
   providers: [DeckTurn],
   styleUrl: './deck-area.scss',
   templateUrl: './deck-area.html',
@@ -46,6 +48,7 @@ export class DeckArea {
   readonly ref = input<string>();
 
   private readonly router = inject(Router);
+  private readonly toasts = inject(ToastService);
   private readonly injector = inject(Injector);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly decks = inject(DeckService);
@@ -125,7 +128,7 @@ export class DeckArea {
     });
 
     // Unknown ids go back to the list with no turn (FR-005). Skipped while a delete runs: its own
-    // navigation lands on the list once it commits (T025).
+    // navigation lands on the list once it commits.
     effect(() => {
       if (!this.missing()) return;
       untracked(() => {
@@ -168,5 +171,13 @@ export class DeckArea {
 
   protected openDelete(deckId: string): void {
     this.del.set(deckId);
+  }
+
+  // Lands on the list with no turn (research R8), then closes the dialog. `del` stays set until the
+  // navigation lands, so the missing-deck redirect never fires a second navigation.
+  protected async onDeleted({ name, cards }: DeckDeleted): Promise<void> {
+    await this.router.navigate(['/decks'], { info: { deckTurn: false } });
+    this.del.set(null);
+    this.toasts.show(DECK.toastLabel, cards > 0 ? DECK.toastMoved(name, cards) : DECK.toastDeleted(name));
   }
 }

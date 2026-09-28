@@ -3,6 +3,7 @@ import { Router, provideRouter, withComponentInputBinding } from '@angular/route
 import { RouterTestingHarness } from '@angular/router/testing';
 import type { Deck } from '@models/deck.model';
 import { DeckService } from '@services/deck.service';
+import { ToastService } from '@services/toast.service';
 import { stubDialog } from '@testing/dialog';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { deckMatcher } from '../../app.routes';
@@ -172,6 +173,50 @@ describe('DeckArea', () => {
       expect(el.querySelector('app-deck-form-dialog')).toBeNull();
       expect(text(el.querySelector('h1'))).toBe('Elfos do Legacy');
       expect(text(el.querySelector('.format'))).toBe('Legacy');
+      expect(router.url).toBe(`/decks/${created[0].id}`);
+    });
+  });
+
+  describe('delete', () => {
+    let restore: () => void;
+    beforeEach(() => (restore = stubDialog()));
+    afterEach(() => restore());
+
+    it('lands on the list through one navigation, with no turn, and toasts', async () => {
+      const { el, harness, router, decks } = await setUp('/decks/:first', ['Elfos', 'Goblins'], { reduced: false });
+      const navigate = vi.spyOn(router, 'navigate');
+      el.querySelector<HTMLButtonElement>('.header-actions .btn--danger')!.click();
+      await settle(harness);
+      el.querySelector<HTMLButtonElement>('app-deck-delete-dialog .btn--danger')!.click();
+      harness.detectChanges();
+
+      // Pending: the deck left the signal, but the header keeps its name and format.
+      expect(decks.decks().map((d) => d.name)).toEqual(['Goblins']);
+      expect(text(el.querySelector('h1'))).toBe('Elfos');
+      expect(text(el.querySelector('.format'))).toBe('Commander');
+
+      await decks.flush();
+      await settle(harness);
+      await settle(harness);
+
+      expect(router.url).toBe('/decks');
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(['/decks'], { info: { deckTurn: false } });
+      expect(el.querySelector('.page')).toBeNull();
+      expect(el.hasAttribute('inert')).toBe(false);
+      expect(el.querySelector('app-deck-delete-dialog')).toBeNull();
+      expect(TestBed.inject(ToastService).toast()).toMatchObject({ label: 'Deck', text: 'Elfos foi excluído.' });
+    });
+
+    it('keeps the deck on cancel', async () => {
+      const { el, harness, decks, router, created } = await setUp('/decks/:first', ['Elfos']);
+      el.querySelector<HTMLButtonElement>('.header-actions .btn--danger')!.click();
+      await settle(harness);
+      el.querySelector<HTMLButtonElement>('app-deck-delete-dialog .btn--ghost')!.click();
+      await settle(harness);
+
+      expect(el.querySelector('app-deck-delete-dialog')).toBeNull();
+      expect(decks.byId().has(created[0].id)).toBe(true);
       expect(router.url).toBe(`/decks/${created[0].id}`);
     });
   });
