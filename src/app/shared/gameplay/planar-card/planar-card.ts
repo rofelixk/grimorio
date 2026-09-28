@@ -1,9 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, input, viewChild } from '@angular/core';
 import type { PlanarCard as Card } from '../../../core/data/planechase/planar-card.model';
-import { PLANAR_CARD } from '@utils/planechase-copy';
+import { planarCardText } from '@utils/planar-card-text.util';
 import { PlanarImage } from '@shared/gameplay/planar-image/planar-image';
-
-const lines = (text: string) => text.split('\n').filter((line) => line.trim() !== '');
 
 // The face-up card (DESIGN.md "Card block"): image, English name, type line, static text and the
 // chaos or encounter plate, lit per FR-011. A card with no up-to-date translation shows its
@@ -19,16 +17,11 @@ export class PlanarCard {
   readonly card = input.required<Card>();
   readonly lit = input(false);
 
-  protected readonly copy = PLANAR_CARD;
-  protected readonly lang = computed(() => (this.card().translated ? null : 'en'));
-  protected readonly text = computed(() => lines(this.card().text));
-  protected readonly ability = computed(() => {
-    const ability = this.card().ability;
-    return ability === null ? null : lines(ability);
-  });
-  protected readonly plateLabel = computed(() =>
-    this.card().kind === 'phenomenon' ? PLANAR_CARD.encounter : PLANAR_CARD.chaos,
-  );
+  private readonly content = computed(() => planarCardText(this.card()));
+  protected readonly lang = computed(() => this.content().lang);
+  protected readonly text = computed(() => this.content().text);
+  protected readonly ability = computed(() => this.content().ability);
+  protected readonly plateLabel = computed(() => this.content().plateLabel);
 
   private readonly frame = viewChild.required<ElementRef<HTMLElement>>('frame');
   /** The image frame: the chaos flair's target. */

@@ -5,7 +5,7 @@
       <h1 #heading class="page-title" tabindex="-1">{{ copy.title }}</h1>
       <p class="counter" aria-live="polite">{{ counter() }}</p>
     </div>
-    <p class="hint">{{ copy.hint }}</p>
+    <p class="hint">{{ hoverCapable() ? copy.hintPointer : copy.hintTouch }}</p>
     @if (notice()) {
       <p class="notice">{{ copy.notice }}</p>
     }
@@ -31,13 +31,36 @@
       <div class="tiles" [id]="'set-' + set.code">
         @if (!collapsed().has(set.code)) {
           @for (card of set.cards; track card.id) {
-            <app-planar-tile [card]="card" [on]="isOn(card)" (toggled)="toggle(card)" />
+            <app-planar-tile
+              [card]="card"
+              [on]="isOn(card)"
+              [previewing]="isPreviewing(card)"
+              [describedBy]="isPreviewing(card) ? popoverId : null"
+              (toggled)="toggle(card)"
+              (hoverStart)="preview.hoverTile(card.id, $event)"
+              (hoverEnd)="preview.leaveTile()"
+              (previewRequested)="preview.openDialog(card.id)"
+            />
           }
         }
       </div>
     </section>
   }
 </div>
+
+<!-- Before the footer, so the sticky footer paints over it. -->
+@if (preview.preview()?.mode === 'popover' && preview.current(); as card) {
+  <div
+    #popover
+    class="preview-popover"
+    role="tooltip"
+    [id]="popoverId"
+    (pointerenter)="preview.enterPopover()"
+    (pointerleave)="preview.leavePopover()"
+  >
+    <app-planar-preview [card]="card" [on]="isOn(card)" size="compact" />
+  </div>
+}
 
 @if (confirming()) {
   <footer
@@ -66,4 +89,21 @@
       <button #saveButton type="button" class="btn btn--primary" (click)="save()">{{ copy.save }}</button>
     </div>
   </footer>
+}
+
+@if (preview.preview()?.mode === 'dialog' && preview.current(); as card) {
+  <app-planar-preview-dialog
+    [card]="card"
+    [on]="isOn(card)"
+    [variant]="preview.variant()"
+    [setName]="card.set.name"
+    [index]="preview.position()?.index ?? 1"
+    [total]="preview.position()?.total ?? 1"
+    [hasPrevious]="preview.hasPrevious()"
+    [hasNext]="preview.hasNext()"
+    (toggled)="toggle(card)"
+    (previous)="preview.previous()"
+    (next)="preview.next()"
+    (closed)="preview.close()"
+  />
 }

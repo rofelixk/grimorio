@@ -1,5 +1,5 @@
 @if (src(); as url) {
-  <img class="image" [src]="url" [alt]="name()" (error)="src.set(null)" />
+  <img class="image" draggable="false" [src]="url" [alt]="name()" (error)="src.set(null)" />
 } @else {
   <div class="placeholder">
     <span class="name" lang="en">{{ name() }}</span>

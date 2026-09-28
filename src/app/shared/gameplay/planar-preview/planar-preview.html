@@ -1,0 +1,20 @@
+<app-planar-image class="image" [address]="card().images.large" [name]="card().name" />
+<div class="text">
+  <p class="status" [class.is-off]="!on()">
+    <span class="bead" aria-hidden="true"></span>
+    <span class="micro-label">{{ on() ? copy.previewOn : copy.previewOff }}</span>
+  </p>
+  <h2 class="name" lang="en" [id]="headingId()">{{ card().name }}</h2>
+  <span class="type" [attr.lang]="content().lang">{{ card().typeLine }}</span>
+  @for (line of content().text; track $index) {
+    <p class="line" [attr.lang]="content().lang">{{ line }}</p>
+  }
+  @if (content().ability; as ability) {
+    <div class="plate ability">
+      <span class="eyebrow">{{ content().plateLabel }}</span>
+      @for (line of ability; track $index) {
+        <p class="line" [attr.lang]="content().lang">{{ line }}</p>
+      }
+    </div>
+  }
+</div>

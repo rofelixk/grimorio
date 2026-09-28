@@ -28,7 +28,7 @@ async function write(target: Target, selection: PlanarSelection): Promise<void> 
 
 // The planar deck selection (FR-017–FR-021), following the entity-service shape (R6): it joins the
 // profile switch sequence, so it always belongs to the active profile, or to the device when no
-// profile is active. `null` means never changed: every card is enabled (FR-018).
+// profile is active. `null` means never saved: the default list applies (spec 007 FR-017).
 @Injectable({ providedIn: 'root' })
 export class PlanarSelectionService {
   private readonly selectionSignal = signal<PlanarSelection | null>(null);

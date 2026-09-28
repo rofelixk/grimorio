@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PlanarCardData } from '../../core/data/planechase/planar-card.model';
+import { DEFAULT_OFF_IDS } from '../../core/data/planechase/default-off';
 import type { PlanechaseGame } from '@models/planechase-game.model';
 import { PlanarImageService } from '@services/planar-image.service';
 import { PlanarSelectionService } from '@services/planar-selection.service';
@@ -81,8 +82,9 @@ describe('Planechase', () => {
     expect(el.textContent).toContain(`Baralho: ${IDS.length} cartas ativas`);
   });
 
-  it('starts a game with every card when the selection was never changed', async () => {
-    const { el, service, click } = await setUp();
+  it('starts a game without the default-off cards when nothing is saved', async () => {
+    const otaria = { ...PLANAR_RECORDS[0], id: DEFAULT_OFF_IDS[0], name: 'Otaria', hash: 'hash-otaria' };
+    const { el, service, click } = await setUp({ data: { cards: [...PLANAR_RECORDS, otaria] } });
     await click('Iniciar partida');
     expect(service.game()!.list).toEqual(IDS);
     expect(el.querySelector('[role="status"]')!.textContent).toContain('Plano inicial');

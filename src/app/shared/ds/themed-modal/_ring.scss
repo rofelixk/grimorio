@@ -1,0 +1,29 @@
+@use 'breakpoints' as bp;
+
+// The rotating conic ring shared by the themed modal and the planar preview dialog (spec 007 R5):
+// a 2px gap around the face showing `--ring-gradient`, frozen under reduced motion. On phones it
+// runs around the screen edge. Each stylesheet @use-s it, so the rules land in its own
+// encapsulated styles.
+
+.ring {
+  position: relative;
+  width: min(var(--modal-width), calc(100vw - 2 * var(--space-4)));
+  padding: 2px;
+  border-radius: var(--radius-ring);
+  background: var(--ring-gradient);
+  animation: spin-angle var(--duration-spin) linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@include bp.mobile {
+  .ring {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    display: flex;
+    border-radius: 0;
+  }
+}

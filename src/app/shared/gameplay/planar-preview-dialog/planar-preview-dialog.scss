@@ -1,0 +1,163 @@
+@use 'breakpoints' as bp;
+@use '../../ds/themed-modal/ring';
+
+// DESIGN.md "Card preview": the dialog, wide (centered, ring) or narrow (full-bleed). The variant
+// is fixed when it opens, so the wide one keeps its ring even if the window narrows.
+// The dialog renders in the top layer; the host takes no room in the owner's layout.
+:host {
+  display: contents;
+}
+
+.dialog {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  overflow: visible;
+  max-width: none;
+  max-height: none;
+
+  &::backdrop {
+    background: var(--overlay-backdrop);
+  }
+}
+
+.face {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  // The wide dialog keeps 2rem of page around it, plus the ring's 2px on each side.
+  max-height: calc(100dvh - 4rem - 4px);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-rest);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding-left: var(--space-5);
+}
+
+.position {
+  margin: 0;
+}
+
+.close {
+  flex: none;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+// Wide: the body shrinks to what the face leaves it, and the content's text column scrolls.
+.body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-2);
+}
+
+// Wide: centered, 880px with 2rem of page around it.
+.wide .ring {
+  width: min(var(--modal-width), calc(100vw - 4rem));
+}
+
+// The ring partial makes the ring full-bleed on phones; a wide dialog opened on a wider window
+// stays centered if the window narrows (the variant never changes while open).
+@include bp.mobile {
+  .wide .ring {
+    position: relative;
+    inset: auto;
+    display: block;
+    border-radius: var(--radius-ring);
+  }
+}
+
+// Narrow: full-bleed, stacked, the body scrolls and the footer stays pinned.
+.dialog.narrow {
+  inset: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100dvh;
+  background: var(--color-bg);
+}
+
+.narrow {
+  .frame {
+    height: 100%;
+  }
+
+  .face {
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+
+  .header {
+    padding: calc(4px + env(safe-area-inset-top)) 4px 4px var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--wash-header);
+  }
+
+  .body {
+    overflow-y: auto;
+    padding: var(--space-4);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-surface-raised) var(--color-bg);
+  }
+
+  .content {
+    flex: none;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+  }
+
+  .toggle {
+    width: 100%;
+  }
+
+  .nav .btn {
+    flex: 1;
+  }
+}

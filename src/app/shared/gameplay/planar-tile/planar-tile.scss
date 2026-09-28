@@ -1,5 +1,8 @@
+@use '../bead';
+
 // DESIGN.md "Card tile".
 :host {
+  position: relative;
   display: block;
 }
 
@@ -18,6 +21,11 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
+  // A long-press opens the preview: no callout, selection or drag, and vertical scrolling stays
+  // native (a scroll cancels the hold through pointercancel).
+  -webkit-touch-callout: none;
+  user-select: none;
+  touch-action: pan-y;
   transition:
     opacity var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-fast) var(--ease-standard);
@@ -27,10 +35,45 @@
     opacity: 0.35;
   }
 
-  &:hover {
+  &:hover,
+  &.is-previewing {
     box-shadow: var(--glow-plate-hover);
     opacity: 1;
   }
+
+  // The hold building (DESIGN.md "Card tile"): the glow grows over `slow`.
+  &.is-holding {
+    box-shadow:
+      0 0 0 1px var(--role-primary),
+      0 0 28px -2px rgb(from var(--role-primary) r g b / 70%);
+    opacity: 1;
+    transition: box-shadow var(--duration-slow) var(--ease-standard);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &.is-holding {
+      transition: none;
+    }
+  }
+}
+
+// Inherited by the <img>, so it can't be dragged or long-pressed on its own.
+.image {
+  pointer-events: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 // Tucked into the rounded corner: the corner's arc crosses the diagonal at ~0.29 × its radius from
@@ -42,18 +85,9 @@
   top: var(--bead-inset);
   right: var(--bead-inset);
   z-index: 1;
-  width: var(--bead);
-  height: var(--bead);
-  border: 1px solid var(--role-primary);
-  border-radius: 50%;
-  background: var(--role-primary);
-  box-shadow:
-    0 0 0 3px var(--color-bg),
-    0 0 10px 1px var(--role-primary);
+  @include bead.on;
 
   .is-off & {
-    border-color: var(--color-border);
-    background: var(--color-bg);
-    box-shadow: none;
+    @include bead.off;
   }
 }

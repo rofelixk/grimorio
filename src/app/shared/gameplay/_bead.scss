@@ -1,0 +1,20 @@
+// The on/off bead (DESIGN.md "Card tile", "Card preview"): a lit role-primary dot when the card
+// is in the deck, an empty `border` ring on the page background when it's out. Shared by the tile
+// and the preview's status row.
+
+@mixin on {
+  width: var(--bead);
+  height: var(--bead);
+  border: 1px solid var(--role-primary);
+  border-radius: 50%;
+  background: var(--role-primary);
+  box-shadow:
+    0 0 0 3px var(--color-bg),
+    0 0 10px 1px var(--role-primary);
+}
+
+@mixin off {
+  border-color: var(--color-border);
+  background: var(--color-bg);
+  box-shadow: none;
+}

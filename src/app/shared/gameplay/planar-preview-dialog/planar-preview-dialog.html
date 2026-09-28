@@ -1,0 +1,62 @@
+<dialog #dialog class="dialog" [class]="variant()" [attr.aria-labelledby]="headingId" (cancel)="onCancel($event)">
+  <div class="frame" [class.ring]="variant() === 'wide'">
+    <div class="face">
+      <header class="header">
+        <p class="eyebrow position">
+          <span lang="en">{{ setName() }}</span> · {{ copy.previewPosition(index(), total()) }}
+        </p>
+        <button #closeButton type="button" class="close" [attr.aria-label]="copy.close" (click)="closed.emit()">✕</button>
+      </header>
+      <div class="body">
+        <app-planar-preview
+          class="content"
+          [card]="card()"
+          [on]="on()"
+          [size]="variant() === 'wide' ? 'wide' : 'compact'"
+          [headingId]="headingId"
+        />
+      </div>
+      <footer class="footer">
+        @if (variant() === 'narrow') {
+          <ng-container [ngTemplateOutlet]="toggle" />
+        }
+        <div class="nav">
+          <button
+            type="button"
+            class="btn btn--secondary"
+            [attr.aria-label]="copy.previousLabel"
+            [disabled]="!hasPrevious()"
+            (click)="previous.emit()"
+          >
+            {{ copy.previous }}
+          </button>
+          <button
+            type="button"
+            class="btn btn--secondary"
+            [attr.aria-label]="copy.nextLabel"
+            [disabled]="!hasNext()"
+            (click)="next.emit()"
+          >
+            {{ copy.next }}
+          </button>
+        </div>
+        @if (variant() === 'wide') {
+          <ng-container [ngTemplateOutlet]="toggle" />
+        }
+      </footer>
+    </div>
+  </div>
+</dialog>
+
+<ng-template #toggle>
+  <button
+    type="button"
+    class="btn toggle"
+    [class.btn--secondary]="on()"
+    [class.btn--primary]="!on()"
+    [attr.aria-pressed]="on()"
+    (click)="toggled.emit()"
+  >
+    {{ on() ? copy.disable : copy.enable }}
+  </button>
+</ng-template>

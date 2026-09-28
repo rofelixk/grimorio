@@ -110,6 +110,33 @@
   }
 }
 
+// DESIGN.md "Card preview": fixed beside its tile (placed in planechase-deck.ts), above the tiles
+// and, coming earlier in the DOM at the same z-index, below the sticky footer.
+.preview-popover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 380px;
+  max-width: calc(100vw - 24px);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--glow-overlay);
+  animation: preview-in var(--duration-fast) var(--ease-standard);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes preview-in {
+  from {
+    opacity: 0;
+  }
+}
+
 .footer {
   position: sticky;
   bottom: 0;

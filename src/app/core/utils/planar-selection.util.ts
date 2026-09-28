@@ -1,13 +1,19 @@
 import type { PlanarCard } from '../data/planechase/planar-card.model';
+import { DEFAULT_OFF_IDS } from '../data/planechase/default-off';
 import type { PlanarSelection } from '@models/planar-selection.model';
 
-/** The cards in the planar deck: every catalog card unless disabled (FR-018). */
+/**
+ * The cards in the planar deck: every catalog card except the saved selection's disabled ones,
+ * or, with nothing saved, except the default-off list (spec 007 FR-017, FR-018).
+ */
 export function enabledCards(cards: readonly PlanarCard[], selection: PlanarSelection | null): PlanarCard[] {
-  if (!selection) {
-    return [...cards];
-  }
-  const disabled = new Set(selection.disabledIds);
+  const disabled = new Set(initialDisabledIds(selection));
   return cards.filter((card) => !disabled.has(card.id));
+}
+
+/** The disabled ids in effect: the saved ones, or the default list when nothing is saved. */
+export function initialDisabledIds(selection: PlanarSelection | null): string[] {
+  return selection ? [...selection.disabledIds] : [...DEFAULT_OFF_IDS];
 }
 
 export type SelectionCheck =

@@ -1,0 +1,85 @@
+@use '../bead';
+
+// DESIGN.md "Card preview". Compact (popover, narrow dialog): stacked, name 1.5rem, text
+// 0.875rem. Wide (dialog > 640px): image | text grid, name 2rem, text 1rem; the text column
+// scrolls when the host is given less height than it needs.
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.image {
+  flex: none;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.bead {
+  flex: none;
+  @include bead.on;
+
+  .is-off & {
+    @include bead.off;
+  }
+}
+
+.name {
+  margin: 0;
+  font: 600 var(--font-size-xl) / var(--line-height-tight) var(--font-display);
+}
+
+.type {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.line {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  text-wrap: pretty;
+}
+
+.ability {
+  gap: var(--space-1);
+}
+
+:host(.wide) {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+  min-height: 0;
+
+  .text {
+    align-self: stretch;
+    gap: var(--space-3);
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-surface-raised) var(--color-bg);
+  }
+
+  .name {
+    font-size: var(--font-size-2xl);
+  }
+
+  .type,
+  .line {
+    font-size: var(--font-size-md);
+  }
+}

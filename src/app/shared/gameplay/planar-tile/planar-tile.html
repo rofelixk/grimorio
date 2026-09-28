@@ -2,10 +2,22 @@
   type="button"
   class="tile"
   [class.is-off]="!on()"
+  [class.is-previewing]="previewing()"
+  [class.is-holding]="holding()"
   [attr.aria-pressed]="on()"
   [attr.aria-label]="label()"
-  (click)="toggled.emit()"
+  [attr.aria-describedby]="description()"
+  (click)="onClick()"
+  (pointerenter)="onPointerEnter($event)"
+  (pointerleave)="onPointerLeave($event)"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="cancelHold()"
+  (pointercancel)="cancelHold()"
+  (contextmenu)="onContextMenu($event)"
+  (keydown)="onKeydown($event)"
 >
-  <app-planar-image [address]="card().images.large" [name]="card().name" [lazy]="true" />
+  <app-planar-image class="image" [address]="card().images.large" [name]="card().name" [lazy]="true" />
   <span class="bead" aria-hidden="true"></span>
 </button>
+<span class="visually-hidden" [id]="keysId()">{{ copy.tileKeys }}</span>
