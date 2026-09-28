@@ -1,3 +1,177 @@
+@use 'breakpoints' as bp;
+
+// The view fills the view area, so the page turn and the dust cover the whole of it. The
+// perspective sits on the host: the list page rotates around its left edge (DESIGN.md Motion
+// "Decks page turn").
 :host {
-  display: block;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  perspective: 2800px;
+
+  @include bp.mobile {
+    perspective: 1100px;
+  }
+}
+
+// ── Page turn ──────────────────────────────────────────────────────────────
+.page {
+  position: absolute;
+  left: 0;
+  right: 0;
+  min-height: 100%;
+  transform-origin: 0 50%;
+  transform-style: preserve-3d;
+  transition: transform 1300ms var(--ease-standard);
+
+  &.is-entering {
+    transition: none;
+  }
+}
+
+.page__front {
+  min-height: 100%;
+  background: var(--color-bg);
+  backface-visibility: hidden;
+}
+
+.page__back {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border-left: 1px solid var(--color-border);
+  background: var(--color-surface);
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+}
+
+.dust {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+// ── Columns (ui.md §2) ─────────────────────────────────────────────────────
+.column {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-5);
+
+  @include bp.mobile {
+    padding: var(--space-4);
+  }
+}
+
+.column--list {
+  max-width: 1080px;
+}
+
+.column--deck {
+  max-width: 760px;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.title {
+  flex: 1;
+  margin: 0;
+  font: 600 var(--font-size-2xl) / 1.1 var(--font-display);
+  text-shadow: var(--glow-title);
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.title--name {
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+// ── List ───────────────────────────────────────────────────────────────────
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6) var(--space-5);
+
+  @include bp.mobile {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 360px;
+  margin: var(--space-6) auto;
+  text-align: center;
+}
+
+.empty-title {
+  margin: 0;
+  font: 600 var(--font-size-xl) / 1.1 var(--font-display);
+  text-shadow: var(--glow-title);
+}
+
+.muted-copy {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  text-wrap: pretty;
+}
+
+// ── Deck page ──────────────────────────────────────────────────────────────
+.back {
+  align-self: flex-start;
+  margin-bottom: calc(-1 * var(--space-3));
+}
+
+.deck-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.deck-title {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.format {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--space-2);
+
+  // Phone: the actions drop to their own row, 50/50.
+  @include bp.mobile {
+    flex-basis: 100%;
+
+    .btn {
+      flex: 1;
+    }
+  }
 }

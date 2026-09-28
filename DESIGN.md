@@ -616,7 +616,7 @@ The collection area (spec 008): a list of collections, a per-collection page, an
 ### Decks
 The deck area (spec 009): a list of deck fans, a header-only deck page, and the page turn between them (Motion, "Decks page turn").
 
-**List column.** 1080px, centered, padding `space-6` (`space-4` at ≤ 640px), a flex column with gap `space-4`. The grid is `repeat(4, minmax(0, 1fr))` with a 32px row / 24px column gap; on phone, one centered column.
+**List column.** 1080px, centered, padding `space-5` (`space-4` at ≤ 640px), a flex column with gap `space-4`. The grid is `repeat(4, minmax(0, 1fr))` with a 32px row / 24px column gap; on phone, one centered column.
 
 **List header.** The `h1` "Decks" (Grenze 600, 2xl, line-height 1.1, title glow) and a primary "Novo deck", hidden ≤ 640px. On phone the dashed create row "+ Novo deck" ends the list instead. With no decks neither shows: the empty-state CTA is the only create action.
 

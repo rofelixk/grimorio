@@ -142,18 +142,18 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **Independent Test**: Seed several decks in a profile, open "Decks", and check the order, fans, names and formats. Open one: the page turns, the header shows name and format, and back turns it back. Reload on a deck (instant). Open a bad id (redirect). With reduced motion, everything swaps instantly. With no decks, the empty state shows.
 
-- [ ] T011 [P] [US1] Create `src/app/shared/decks/deck-fan/deck-fan.ts` (+ `.scss`/`.spec.ts`). It's an `aria-hidden` stage of three sleeves plus the front sleeve's 244×340 card window, per DESIGN.md "Decks" (T001), with an input `scale = input(1)` applied as one `transform: scale()` inside a host box sized `320*scale × 392*scale`.
+- [X] T011 [P] [US1] Create `src/app/shared/decks/deck-fan/deck-fan.ts` (+ `.scss`/`.spec.ts`). It's an `aria-hidden` stage of three sleeves plus the front sleeve's 244×340 card window, per DESIGN.md "Decks" (T001), with an input `scale = input(1)` applied as one `transform: scale()` inside a host box sized `320*scale × 392*scale`.
   - The window renders only the placeholder in this slice: `.micro-label` `DECK.featuredLabel` over the 0.75rem muted `DECK.featuredHint`. Leave a one-line comment that a later image goes here with `object-fit: contain`, whole image only (FR-017).
   - The hover lift is driven by a host class the tile sets (`.is-lifted`), and disabled under reduced motion.
   - Spec: renders three sleeves and the placeholder copy; the host size follows `scale`.
-- [ ] T012 [P] [US1] Create `src/app/core/utils/deck-turn.util.ts` (research R8): `type DeckPlace = { kind: 'list' } | { kind: 'deck'; id: string }`, `samePlace(a, b)`, and `turnFor(from, to, nav)`, which returns `'open' | 'close' | null`:
+- [X] T012 [P] [US1] Create `src/app/core/utils/deck-turn.util.ts` (research R8): `type DeckPlace = { kind: 'list' } | { kind: 'deck'; id: string }`, `samePlace(a, b)`, and `turnFor(from, to, nav)`, which returns `'open' | 'close' | null`:
   - `from === null` or `samePlace(from, to)` → `null`;
   - list → deck: `'open'` only if `(nav.info as { deckTurn?: boolean })?.deckTurn === true`;
   - deck → list: `'close'` unless `nav.replaceUrl === true` or `deckTurn === false`;
   - deck → another deck → `null`.
 
   Spec: one test per row of the research R8 table (tile, browser forward `popstate`, typed/first load, back link, side nav, `popstate` back, delete landing, `replaceUrl` redirect).
-- [ ] T013 [P] [US1] Create `src/app/core/utils/deck-dust.util.ts` (research R10), pure and taking an injected `random: () => number`, with constants verbatim from the handoff README "Dust":
+- [X] T013 [P] [US1] Create `src/app/core/utils/deck-dust.util.ts` (research R10), pure and taking an injected `random: () => number`, with constants verbatim from the handoff README "Dust":
   - `interface Speck { x; y; r; color; seed; kx; ky; a; fadeDelay; fadeMs; alphaAtSettle }`.
   - `makeSpecks(count, w, h, colors, random)`: random positions; `r = 0.45 + random() ** 2.2 * 1.1`; colors cycling through `colors`.
   - `edgeX(theta, w, perspective, off)` = `off + w/2 + (w*cos θ − w/2) * P / (P + w*sin θ)`.
@@ -167,7 +167,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - `settledAlpha(s, ms)`: `alphaAtSettle` until `fadeDelay`, then linear to 0 over `fadeMs`.
 
   Spec (seeded random): a speck far from the edge with no push stays at alpha 0; a speck at the edge while turning gains alpha; after `settleSchedule` every speck's `settledAlpha(s, 2000) === 0`, and fades end at different times.
-- [ ] T014 [US1] Create `src/app/views/deck-area/deck-turn.ts`: `@Injectable()`, provided by `DeckArea` (research R9, R10).
+- [X] T014 [US1] Create `src/app/views/deck-area/deck-turn.ts`: `@Injectable()`, provided by `DeckArea` (research R9, R10).
   - **State**: signals `shown: DeckPlace` and `turning: 'open' | 'close' | null`. `phone` and `reducedMotion` come from `mediaQuerySignal(MOBILE_QUERY | REDUCED_MOTION_QUERY)`.
   - **Navigation capture**: subscribe to `Router.events`. On `NavigationStart`, store `{ trigger: e.navigationTrigger, info: router.currentNavigation()?.extras.info, replaceUrl: router.currentNavigation()?.extras.replaceUrl }` as `lastNav`.
   - **`go(to)`**:
@@ -184,11 +184,11 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - **Cleanup**: all timers and rAF are cancelled on `DestroyRef`.
 
   Add `deck-turn.spec.ts` (fake timers, stubbed rAF and canvas context): first go is instant; tile info opens, then clears after 1300 ms; close keeps the deck shown until 1300 ms; reduced motion is instant; destroy cancels; the loop stops ≤ 2000 ms after settle.
-- [ ] T015 [US1] Create `src/app/shared/decks/deck-tile/deck-tile.ts` (+ `.scss`/`.spec.ts`): an `<a>` with `[routerLink]="['/decks', deck().id]"`, `[info]="{ deckTurn: true }"` and `[attr.aria-label]="DECK.tileLabel(name, formatName)"`, containing `app-deck-fan` (`scale` 0.75 when not on phone, 1 on phone, via `MOBILE_QUERY`) and the caption (name 700 wrapping with `overflow-wrap: anywhere`; the format name from `DECK.formats[formatOf(deck().format)].name`, 0.875rem muted), both `aria-hidden`.
+- [X] T015 [US1] Create `src/app/shared/decks/deck-tile/deck-tile.ts` (+ `.scss`/`.spec.ts`): an `<a>` with `[routerLink]="['/decks', deck().id]"`, `[info]="{ deckTurn: true }"` and `[attr.aria-label]="DECK.tileLabel(name, formatName)"`, containing `app-deck-fan` (`scale` 0.75 when not on phone, 1 on phone, via `MOBILE_QUERY`) and the caption (name 700 wrapping with `overflow-wrap: anywhere`; the format name from `DECK.formats[formatOf(deck().format)].name`, 0.875rem muted), both `aria-hidden`.
   - Hover and focus-visible set `.is-lifted` on the fan. The focus outline is `2px solid var(--role-accent)`, offset 2px.
   - The host uses `content-visibility: auto` with `contain-intrinsic-size` matching the scaled stage plus caption (SC-002).
   - Spec: the link target and info, the accessible name "Krenko goblins, Commander", the format name shown.
-- [ ] T016 [US1] Build `src/app/views/deck-area/deck-area.ts|html|scss` (ui.md §2–§4, §6), replacing the T009 skeleton. It provides `DeckTurn`.
+- [X] T016 [US1] Build `src/app/views/deck-area/deck-area.ts|html|scss` (ui.md §2–§4, §6), replacing the T009 skeleton. It provides `DeckTurn`.
   - **Routing**: `routed = computed<DeckPlace>` from `ref` (undefined → list, else deck). `missing = computed` is true when a deck ref isn't in `DeckService.byId()`.
     - An effect calls `turn.go(routed())` once per new place, skipping while `missing`.
     - A second effect redirects a missing deck to `/decks` with `replaceUrl: true` (FR-005, Edge Cases).
@@ -209,7 +209,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - **Color**: no `data-theme-scope` and no wash on the deck place (research R13).
 
   Spec (`deck-area.spec.ts`, fake timers): the sorted tiles; the empty state with no decks; the deck page shows name and format and nothing else; an unknown id redirects with `replaceUrl`; a tile navigation sets `inert` during 1300 ms and then removes it; under reduced motion there's no `.page` layer and no canvas; the heading is focused after a swap (depends on T011–T015).
-- [ ] T017 [US1] Checkpoint: run the full suite through `test-runner`, then run the `design-auditor` agent on T011–T016 and fix what it reports. Then commit Phase 3.
+- [X] T017 [US1] Checkpoint: run the full suite through `test-runner`, then run the `design-auditor` agent on T011–T016 and fix what it reports. Then commit Phase 3.
 
 **Checkpoint**: With seeded decks, the list, the empty state, the deck page, the redirect and the page turn with dust all work, and reduced motion swaps instantly.
 

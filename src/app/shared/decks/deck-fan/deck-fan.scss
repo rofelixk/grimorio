@@ -1,0 +1,99 @@
+// DESIGN.md "Decks" → "Deck fan" and "Card window". The 14px sleeve and 12px window radii are the
+// documented exception to 4/8/10 (DESIGN.md Shapes).
+:host {
+  --scale: 1;
+
+  position: relative;
+  display: block;
+  flex: none;
+  width: calc(320px * var(--scale));
+  height: calc(392px * var(--scale));
+}
+
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 320px;
+  height: 392px;
+  transform: scale(var(--scale));
+  transform-origin: 0 0;
+}
+
+.sleeve {
+  position: absolute;
+  top: 20px;
+  left: 32px;
+  box-sizing: border-box;
+  width: 256px;
+  height: 352px;
+  border: 1px solid;
+  border-radius: 14px;
+  transform-origin: 50% 100%;
+}
+
+.sleeve--back {
+  border-color: var(--role-tertiary);
+  background: var(--color-surface);
+  transform: rotate(-9deg);
+}
+
+.sleeve--middle {
+  border-color: var(--role-accent);
+  background: var(--color-surface-raised);
+  transform: rotate(-4deg);
+}
+
+.sleeve--front {
+  padding: 5px;
+  border-color: var(--role-primary);
+  background: var(--color-bg);
+  box-shadow: 0 0 20px -4px rgb(from var(--role-primary) r g b / 55%);
+  transition:
+    transform var(--duration-slow) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+:host(.is-lifted) .sleeve--front {
+  transform: translateY(-8px);
+  box-shadow: 0 0 28px -4px rgb(from var(--role-primary) r g b / 70%);
+}
+
+// Exactly 63:88. A card image here is only ever translated or scaled whole (FR-017).
+.window {
+  position: relative;
+  box-sizing: border-box;
+  width: 244px;
+  height: 340px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.window--placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  background:
+    radial-gradient(circle at 50% 38%, rgb(from var(--role-primary) r g b / 26%), transparent 68%),
+    var(--color-surface);
+  text-align: center;
+}
+
+.hint {
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sleeve--front {
+    transition: none;
+  }
+
+  :host(.is-lifted) .sleeve--front {
+    transform: none;
+  }
+}
