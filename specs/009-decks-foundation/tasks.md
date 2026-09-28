@@ -26,7 +26,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 ---
 
-- [ ] T000 Before any other task, check out `feature/009-decks-foundation` and make its first commit: every file under `specs/009-decks-foundation/` plus `design_handoff_decks_foundation/`, and nothing else.
+- [X] T000 Before any other task, check out `feature/009-decks-foundation` and make its first commit: every file under `specs/009-decks-foundation/` plus `design_handoff_decks_foundation/`, and nothing else.
 
 ---
 
@@ -34,7 +34,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **Purpose**: The design system entry, the model and the copy that every later phase uses.
 
-- [ ] T001 Update `DESIGN.md` before any UI is built (Constitution V, FR-015), taking every value from `design_handoff_decks_foundation/README.md` and ui.md:
+- [X] T001 Update `DESIGN.md` before any UI is built (Constitution V, FR-015), taking every value from `design_handoff_decks_foundation/README.md` and ui.md:
   - **(a)** Under "## Shapes", add the exception: the deck sleeves use a 14px radius and the card window 12px, the only radii outside 4/8/10 (like the create row's dashed border).
   - **(b)** Under "## Components", add a "### Decks" section after "### Collections", covering:
     - the list column (1080px, padding `space-6`/`space-4`, 4-column grid with 32px row / 24px column gap; phone: one centered column);
@@ -62,7 +62,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
       - parchment until decks have colors;
     - `prefers-reduced-motion`: an instant swap and no dust.
   - **(d)** Under "## Content", add the **Decks** copy bullets: the three name errors, the two delete bodies, and the toasts labelled "Deck" (ui.md §7), plus the eight format rule lists (spec FR-016). Leave a note there that the format rules were reviewed with the user when this section was added. **Show the user the format rules and get their OK before continuing**: the handoff flags them for product review.
-- [ ] T002 [P] Rewrite `src/app/core/models/deck.model.ts` (data-model.md), replacing the old `Deck`/`DeckCard`/`DeckCardIdentity`:
+- [X] T002 [P] Rewrite `src/app/core/models/deck.model.ts` (data-model.md), replacing the old `Deck`/`DeckCard`/`DeckCardIdentity`:
   - `export const DECK_FORMATS = ['commander', 'pauper', 'modern', 'standard', 'pioneer', 'legacy', 'vintage', 'casual'] as const;`
   - `export type DeckFormatId = (typeof DECK_FORMATS)[number];`
   - `export const DEFAULT_FORMAT: DeckFormatId = 'commander';`
@@ -71,13 +71,13 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - `export function formatOf(id: string): DeckFormatId`, which returns `id` when it's in `DECK_FORMATS`, else `'casual'`.
 
   Re-export nothing else, and reuse `MAX_NAME` from `@models/collection.model` (40) rather than redeclaring it. The old imports break until T008 removes them; that's expected inside Phase 2.
-- [ ] T003 [P] Create `src/app/core/utils/deck-copy.ts`, following `collection-copy.ts`'s header style. It exports `DECK` with every string in ui.md §7 verbatim (read the current ui.md, whose copy the user has edited), with functions for the interpolated ones: `tileLabel`, `formatLabel`, `deleteTitle`, `deleteWithCards`, `toastDeleted` and `toastMoved`.
+- [X] T003 [P] Create `src/app/core/utils/deck-copy.ts`, following `collection-copy.ts`'s header style. It exports `DECK` with every string in ui.md §7 verbatim (read the current ui.md, whose copy the user has edited), with functions for the interpolated ones: `tileLabel`, `formatLabel`, `deleteTitle`, `deleteWithCards`, `toastDeleted` and `toastMoved`.
   - Counts go through `formatCount` from `collection-copy.ts`.
   - `deleteWithCards(1)` uses the singular text from ui.md §7, and `toastMoved(nome, 1)` uses "1 carta foi para a caixa temporária."
   - Include `formats: Record<DeckFormatId, { name: string; rules: readonly string[] }>` with the names and one bullet per sentence from spec FR-016. The 60-card base is "Mínimo de 60 cartas." · "Sideboard de até 15 cartas." · "Até 4 cópias de cada carta, exceto terrenos básicos."; Pauper, Modern, Standard, Pioneer, Legacy and Vintage append their own bullets; Commander has its 5 and Casual its 1.
 
   Add `deck-copy.spec.ts` covering: singular and plural of `deleteWithCards`/`toastMoved`, "1.240" grouping, every format having a name and at least one rule, and the Vintage bullets in order.
-- [ ] T003a Checkpoint: run `deck-copy.spec.ts` through `test-runner` (the full suite only compiles again at T010), then commit Phase 1.
+- [X] T003a Checkpoint: run `deck-copy.spec.ts` through `test-runner` (the full suite only compiles again at T010), then commit Phase 1.
 
 ---
 
@@ -87,7 +87,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 In `src/app/core/db/profile-db.ts`:
+- [X] T004 In `src/app/core/db/profile-db.ts`:
   - set `DB_VERSION = 3`;
   - set `TombstoneEntity = 'cards' | 'collections' | 'decks'`;
   - change `upgrade(db)` to `upgrade(db, oldVersion)`. When `oldVersion < 3` and `decks` exists, delete it before the create-if-missing block, so `decks` is recreated empty and the old records are dropped, not migrated (FR-013, research R3). Keep every other create-if-missing line.
@@ -95,7 +95,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   In `src/app/core/db/entity-store.ts`, widen `RowOp` so `store` can be `'decks'` for put/delete (the value type becomes `Collection | CardEntry | Deck`). `EntityStoreName` already includes `'decks'`.
 
   Extend `src/app/core/db/profile-db.spec.ts`: a v2 database holding an old-shaped deck row opens at v3 with an empty `decks` store and its `cards`/`collections` rows intact; `writeRows` puts and deletes `decks` rows alongside a `decks:{id}` tombstone in one transaction.
-- [ ] T005 [P] Create `src/app/core/utils/deck.util.ts` (contracts/services.md, research R4). `repairDeckNames` comes in T028.
+- [X] T005 [P] Create `src/app/core/utils/deck.util.ts` (contracts/services.md, research R4). `repairDeckNames` comes in T028.
   - `normalizeDeckName(name)` = `name.trim().normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('pt-BR')`.
   - `compareDeckNames(a, b)` = `a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)`.
   - `validateDeckName(name, decks, selfId?)` returns, in this order:
@@ -105,7 +105,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
     - otherwise `null`.
 
   Add `deck.util.spec.ts` covering: "" and "   " → empty; 41 characters → too-long; 40 characters with surrounding spaces → ok; "krênko GOBLINS " vs "Krenko goblins" → taken; self excluded on rename; ordering "zur", "Élesh", "Atraxa" → Atraxa, Élesh, zur; ties broken by id.
-- [ ] T006 Rewrite `src/app/core/services/deck.service.ts` (`providedIn: 'root'`) with `CollectionService`'s entity shape (Constitution VI, research R3):
+- [X] T006 Rewrite `src/app/core/services/deck.service.ts` (`providedIn: 'root'`) with `CollectionService`'s entity shape (Constitution VI, research R3):
   - `load(profileId)` clears the signal synchronously, with a generation guard;
   - `whenReady()`, `flush()`, and `changeCount`;
   - a private `enqueueWrite(fn)` that chains on `writeQueue` and logs "Grimorio: failed to persist decks." on failure;
@@ -114,23 +114,23 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   The derived signals are `decks`, `sorted` (by `compareDeckNames`), `byId` (a `Map`) and `ids` (a `ReadonlySet<string>`). `cardCount(id)` = Σ `quantity` of `CardService.cards()` with `locationId === id`. It also has the sync-only `getTombstones()`/`clearTombstones(ids)` (entity `'decks'`) and `applySyncResult(merged)`, which sets the signal, writes only changed rows and deletes missing ids, never restamps, never tombstones and never bumps `changeCount`.
 
   The mutations come in the story phases (create/update T018, remove T023). Rewrite `deck.service.spec.ts` covering: load isolation between two profiles, hydration from seeded rows, `sorted` order, `cardCount` from seeded cards, and `applySyncResult` writing only the diff (depends on T002, T004, T005).
-- [ ] T007 Make the holding box exclude deck ids (research R1):
+- [X] T007 Make the holding box exclude deck ids (research R1):
   - In `src/app/core/utils/collection-tree.util.ts`, `computeStats(collections, cards, deckIds: ReadonlySet<string> = new Set())` skips an entry whose `locationId` is in `deckIds` before the holding-box branch: it counts neither in a collection nor in `holding`.
   - In `src/app/core/services/collection.service.ts`, inject `DeckService` and use `stats = computed(() => computeStats(this.collections(), this.cards.cards(), this.decks.ids()))`.
 
   Extend `collection-tree.util.spec.ts` (a card with a deck id is in neither; without that id in `deckIds` it's in holding) and `collection.service.spec.ts` (a seeded deck plus a card pointing at it → `holding.cards === 0`) (depends on T006).
-- [ ] T008 Remove the old deck stack (research R14, FR-013):
+- [X] T008 Remove the old deck stack (research R14, FR-013):
   - **(a)** Delete `src/app/views/decks/` and `src/app/views/deck-detail/` (with their specs), `src/app/shared/decks/deck-list/`, `src/app/shared/cards/deck-card-list/`, `src/app/shared/cards/card-picker/` and `src/app/shared/cards/color-identity/`.
   - **(b)** In `src/app/shared/cards/add-card-modal/add-card-modal.ts` (+ html and spec), remove the `'deck'` context, the `deckId` and `filter` inputs, `toIdentity`, the `DeckService`/`DeckCardIdentity` imports and every deck branch. `context` stays as `input<'collection'>('collection')`, or is removed if nothing else reads it.
   - **(c)** In `src/app/shared/index.ts`, drop the `CardPicker`, `ColorIdentity`, `DeckCardList` and `DeckList` exports.
   - **(d)** In `src/app/core/services/entity-load-isolation.spec.ts`, replace `decks.add({ name, commander, cards })` with a row seeded through `writeRows` (`DeckService.create` replaces the seed in T022), and assert on `decks.decks()`.
   - **(e)** Grep `src/` for `DeckCard`, `DeckCardIdentity`, `commander:` on decks, `setCommander`, `addCard(` and `removeCard(` on `DeckService`: there must be no hits (depends on T002, T006).
-- [ ] T009 Route and shell:
+- [X] T009 Route and shell:
   - In `src/app/app.routes.ts`, add `export const deckMatcher` (it matches `['decks']` → `{ consumed }` and `['decks', ref]` → `{ consumed, posParams: { ref } }`), and replace the `decks` and `decks/:id` routes with `{ matcher: deckMatcher, component: DeckArea, ...gated }`.
   - Create a skeleton `src/app/views/deck-area/deck-area.ts` (+ `.html`/`.scss`/`.spec.ts`): OnPush, `readonly ref = input<string>()`, rendering just the `h1` "Decks" for now.
   - Update `app.routes.spec.ts`: the matcher accepts `/decks` and `/decks/x`, rejects `/decks/x/y`, and both are gated.
   - In `src/app/core/utils/entry-copy.ts`, add `SHELL.decks = 'Decks'`. In `src/app/shared/layout/nav-links/nav-destinations.ts`, insert `{ label: SHELL.decks, path: '/decks' }` between Coleção and Modos de jogo. Update any nav spec that counts destinations (depends on T008).
-- [ ] T010 Checkpoint: run the full suite and lint through `test-runner`, and fix everything before Phase 3. Then commit Phase 2.
+- [X] T010 Checkpoint: run the full suite and lint through `test-runner`, and fix everything before Phase 3. Then commit Phase 2.
 
 **Checkpoint**: The app compiles on the new `Deck`; `/decks` and `/decks/{id}` render the skeleton behind the profile gate; the side nav shows "Decks".
 

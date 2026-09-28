@@ -2,8 +2,7 @@ import { Routes, UrlMatchResult, UrlSegment } from '@angular/router';
 import { profileGuard } from './core/guards/profile.guard';
 import { About } from './views/about/about';
 import { CollectionArea } from './views/collection-area/collection-area';
-import { Decks } from './views/decks/decks';
-import { DeckDetail } from './views/deck-detail/deck-detail';
+import { DeckArea } from './views/deck-area/deck-area';
 import { Home } from './views/home/home';
 import { GameModes } from './views/game-modes/game-modes';
 import { Planechase } from './views/planechase/planechase';
@@ -30,11 +29,22 @@ export const collectionMatcher = (segments: UrlSegment[]): UrlMatchResult | null
   return null;
 };
 
+// Same reason for decks (spec 009, research R7): the list and a deck page share one `DeckArea`
+// instance, so the page turn can keep both in the DOM while it runs.
+export const deckMatcher = (segments: UrlSegment[]): UrlMatchResult | null => {
+  if (segments.length === 1 && segments[0].path === 'decks') {
+    return { consumed: segments };
+  }
+  if (segments.length === 2 && segments[0].path === 'decks') {
+    return { consumed: segments, posParams: { ref: segments[1] } };
+  }
+  return null;
+};
+
 export const routes: Routes = [
   { path: '', component: Home },
   { matcher: collectionMatcher, component: CollectionArea, ...gated },
-  { path: 'decks', component: Decks, ...gated },
-  { path: 'decks/:id', component: DeckDetail, ...gated },
+  { matcher: deckMatcher, component: DeckArea, ...gated },
   // The old account page is hidden until a follow-up spec rebuilds it (FR-030).
   { path: 'profile', redirectTo: '' },
   { path: 'modes', component: GameModes },

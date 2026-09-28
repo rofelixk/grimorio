@@ -344,6 +344,7 @@ export const SHELL = {
   close: ACTION.close,
   navLabel: 'Navegação principal',
   collection: 'Coleção',
+  decks: 'Decks',
   modes: 'Modos de jogo',
   pin: 'Fixar menu',
   unpin: 'Recolher menu',

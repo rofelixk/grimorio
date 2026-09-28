@@ -157,6 +157,17 @@ describe('computeStats', () => {
     expect(stats.byId.get('root')).toEqual({ cards: 5, sale: 0, subs: 2, directEntries: 0 });
   });
 
+  it('counts a card in a deck neither in a collection nor in holding', () => {
+    const collections = [makeCollection({ id: 'c1' })];
+    const cards = [makeCard({ id: 'e1', locationId: 'deck-1', quantity: 2, forSale: true })];
+
+    const inDeck = computeStats(collections, cards, new Set(['deck-1']));
+    expect(inDeck.holding).toEqual({ cards: 0, sale: 0 });
+    expect(inDeck.byId.get('c1')?.cards).toBe(0);
+
+    expect(computeStats(collections, cards, new Set()).holding).toEqual({ cards: 2, sale: 2 });
+  });
+
   it('sends unknown locationIds to holding', () => {
     const collections = [makeCollection({ id: 'c1' })];
     const cards = [

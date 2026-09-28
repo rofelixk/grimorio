@@ -1,5 +1,6 @@
 import { CardEntry } from '@models/card.model';
 import { Collection } from '@models/collection.model';
+import { Deck } from '@models/deck.model';
 import { Tombstone } from '@models/tombstone.model';
 import { ProfileDb, TombstoneEntity, TombstoneRecord, closeProfileDb, openProfileDb } from './profile-db';
 
@@ -7,8 +8,8 @@ export type EntityStoreName = 'cards' | 'collections' | 'decks';
 
 /** One row-level write op, applied in order within a single `writeRows` transaction. */
 export type RowOp =
-  | { store: 'collections' | 'cards'; put: Collection | CardEntry }
-  | { store: 'collections' | 'cards'; delete: string }
+  | { store: EntityStoreName; put: Collection | CardEntry | Deck }
+  | { store: EntityStoreName; delete: string }
   | { store: 'tombstones'; put: TombstoneRecord };
 
 /** The profile database a read/write targets; `null` when no profile is active. */

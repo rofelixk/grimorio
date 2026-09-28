@@ -27,10 +27,12 @@ import {
   writeRows,
 } from '../db/entity-store';
 import { CardService } from './card.service';
+import { DeckService } from './deck.service';
 
 @Injectable({ providedIn: 'root' })
 export class CollectionService {
   private readonly cards = inject(CardService);
+  private readonly decks = inject(DeckService);
 
   private readonly collectionsSignal = signal<Collection[]>([]);
   readonly collections: Signal<Collection[]> = this.collectionsSignal.asReadonly();
@@ -43,7 +45,10 @@ export class CollectionService {
   readonly childrenOf: Signal<Map<string | null, Collection[]>> = computed(() => buildChildrenOf(this.collections()));
 
   // Reads CardService.cards() (research R3): rolls up whenever either the tree or the cards change.
-  readonly stats: Signal<CollectionStats> = computed(() => computeStats(this.collections(), this.cards.cards()));
+  // Cards in a deck are skipped, so the holding box is "no collection and no deck" (spec 009 R1).
+  readonly stats: Signal<CollectionStats> = computed(() =>
+    computeStats(this.collections(), this.cards.cards(), this.decks.ids()),
+  );
 
   private readonly changeCountSignal = signal(0);
   // Bumped by user mutations (create/update/remove), never by applySyncResult — feeds

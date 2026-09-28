@@ -28,7 +28,9 @@ describe('entity services load() isolation', () => {
     collections.applySyncResult([
       { id: 'col-a', name: 'Caixa A', color: '#d8cdb0', parentId: null, updatedAt: '2026-01-01T00:00:00.000Z' },
     ]);
-    const deck = decks.add({ name: 'Deck A', commander: null, cards: [] });
+    const result = decks.create({ name: 'Deck A', format: 'commander' });
+    if (!result.ok) throw new Error(result.error);
+    const deck = result.deck;
 
     await loadAll('B');
     expect(cards.cards()).toEqual([]);
