@@ -1,10 +1,10 @@
 import { DBSchema, IDBPDatabase, deleteDB, openDB } from 'idb';
 import { CardEntry } from '@models/card.model';
+import { Collection } from '@models/collection.model';
 import { Deck } from '@models/deck.model';
-import { StorageLocation } from '@models/storage-location.model';
 import { DEVICE_DB_NAME } from './device-db';
 
-export type TombstoneEntity = 'cards' | 'locations';
+export type TombstoneEntity = 'cards' | 'collections';
 
 export interface TombstoneRecord {
   key: string;
@@ -20,7 +20,7 @@ export interface MetaRecord {
 
 export interface ProfileDbSchema extends DBSchema {
   cards: { key: string; value: CardEntry };
-  locations: { key: string; value: StorageLocation };
+  collections: { key: string; value: Collection };
   decks: { key: string; value: Deck };
   tombstones: {
     key: string;
@@ -32,7 +32,7 @@ export interface ProfileDbSchema extends DBSchema {
 
 export type ProfileDb = IDBPDatabase<ProfileDbSchema>;
 
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export function profileDbName(profileId: string): string {
   return `grimorio-profile-${profileId}`;
@@ -46,13 +46,29 @@ export function openProfileDb(profileId: string): Promise<ProfileDb> {
   let connection = connections.get(profileId);
   if (!connection) {
     connection = openDB<ProfileDbSchema>(profileDbName(profileId), DB_VERSION, {
+      // Not a data migration (research R13): `locations` is simply dropped, and every other
+      // store is created only if it's missing, so an existing v1 database ends up with the
+      // same stores a fresh v2 database would have gotten.
       upgrade(db) {
-        db.createObjectStore('cards', { keyPath: 'id' });
-        db.createObjectStore('locations', { keyPath: 'id' });
-        db.createObjectStore('decks', { keyPath: 'id' });
-        const tombstones = db.createObjectStore('tombstones', { keyPath: 'key' });
-        tombstones.createIndex('by-entity', 'entity');
-        db.createObjectStore('meta', { keyPath: 'key' });
+        if (!db.objectStoreNames.contains('cards')) {
+          db.createObjectStore('cards', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('collections')) {
+          db.createObjectStore('collections', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('decks')) {
+          db.createObjectStore('decks', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('tombstones')) {
+          const tombstones = db.createObjectStore('tombstones', { keyPath: 'key' });
+          tombstones.createIndex('by-entity', 'entity');
+        }
+        if (!db.objectStoreNames.contains('meta')) {
+          db.createObjectStore('meta', { keyPath: 'key' });
+        }
+        if (Array.from(db.objectStoreNames as unknown as string[]).includes('locations')) {
+          db.deleteObjectStore('locations' as never);
+        }
       },
     });
     connections.set(profileId, connection);

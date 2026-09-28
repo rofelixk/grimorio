@@ -1,7 +1,15 @@
+import { CardEntry } from '@models/card.model';
+import { Collection } from '@models/collection.model';
 import { Tombstone } from '@models/tombstone.model';
-import { ProfileDb, TombstoneEntity, closeProfileDb, openProfileDb } from './profile-db';
+import { ProfileDb, TombstoneEntity, TombstoneRecord, closeProfileDb, openProfileDb } from './profile-db';
 
-type EntityStoreName = 'cards' | 'locations' | 'decks';
+export type EntityStoreName = 'cards' | 'collections' | 'decks';
+
+/** One row-level write op, applied in order within a single `writeRows` transaction. */
+export type RowOp =
+  | { store: 'collections' | 'cards'; put: Collection | CardEntry }
+  | { store: 'collections' | 'cards'; delete: string }
+  | { store: 'tombstones'; put: TombstoneRecord };
 
 /** The profile database a read/write targets; `null` when no profile is active. */
 export type DbHandle = Promise<ProfileDb> | null;
@@ -46,6 +54,41 @@ export async function replaceStore<T>(storeName: EntityStoreName, items: T[], ha
   const tx = db.transaction(storeName, 'readwrite');
   await tx.store.clear();
   await Promise.all([...items.map((item) => tx.store.put(item as never)), tx.done]);
+}
+
+// One readwrite transaction over the distinct stores the ops touch (research R2/R13): a
+// `collections`/`cards`/`tombstones` delete-and-put set commits all-or-nothing, so a create-with-
+// move, a delete or a sync repair never leaves the database half-written. An empty op list
+// resolves without opening a transaction at all.
+export async function writeRows(ops: RowOp[], handle = currentDbHandle()): Promise<void> {
+  if (ops.length === 0) {
+    return;
+  }
+  const db = await requireDb(handle);
+  const stores = [...new Set(ops.map((op) => op.store))];
+  const tx = db.transaction(stores, 'readwrite');
+  try {
+    for (const op of ops) {
+      if ('put' in op) {
+        await tx.objectStore(op.store).put(op.put as never);
+      } else {
+        await tx.objectStore(op.store).delete(op.delete);
+      }
+    }
+    await tx.done;
+  } catch (e) {
+    // A put/delete can throw synchronously (e.g. a value missing its keyPath) without the
+    // engine aborting the transaction on its own — abort it explicitly so every op commits or
+    // none do, never a partial set of the earlier ones. `tx.done` then rejects on its own
+    // 'abort' listener (idb); that rejection is reported here already, so it's silenced there.
+    tx.done.catch(() => undefined);
+    try {
+      tx.abort();
+    } catch {
+      // Already inactive/aborted — nothing left to do.
+    }
+    throw e;
+  }
 }
 
 export async function getTombstonesFor(entity: TombstoneEntity, handle = currentDbHandle()): Promise<Tombstone[]> {

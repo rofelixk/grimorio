@@ -2,45 +2,49 @@ import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { mockCardEntryWithoutId } from '@testing/card.mocks';
 import { CardService } from './card.service';
+import { CollectionService } from './collection.service';
 import { DeckService } from './deck.service';
-import { StorageLocationService } from './storage-location.service';
 
 describe('entity services load() isolation', () => {
   let cards: CardService;
-  let locations: StorageLocationService;
+  let collections: CollectionService;
   let decks: DeckService;
 
   const loadAll = async (profileId: string | null) => {
-    await Promise.all([cards.flush(), locations.flush(), decks.flush()]);
-    await Promise.all([cards.load(profileId), locations.load(profileId), decks.load(profileId)]);
+    await Promise.all([cards.flush(), collections.flush(), decks.flush()]);
+    await Promise.all([cards.load(profileId), collections.load(profileId), decks.load(profileId)]);
   };
 
   beforeEach(async () => {
     TestBed.configureTestingModule({});
     cards = TestBed.inject(CardService);
-    locations = TestBed.inject(StorageLocationService);
+    collections = TestBed.inject(CollectionService);
     decks = TestBed.inject(DeckService);
     await loadAll('A');
   });
 
   it("hides profile A's data under profile B and with no profile, and restores it for A", async () => {
     const card = cards.add(mockCardEntryWithoutId());
-    const location = locations.add({ name: 'Caixa A', parentId: null });
+    collections.applySyncResult([
+      { id: 'col-a', name: 'Caixa A', color: 'branco', parentId: null, updatedAt: '2026-01-01T00:00:00.000Z' },
+    ]);
     const deck = decks.add({ name: 'Deck A', commander: null, cards: [] });
 
     await loadAll('B');
     expect(cards.cards()).toEqual([]);
-    expect(locations.locations()).toEqual([]);
+    expect(collections.collections()).toEqual([]);
     expect(decks.decks()).toEqual([]);
 
     await loadAll(null);
     expect(cards.cards()).toEqual([]);
-    expect(locations.locations()).toEqual([]);
+    expect(collections.collections()).toEqual([]);
     expect(decks.decks()).toEqual([]);
 
     await loadAll('A');
     expect(cards.cards()).toEqual([card]);
-    expect(locations.locations()).toEqual([location]);
+    expect(collections.collections()).toEqual([
+      { id: 'col-a', name: 'Caixa A', color: 'branco', parentId: null, updatedAt: '2026-01-01T00:00:00.000Z' },
+    ]);
     expect(decks.decks()).toEqual([deck]);
   });
 
@@ -71,8 +75,8 @@ describe('entity services load() isolation', () => {
     expect(cards.changeCount()).toBe(before + 3);
 
     cards.applySyncResult([added]);
-    locations.applySyncResult([]);
+    collections.applySyncResult([]);
     expect(cards.changeCount()).toBe(before + 3);
-    expect(locations.changeCount()).toBe(0);
+    expect(collections.changeCount()).toBe(0);
   });
 });

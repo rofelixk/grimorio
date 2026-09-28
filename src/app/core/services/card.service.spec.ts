@@ -114,25 +114,39 @@ describe('CardService', () => {
     expect(reloaded.cards().length).toBe(1);
   });
 
-  describe('search', () => {
-    it('returns no matches under 3 characters, even if it would otherwise match', () => {
-      service.add(mockCardEntryWithoutId({ name: 'Sol Ring' }));
+  describe('applyRemoved', () => {
+    it('removes the matching cards from the signal without touching IndexedDB', async () => {
+      const kept = service.add(baseCard);
+      const removed = service.add(mockCardEntryWithoutId({ name: 'Lightning Bolt' }));
+      await service.flush();
 
-      expect(service.search('so')).toEqual([]);
+      service.applyRemoved(new Set([removed.id]));
+
+      expect(service.cards()).toEqual([kept]);
+      expect(service.changeCount()).toBe(2);
+      await service.flush();
+      expect((await getAllFromStore<CardEntry>('cards')).map((c) => c.id).sort()).toEqual(
+        [kept.id, removed.id].sort(),
+      );
     });
+  });
 
-    it('matches by name, set code or collector number across the whole collection', () => {
-      const sol = service.add(mockCardEntryWithoutId({ name: 'Sol Ring', setCode: 'LTC' }));
-      service.add(mockCardEntryWithoutId({ name: 'Lightning Bolt', setCode: 'LEA' }));
+  describe('applyMoved', () => {
+    it('updates locationId and updatedAt on matching cards in the signal only', async () => {
+      const moved = service.add(baseCard);
+      const untouched = service.add(mockCardEntryWithoutId({ name: 'Lightning Bolt' }));
+      await service.flush();
 
-      expect(service.search('sol')).toEqual([sol]);
-      expect(service.search('ltc')).toEqual([sol]);
-    });
+      service.applyMoved(new Set([moved.id]), 'collection-2', '2026-02-01T00:00:00.000Z');
 
-    it('is diacritic- and case-insensitive', () => {
-      const sol = service.add(mockCardEntryWithoutId({ name: 'Sol Ring' }));
-
-      expect(service.search('SÓL')).toEqual([sol]);
+      expect(service.cards()).toEqual([
+        { ...moved, locationId: 'collection-2', updatedAt: '2026-02-01T00:00:00.000Z' },
+        untouched,
+      ]);
+      expect(service.changeCount()).toBe(2);
+      await service.flush();
+      const persisted = await getAllFromStore<CardEntry>('cards');
+      expect(persisted.find((c) => c.id === moved.id)?.locationId).toBe(moved.locationId);
     });
   });
 });

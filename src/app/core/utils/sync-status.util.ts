@@ -94,7 +94,7 @@ export function hasUnsyncedChanges(input: {
   linked: boolean;
   lastSyncedAt: string | null;
   cards: { updatedAt: string }[];
-  locations: { updatedAt: string }[];
+  collections: { updatedAt: string }[];
   tombstoneCount: number;
   colorsUpdatedAt: string;
   nameUpdatedAt: string;
@@ -111,7 +111,7 @@ export function hasUnsyncedChanges(input: {
   const newer = (at: string) => since === null || at > since;
   return (
     input.cards.some((c) => newer(c.updatedAt)) ||
-    input.locations.some((l) => newer(l.updatedAt)) ||
+    input.collections.some((l) => newer(l.updatedAt)) ||
     (input.planarSelectionUpdatedAt !== null && newer(input.planarSelectionUpdatedAt)) ||
     (since !== null && (input.colorsUpdatedAt > since || input.nameUpdatedAt > since))
   );

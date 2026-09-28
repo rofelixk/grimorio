@@ -30,7 +30,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **Purpose**: The design system entry, the model constants and the copy that every later phase uses.
 
-- [ ] T001 Update `DESIGN.md` before any UI is built (Constitution V, FR-026), taking every value from `design_handoff_collections_foundation/README.md`:
+- [X] T001 Update `DESIGN.md` before any UI is built (Constitution V, FR-026), taking every value from `design_handoff_collections_foundation/README.md`:
   - **(a)** In the front matter `colors:`, add `collection-{id}` for the 16 palette colors (data-model.md table).
   - **(b)** Under "## Colors", add a "### Collection colors" subsection:
     - the table in row order (Row · Name · Hex, Carvão with its `#6b635c` outline and `#8a837e` selected ring);
@@ -52,7 +52,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
     - the delete radios (18px indicator; move selected = role-primary + `--glow-plate-hover`; delete selected = danger; the delete sub-text in danger; no default).
   - **(d)** Under "## Motion", add the **page transition**: out 140ms `translateX(-dir*8px)`, swap, in 240ms from `dir*12px`, the height lock and release after ~280ms, and the 13 orbs (size, colors, fill, glow, start ranges, `grm-orb` keyframes, dx/dy, 750–1250ms, 0–220ms delay). Reduced motion turns all of it off.
   - **(e)** Under "## Content", add the collection copy bullets: the errors, the delete consequences, the toasts ("Coleção" label).
-- [ ] T002 [P] Create `src/app/core/models/collection.model.ts` (data-model.md), containing:
+- [X] T002 [P] Create `src/app/core/models/collection.model.ts` (data-model.md), containing:
   - `CollectionColorId` = `'branco' | 'azul' | 'violeta' | 'vermelho' | 'verde' | 'carvao' | 'nevoa' | 'anil' | 'vinho' | 'ocre' | 'salvia' | 'cinza' | 'turquesa' | 'rosa' | 'laranja' | 'dourado'`;
   - `interface Collection { id: string; name: string; color: CollectionColorId; parentId: string | null; updatedAt: string }`;
   - `COLLECTION_COLORS` as a readonly array of `{ id, name, hex, outline? }` in palette order, with the exact names/hexes from the data-model table (Carvão `outline: '#6b635c'`);
@@ -60,7 +60,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - `type NameError = 'empty' | 'too-long' | 'taken'`, `type CollectionKind = 'empty' | 'cards' | 'subcollections'`;
   - `interface CollectionTotals { cards: number; sale: number; subs: number; directEntries: number }` and `interface CollectionStats { byId: Map<string, CollectionTotals>; holding: { cards: number; sale: number } }`;
   - `colorOf(id)` returning the palette record.
-- [ ] T003 [P] Create `src/app/core/utils/collection-copy.ts`, following `planechase-copy.ts`'s header style:
+- [X] T003 [P] Create `src/app/core/utils/collection-copy.ts`, following `planechase-copy.ts`'s header style:
   - `const nf = new Intl.NumberFormat('pt-BR')`;
   - `formatCount(n)`;
   - `plural(n, one, many)`, which returns `"1 carta"` / `"1.240 cartas"` (the number formatted, then the word);
@@ -79,7 +79,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 In `src/app/core/db/profile-db.ts`:
+- [X] T004 In `src/app/core/db/profile-db.ts`:
   - set `DB_VERSION = 2`;
   - add `collections: { key: string; value: Collection }` to `ProfileDbSchema` and remove `locations`;
   - set `TombstoneEntity = 'cards' | 'collections'`.
@@ -90,7 +90,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - add the `RowOp` type and `writeRows(ops, handle = currentDbHandle())` (contracts/services.md). It opens one `readwrite` transaction over the distinct stores the ops touch, applies each `put`/`delete` in order, awaits `tx.done`, and rejects via `requireDb` with no handle. An empty op list resolves without opening a transaction. Tombstone puts use the `{entity}:{id}` key shape of `putTombstone`.
 
   Extend `src/app/core/db/profile-db.spec.ts` to cover: the v2 stores exist, `locations` is absent, `writeRows` applies puts and deletes across stores atomically (a failing op rolls back the others), and it rejects when unbound.
-- [ ] T005 [P] Create `src/app/core/utils/collection-tree.util.ts` with the pure functions from contracts/services.md, except `repairCollectionTree`, which comes in T033:
+- [X] T005 [P] Create `src/app/core/utils/collection-tree.util.ts` with the pure functions from contracts/services.md, except `repairCollectionTree`, which comes in T033:
   - `normalizeName(name)` = `name.trim().toLocaleLowerCase('pt-BR')`.
   - `compareByName(a, b)` = `a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)`.
   - `validateCollectionName(name, siblings, selfId?)` returns, in this order:
@@ -116,10 +116,10 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - `computeStats` (a quantity-3 entry counts 3, for-sale only, roll-up to both ancestors, subs at every level, unknown ids → holding, a collection with only empty children → 0 cards and its subs);
   - 50,000 entries over 100 collections finishing well under 1 s;
   - `suffixedName` cutting a 40-character base.
-- [ ] T006 [P] In `src/app/core/services/card.service.ts`, add `applyRemoved(ids: ReadonlySet<string>)` and `applyMoved(ids: ReadonlySet<string>, locationId: string, updatedAt: string)`. They update `cardsSignal` only: no `persist`, no `changeCount` bump, no tombstones. Only `CollectionService` calls them, with its own `writeRows` (research R2).
+- [X] T006 [P] In `src/app/core/services/card.service.ts`, add `applyRemoved(ids: ReadonlySet<string>)` and `applyMoved(ids: ReadonlySet<string>, locationId: string, updatedAt: string)`. They update `cardsSignal` only: no `persist`, no `changeCount` bump, no tombstones. Only `CollectionService` calls them, with its own `writeRows` (research R2).
 
   Update `card.service.spec.ts`: both new methods change the signal and leave IndexedDB untouched.
-- [ ] T007 Create `src/app/core/services/collection.service.ts` (`providedIn: 'root'`) with the entity-service shape of the old `StorageLocationService` (Constitution VI): `load(profileId)` (clears the signal synchronously, generation guard), `whenReady()`, `flush()`, a private `enqueueWrite` whose tasks first `await this.cards.flush()` (research R2), and `changeCount`. It adds the derived signals from contracts/services.md:
+- [X] T007 Create `src/app/core/services/collection.service.ts` (`providedIn: 'root'`) with the entity-service shape of the old `StorageLocationService` (Constitution VI): `load(profileId)` (clears the signal synchronously, generation guard), `whenReady()`, `flush()`, a private `enqueueWrite` whose tasks first `await this.cards.flush()` (research R2), and `changeCount`. It adds the derived signals from contracts/services.md:
   - `collections`, `byId`, and `childrenOf` via `buildChildrenOf`;
   - `stats = computed(() => computeStats(this.collections(), this.cards.cards()))`;
   - `depth(id)`, `path(id)` (root → id), `kind(id)` (`'subcollections'` if it has a child, `'cards'` if `stats().byId.get(id).directEntries > 0`, else `'empty'`), and `defaultColor(parentId)`.
@@ -127,7 +127,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   It also has the sync-only `getTombstones()`/`clearTombstones(ids)` (entity `'collections'`) and `applySyncResult(merged)`. That method sets the signal and enqueues one `writeRows` with a put for each merged row whose value changed and a delete for each id no longer present. It never restamps `updatedAt` and never tombstones.
 
   The mutations are added in the story phases (create/update T022, create-with-move T025, remove T028). Add `collection.service.spec.ts` covering: load isolation between two profiles, hydration from seeded rows, derived `path`/`depth`/`kind`, `stats` reacting to `CardService` changes, and `applySyncResult` writing only the diff (depends on T004, T005, T006)
-- [ ] T008 Replace `StorageLocationService` with `CollectionService` everywhere, then delete the old stack:
+- [X] T008 Replace `StorageLocationService` with `CollectionService` everywhere, then delete the old stack:
   - **(a)** `src/app/core/services/profile-session.service.ts` `entityServices`.
   - **(b)** `src/app/core/utils/sync-status.util.ts` `hasUnsyncedChanges`: rename the input `locations` to `collections`, and compare the collections' `updatedAt` as it compared the locations'. Update its spec.
   - **(c)** `src/app/shared/auth/profile-modal/profile-flow.store.ts` `evaluateUnsynced`: read `CollectionService.getTombstones()` and `.collections()`. Update `profile-flow.store.spec.ts`.
@@ -144,11 +144,11 @@ This is a single Angular project. Paths are relative to the repo root. The alias
     Remove their exports from `src/app/shared/index.ts`.
   - **Keep** `src/app/core/services/card-import.service.ts` and `src/app/core/utils/card-import.util.ts` unchanged: they're the CSV import logic, kept for a future spec (research R13).
   - Remove every `Color`/`StorageLocation` import that pointed at the deleted model. `Color` stays in `card.model.ts`. (Depends on T007.)
-- [ ] T009 **Main thread only**: `phase-implementer` has no Supabase MCP tools. Before `apply_migration`, confirm with the user, since it drops `storage_locations` in the live project and can't be undone. Apply the Supabase migration `008_collections` from `contracts/supabase.md` verbatim with the MCP `apply_migration` (project `hyzbkxraanzhdyhtnadf`). Then run `get_advisors` (security) and fix anything it reports for `collections`. Confirm with `list_tables` that:
+- [X] T009 **Main thread only**: `phase-implementer` has no Supabase MCP tools. Before `apply_migration`, confirm with the user, since it drops `storage_locations` in the live project and can't be undone. Apply the Supabase migration `008_collections` from `contracts/supabase.md` verbatim with the MCP `apply_migration` (project `hyzbkxraanzhdyhtnadf`). Then run `get_advisors` (security) and fix anything it reports for `collections`. Confirm with `list_tables` that:
   - `storage_locations` is gone;
   - `card_entries` has no `card_entries_location_fkey`;
   - `collections` has RLS on.
-- [ ] T010 In `src/app/core/services/sync.service.ts`, replace `syncLocations`/`StorageLocationRow`/`locationToRow`/`locationFromRow` with `syncCollections`:
+- [X] T010 In `src/app/core/services/sync.service.ts`, replace `syncLocations`/`StorageLocationRow`/`locationToRow`/`locationFromRow` with `syncCollections`:
   - a `CollectionRow { id, user_id, name, color, parent_id, updated_at }` with its `collectionToRow`/`collectionFromRow`. Normalize `updated_at` through `new Date(...).toISOString()`, as `syncPlanarSelection` does.
   - `select('id, user_id, name, color, parent_id, updated_at')`, `reconcileEntities`, `upsert(..., { onConflict: 'user_id,id' })`, `delete().eq('user_id', uid).in('id', ids)`, then `collections.applySyncResult` and `clearTombstones`.
   - Flush `CollectionService` with the cards before the run.
@@ -156,7 +156,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - Update the header comment, which says "locations". The tree repair is added in US6 (T034).
 
   Update `sync.service.spec.ts`: the location cases become collection cases (round-trip, tombstoned delete, newer remote wins). (Depends on T007, T009.)
-- [ ] T011 Routing and the view skeleton:
+- [X] T011 Routing and the view skeleton:
   - **(a)** Create `src/app/views/collection-area/collection-area.ts/.html/.scss/.spec.ts` (`selector: 'app-collection-area'`) with `ref = input<string>()`, rendering for now only the page column and `h1` "Coleção" (ui.md §2 page column: centered, 760px, padding `space-5`/`space-4` ≤ 640px, a flex column with `space-4` gap). No max-width is set on the host itself; the column is inner (architecture.md).
   - **(b)** In `src/app/app.routes.ts`, export a `collectionMatcher: UrlMatcher`:
     - `['collection']` → `{ consumed }`;
@@ -183,7 +183,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 - unknown ids redirect;
 - a new profile shows the empty state.
 
-- [ ] T012 [P] [US1] Create `src/app/shared/collections/collection-row/collection-row.ts/.scss/.spec.ts` (`app-collection-row`), per ui.md §2 and DESIGN.md "Collections":
+- [X] T012 [P] [US1] Create `src/app/shared/collections/collection-row/collection-row.ts/.scss/.spec.ts` (`app-collection-row`), per ui.md §2 and DESIGN.md "Collections":
   - inputs `collection: Collection` and `totals: CollectionTotals`; output `open`;
   - a full-width `<button>`: min-height 56px, padding `space-2 space-3`, 1px `border`, radius 8px, the `surface-raised → surface` gradient;
   - hover and focus: border role-primary and `--glow-plate-hover`, 0.18s standard easing;
@@ -191,14 +191,14 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - `aria-label` = "{nome}, cor {Cor}. {meta}.", with the swatch and inner text `aria-hidden`.
 
   The spec covers: the label with the color name, "Vazia", the omitted subcollection part, "1.240 cartas", the Carvão outline, and the click emitting `open`.
-- [ ] T013 [P] [US1] Create `src/app/shared/collections/create-row/create-row.ts/.scss/.spec.ts` (`app-create-row`):
+- [X] T013 [P] [US1] Create `src/app/shared/collections/create-row/create-row.ts/.scss/.spec.ts` (`app-create-row`):
   - inputs `label: string` and `sub = ''`; output `activate`;
   - the same size as a collection row, but 1px **dashed** `border`, transparent, muted text;
   - "+" centered in a 36px slot, bold label, optional 0.75rem sub-line;
   - hover and focus: text → `text`, border → role-accent.
 
   The spec covers the label, the sub-line and the emit.
-- [ ] T014 [P] [US1] Create `src/app/core/utils/collection-transition.util.ts`:
+- [X] T014 [P] [US1] Create `src/app/core/utils/collection-transition.util.ts`:
   - `type Place = { kind: 'list' } | { kind: 'holding' } | { kind: 'collection'; id: string }`.
   - `placeDepth(place, depthOf)`: list 0, holding 1, collection `depthOf(id)`.
   - `transitionDir(from, to, depthOf)`: −1 when the target is shallower, otherwise +1 (deeper and sideways).
@@ -211,7 +211,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
     - `role = i % 3`.
 
   Add `collection-transition.util.spec.ts` with a seeded random covering: every range, count, direction sign, and dir for list→collection, collection→child, child→parent, collection→holding and sibling→sibling.
-- [ ] T015 [US1] Create `src/app/views/collection-area/collection-transition.ts`, a view-provided `@Injectable()` controller (research R9).
+- [X] T015 [US1] Create `src/app/views/collection-area/collection-transition.ts`, a view-provided `@Injectable()` controller (research R9).
   - It exposes:
     - `shown = signal<Place>`;
     - `phase = signal<'idle' | 'out' | 'in'>`;
@@ -228,7 +228,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - Timers are cleared on `DestroyRef`.
 
   Add `collection-transition.spec.ts` with fake timers: the phase sequence and timings, the jump on a second `go`, and the reduced-motion instant swap. (Depends on T014.)
-- [ ] T016 [US1] Build the list place in `src/app/views/collection-area/collection-area.html/.scss/.ts` (ui.md §2 "List", handoff README §1):
+- [X] T016 [US1] Build the list place in `src/app/views/collection-area/collection-area.html/.scss/.ts` (ui.md §2 "List", handoff README §1):
   - **Header row**: flex, wrap, `space-3` gap; the `h1` "Coleção" (Grenze 600 2rem/1.1, `--glow-title`, `text-wrap: balance`, `tabindex="-1"`) with `flex: 1`.
   - **Search row**: a disabled `.field__input` at `opacity: .5`, `cursor: not-allowed`, `flex: 1`, placeholder `COLLECTION.searchPlaceholder`, `aria-label` `searchLabel`. At < 960px it's followed by a disabled `.btn.btn--secondary` "Filtros" (0.875rem).
   - **Rows**: a flex column with `space-2` gap, one `app-collection-row` per `childrenOf().get(null)` with `stats().byId`.
@@ -236,7 +236,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - **Empty state** (no collections and no holding cards, FR-009): only the `h1`, then a centered section (360px, margin `space-6 auto`, gap `space-4`, centered text) with `.eyebrow` `emptyEyebrow`, an `h2` `emptyTitle` (Grenze 600 1.5rem, title glow), muted 0.875rem `emptyCopy`, and a `.btn--primary` "Criar coleção". Search and aside are hidden.
 
   The create buttons are rendered but wired in US2. Use `ShellState`/`media-query.ts` for the 640/960 breakpoints, or CSS where layout alone differs. (Depends on T011, T012.)
-- [ ] T017 [US1] Build the collection place in the same view (ui.md §2 "Collection page", handoff README §3):
+- [X] T017 [US1] Build the collection place in the same view (ui.md §2 "Collection page", handoff README §3):
   - **Path**: `<nav aria-label="Caminho">`, flex, `space-2` gap, margin-bottom `-space-3`. It holds `.link-btn` "Coleção" and a link per ancestor from `path(id)` (excluding the current one), separated by muted `·` spans (`aria-hidden`), then the current name as muted text with `aria-current="page"`.
   - **Header**: flex, wrap, `space-3` gap. A 24px swatch with `box-shadow: 0 0 16px {hex}66`, and the `h1` name (`overflow-wrap: anywhere`, `tabindex="-1"`). Room is reserved for the actions (added in T024/T030).
   - **Stats**: a 3-column grid of `.plate`s, each a Grenze 600 1.5rem `formatCount` number over a `.micro-label` "Cartas" / "À venda" / "Subcoleções".
@@ -251,7 +251,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
       Then the note `eitherOr`, or `lastLevel` at level 3.
 
   The create actions are wired in US3. (Depends on T016.)
-- [ ] T018 [US1] Wire navigation and addresses in `collection-area.ts` (FR-006, research R8):
+- [X] T018 [US1] Wire navigation and addresses in `collection-area.ts` (FR-006, research R8):
   - Map `ref()` to a `Place` (none → list, `HOLDING_REF` → holding, otherwise collection). Provide `CollectionTransition` in the view's `providers`.
   - An `effect` calls `transition.go(place, depthOf, measure)` when the routed place changes. The view renders from `transition.shown()`. `measure` reads the content column's `offsetHeight` and the inner wrapper's `scrollHeight`.
   - An `effect` redirects with `router.navigate(['/collection'], { replaceUrl: true })` when the routed place is a collection id missing from `byId()`.
@@ -260,7 +260,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - **Template bindings**: the content column carries `[style.height.px]="lockHeight()"` with `overflow: hidden` while locked, and classes for `out`/`in` (opacity and `translateX` via a `--dir` custom property, 140ms/240ms standard easing, no transition during the swap frame).
   - **Orb layer**: an `aria-hidden` absolute `inset: 0` layer (the host is `position: relative`), `pointer-events: none`, `overflow: hidden`, `mix-blend-mode: screen`. Each orb uses `radial-gradient(circle, c 0%, c/67% 40%, transparent 72%)` with the glow `0 0 {1.6*size}px {0.4*size}px c/40%`, and `c` cycles through `var(--role-primary)`, `--role-accent` and `--role-tertiary`. Add the keyframes `grm-orb` (0%: opacity 0, scale .5; 25%: opacity 1; 100%: opacity 0, `translate(var(--dx), var(--dy)) scale(1.1)`).
   - Reduced motion: no transition classes and no orbs (DESIGN.md Motion). (Depends on T015, T017.)
-- [ ] T019 [US1] Write `src/app/views/collection-area/collection-area.spec.ts` for US1 (fake timers, `CollectionService`/`CardService` seeded through their public APIs or IndexedDB):
+- [X] T019 [US1] Write `src/app/views/collection-area/collection-area.spec.ts` for US1 (fake timers, `CollectionService`/`CardService` seeded through their public APIs or IndexedDB):
   - the list order (accents, case), the meta counts and roll-up;
   - two profiles each seeing only their own;
   - the empty state and the hidden search;
@@ -284,7 +284,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 - the empty, 41-character and duplicate names each show their PT-BR error;
 - rename and recolor, reload, and the changes persist.
 
-- [ ] T020 [P] [US2] Create `src/app/shared/ds/compact-modal/compact-modal.ts/.html/.scss/.spec.ts` (`app-compact-modal`, research R10, DESIGN.md "compact modal").
+- [X] T020 [P] [US2] Create `src/app/shared/ds/compact-modal/compact-modal.ts/.html/.scss/.spec.ts` (`app-compact-modal`, research R10, DESIGN.md "compact modal").
   - Inputs: `roles: Roles` (required), `labelledBy`, `locked = false`. Output: `closed`.
   - It's a native `<dialog data-grm data-theme-scope>` with the `--theme-*` bindings, as in `themed-modal.html`.
   - **Ring**: `@use 'ring'` and `_face.scss` from `src/app/shared/ds/themed-modal/` (via a relative `@use` or the `includePaths`), sized `width: min(480px, 100vw - 2rem)` with 2px padding and 10px radius.
@@ -296,7 +296,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - **Behavior**: `showModal()` on mount, remembering the opener; Esc (cancel event), a backdrop click and ✕ emit `closed` unless `locked`; on destroy it closes and restores focus to the opener.
 
   The spec covers: open on mount, the three close paths, `locked` blocking all three, and focus restored on destroy.
-- [ ] T021 [P] [US2] Create `src/app/shared/collections/color-picker/color-picker.ts/.scss/.spec.ts` (`app-color-picker`).
+- [X] T021 [P] [US2] Create `src/app/shared/collections/color-picker/color-picker.ts/.scss/.spec.ts` (`app-color-picker`).
   - Input `value: CollectionColorId`, output `valueChange`.
   - **Label**: "Cor · {Nome}", with the name muted.
   - **Layout**: a centered `role="radiogroup"` (`aria-labelledby` pointing at the label) laid out 5/6/5 from `COLLECTION_COLORS` order. Rows have a 6px gap; swatches in a row have 12px; rows 1 and 3 are indented 24px.
@@ -304,7 +304,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - **Selected**: `box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 4px {hex}, 0 0 20px {hex}80`, with Carvão using `#8a837e` for the 4px ring, and a 0.5s transition (none under reduced motion).
 
   The spec covers: 16 radios in 5/6/5, a click emitting, the arrow keys wrapping, the label text, and a single tab stop.
-- [ ] T022 [US2] Add `create` and `update` to `src/app/core/services/collection.service.ts` (contracts/services.md), for top-level collections here; children are extended in T025.
+- [X] T022 [US2] Add `create` and `update` to `src/app/core/services/collection.service.ts` (contracts/services.md), for top-level collections here; children are extended in T025.
   - **`create({ parentId: null, name, color })`**:
     1. Trim the name and validate it with `validateCollectionName` against `childrenOf().get(null)`.
     2. On success, build `{ id: crypto.randomUUID(), name: trimmed, color, parentId: null, updatedAt: now }`.
@@ -314,7 +314,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - **`update(id, { name?, color? })`**: validate only a changed name, against the siblings excluding self; stamp `updatedAt`; write one row; never touch a card (FR-011, FR-021). It returns `'not-found'` for an unknown id.
 
   Extend `collection.service.spec.ts`: create persists across a reload, the validation errors, update writes exactly one collections row and zero card rows, and a recolor keeps the name.
-- [ ] T023 [US2] Create `src/app/shared/collections/collection-form-dialog/collection-form-dialog.ts/.html/.scss/.spec.ts` (`app-collection-form-dialog`, ui.md §2 dialog, handoff README §5), inside `app-compact-modal` with `IdentityService.roles()`.
+- [X] T023 [US2] Create `src/app/shared/collections/collection-form-dialog/collection-form-dialog.ts/.html/.scss/.spec.ts` (`app-collection-form-dialog`, ui.md §2 dialog, handoff README §5), inside `app-compact-modal` with `IdentityService.roles()`.
   - Inputs: `mode: 'create' | 'edit'`, `parentId: string | null`, `collectionId?`. Outputs: `closed`, `saved(Collection)`.
   - **Title**: Grenze 600 2rem (1.5rem ≤ 640px), title glow, `id` for `labelledBy`: "Nova coleção" or "Editar coleção" here; the subcollection titles come in T026.
   - **Name field**: built with the `.field` primitives. A `.field__label` "Nome" and a `.field__input`, autofocused, where Enter submits. Below it, a row with the helper `nameHelper` (or the `.field__error` in its place, linked via `aria-describedby`) on the left, and a live "{n}/40" counter on the right that turns danger over 40.
@@ -323,7 +323,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - **Actions**: `.btn--ghost` "Cancelar", then `.btn--primary` "Criar coleção" / "Salvar". At ≤ 640px they stack full-width with `column-reverse`.
 
   The spec covers: the preselected color skipping used ones, each error message, the error clearing on typing, the counter at 40/41, Enter submitting, and edit prefilling and saving.
-- [ ] T024 [US2] Wire the create/edit dialogs in `collection-area.ts/.html`:
+- [X] T024 [US2] Wire the create/edit dialogs in `collection-area.ts/.html`:
   - A view `form = signal<{ mode; parentId; collectionId? } | null>`, rendered with `@if`.
   - "Nova coleção" (`.btn--primary` in the header, shown only > 640px), the dashed `app-create-row` "Nova coleção" at the end of the list (only ≤ 640px), and the empty-state "Criar coleção" all open create with parent `null`.
   - On the collection page, add `.btn--secondary` "Editar" beside the `h1` (on phone the actions drop to their own row at 50/50) to open edit.
@@ -341,7 +341,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **Independent Test**: Create 3 levels; level 3 offers no subcollection action. In a collection seeded with cards, "Dividir em subcoleções" shows the move plate, and "Criar e mover cartas" moves every card with its data unchanged.
 
-- [ ] T025 [US3] Extend `CollectionService.create` in `src/app/core/services/collection.service.ts` for `parentId !== null` (FR-002, FR-010, FR-027, FR-029):
+- [X] T025 [US3] Extend `CollectionService.create` in `src/app/core/services/collection.service.ts` for `parentId !== null` (FR-002, FR-010, FR-027, FR-029):
   1. Reject `'no-parent'` when the parent is missing, and `'too-deep'` when `depth(parentId) >= 3`.
   2. Validate the name against `childrenOf().get(parentId)`.
   3. If `kind(parentId) === 'cards'`, gather the parent's direct card entries (`locationId === parentId`) and call `cards.applyMoved(ids, newId, now)`. Then enqueue **one** `writeRows` holding the new collection put and a card put for each moved card (the updated entry with `locationId: newId` and `updatedAt: now`). Return `moved` as the sum of their quantities.
@@ -352,13 +352,13 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - a rejected transaction (stub `writeRows` failing) leaves IndexedDB with neither the collection nor the moved cards (FR-015);
   - the parent's kind becomes `'subcollections'`;
   - a parent holding 5,000 cards finishing in under 3 s (SC-009).
-- [ ] T026 [US3] Extend `collection-form-dialog` for subcollections (ui.md §2, handoff §5):
+- [X] T026 [US3] Extend `collection-form-dialog` for subcollections (ui.md §2, handoff §5):
   - titles "Nova subcoleção" / "Editar subcoleção" when `parentId` (or the edited collection's parent) isn't `null`;
   - the subtitle `inside(pai)`;
   - in create mode inside a `'cards'` parent, a muted `.plate` `movePlate(pai, n)`, where `n` is the parent's `stats` cards, and the verb "Criar e mover cartas" (otherwise "Criar subcoleção").
 
   Extend its spec: titles, subtitle, the plate and verb only for a `'cards'` parent. (Depends on T025.)
-- [ ] T027 [US3] Wire the subcollection entry points in `collection-area.html/.ts`, all opening create with `parentId = id`:
+- [X] T027 [US3] Wire the subcollection entry points in `collection-area.html/.ts`, all opening create with `parentId = id`:
   - for kind `'subcollections'` below level 3, the trailing `app-create-row` "Nova subcoleção";
   - for kind `'cards'` at levels 1–2, the `app-create-row` "Dividir em subcoleções" with the sub-line `splitSub(n)`;
   - for kind `'empty'` below level 3, the "Nova subcoleção" button in the "Dividir" plate.
@@ -380,7 +380,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 - deleting from inside the subtree lands on the parent;
 - deleting the last subcollection leaves the parent `'empty'`.
 
-- [ ] T028 [US4] Add `remove(id, choice: 'move' | 'delete')` to `src/app/core/services/collection.service.ts` (FR-012–FR-015, FR-022, research R1/R7):
+- [X] T028 [US4] Add `remove(id, choice: 'move' | 'delete')` to `src/app/core/services/collection.service.ts` (FR-012–FR-015, FR-022, research R1/R7):
   1. `ids = subtreeIds(id)`; for `'delete'`, `cardIds` = the entries whose `locationId ∈ ids`.
   2. Update the collection signal and, for `'delete'`, call `cards.applyRemoved(cardIds)`. Bump `changeCount`.
   3. Enqueue **one** `writeRows`: a collection delete and a `collections` tombstone for each id, plus, for `'delete'`, a card delete and a `cards` tombstone for each card, with one `deletedAt` for all.
@@ -393,7 +393,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - the last child removed → parent `kind` is `'empty'` (FR-028);
   - a rejected transaction leaves IndexedDB unchanged;
   - 5,000 cards finishing in under 3 s (SC-004).
-- [ ] T029 [US4] Create `src/app/shared/collections/collection-delete-dialog/collection-delete-dialog.ts/.html/.scss/.spec.ts` (`app-collection-delete-dialog`, ui.md §2, handoff §6), inside `app-compact-modal` with `[locked]="busy()"`.
+- [X] T029 [US4] Create `src/app/shared/collections/collection-delete-dialog/collection-delete-dialog.ts/.html/.scss/.spec.ts` (`app-collection-delete-dialog`, ui.md §2, handoff §6), inside `app-compact-modal` with `[locked]="busy()"`.
   - Input `collectionId`. Outputs `closed`, `deleted({ parentId, name, choice, result })`.
   - **Captured on open**: the name, `parentId`, subtree card count and subcollection count are read once when the dialog is created, so the title, subtitle and toast payload survive `remove()` clearing the collection from the signal.
   - With no subtree cards, confirm calls `remove(id, 'move')` (data-model.md "Delete").
@@ -409,7 +409,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - **While `remove()` runs**: the label is "Excluindo…", both buttons are locked, and the modal is `locked`.
 
   The spec covers: both subtitles, no default, `aria-disabled` until a choice, the danger sub-text, the busy lock blocking Esc/✕/backdrop, the emitted payload, and Cancel changing nothing.
-- [ ] T030 [US4] Wire the delete in `collection-area.ts/.html` (FR-031):
+- [X] T030 [US4] Wire the delete in `collection-area.ts/.html` (FR-031):
   - On the collection page, add `.btn--danger` "Excluir" after "Editar" (50/50 on phone). A view `del = signal<{ id: string; parentId: string | null; subtree: ReadonlySet<string> } | null>`, set when "Excluir" is clicked (`subtree` from `subtreeIds(id)` at that moment), renders the dialog.
   - Extend the redirect effect (T018): when the routed collection id is missing from `byId()` and `del()?.subtree.has(id)`, navigate to `['/collection', parentId]` (or `['/collection']`) with `replaceUrl`. Otherwise navigate to `/collection` as before (research R8).
   - On `deleted`:
@@ -433,13 +433,13 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 - `/collection/caixa` with an empty box redirects;
 - removing the last holding card hides the tag.
 
-- [ ] T031 [US5] Add the holding-box tag to the list header in `collection-area.html/.scss` (handoff README §1, FR-016), shown only while `stats().holding.cards > 0`.
+- [X] T031 [US5] Add the holding-box tag to the list header in `collection-area.html/.scss` (handoff README §1, FR-016), shown only while `stats().holding.cards > 0`.
   - It sits between the `h1` and "Nova coleção": min-height 44px, padding `0 space-3`, 1px `border`, radius 4px, transparent, 0.875rem.
   - Contents: a 10×10 hollow square (1px `text-muted`, radius 2px), bold `holdingName`, and a muted `plural(n, 'carta', 'cartas')`.
   - Hover: border role-primary, 0.18s.
   - `aria-label` = `holdingLabel(n, s)`. Click → `/collection/caixa`.
   - The empty state (T016) counts the holding box: no collections but holding cards means the list, not the empty state.
-- [ ] T032 [US5] Add the holding place in `collection-area.html/.ts` (handoff README §4, FR-016, FR-017):
+- [X] T032 [US5] Add the holding place in `collection-area.html/.ts` (handoff README §4, FR-016, FR-017):
   - the path "Coleção · Caixa temporária" (current is muted, `aria-current`);
   - a header with a 24px hollow square (1px `text-muted`, radius 4px) and the `h1` `holdingName`;
   - two stat plates, "Cartas" and "À venda", max-width 360px;
@@ -457,7 +457,7 @@ This is a single Angular project. Paths are relative to the repo root. The alias
 
 **Independent Test**: quickstart step 7 on two devices, plus the sync unit cases below.
 
-- [ ] T033 [P] [US6] Add `repairCollectionTree(merged, remoteIds, now)` to `src/app/core/utils/collection-tree.util.ts` (research R6).
+- [X] T033 [P] [US6] Add `repairCollectionTree(merged, remoteIds, now)` to `src/app/core/utils/collection-tree.util.ts` (research R6).
   - **Step 1, orphans**: repeatedly drop collections whose `parentId` isn't null and isn't in the set, until stable. The dropped ids go to `removedIds`.
   - **Step 2, duplicates**: group the remaining siblings by `(parentId, normalizeName(name))`.
     - In each group of 2 or more, the survivor is the member in `remoteIds`. When there are none or several, the lowest `id` wins.
@@ -472,17 +472,17 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - a 40-character base cut;
   - case and space variants treated as duplicates;
   - a clean tree unchanged.
-- [ ] T034 [US6] Integrate the repair into `syncCollections` in `src/app/core/services/sync.service.ts`:
+- [X] T034 [US6] Integrate the repair into `syncCollections` in `src/app/core/services/sync.service.ts`:
   - after `reconcileEntities`, run `repairCollectionTree(result.merged, new Set(remoteRows.map(r => r.id)), new Date().toISOString())`;
   - remove `removedIds` from `toUpsertRemote` and add those the remote has to `toDeleteRemoteIds`;
   - add `renamed` to `toUpsertRemote`, replacing any same-id entry;
   - apply `repair.collections` through `applySyncResult`.
 
   Removed orphans get no tombstone: they're deleted remotely in the same run. (Depends on T033.)
-- [ ] T035 [US6] Add `resolveMixedCollections()` to `src/app/core/services/collection.service.ts` (FR-029, research R6).
+- [X] T035 [US6] Add `resolveMixedCollections()` to `src/app/core/services/collection.service.ts` (FR-029, research R6).
   - For each collection with a child and `directEntries > 0`, it moves those entries to its first child in `compareByName` order: `cards.applyMoved` plus one `writeRows` with the card puts and a fresh `updatedAt`.
   - `SyncService.exchange` calls it after `syncCards` and before `syncPlanarSelection`, guarded by `ensureCurrent`. It captures `syncedAt` **before** that call, so the moved cards' fresh `updatedAt` is newer than `lastSyncedAt`: `hasUnsyncedChanges` reports them, and the next sync uploads them (FR-029's "carried on the next sync").
-- [ ] T036 [US6] Extend `src/app/core/services/sync.service.spec.ts` with a mocked client:
+- [X] T036 [US6] Extend `src/app/core/services/sync.service.spec.ts` with a mocked client:
   - a remote-deleted parent removes the local child subtree and deletes the child remotely;
   - a same-named sibling from another device is renamed "(2)" and upserted, while the remote one keeps its name;
   - a "move" delete sends zero `card_entries` upserts;
@@ -506,8 +506,8 @@ This is a single Angular project. Paths are relative to the repo root. The alias
   - the `shared/` domain folders: `collections/` replaces `locations/`, and `ds/compact-modal`;
   - "Routing": the matcher route;
   - the card-import service kept, unused, for a future spec.
-- [ ] T038 Run the `design-auditor` agent over every new or changed `.html`/`.scss`/component `.ts` (T011–T032) against `DESIGN.md` and `ui.md`, and fix what it reports.
-- [ ] T039 Run the full suite and lint through the `test-runner` agent (`npm test`, `npm run lint`), and fix any failure or unused import left by the deletions (T008).
+- [X] T038 Run the `design-auditor` agent over every new or changed `.html`/`.scss`/component `.ts` (T011–T032) against `DESIGN.md` and `ui.md`, and fix what it reports.
+- [X] T039 Run the full suite and lint through the `test-runner` agent (`npm test`, `npm run lint`), and fix any failure or unused import left by the deletions (T008).
 - [ ] T040 Walk quickstart.md steps 1–10 on the running dev server (the user runs `npm start`), including 320px width, reduced motion and the 50,000-copy scale seed. Record any deviation.
 
 ---

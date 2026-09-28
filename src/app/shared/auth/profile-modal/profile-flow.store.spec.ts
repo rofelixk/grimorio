@@ -6,6 +6,7 @@ import { CloudLink } from '@models/profile.model';
 import { CardService } from '@services/card.service';
 import { CloudAuthService } from '@services/cloud-auth.service';
 import { CloudSessionService } from '@services/cloud-session.service';
+import { CollectionService } from '@services/collection.service';
 import { ConnectivityService } from '@services/connectivity.service';
 import { DeckService } from '@services/deck.service';
 import { EntryModalService } from '@services/entry-modal.service';
@@ -13,7 +14,6 @@ import { ProfileLifecycleService } from '@services/profile-lifecycle.service';
 import { ProfileModalService } from '@services/profile-modal.service';
 import { ProfileSessionService } from '@services/profile-session.service';
 import { PBKDF2_ITERATIONS, ProfileStore } from '@services/profile-store.service';
-import { StorageLocationService } from '@services/storage-location.service';
 import { SyncStatusService } from '@services/sync-status.service';
 import { SyncService } from '@services/sync.service';
 import { ToastService } from '@services/toast.service';
@@ -87,7 +87,7 @@ describe('ProfileFlowStore', () => {
         { provide: SyncService, useValue: sync },
         { provide: ProfileLifecycleService, useValue: lifecycle },
         { provide: CardService, useValue: { cards: signal([]), getTombstones: async () => cardTombstones } },
-        { provide: StorageLocationService, useValue: { locations: signal([]), getTombstones: async () => [] } },
+        { provide: CollectionService, useValue: { collections: signal([]), getTombstones: async () => [] } },
         { provide: DeckService, useValue: { decks } },
         { provide: Router, useValue: router },
       ],

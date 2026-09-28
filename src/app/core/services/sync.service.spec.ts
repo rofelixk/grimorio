@@ -2,8 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileSummary } from '@models/profile.model';
+import type { CardEntry } from '@models/card.model';
+import type { Collection } from '@models/collection.model';
+import { mockCardEntry } from '@testing/card.mocks';
+import { hasUnsyncedChanges } from '../utils/sync-status.util';
+import { CardService } from './card.service';
 import { CloudAuthService } from './cloud-auth.service';
 import { CloudSessionService } from './cloud-session.service';
+import { CollectionService } from './collection.service';
 import { ConnectivityService } from './connectivity.service';
 import type { PlanarSelection } from '@models/planar-selection.model';
 import { PlanarSelectionService } from './planar-selection.service';
@@ -20,6 +26,35 @@ const LINKED: ProfileSummary = {
   nameUpdatedAt: '2026-01-01T00:00:00.000Z',
   colorsUpdatedAt: '2026-01-01T00:00:00.000Z',
 };
+
+/** The `card_entries` row a card round-trips through. */
+function cardRow(card: CardEntry) {
+  return {
+    id: card.id,
+    user_id: 'u1',
+    scryfall_id: card.scryfallId,
+    oracle_id: card.oracleId,
+    name: card.name,
+    set_code: card.setCode,
+    set_name: card.setName,
+    collector_number: card.collectorNumber,
+    rarity: card.rarity,
+    commander_legality: card.commanderLegality,
+    color_identity: card.colorIdentity,
+    type_line: card.typeLine,
+    can_be_commander: card.canBeCommander,
+    finish: card.finish,
+    language: card.language,
+    condition: card.condition,
+    quantity: card.quantity,
+    location_id: card.locationId,
+    for_sale: card.forSale,
+    image_url: card.imageUrl,
+    faces: card.faces ?? null,
+    notes: card.notes ?? null,
+    updated_at: card.updatedAt,
+  };
+}
 
 /** A PostgREST-like query whose result resolves only when `release()` is called. */
 function stalledQuery() {
@@ -71,6 +106,23 @@ describe('SyncService', () => {
   let sync: SyncService;
   const planarSelection = signal<PlanarSelection | null>(null);
   let applyPlanarSelection: ReturnType<typeof vi.fn>;
+  const localCards = signal<CardEntry[]>([]);
+  let cardsService: {
+    cards: typeof localCards;
+    flush: ReturnType<typeof vi.fn>;
+    getTombstones: ReturnType<typeof vi.fn>;
+    applySyncResult: ReturnType<typeof vi.fn>;
+    clearTombstones: ReturnType<typeof vi.fn>;
+  };
+  const localCollections = signal<Collection[]>([]);
+  let collectionsService: {
+    collections: typeof localCollections;
+    flush: ReturnType<typeof vi.fn>;
+    getTombstones: ReturnType<typeof vi.fn>;
+    applySyncResult: ReturnType<typeof vi.fn>;
+    clearTombstones: ReturnType<typeof vi.fn>;
+    resolveMixedCollections: ReturnType<typeof vi.fn>;
+  };
 
   /** The account's user, with metadata matching LINKED unless patched. */
   const user = (meta: Record<string, unknown> = {}) => ({
@@ -113,12 +165,31 @@ describe('SyncService', () => {
     };
     planarSelection.set(null);
     applyPlanarSelection = vi.fn();
+    localCards.set([]);
+    cardsService = {
+      cards: localCards,
+      flush: vi.fn(async () => undefined),
+      getTombstones: vi.fn(async () => []),
+      applySyncResult: vi.fn(),
+      clearTombstones: vi.fn(async () => undefined),
+    };
+    localCollections.set([]);
+    collectionsService = {
+      collections: localCollections,
+      flush: vi.fn(async () => undefined),
+      getTombstones: vi.fn(async () => []),
+      applySyncResult: vi.fn(),
+      clearTombstones: vi.fn(async () => undefined),
+      resolveMixedCollections: vi.fn(),
+    };
     TestBed.configureTestingModule({
       providers: [
         {
           provide: PlanarSelectionService,
           useValue: { selection: planarSelection, flush: async () => undefined, applySyncResult: applyPlanarSelection },
         },
+        { provide: CollectionService, useValue: collectionsService },
+        { provide: CardService, useValue: cardsService },
         { provide: CloudSessionService, useValue: cloud },
         { provide: CloudAuthService, useValue: auth },
         { provide: ProfileStore, useValue: profiles },
@@ -276,6 +347,209 @@ describe('SyncService', () => {
     auth.lookupAccount.mockResolvedValue({ status: 'offline' });
     expect(await sync.syncNow()).toBe('offline');
     expect(sync.state()).toBe('offline');
+  });
+
+  describe('collections', () => {
+    const OLD = '2026-06-01T00:00:00.000Z';
+    const NEW = '2026-06-02T00:00:00.000Z';
+    let upserts: unknown[][];
+    let deletes: unknown[][];
+
+    /** Every table answers at once; collections with `remote`, recording upserts/deletes. */
+    const answer = (remote: unknown[]) => {
+      upserts = [];
+      deletes = [];
+      const result = Promise.resolve({ data: remote, error: null });
+      const query = {
+        select: () => query,
+        eq: () => query,
+        in: (...args: unknown[]) => (deletes.push(args[1] as unknown[]), query),
+        upsert: (...args: unknown[]) => (upserts.push(args), query),
+        delete: () => query,
+        abortSignal: () => query,
+        then: result.then.bind(result),
+      };
+      from.mockImplementation((table: string) => (table === 'collections' ? query : settledQuery([], [])));
+    };
+
+    it('upserts a local collection newer than the remote row, and applies the merge', async () => {
+      const local: Collection = { id: 'c1', name: 'Caixa 1', color: 'branco', parentId: null, updatedAt: NEW };
+      localCollections.set([local]);
+      answer([{ id: 'c1', user_id: 'u1', name: 'Antiga', color: 'azul', parent_id: null, updated_at: OLD }]);
+      await sync.syncNow();
+      expect(upserts).toEqual([
+        [
+          [{ id: 'c1', user_id: 'u1', name: 'Caixa 1', color: 'branco', parent_id: null, updated_at: NEW }],
+          { onConflict: 'user_id,id' },
+        ],
+      ]);
+      expect(collectionsService.applySyncResult).toHaveBeenCalledWith([local]);
+    });
+
+    it('adopts a remote collection newer than the local row', async () => {
+      const local: Collection = { id: 'c1', name: 'Antiga', color: 'azul', parentId: null, updatedAt: OLD };
+      localCollections.set([local]);
+      const remoteRow = { id: 'c1', user_id: 'u1', name: 'Caixa 1', color: 'branco', parent_id: null, updated_at: NEW };
+      answer([remoteRow]);
+      await sync.syncNow();
+      expect(upserts).toEqual([]);
+      expect(collectionsService.applySyncResult).toHaveBeenCalledWith([
+        { id: 'c1', name: 'Caixa 1', color: 'branco', parentId: null, updatedAt: NEW },
+      ]);
+    });
+
+    describe('tree repair and cards', () => {
+      let cardUpserts: unknown[][];
+      let cardDeletes: unknown[][];
+      let tables: string[];
+
+      /** Collections answer with `remote`, card_entries with `remoteCards`; both record writes. */
+      const answerAll = (remote: unknown[], remoteCards: unknown[] = []) => {
+        answer(remote);
+        const collectionsFrom = from.getMockImplementation() as (table: string) => unknown;
+        cardUpserts = [];
+        cardDeletes = [];
+        tables = [];
+        const result = Promise.resolve({ data: remoteCards, error: null });
+        const cardQuery = {
+          select: () => cardQuery,
+          eq: () => cardQuery,
+          in: (...args: unknown[]) => (cardDeletes.push(args[1] as unknown[]), cardQuery),
+          upsert: (...args: unknown[]) => (cardUpserts.push(args), cardQuery),
+          delete: () => cardQuery,
+          abortSignal: () => cardQuery,
+          then: result.then.bind(result),
+        };
+        from.mockImplementation((table: string) => {
+          tables.push(table);
+          return table === 'card_entries' ? cardQuery : collectionsFrom(table);
+        });
+      };
+      const col = (id: string, name: string, parentId: string | null, updatedAt: string): Collection => ({
+        id,
+        name,
+        color: 'branco',
+        parentId,
+        updatedAt,
+      });
+      const row = (c: Collection) => ({
+        id: c.id,
+        user_id: 'u1',
+        name: c.name,
+        color: c.color,
+        parent_id: c.parentId,
+        updated_at: c.updatedAt,
+      });
+
+      it('drops a child whose parent was deleted remotely, and deletes it remotely too', async () => {
+        const child = col('c', 'Azuis', 'gone', OLD);
+        localCollections.set([child, col('g', 'Lote', 'c', NEW)]);
+        answerAll([row(child)]);
+        await sync.syncNow();
+        expect(deletes).toEqual([['c']]);
+        expect(upserts).toEqual([]);
+        expect(collectionsService.applySyncResult).toHaveBeenCalledWith([]);
+      });
+
+      it('renames a same-named sibling from this device "(2)", keeping the remote one', async () => {
+        localCollections.set([col('b', 'Fichário', null, NEW)]);
+        answerAll([row(col('a', 'fichário ', null, OLD))]);
+        await sync.syncNow();
+        expect(upserts).toHaveLength(1);
+        const [[sent]] = upserts[0] as [unknown[]];
+        expect(sent).toMatchObject({ id: 'b', name: 'Fichário (2)' });
+        expect(upserts[0][0]).toHaveLength(1);
+        const applied = collectionsService.applySyncResult.mock.calls[0][0] as Collection[];
+        expect(applied.map((c) => [c.id, c.name]).sort()).toEqual([
+          ['a', 'fichário '],
+          ['b', 'Fichário (2)'],
+        ]);
+      });
+
+      it('sends no card write for a "move" delete', async () => {
+        const card = mockCardEntry({ id: 'k', locationId: 'c1', updatedAt: OLD });
+        localCards.set([card]);
+        collectionsService.getTombstones.mockResolvedValue([{ id: 'c1', deletedAt: NEW }]);
+        answerAll([row(col('c1', 'Caixa', null, OLD))], [cardRow(card)]);
+        await sync.syncNow();
+        expect(deletes).toEqual([['c1']]);
+        expect(cardUpserts).toEqual([]);
+        expect(cardDeletes).toEqual([]);
+      });
+
+      it('sends the card deletions of a "delete" delete', async () => {
+        const card = mockCardEntry({ id: 'k', locationId: 'c1', updatedAt: OLD });
+        collectionsService.getTombstones.mockResolvedValue([{ id: 'c1', deletedAt: NEW }]);
+        cardsService.getTombstones.mockResolvedValue([{ id: 'k', deletedAt: NEW }]);
+        answerAll([row(col('c1', 'Caixa', null, OLD))], [cardRow(card)]);
+        await sync.syncNow();
+        expect(cardDeletes).toEqual([['k']]);
+        expect(cardUpserts).toEqual([]);
+      });
+
+      it('sends one collection row and no card for a rename of a collection holding cards', async () => {
+        const card = mockCardEntry({ id: 'k', locationId: 'c1', updatedAt: OLD });
+        localCards.set([card]);
+        localCollections.set([col('c1', 'Novo nome', null, NEW)]);
+        answerAll([row(col('c1', 'Caixa', null, OLD))], [cardRow(card)]);
+        await sync.syncNow();
+        expect(upserts).toHaveLength(1);
+        expect(upserts[0][0]).toHaveLength(1);
+        expect(cardUpserts).toEqual([]);
+      });
+
+      it('fixes a mixed collection after the card sync, flagged unsynced and uploaded next run', async () => {
+        const card = mockCardEntry({ id: 'k', locationId: 'p', updatedAt: OLD });
+        localCards.set([card]);
+        let syncedAt = '';
+        collectionsService.resolveMixedCollections.mockImplementation((at: string) => {
+          syncedAt = at;
+          tables.push('resolve');
+          const stamp = new Date(Math.max(Date.now(), Date.parse(at) + 1)).toISOString();
+          localCards.update((cards) => cards.map((c) => ({ ...c, locationId: 'child', updatedAt: stamp })));
+        });
+        answerAll([], [cardRow(card)]);
+        await sync.syncNow();
+
+        expect(tables.indexOf('card_entries')).toBeLessThan(tables.indexOf('resolve'));
+        expect(tables.indexOf('resolve')).toBeLessThan(tables.indexOf('planechase_selections'));
+        expect(
+          hasUnsyncedChanges({
+            linked: true,
+            lastSyncedAt: syncedAt,
+            cards: localCards(),
+            collections: [],
+            tombstoneCount: 0,
+            colorsUpdatedAt: OLD,
+            nameUpdatedAt: OLD,
+            planarSelectionUpdatedAt: null,
+          }),
+        ).toBe(true);
+
+        collectionsService.resolveMixedCollections.mockImplementation(() => undefined);
+        answerAll([], [cardRow(card)]);
+        await sync.syncNow();
+        expect(cardUpserts).toHaveLength(1);
+        expect(cardUpserts[0][0]).toEqual([expect.objectContaining({ id: 'k', location_id: 'child' })]);
+      });
+
+      it('never calls the client for an unlinked profile', async () => {
+        active.set({ ...LINKED, cloud: null });
+        await sync.syncNow();
+        expect(cloud.client).not.toHaveBeenCalled();
+        expect(from).not.toHaveBeenCalled();
+      });
+    });
+
+    it('deletes a tombstoned collection from the remote and clears its tombstone', async () => {
+      localCollections.set([]);
+      collectionsService.getTombstones.mockResolvedValue([{ id: 'c1', deletedAt: NEW }]);
+      answer([{ id: 'c1', user_id: 'u1', name: 'Caixa 1', color: 'branco', parent_id: null, updated_at: OLD }]);
+      await sync.syncNow();
+      expect(deletes).toEqual([['c1']]);
+      expect(collectionsService.applySyncResult).toHaveBeenCalledWith([]);
+      expect(collectionsService.clearTombstones).toHaveBeenCalledWith(['c1']);
+    });
   });
 
   describe('planar deck selection', () => {

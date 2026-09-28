@@ -1,0 +1,60 @@
+<app-compact-modal [roles]="roles()" [labelledBy]="titleId" [locked]="busy()" (closed)="cancel()">
+  <div class="heading">
+    <h2 class="title" [id]="titleId">{{ copy.deleteTitle(snapshot().name) }}</h2>
+    <p class="subtitle" [id]="subtitleId">{{ subtitle() }}</p>
+  </div>
+
+  @if (snapshot().cards > 0) {
+    <div #group class="choices" role="radiogroup" [attr.aria-labelledby]="subtitleId">
+      <button
+        type="button"
+        class="choice choice--move"
+        role="radio"
+        data-choice="move"
+        [class.selected]="choice() === 'move'"
+        [attr.aria-checked]="choice() === 'move'"
+        [attr.tabindex]="choice() === 'delete' ? -1 : 0"
+        (click)="pick('move')"
+        (keydown)="onRadioKey($event, group)"
+      >
+        <span class="indicator" aria-hidden="true"></span>
+        <span class="choice-text">
+          <span class="choice-title">{{ copy.moveOption }}</span>
+          <span class="choice-sub">{{ copy.moveOptionSub(snapshot().cards) }}</span>
+        </span>
+      </button>
+      <button
+        type="button"
+        class="choice choice--delete"
+        role="radio"
+        data-choice="delete"
+        [class.selected]="choice() === 'delete'"
+        [attr.aria-checked]="choice() === 'delete'"
+        [attr.tabindex]="choice() === 'delete' ? 0 : -1"
+        (click)="pick('delete')"
+        (keydown)="onRadioKey($event, group)"
+      >
+        <span class="indicator" aria-hidden="true"></span>
+        <span class="choice-text">
+          <span class="choice-title">{{ copy.deleteOption }}</span>
+          <span class="choice-sub">{{ copy.deleteOptionSub(snapshot().cards) }}</span>
+        </span>
+      </button>
+    </div>
+  }
+
+  <div class="actions">
+    <button
+      type="button"
+      class="btn btn--ghost"
+      data-autofocus
+      [attr.aria-disabled]="busy() || null"
+      (click)="cancel()"
+    >
+      {{ copy.cancel }}
+    </button>
+    <button type="button" class="btn btn--danger" [attr.aria-disabled]="blocked() || null" (click)="confirm()">
+      {{ verb() }}
+    </button>
+  </div>
+</app-compact-modal>

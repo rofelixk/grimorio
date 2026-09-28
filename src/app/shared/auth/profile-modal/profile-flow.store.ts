@@ -4,6 +4,7 @@ import { Color } from '@models/profile.model';
 import { CardService } from '@services/card.service';
 import { CloudAuthService } from '@services/cloud-auth.service';
 import { CloudSessionService } from '@services/cloud-session.service';
+import { CollectionService } from '@services/collection.service';
 import { ConnectivityService } from '@services/connectivity.service';
 import { DeckService } from '@services/deck.service';
 import { EntryModalService } from '@services/entry-modal.service';
@@ -12,7 +13,6 @@ import { ProfileLifecycleService } from '@services/profile-lifecycle.service';
 import { ProfileModalService, ProfileStart } from '@services/profile-modal.service';
 import { ProfileSessionService } from '@services/profile-session.service';
 import { ProfileStore } from '@services/profile-store.service';
-import { StorageLocationService } from '@services/storage-location.service';
 import { SyncStatusService } from '@services/sync-status.service';
 import { SyncService } from '@services/sync.service';
 import { ToastService } from '@services/toast.service';
@@ -94,7 +94,7 @@ export class ProfileFlowStore extends CloudFlowHost {
   private readonly toasts = inject(ToastService);
   private readonly lifecycle = inject(ProfileLifecycleService);
   private readonly cards = inject(CardService);
-  private readonly locations = inject(StorageLocationService);
+  private readonly collections = inject(CollectionService);
   private readonly decks = inject(DeckService);
   private readonly planarSelection = inject(PlanarSelectionService);
   private readonly router = inject(Router);
@@ -624,9 +624,9 @@ export class ProfileFlowStore extends CloudFlowHost {
     if (!active) {
       return;
     }
-    const [cardTombstones, locationTombstones] = await Promise.all([
+    const [cardTombstones, collectionTombstones] = await Promise.all([
       this.cards.getTombstones(),
-      this.locations.getTombstones(),
+      this.collections.getTombstones(),
     ]);
     if (this.stale(generation)) {
       return;
@@ -636,8 +636,8 @@ export class ProfileFlowStore extends CloudFlowHost {
         linked: !!active.cloud,
         lastSyncedAt: this.sync.lastSyncedAt(),
         cards: this.cards.cards(),
-        locations: this.locations.locations(),
-        tombstoneCount: cardTombstones.length + locationTombstones.length,
+        collections: this.collections.collections(),
+        tombstoneCount: cardTombstones.length + collectionTombstones.length,
         colorsUpdatedAt: active.colorsUpdatedAt,
         nameUpdatedAt: active.nameUpdatedAt,
         planarSelectionUpdatedAt: this.planarSelection.selection()?.updatedAt ?? null,

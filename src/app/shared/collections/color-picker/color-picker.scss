@@ -1,0 +1,52 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+}
+
+.label-name {
+  color: var(--color-text-muted);
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+// Rows 1 and 3 sit in the gaps of the 6-swatch middle row.
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.row--indented {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.swatch {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: box-shadow var(--duration-slow) var(--ease-standard);
+
+  &.selected {
+    box-shadow:
+      0 0 0 3px var(--color-bg),
+      0 0 0 4px var(--ring),
+      0 0 20px var(--glow);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}

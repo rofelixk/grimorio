@@ -1,0 +1,336 @@
+@use 'breakpoints' as bp;
+
+// The orb layer is positioned over the view (DESIGN.md Motion "Collections page transition").
+:host {
+  position: relative;
+  display: block;
+}
+
+// ── Transition wrapper ─────────────────────────────────────────────────────
+// The stage is the height-locked column; `--dir` is +1 going deeper or sideways, -1 going up.
+.stage {
+  --dir: 1;
+
+  &.is-locked {
+    overflow: hidden;
+  }
+
+  &.is-out {
+    opacity: 0;
+    transform: translateX(calc(var(--dir) * -8px));
+    transition:
+      opacity 140ms var(--ease-standard),
+      transform 140ms var(--ease-standard);
+  }
+
+  &.is-entering {
+    opacity: 0;
+    transform: translateX(calc(var(--dir) * 12px));
+    transition: none;
+  }
+
+  &.is-in {
+    opacity: 1;
+    transform: translateX(0);
+    transition:
+      opacity 240ms var(--ease-standard),
+      transform 240ms var(--ease-standard),
+      height 240ms var(--ease-standard);
+  }
+}
+
+// ── Page column (ui.md §2) ─────────────────────────────────────────────────
+// Centered, 760px max; 1080px with the 220px filters aside. No max-width on the host itself.
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-5);
+
+  @include bp.mobile {
+    padding: var(--space-4);
+  }
+}
+
+.page--aside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: var(--space-6);
+  align-items: start;
+  max-width: 1080px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.title {
+  flex: 1;
+  margin: 0;
+  font: 600 var(--font-size-2xl) / 1.1 var(--font-display);
+  text-shadow: var(--glow-title);
+  text-wrap: balance;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.title--name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.muted-copy {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.meta {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+// ── List ───────────────────────────────────────────────────────────────────
+.search-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.search {
+  flex: 1;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.filters-btn {
+  font-size: var(--font-size-sm);
+}
+
+.aside {
+  position: sticky;
+  top: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 240px;
+  padding-left: var(--space-5);
+  border-left: 1px solid var(--color-border);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 360px;
+  margin: var(--space-6) auto;
+  text-align: center;
+}
+
+.empty-title {
+  margin: 0;
+  font: 600 var(--font-size-xl) / 1.1 var(--font-display);
+  text-shadow: var(--glow-title);
+}
+
+// ── Holding box ────────────────────────────────────────────────────────────
+.holding-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--role-primary);
+  }
+}
+
+.hollow {
+  flex: none;
+  border: 1px solid var(--color-text-muted);
+}
+
+.hollow--tag {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.hollow--header {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+}
+
+.holding-name {
+  font-weight: 700;
+}
+
+.holding-count {
+  color: var(--color-text-muted);
+}
+
+.stats.stats--holding {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 360px;
+}
+
+.holding-copy {
+  max-width: 52ch;
+}
+
+// ── Collection page ────────────────────────────────────────────────────────
+.path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: calc(-1 * var(--space-3));
+  font-size: var(--font-size-sm);
+}
+
+.path-sep,
+.path-current {
+  color: var(--color-text-muted);
+}
+
+.path-current {
+  overflow-wrap: anywhere;
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--space-2);
+
+  // Phone: the actions drop to their own row, 50/50.
+  @include bp.mobile {
+    flex-basis: 100%;
+
+    .btn {
+      flex: 1;
+    }
+  }
+}
+
+.header-swatch {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.stat-value {
+  font: 600 var(--font-size-xl) / 1.1 var(--font-display);
+}
+
+.plate--muted {
+  color: var(--color-text-muted);
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+
+  @include bp.mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.choice {
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.choice-title {
+  font-weight: 700;
+}
+
+.choice-btn {
+  align-self: flex-start;
+}
+
+// ── Light orbs ─────────────────────────────────────────────────────────────
+.orbs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.orb {
+  --c: var(--role-primary);
+
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--c) 0%,
+    rgb(from var(--c) r g b / 67%) 40%,
+    transparent 72%
+  );
+  box-shadow: 0 0 calc(var(--size) * 1.6) calc(var(--size) * 0.4) rgb(from var(--c) r g b / 40%);
+  opacity: 0;
+  animation-name: grm-orb;
+  animation-timing-function: var(--ease-standard);
+  animation-fill-mode: both;
+}
+
+.orb--1 {
+  --c: var(--role-accent);
+}
+
+.orb--2 {
+  --c: var(--role-tertiary);
+}
+
+@keyframes grm-orb {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(1.1);
+  }
+}

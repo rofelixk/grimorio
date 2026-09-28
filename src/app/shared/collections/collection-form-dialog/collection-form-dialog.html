@@ -1,0 +1,46 @@
+<app-compact-modal [roles]="roles()" [labelledBy]="titleId" (closed)="closed.emit()">
+  <form class="form" novalidate (submit)="submit($event)">
+    <div class="heading">
+      <h2 class="title" [id]="titleId">{{ title() }}</h2>
+      @if (subtitle()) {
+        <p class="subtitle">{{ subtitle() }}</p>
+      }
+    </div>
+
+    @if (movePlate()) {
+      <p class="plate plate--muted">{{ movePlate() }}</p>
+    }
+
+    <div class="field">
+      <label class="field__label" [for]="inputId">{{ copy.nameLabel }}</label>
+      <input
+        class="field__input"
+        type="text"
+        autocomplete="off"
+        data-autofocus
+        [id]="inputId"
+        [value]="name()"
+        [attr.aria-invalid]="error() ? true : null"
+        [attr.aria-describedby]="hintId"
+        (input)="onInput($any($event.target).value)"
+      />
+      <div class="hint-row">
+        @if (error()) {
+          <span class="field__error" [id]="hintId">{{ errorText() }}</span>
+        } @else {
+          <span class="field__helper" [id]="hintId">{{ copy.nameHelper }}</span>
+        }
+        <span class="counter" [class.counter--over]="name().length > maxName" aria-hidden="true"
+          >{{ name().length }}/{{ maxName }}</span
+        >
+      </div>
+    </div>
+
+    <app-color-picker [value]="color()" (valueChange)="color.set($event)" />
+
+    <div class="actions">
+      <button type="button" class="btn btn--ghost" (click)="closed.emit()">{{ copy.cancel }}</button>
+      <button type="submit" class="btn btn--primary">{{ verb() }}</button>
+    </div>
+  </form>
+</app-compact-modal>

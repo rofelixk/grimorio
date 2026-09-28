@@ -1,30 +1,22 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { SupabaseClient, User } from '@supabase/supabase-js';
 import { CardEntry, CardFace } from '@models/card.model';
+import { Collection, CollectionColorId } from '@models/collection.model';
 import type { PlanarSelection } from '@models/planar-selection.model';
 import { ProfileSummary } from '@models/profile.model';
-import { StorageLocation } from '@models/storage-location.model';
 import { currentDbHandle, getMeta, setMeta } from '../db/entity-store';
 import { isAuthSessionError, isNetworkError } from '../utils/cloud-error.util';
+import { repairCollectionTree } from '../utils/collection-tree.util';
 import { reconcileEntities } from '../utils/sync-reconcile.util';
 import { reconcileIdentity } from '../utils/identity-sync.util';
 import { CardService } from './card.service';
 import { CloudAuthService, identityOf } from './cloud-auth.service';
 import { CloudSessionService } from './cloud-session.service';
+import { CollectionService } from './collection.service';
 import { ConnectivityService } from './connectivity.service';
 import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileSessionService } from './profile-session.service';
 import { ProfileStore } from './profile-store.service';
-import { StorageLocationService } from './storage-location.service';
-
-interface StorageLocationRow {
-  id: string;
-  user_id: string;
-  name: string;
-  parent_id: string | null;
-  color: string | null;
-  updated_at: string;
-}
 
 interface CardEntryRow {
   id: string;
@@ -52,6 +44,15 @@ interface CardEntryRow {
   updated_at: string;
 }
 
+interface CollectionRow {
+  id: string;
+  user_id: string;
+  name: string;
+  color: CollectionColorId;
+  parent_id: string | null;
+  updated_at: string;
+}
+
 interface PlanarSelectionRow {
   user_id: string;
   disabled_ids: string[];
@@ -71,27 +72,6 @@ export type SyncOutcome = 'done' | 'offline' | 'reauth' | 'error' | 'skipped' | 
 export const SYNC_TIMEOUT_MS = 60_000;
 
 const LAST_SYNCED_KEY = 'lastSyncedAt';
-
-function locationToRow(location: StorageLocation, userId: string): StorageLocationRow {
-  return {
-    id: location.id,
-    user_id: userId,
-    name: location.name,
-    parent_id: location.parentId,
-    color: location.color ?? null,
-    updated_at: location.updatedAt,
-  };
-}
-
-function locationFromRow(row: StorageLocationRow): StorageLocation {
-  return {
-    id: row.id,
-    name: row.name,
-    parentId: row.parent_id,
-    color: (row.color as StorageLocation['color']) ?? undefined,
-    updatedAt: row.updated_at,
-  };
-}
 
 function cardToRow(card: CardEntry, userId: string): CardEntryRow {
   return {
@@ -148,6 +128,27 @@ function cardFromRow(row: CardEntryRow): CardEntry {
   };
 }
 
+function collectionToRow(collection: Collection, userId: string): CollectionRow {
+  return {
+    id: collection.id,
+    user_id: userId,
+    name: collection.name,
+    color: collection.color,
+    parent_id: collection.parentId,
+    updated_at: new Date(collection.updatedAt).toISOString(),
+  };
+}
+
+function collectionFromRow(row: CollectionRow): Collection {
+  return {
+    id: row.id,
+    name: row.name,
+    color: row.color,
+    parentId: row.parent_id,
+    updatedAt: new Date(row.updated_at).toISOString(),
+  };
+}
+
 /** One sync attempt: its generation disowns it once it times out or another run starts. */
 interface Run {
   profile: ProfileSummary;
@@ -160,20 +161,22 @@ class Offline extends Error {}
 /** The run no longer owns the outcome: the profile changed, or the run timed out. */
 class Superseded extends Error {}
 
-// Syncs the active profile's identity, locations, cards and planar deck selection with its linked account (R11), reusing
+// Syncs the active profile's identity, collections, cards and planar deck selection with its linked account (R11), reusing
 // the per-item last-write-wins reconciler. Each run first asks GoTrue about the account (spec 005
 // R12): a deleted one turns the profile local-only, a dead session asks for "Entrar de novo", and
-// otherwise the identity step reconciles the colors and label (R6). Decks never sync. Sync is manual only: nothing but
-// syncNow() starts one, and only SyncStatusService calls it (spec 004, SC-011). Single-flight
-// and bounded by SYNC_TIMEOUT_MS; a run that was switched away from or timed out never writes
-// state or applies its results.
+// otherwise the identity step reconciles the colors and label (R6). Collections sync reconciles,
+// then repairs the tree (repairCollectionTree, R6): orphans are dropped and duplicate sibling
+// names are renamed before anything uploads. Decks never sync. Sync is manual
+// only: nothing but syncNow() starts one, and only SyncStatusService calls it (spec 004, SC-011).
+// Single-flight and bounded by SYNC_TIMEOUT_MS; a run that was switched away from or timed out
+// never writes state or applies its results.
 @Injectable({ providedIn: 'root' })
 export class SyncService {
   private readonly session = inject(ProfileSessionService);
   private readonly cloud = inject(CloudSessionService);
   private readonly connectivity = inject(ConnectivityService);
   private readonly cards = inject(CardService);
-  private readonly locations = inject(StorageLocationService);
+  private readonly collections = inject(CollectionService);
   private readonly planarSelection = inject(PlanarSelectionService);
   private readonly cloudAuth = inject(CloudAuthService);
   private readonly profiles = inject(ProfileStore);
@@ -296,13 +299,18 @@ export class SyncService {
       }
       const client = this.cloud.client(profile.id);
       await this.syncIdentity(client, account.user, run);
-      await Promise.all([this.locations.flush(), this.cards.flush()]);
-      // Locations first: card_entries.location_id references storage_locations.
-      await this.syncLocations(client, run);
+      await Promise.all([this.collections.flush(), this.cards.flush()]);
+      await this.syncCollections(client, run);
       await this.syncCards(client, run);
+
+      // Captured here (contracts/services.md): the FR-029 fix-up below stamps its moved cards
+      // with a fresh updatedAt, strictly after this, so hasUnsyncedChanges sees them and the next
+      // sync uploads them.
+      const syncedAt = new Date().toISOString();
+      this.ensureCurrent(run);
+      this.collections.resolveMixedCollections(syncedAt);
       await this.syncPlanarSelection(client, run);
 
-      const syncedAt = new Date().toISOString();
       this.ensureCurrent(run);
       await setMeta(LAST_SYNCED_KEY, syncedAt, handle);
       this.ensureCurrent(run);
@@ -367,27 +375,48 @@ export class SyncService {
     }
   }
 
-  private async syncLocations(client: SupabaseClient, run: Run): Promise<void> {
+  private async syncCollections(client: SupabaseClient, run: Run): Promise<void> {
     const signal = run.abort.signal;
     const userId = run.profile.cloud!.userId;
     const { data, error } = await client
-      .from('storage_locations')
-      .select('id, user_id, name, parent_id, color, updated_at')
+      .from('collections')
+      .select('id, user_id, name, color, parent_id, updated_at')
       .eq('user_id', userId)
       .abortSignal(signal);
     if (error) {
       throw error;
     }
     this.ensureCurrent(run);
-    const local = this.locations.locations();
-    const tombstones = await this.locations.getTombstones();
-    const result = reconcileEntities(local, (data as StorageLocationRow[]).map(locationFromRow), tombstones);
+    const local = this.collections.collections();
+    const tombstones = await this.collections.getTombstones();
+    const remoteRows = data as CollectionRow[];
+    const result = reconcileEntities(local, remoteRows.map(collectionFromRow), tombstones);
 
-    if (result.toUpsertRemote.length > 0) {
+    // The repair (research R6) drops orphans and renames duplicate siblings before anything is
+    // uploaded, so the cloud never keeps a tree this device can see as broken.
+    const remoteIds = new Set(remoteRows.map((row) => row.id));
+    const repair = repairCollectionTree(result.merged, remoteIds, new Date().toISOString());
+    const removedIds = new Set(repair.removedIds);
+
+    const toUpsertRemote = result.toUpsertRemote.filter((collection) => !removedIds.has(collection.id));
+    for (const renamed of repair.renamed) {
+      const index = toUpsertRemote.findIndex((collection) => collection.id === renamed.id);
+      if (index >= 0) {
+        toUpsertRemote[index] = renamed;
+      } else {
+        toUpsertRemote.push(renamed);
+      }
+    }
+    const toDeleteRemoteIds = [
+      ...result.toDeleteRemoteIds,
+      ...repair.removedIds.filter((id) => remoteIds.has(id)),
+    ];
+
+    if (toUpsertRemote.length > 0) {
       const { error: upsertError } = await client
-        .from('storage_locations')
+        .from('collections')
         .upsert(
-          result.toUpsertRemote.map((location) => locationToRow(location, userId)),
+          toUpsertRemote.map((collection) => collectionToRow(collection, userId)),
           { onConflict: 'user_id,id' },
         )
         .abortSignal(signal);
@@ -395,12 +424,12 @@ export class SyncService {
         throw upsertError;
       }
     }
-    if (result.toDeleteRemoteIds.length > 0) {
+    if (toDeleteRemoteIds.length > 0) {
       const { error: deleteError } = await client
-        .from('storage_locations')
+        .from('collections')
         .delete()
         .eq('user_id', userId)
-        .in('id', result.toDeleteRemoteIds)
+        .in('id', toDeleteRemoteIds)
         .abortSignal(signal);
       if (deleteError) {
         throw deleteError;
@@ -408,8 +437,8 @@ export class SyncService {
     }
 
     this.ensureCurrent(run);
-    this.locations.applySyncResult(result.merged);
-    await this.locations.clearTombstones(result.tombstonesToClear);
+    this.collections.applySyncResult(repair.collections);
+    await this.collections.clearTombstones(result.tombstonesToClear);
   }
 
   private async syncCards(client: SupabaseClient, run: Run): Promise<void> {

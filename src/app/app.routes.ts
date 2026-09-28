@@ -1,11 +1,9 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlMatchResult, UrlSegment } from '@angular/router';
 import { profileGuard } from './core/guards/profile.guard';
 import { About } from './views/about/about';
+import { CollectionArea } from './views/collection-area/collection-area';
 import { Decks } from './views/decks/decks';
 import { DeckDetail } from './views/deck-detail/deck-detail';
-import { Collection } from './views/collection/collection';
-import { CollectionDetail } from './views/collection-detail/collection-detail';
-import { CollectionImport } from './views/collection-import/collection-import';
 import { Home } from './views/home/home';
 import { GameModes } from './views/game-modes/game-modes';
 import { Planechase } from './views/planechase/planechase';
@@ -19,11 +17,22 @@ const gated = { canActivate: [profileGuard], runGuardsAndResolvers: 'always' as 
 // Gameplay needs no profile (FR-002); the Planechase pages wait for the lazy card data (R4).
 const planechaseData = { resolve: { catalog: planechaseCatalogResolver } };
 
+// One route matches the list, a collection page and the holding box, so Angular reuses the same
+// `CollectionArea` instance across them (research R8) — a plain `path`/`:ref` pair would create
+// and destroy the component on every navigation between those places.
+export const collectionMatcher = (segments: UrlSegment[]): UrlMatchResult | null => {
+  if (segments.length === 1 && segments[0].path === 'collection') {
+    return { consumed: segments };
+  }
+  if (segments.length === 2 && segments[0].path === 'collection') {
+    return { consumed: segments, posParams: { ref: segments[1] } };
+  }
+  return null;
+};
+
 export const routes: Routes = [
   { path: '', component: Home },
-  { path: 'collection', component: Collection, ...gated },
-  { path: 'collection/import', component: CollectionImport, ...gated },
-  { path: 'collection/:id', component: CollectionDetail, ...gated },
+  { matcher: collectionMatcher, component: CollectionArea, ...gated },
   { path: 'decks', component: Decks, ...gated },
   { path: 'decks/:id', component: DeckDetail, ...gated },
   // The old account page is hidden until a follow-up spec rebuilds it (FR-030).

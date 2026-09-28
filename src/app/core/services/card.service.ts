@@ -1,7 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { CardEntry } from '@models/card.model';
 import { Tombstone } from '@models/tombstone.model';
-import { matchesCardQuery } from '../utils/text-search.util';
 import {
   clearTombstones,
   currentDbHandle,
@@ -112,15 +111,17 @@ export class CardService {
     return computed(() => this.cards().find((card) => card.id === id));
   }
 
-  // Collection-wide search by name/set/collector number, used by the
-  // /collection root view's search bar — under 3 characters returns no
-  // matches rather than the whole collection.
-  search(query: string): CardEntry[] {
-    const trimmed = query.trim();
-    if (trimmed.length < 3) {
-      return [];
-    }
-    return this.cards().filter((card) => matchesCardQuery(card, trimmed));
+  // Signal-only, no persist, no changeCount bump: CollectionService calls these together
+  // with its own writeRows transaction (research R2), so a delete or a move stays
+  // all-or-nothing without CardService's own replaceStore rewriting the whole store.
+  applyRemoved(ids: ReadonlySet<string>): void {
+    this.cardsSignal.update((cards) => cards.filter((card) => !ids.has(card.id)));
+  }
+
+  applyMoved(ids: ReadonlySet<string>, locationId: string, updatedAt: string): void {
+    this.cardsSignal.update((cards) =>
+      cards.map((card) => (ids.has(card.id) ? { ...card, locationId, updatedAt } : card)),
+    );
   }
 
   // Sync-only: tombstones let SyncService tell a locally-deleted id apart

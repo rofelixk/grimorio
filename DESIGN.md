@@ -24,6 +24,22 @@ colors:
   identity-r-hover: "#bf4f39"
   identity-g: "#4c7a43"
   identity-g-hover: "#5c8f52"
+  collection-branco: "#d8cdb0"
+  collection-azul: "#3d6b85"
+  collection-violeta: "#7c5aa6"
+  collection-vermelho: "#a8402c"
+  collection-verde: "#4c7a43"
+  collection-carvao: "#3a3531"
+  collection-nevoa: "#a3b4b6"
+  collection-anil: "#565f99"
+  collection-vinho: "#7a3553"
+  collection-ocre: "#7d5c2e"
+  collection-salvia: "#a6b07c"
+  collection-cinza: "#8a837e"
+  collection-turquesa: "#2e8279"
+  collection-rosa: "#d197a0"
+  collection-laranja: "#c86a28"
+  collection-dourado: "#cfab45"
 typography:
   display:
     fontFamily: "'Grenze', Georgia, serif"
@@ -201,6 +217,35 @@ Success and warning colors are **not yet defined**. Don't borrow them from anywh
 
 **The Status Rule.** Healthy states are neutral: they use `text` or `text-muted` only. Only failures use `danger`. Identity colors never signal status, so a red identity never reads as an error. Success and warning stay undefined.
 
+### Collection colors
+A 16-color palette for labeling collections (the physical-storage feature), unrelated to the identity roles above.
+
+| Row | Name | Hex |
+|---|---|---|
+| 1 | Branco | `#d8cdb0` |
+| 1 | Azul | `#3d6b85` |
+| 1 | Violeta | `#7c5aa6` |
+| 1 | Vermelho | `#a8402c` |
+| 1 | Verde | `#4c7a43` |
+| 2 | Carvão | `#3a3531` (plus a 1px `#6b635c` outline on the swatch, `#8a837e` for the selected ring) |
+| 2 | Névoa | `#a3b4b6` |
+| 2 | Anil | `#565f99` |
+| 2 | Vinho | `#7a3553` |
+| 2 | Ocre | `#7d5c2e` |
+| 2 | Sálvia | `#a6b07c` |
+| 3 | Cinza | `#8a837e` |
+| 3 | Turquesa | `#2e8279` |
+| 3 | Rosa | `#d197a0` |
+| 3 | Laranja | `#c86a28` |
+| 3 | Dourado | `#cfab45` |
+
+How the palette was chosen:
+- **Row 1:** the five identity colors (W U B R G). The B tone is named "Violeta" here so it isn't confused with Carvão.
+- **Row 2:** the colors between each neighboring pair on the wheel (W–U, U–B, B–R, R–G, G–W), plus a true dark.
+- **Row 3:** common colors the wheel doesn't cover.
+
+**Swatches only, never UI chrome — the Identity Rule still holds.** Always name the color in text, never rely on it alone.
+
 ## Typography
 
 **Display:** Grenze 600 (wordmark: Grenze 700). **Text:** Karla 400–700.
@@ -290,6 +335,9 @@ These are deliberate exceptions to two rules: the flowing line and the thread ar
 - **Drawer:** slides in from the right over 0.36s (`--duration-drawer`), and the backdrop fades over the same time.
 - **Side nav:** width, border and glow change over `base` 0.24s. It collapses 120ms after the pointer leaves.
 - **`prefers-reduced-motion`:** all ring, halo, spark, ripple and band animation stops, as do the wheel's spin, breathing, motes and bursts. Rings and bands freeze, the drawer opens and closes instantly (0s), modal height changes are instant, and the toast appears without a transition.
+- **Collections page transition** (list ↔ collection ↔ holding box): out 140ms — the content column fades to opacity 0 and slides `translateX(-dir*8px)`, standard easing. Swap: the view is replaced, the content starting at opacity 0 and `translateX(dir*12px)` with no transition. In 240ms — fades to opacity 1 and slides to `translateX(0)`. `dir = +1` going deeper or sideways, `-1` going up. Height is locked to the outgoing content just before "out" (`overflow: hidden`), transitions to the new content's height over the 240ms "in", and releases to `auto` about 280ms after the swap, so the page never flickers.
+  - **Light orbs:** 23 of them, in an `aria-hidden`, `pointer-events: none`, `overflow: hidden`, `mix-blend-mode: screen` layer, starting with "out" and lasting about 1.5s. Size `(5 + r*11) * 0.4` (2–6.4px). Colors cycle `--role-primary`, `--role-accent`, `--role-tertiary`. Fill `radial-gradient(circle, c 0%, c/67% 40%, transparent 72%)` plus a glow `0 0 {1.6*size}px {0.4*size}px c/40%`. Start position: left 8–63% going deeper, 35–90% going up; top 10–80%. Keyframe `grm-orb`: 0% opacity 0 scale .5, 25% opacity 1, 100% opacity 0 and `translate(dx, dy) scale(1.1)`, with `dx = dir*(50…160)px`, `dy = -(15…75)px`. Duration 750–1250ms, delay 0–220ms, standard easing.
+  - **`prefers-reduced-motion`:** no fade, slide, height animation or orbs — the view swaps instantly, matching the global rule.
 
 ## Components
 
@@ -519,6 +567,35 @@ The first gameplay mode (spec 006). All of it is routed pages inside the view ar
 - **Planeswalk — light front (1.4s, linear).** The outgoing card block is cloned over the new one and dissolved by `radial-gradient(circle at 0 50%, transparent R, #000 R+60px)`, R from −60px to `hypot(w, h/2) + 80`. Three blurred (30px) screen-blended glow layers at the front (E = R + 30, a band E ± 120px) cross-fade primary → accent → tertiary as it travels, fading in over the first 8% and out over the last 12%, max .9. About 270 sparks (3px, `0 0 6px 1px` of their color) spawn as the front reaches them and fly 30–90px outward over 520ms, shrinking to .3.
 - **Caos — shockwave (~1.1s).** A layer *behind* the image, so only what escapes its edges shows. Two rings (1.2 × min(w, h)), primary 2px and accent 1px (+140ms), `0 0 24px c, inset 0 0 18px c`, scale .3 → 2.6 easeOutCubic over 900ms while fading out. 198 sparks fly radially 0.55–1.05 × size over 700ms (0–120ms stagger), cycling the roles. The image shakes ±4px (decaying sine) for 320ms. The ability plate lights.
 
+### Collections
+The collection area (spec 008): a list of collections, a per-collection page, and a holding box for cards whose collection was deleted.
+
+**Page column.** 760px, centered; 1080px with the 220px filters aside at ≥ 960px (`minmax(0,1fr) 220px`, gap `space-6`). Padding `space-5` (`space-4` at ≤ 640px); the content stack is a flex column, gap `space-4`.
+
+**Collection row** (`app-collection-row`). Built like an action row: a full-width `<button>`, min-height 56px, padding `space-2 space-3`, 1px border, 8px radius, `surface-raised → surface` gradient. Hover/focus: border role-primary, `--glow-plate-hover`, `fast` easing. Lead: a 20px color swatch (Carvão adds its 1px `#6b635c` outline). Text: the name (700, one line, ellipsis) over the meta (0.75rem muted). Trailing `.micro-label` "Abrir". Meta format: "{n} cartas · {s} à venda · {k} subcoleções", pt-BR grouping and singular forms, the subcollection part omitted when there are none, "Vazia" when both are zero — counts roll up the whole subtree. Accessible name: "{nome}, cor {Cor}. {meta}." — the swatch and the row's own text are `aria-hidden` in favor of it, since color is never the only cue.
+
+**Dashed create row** (`app-create-row`). Ends the list on phone, or opens a subcollection/split action inside a collection. Same size as a collection row, but a 1px **dashed** border, transparent, muted text; "+" centered in a 36px slot, then a bold label ("Nova coleção", "Nova subcoleção", "Dividir em subcoleções") and an optional 0.75rem sub-line. Hover/focus: text → `text`, border → role-accent.
+
+**Holding-box tag.** A button in the list header, shown only while the holding box holds ≥1 card: min-height 44px, padding `0 space-3`, 1px border, 4px radius, transparent, 0.875rem. Content: a 10×10 hollow square (1px `text-muted`, 2px radius), the bold name "Caixa temporária", a muted count. Hover: border role-primary, `fast`.
+
+**Collection header.** A 24px swatch with `box-shadow: 0 0 16px {hex}66`, next to the `h1` name (`overflow-wrap: anywhere`). Actions "Editar" (secondary) and "Excluir" (danger) sit beside it, dropping to their own row at 50/50 on phone.
+
+**Path nav.** `<nav aria-label="Caminho">`: `.link-btn` items ("Coleção" then each ancestor) separated by a muted "·" (`aria-hidden`); the current name is muted text with `aria-current="page"`. Never "›", "‹" or "/" — the icon set is only ✕ and +.
+
+**Stats.** A 3-column grid of `.plate`s, each a Grenze 600 1.5rem number over a `.micro-label` ("Cartas" / "À venda" / "Subcoleções").
+
+**Empty-collection choice plates.** Two `.plate`s side by side (stacked ≤ 640px), padding `space-4`: "Guardar cartas" with a disabled secondary "Adicionar cartas — em breve", and "Dividir" with a primary "Nova subcoleção" (hidden at level 3).
+
+**Empty state.** No collections and no holding box: only the `h1`, then a centered 360px section (margin `space-6 auto`, gap `space-4`, centered text) — `.eyebrow`, an `h2` (Grenze 600 1.5rem, title glow), muted 0.875rem copy, and a primary CTA.
+
+**Reserved placeholders** (must ship now, disabled or muted, so later specs drop in without a layout change): a disabled search `.field__input` and a disabled "Filtros" secondary button below 960px; a sticky 220px filters aside (kept even with only its placeholder) at ≥ 960px; a muted `.plate` in place of the card list inside a collection; a disabled "Adicionar cartas" button in the "Guardar cartas" choice. Search and filters are hidden in the empty state, and shown only on the list page, never inside a collection.
+
+**Compact modal** (`app-compact-modal`, the create/edit and delete dialogs). A narrow themed-modal ring: `width: min(480px, 100vw - 2rem)`, 2px padding, 10px radius, the same ring/halo recipe as the auth blueprint. Phone (≤ 640px): full-bleed, no ring or halo, a header with the "Grimorio" wordmark (Grenze 700 1.25rem, role-primary, title glow) and ✕, hairline below, `--wash-header`; buttons stack full-width in `column-reverse` order.
+
+**Color picker.** A centered `role="radiogroup"`, 16 swatches in a 5/6/5 honeycomb from `COLLECTION_COLORS` order; rows 1 and 3 indented 24px so they nest between row 2's swatches. Row gap 6px, swatch gap 12px. Each swatch is a 36px circular `button role="radio"`, named and titled with the color name. Selected: `box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 4px {hex}, 0 0 20px {hex}80` over `slow` 0.5s (Carvão's ring uses `#8a837e`).
+
+**Delete radios.** Two full-width radio rows (padding `space-3`, 8px radius, the row gradient), each with an 18px indicator (1px border, an inset 4px `--color-bg` ring, filled when selected). "Mover para a caixa temporária" selected: border and fill role-primary plus `--glow-plate-hover`. "Excluir as cartas" selected: border and fill danger, its sub-text in danger. Nothing is selected by default.
+
 ## Content
 
 - **PT-BR only.** Second person, imperative, no "we", no exclamation marks, no emoji. Em dashes are welcome.
@@ -541,6 +618,10 @@ The first gameplay mode (spec 006). All of it is routed pages inside the view ar
   - Toasts: "Perfil" / "Alterações salvas."; "Conta na nuvem" / "A conta {email} não existe mais. {nome} continua neste aparelho com todos os dados."
   - Deleting states what leaves and what stays: "Sai deste aparelho: …" / "Sai da nuvem para sempre: …", and "Não dá para desfazer."
   - Empty device: "Nenhum perfil neste aparelho" · "Crie um perfil para começar — funciona sem internet, sem e-mail." · "Criar perfil".
+- **Collections** (`COLLECTION` in `core/utils/collection-copy.ts`):
+  - Name errors: "Dê um nome à coleção." · "Use no máximo 40 caracteres." · "Já existe uma coleção com esse nome aqui."
+  - Delete consequences are always spelled out: "As {n} cartas ficam guardadas, com todos os dados, até você colocá-las em outra coleção." (move) vs. "As {n} cartas saem do app. Não dá para desfazer." (delete, in danger), plus "A subcoleção vai junto." / "As {N} subcoleções vão junto." when the subtree isn't empty.
+  - Toasts, labelled "Coleção": "{nome} foi excluída. {n} cartas foram para a caixa temporária." · "{nome} e {n} cartas foram excluídas." · "{nome} foi excluída." — all with singular forms for a count of 1 ("1 carta foi para a caixa temporária.", "{nome} e 1 carta foram excluídas.").
 
 ## Iconography
 

@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import { ProfileSummary } from '@models/profile.model';
 import { ACTIVE_PROFILE_KEY, getDeviceDb } from '../db/device-db';
 import { CardService } from './card.service';
+import { CollectionService } from './collection.service';
 import { DeckService } from './deck.service';
 import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileStore } from './profile-store.service';
-import { StorageLocationService } from './storage-location.service';
 
 /**
  * Cloud side of a profile switch (data-model "Entering active(P)" steps 1, 5, 6), registered
@@ -27,7 +27,7 @@ export class ProfileSessionService {
   private readonly router = inject(Router);
   private readonly entityServices = [
     inject(CardService),
-    inject(StorageLocationService),
+    inject(CollectionService),
     inject(DeckService),
     inject(PlanarSelectionService),
   ] as const;

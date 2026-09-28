@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
+import type { Collection } from '@models/collection.model';
+import { setActiveProfileDb, writeRows } from './entity-store';
 import { closeProfileDb, deleteProfileDb, openProfileDb } from './profile-db';
 
 describe('openProfileDb', () => {
-  it('creates the expected object stores', async () => {
+  it('creates the expected object stores, with no locations store', async () => {
     const db = await openProfileDb('p1');
 
     expect(db.name).toBe('grimorio-profile-p1');
-    expect(Array.from(db.objectStoreNames).sort()).toEqual(['cards', 'decks', 'locations', 'meta', 'tombstones']);
+    expect(Array.from(db.objectStoreNames).sort()).toEqual(['cards', 'collections', 'decks', 'meta', 'tombstones']);
+    expect(Array.from(db.objectStoreNames as unknown as string[])).not.toContain('locations');
   });
 
   it('memoizes concurrent calls for one profile to a single connection', async () => {
@@ -46,5 +49,44 @@ describe('openProfileDb', () => {
     expect(names).not.toContain('grimorio-profile-p1');
     expect(await b.getAll('decks')).toHaveLength(1);
     expect(await (await openProfileDb('p1')).getAll('decks')).toEqual([]);
+  });
+});
+
+describe('writeRows', () => {
+  const collectionA: Collection = { id: 'c1', name: 'A', color: 'branco', parentId: null, updatedAt: 't1' };
+  const collectionB: Collection = { id: 'c2', name: 'B', color: 'azul', parentId: null, updatedAt: 't2' };
+
+  it('applies puts and deletes across stores atomically', async () => {
+    await setActiveProfileDb('p1');
+    await writeRows([
+      { store: 'collections', put: collectionA },
+      { store: 'collections', put: collectionB },
+    ]);
+    await writeRows([{ store: 'collections', delete: collectionA.id }]);
+
+    const db = await openProfileDb('p1');
+    expect(await db.getAll('collections')).toEqual([collectionB]);
+  });
+
+  it('rolls back every op in the transaction when one fails', async () => {
+    await setActiveProfileDb('p1');
+    await expect(
+      writeRows([
+        { store: 'collections', put: collectionA },
+        // missing `id` (the keyPath): a synchronous DataError that aborts the whole transaction.
+        { store: 'collections', put: {} as never },
+      ]),
+    ).rejects.toThrow();
+
+    const db = await openProfileDb('p1');
+    expect(await db.getAll('collections')).toEqual([]);
+  });
+
+  it('rejects when no profile is bound', async () => {
+    await expect(writeRows([{ store: 'collections', delete: 'x' }])).rejects.toThrow('No active profile');
+  });
+
+  it('resolves without opening a transaction for an empty op list', async () => {
+    await expect(writeRows([])).resolves.toBeUndefined();
   });
 });

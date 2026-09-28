@@ -1,0 +1,45 @@
+<dialog
+  #dialog
+  class="dialog"
+  data-grm
+  data-theme-scope
+  [attr.aria-labelledby]="labelledBy()"
+  [style.--theme-primary]="roles().primary"
+  [style.--theme-primary-hover]="roles().primaryHover"
+  [style.--theme-accent]="roles().accent"
+  [style.--theme-accent-hover]="roles().accentHover"
+  [style.--theme-tertiary]="roles().tertiary"
+  [style.--theme-tertiary-hover]="roles().tertiaryHover"
+  (cancel)="onCancel($event)"
+>
+  <div class="ring">
+    <div class="halo" aria-hidden="true"></div>
+    <div class="face">
+      @if (mobile()) {
+        <header class="m-header">
+          <span class="wordmark">{{ wordmark }}</span>
+          <button
+            type="button"
+            class="close"
+            [attr.aria-label]="closeLabel"
+            [attr.aria-disabled]="locked() || null"
+            (click)="requestClose()"
+          >✕</button>
+        </header>
+      } @else {
+        <div class="close-row">
+          <button
+            type="button"
+            class="close"
+            [attr.aria-label]="closeLabel"
+            [attr.aria-disabled]="locked() || null"
+            (click)="requestClose()"
+          >✕</button>
+        </div>
+      }
+      <div class="body">
+        <ng-content />
+      </div>
+    </div>
+  </div>
+</dialog>
