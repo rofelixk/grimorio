@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/components.css">
+<script src="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/_ds_bundle.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#14110f;color:#f2ede8;font-family:Karla,system-ui,sans-serif}
+a{color:var(--role-accent);text-decoration:none}a:hover{color:var(--role-accent-hover);text-decoration:underline}
+@property --spin-angle{syntax:'<angle>';inherits:false;initial-value:0deg}
+:root,[data-theme-scope]{
+--band:linear-gradient(90deg,var(--role-primary) 0%,var(--role-primary) 20%,var(--role-accent) 33%,var(--role-accent) 53%,var(--role-tertiary) 66%,var(--role-tertiary) 86%,var(--role-primary) 100%);
+--band-v:linear-gradient(180deg,var(--role-primary) 0%,var(--role-primary) 20%,var(--role-accent) 33%,var(--role-accent) 53%,var(--role-tertiary) 66%,var(--role-tertiary) 86%,var(--role-primary) 100%);
+--band-lit:linear-gradient(90deg,oklch(from var(--role-primary) max(l,0.68) c h) 0%,oklch(from var(--role-primary) max(l,0.68) c h) 20%,oklch(from var(--role-accent) max(l,0.68) c h) 33%,oklch(from var(--role-accent) max(l,0.68) c h) 53%,oklch(from var(--role-tertiary) max(l,0.68) c h) 66%,oklch(from var(--role-tertiary) max(l,0.68) c h) 86%,oklch(from var(--role-primary) max(l,0.68) c h) 100%);
+--glow-overlay:0 1px 3px rgba(0,0,0,.4),0 0 24px -6px rgb(from var(--role-primary) r g b / 45%)}
+@keyframes grm-flow-long{from{background-position:0 0}to{background-position:2400px 0}}
+@keyframes grm-flow-mark{from{background-position:-16px 0}to{background-position:2384px 0}}
+@keyframes grm-flow-v{from{background-position:0 0}to{background-position:0 2400px}}
+@keyframes spin-angle{to{--spin-angle:360deg}}
+@keyframes grm-orb{0%{opacity:0;transform:translate(0,0) scale(.5)}25%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1)}}
+@keyframes flicker{0%,100%{opacity:.3}50%{opacity:.7}}
+@media (prefers-reduced-motion:reduce){[data-theme-scope] *,[data-theme-scope]{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div data-theme-scope="" data-screen-label="Coleção" style="display:grid;grid-template-rows:auto minmax(0,1fr);height:100vh;overflow:clip;background:var(--color-bg);color:var(--color-text);font-family:var(--font-sans);font-size:1rem;line-height:1.5;--theme-primary:{{ theme.p }};--theme-primary-hover:{{ theme.ph }};--theme-accent:{{ theme.a }};--theme-accent-hover:{{ theme.ah }};--theme-tertiary:{{ theme.t }};--theme-tertiary-hover:{{ theme.th }}">
+
+<header role="banner" style="position:relative;z-index:3;display:flex;align-items:center;gap:var(--space-1);min-height:44px;padding:4px var(--space-1) 4px var(--space-4);overflow:hidden;background:var(--color-bg)">
+<span aria-hidden="true" style="position:absolute;top:0;bottom:0;left:0;width:360px;max-width:70%;opacity:.3;pointer-events:none;background:var(--band) repeat-x;background-size:2400px 100%;mask-image:radial-gradient(ellipse 100% 150% at 0% 50%,#000,transparent 75%);animation:grm-flow-long 120s linear infinite"></span>
+<a href="#" aria-label="Grimorio — Início" onClick="{{ goHome }}" style="position:relative;display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-display);font-weight:700;font-size:1.25rem;line-height:1;text-decoration:none;color:transparent;background:var(--band-lit) repeat-x;background-size:2400px 100%;-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 1px var(--color-bg)) drop-shadow(0 0 3px var(--color-bg)) drop-shadow(0 0 10px rgb(from var(--role-primary) r g b / 30%));animation:grm-flow-mark 120s linear infinite">Grimorio</a>
+<sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+<div style="position:relative;display:flex;align-items:center;margin-left:auto">
+<button type="button" aria-label="Sincronizado há 12 min. Sincronizar agora." title="Sincronizado há 12 min. Sincronizar agora." style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:44px;padding:0 var(--space-3);border:none;background:transparent;font-family:inherit;font-size:.75rem;line-height:1.2;white-space:nowrap;color:var(--color-text-muted);cursor:pointer" style-hover="color:var(--color-text)"><span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:var(--color-text-muted)"></span><span>Sincronizado há 12 min</span></button>
+<span aria-hidden="true" style="width:1px;height:20px;background:var(--color-border)"></span>
+<button type="button" aria-label="{{ profileLabel }}" style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:44px;padding:0 var(--space-3);border:none;background:transparent;color:var(--color-text);font:inherit;font-weight:700;font-size:.875rem;white-space:nowrap;cursor:pointer" style-hover="color:var(--role-primary-hover)"><span aria-hidden="true" style="display:inline-flex;gap:3px"><sc-for list="{{ dots }}" as="d" hint-placeholder-count="3"><span style="width:8px;height:8px;border-radius:50%;background:{{ d }};box-shadow:0 0 6px {{ d }}"></span></sc-for></span><span>Rafa</span></button>
+</div>
+</sc-if>
+<sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+<div style="position:relative;display:flex;align-items:center;gap:var(--space-1);margin-left:auto">
+<span role="status" aria-label="Sincronizado há 12 min" title="Sincronizado há 12 min" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:44px"><span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:var(--color-text-muted)"></span></span>
+<button type="button" class="btn btn--ghost" aria-expanded="{{ drawerOpen }}" onClick="{{ openDrawer }}" style="padding:0 var(--space-2);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-muted)">Menu</button>
+</div>
+</sc-if>
+<span aria-hidden="true" style="position:absolute;left:0;right:0;bottom:0;height:1px;pointer-events:none;background:var(--band) repeat-x;background-size:2400px 1px;animation:grm-flow-long 120s linear infinite"></span>
+</header>
+
+<div style="position:relative;display:flex;min-height:0">
+<sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+<div aria-hidden="true" style="flex:none;width:24px"></div>
+<nav aria-label="Navegação principal" onMouseEnter="{{ navEnter }}" onMouseLeave="{{ navLeave }}" style="position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;flex-direction:column;gap:4px;width:{{ nav.w }};padding:{{ nav.pad }};overflow:hidden;border-right:1px solid {{ nav.bd }};background:var(--color-bg);box-shadow:{{ nav.shadow }};transition:width .24s cubic-bezier(.4,0,.2,1),box-shadow .24s cubic-bezier(.4,0,.2,1),border-color .24s cubic-bezier(.4,0,.2,1)">
+<span aria-hidden="true" style="position:absolute;top:0;bottom:0;left:11px;width:1px;pointer-events:none;background:var(--band-v) repeat-y;background-size:1px 2400px;box-shadow:0 0 6px rgb(from var(--role-primary) r g b / 35%);animation:grm-flow-v 120s linear infinite"></span>
+<span aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:360px;max-height:70%;opacity:.3;pointer-events:none;background:var(--band-v) repeat-y;background-size:100% 2400px;mask-image:radial-gradient(ellipse 150% 100% at 0% 0%,#000,transparent 75%);animation:grm-flow-v 120s linear infinite"></span>
+<button type="button" style="position:relative;flex:none;min-height:44px;width:calc(100% - 20px);margin:0 0 6px 20px;padding:0 8px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--color-text-muted);font:inherit;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;text-align:left;white-space:nowrap;cursor:pointer;visibility:{{ nav.vis }};opacity:{{ nav.op }};transition:opacity .24s" style-hover="border-color:var(--color-border);color:var(--color-text)">Fixar menu</button>
+<div style="position:relative;display:flex;flex-direction:column;gap:4px">
+<a href="#" aria-current="page" onClick="{{ goHome }}" style="display:flex;align-items:center;gap:14px;min-height:44px;padding:0 4px;border:1px solid transparent;border-radius:0 4px 4px 0;font-size:.875rem;text-decoration:none;white-space:nowrap"><span aria-hidden="true" style="flex:none;width:7px;height:7px;margin-left:3px;border:1px solid var(--role-primary);border-radius:50%;background:var(--role-primary);box-shadow:0 0 0 3px var(--color-bg),0 0 10px 1px var(--role-primary)"></span><span style="font-weight:700;opacity:{{ nav.op }};color:transparent;background:var(--band-lit) repeat-x;background-size:2400px 100%;-webkit-background-clip:text;background-clip:text;animation:grm-flow-long 120s linear infinite">Coleção</span></a>
+<a href="#" onClick="{{ noop }}" style="display:flex;align-items:center;gap:14px;min-height:44px;padding:0 4px;border:1px solid transparent;border-radius:0 4px 4px 0;color:var(--color-text-muted);font-size:.875rem;text-decoration:none;white-space:nowrap" style-hover="color:var(--color-text);text-decoration:none;background:linear-gradient(90deg,rgb(from var(--role-primary) r g b / 16%),transparent 75%)"><span aria-hidden="true" style="flex:none;width:7px;height:7px;margin-left:3px;border:1px solid var(--color-border);border-radius:50%;background:var(--color-bg)"></span><span style="opacity:{{ nav.op }}">Modos de jogo</span></a>
+</div>
+</nav>
+</sc-if>
+
+<main style="position:relative;flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:var(--color-surface-raised) transparent">
+{{ orbs }}
+<div style="position:relative;flex-shrink:0;width:100%;max-width:{{ page.max }};margin-inline:auto;padding:{{ page.pad }};display:grid;grid-template-columns:{{ page.cols }};gap:var(--space-6);align-items:start">
+<div style="min-width:0;height:{{ tx.h }};overflow:{{ tx.ov }};opacity:{{ tx.op }};transform:{{ tx.tf }};transition:{{ tx.tr }}">
+<div ref="{{ innerRef }}" style="display:flex;flex-direction:column;gap:var(--space-4);min-width:0">
+
+<sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:var(--space-3)">
+<h1 tabindex="-1" style="flex:1;margin:0;font:600 2rem/1.1 var(--font-display);text-shadow:var(--glow-title);text-wrap:balance">Coleção</h1>
+<sc-if value="{{ holding.show }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ holding.open }}" aria-label="{{ holding.label }}" style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:44px;padding:0 var(--space-3);border:1px solid var(--color-border);border-radius:4px;background:transparent;color:var(--color-text);font:inherit;font-size:.875rem;cursor:pointer;transition:border-color .18s cubic-bezier(.4,0,.2,1)" style-hover="border-color:var(--role-primary)"><span aria-hidden="true" style="width:10px;height:10px;border:1px solid var(--color-text-muted);border-radius:2px"></span><span style="font-weight:700">Caixa temporária</span><span style="color:var(--color-text-muted)">{{ holding.short }}</span></button>
+</sc-if>
+<sc-if value="{{ showHeaderCreate }}" hint-placeholder-val="{{ true }}">
+<button type="button" class="btn btn--primary" onClick="{{ createTop }}">Nova coleção</button>
+</sc-if>
+</div>
+
+<sc-if value="{{ showSearch }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:var(--space-2)">
+<input class="field__input" disabled="" placeholder="Buscar coleções — em breve" aria-label="Buscar coleções (em breve)" style="flex:1;opacity:.5;cursor:not-allowed">
+<sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn--secondary" disabled="" style="font-size:.875rem">Filtros</button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+<section style="display:flex;flex-direction:column;align-items:center;gap:var(--space-4);max-width:360px;margin:var(--space-6) auto;text-align:center">
+<span class="eyebrow">Nenhuma coleção ainda</span>
+<h2 style="margin:0;font:600 1.5rem/1.2 var(--font-display);text-shadow:var(--glow-title)">Onde suas cartas moram</h2>
+<p style="margin:0;font-size:.875rem;color:var(--color-text-muted);text-wrap:pretty">Uma coleção é um lugar físico — uma caixa, um fichário, uma pasta. Crie uma para cada um e divida em subcoleções quando precisar.</p>
+<button type="button" class="btn btn--primary" onClick="{{ createTop }}">Criar coleção</button>
+</section>
+</sc-if>
+
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<sc-for list="{{ listRows }}" as="r" hint-placeholder-count="5">
+<button type="button" onClick="{{ r.open }}" aria-label="{{ r.label }}" style="display:flex;align-items:center;gap:var(--space-3);width:100%;min-height:56px;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:8px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));color:var(--color-text);font:inherit;text-align:left;cursor:pointer;transition:border-color .18s cubic-bezier(.4,0,.2,1),box-shadow .18s cubic-bezier(.4,0,.2,1)" style-hover="border-color:var(--role-primary);box-shadow:var(--glow-plate-hover)">
+<span aria-hidden="true" style="flex:none;width:20px;height:20px;border-radius:50%;background:{{ r.hex }};border:{{ r.bd }}"></span>
+<span aria-hidden="true" style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1"><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="font-size:.75rem;color:var(--color-text-muted)">{{ r.meta }}</span></span>
+<span aria-hidden="true" class="micro-label" style="flex:none;display:inline-flex;align-items:center;min-height:44px">Abrir</span>
+</button>
+</sc-for>
+<sc-if value="{{ showRowCreate }}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{ createTop }}" style="display:flex;align-items:center;gap:var(--space-3);width:100%;min-height:56px;padding:var(--space-2) var(--space-3);border:1px dashed var(--color-border);border-radius:8px;background:transparent;color:var(--color-text-muted);font:inherit;text-align:left;cursor:pointer;transition:border-color .18s,color .18s" style-hover="border-color:var(--role-accent);color:var(--color-text)"><span aria-hidden="true" style="flex:none;width:36px;display:flex;justify-content:center;font-size:1.25rem">+</span><span style="font-weight:700">Nova coleção</span></button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isInner }}" hint-placeholder-val="{{ false }}">
+<nav aria-label="Caminho" style="display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);margin-bottom:calc(-1 * var(--space-3))">
+<sc-for list="{{ inner.crumbs }}" as="c" hint-placeholder-count="2"><span style="display:inline-flex;align-items:center;gap:var(--space-2)"><button type="button" class="link-btn" onClick="{{ c.go }}">{{ c.name }}</button><span aria-hidden="true" style="color:var(--color-text-muted);font-size:.875rem">·</span></span></sc-for>
+<span aria-current="page" style="font-size:.875rem;color:var(--color-text-muted)">{{ inner.name }}</span>
+</nav>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:var(--space-3)">
+<span aria-hidden="true" style="flex:none;width:24px;height:24px;border-radius:50%;background:{{ inner.hex }};border:{{ inner.bd }};box-shadow:0 0 16px {{ inner.glow }}"></span>
+<h1 tabindex="-1" style="flex:1;min-width:0;margin:0;font:600 2rem/1.1 var(--font-display);text-shadow:var(--glow-title);overflow-wrap:anywhere;text-wrap:balance">{{ inner.name }}</h1>
+<div style="display:flex;gap:var(--space-2);flex:{{ inner.actFlex }}">
+<button type="button" class="btn btn--secondary" onClick="{{ inner.edit }}" style="flex:1">Editar</button>
+<button type="button" class="btn btn--danger" onClick="{{ inner.del }}" style="flex:1">Excluir</button>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-2)">
+<div class="plate"><span style="font:600 1.5rem/1.2 var(--font-display)">{{ inner.cards }}</span><span class="micro-label">Cartas</span></div>
+<div class="plate"><span style="font:600 1.5rem/1.2 var(--font-display)">{{ inner.sale }}</span><span class="micro-label">À venda</span></div>
+<div class="plate"><span style="font:600 1.5rem/1.2 var(--font-display)">{{ inner.subs }}</span><span class="micro-label">Subcoleções</span></div>
+</div>
+<p style="margin:0;font-size:.75rem;color:var(--color-text-muted)">Cor: {{ inner.colorName }} · Nível {{ inner.depth }} de 3</p>
+
+<sc-if value="{{ inner.hasSubs }}" hint-placeholder-val="{{ false }}">
+<span class="eyebrow" style="margin-top:var(--space-2)">Subcoleções</span>
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<sc-for list="{{ inner.rows }}" as="r" hint-placeholder-count="3">
+<button type="button" onClick="{{ r.open }}" aria-label="{{ r.label }}" style="display:flex;align-items:center;gap:var(--space-3);width:100%;min-height:56px;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:8px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));color:var(--color-text);font:inherit;text-align:left;cursor:pointer;transition:border-color .18s cubic-bezier(.4,0,.2,1),box-shadow .18s cubic-bezier(.4,0,.2,1)" style-hover="border-color:var(--role-primary);box-shadow:var(--glow-plate-hover)">
+<span aria-hidden="true" style="flex:none;width:20px;height:20px;border-radius:50%;background:{{ r.hex }};border:{{ r.bd }}"></span>
+<span aria-hidden="true" style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1"><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="font-size:.75rem;color:var(--color-text-muted)">{{ r.meta }}</span></span>
+<span aria-hidden="true" class="micro-label" style="flex:none;display:inline-flex;align-items:center;min-height:44px">Abrir</span>
+</button>
+</sc-for>
+<sc-if value="{{ inner.canNest }}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{ inner.createSub }}" style="display:flex;align-items:center;gap:var(--space-3);width:100%;min-height:56px;padding:var(--space-2) var(--space-3);border:1px dashed var(--color-border);border-radius:8px;background:transparent;color:var(--color-text-muted);font:inherit;text-align:left;cursor:pointer;transition:border-color .18s,color .18s" style-hover="border-color:var(--role-accent);color:var(--color-text)"><span aria-hidden="true" style="flex:none;width:36px;display:flex;justify-content:center;font-size:1.25rem">+</span><span style="font-weight:700">Nova subcoleção</span></button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ inner.hasCards }}" hint-placeholder-val="{{ false }}">
+<span class="eyebrow" style="margin-top:var(--space-2)">Cartas</span>
+<p class="plate" style="color:var(--color-text-muted);text-wrap:pretty">A lista das cartas desta coleção chega em breve. Por enquanto, os números acima mostram o que está guardado aqui.</p>
+<sc-if value="{{ inner.canNest }}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{ inner.createSub }}" style="display:flex;align-items:center;gap:var(--space-3);width:100%;min-height:56px;padding:var(--space-2) var(--space-3);border:1px dashed var(--color-border);border-radius:8px;background:transparent;color:var(--color-text-muted);font:inherit;text-align:left;cursor:pointer;transition:border-color .18s,color .18s" style-hover="border-color:var(--role-accent);color:var(--color-text)"><span aria-hidden="true" style="flex:none;width:36px;display:flex;justify-content:center;font-size:1.25rem">+</span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:700">Dividir em subcoleções</span><span style="font-size:.75rem">As {{ inner.cards }} cartas vão para a primeira subcoleção.</span></span></button>
+</sc-if>
+<sc-if value="{{ inner.lastLevel }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:.75rem;color:var(--color-text-muted)">Último nível — guarda só cartas.</p></sc-if>
+</sc-if>
+
+<sc-if value="{{ inner.isEmptyC }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:{{ inner.emptyCols }};gap:var(--space-2);margin-top:var(--space-2)">
+<div class="plate" style="padding:var(--space-4);gap:var(--space-2)"><span class="eyebrow">Guardar cartas</span><span style="color:var(--color-text-muted);text-wrap:pretty">As cartas ficam direto nesta coleção.</span><button type="button" class="btn btn--secondary" disabled="" style="align-self:flex-start;margin-top:var(--space-2)">Adicionar cartas — em breve</button></div>
+<sc-if value="{{ inner.canNest }}" hint-placeholder-val="{{ true }}">
+<div class="plate" style="padding:var(--space-4);gap:var(--space-2)"><span class="eyebrow">Dividir</span><span style="color:var(--color-text-muted);text-wrap:pretty">Crie subcoleções — divisórias, páginas, seções.</span><button type="button" class="btn btn--primary" onClick="{{ inner.createSub }}" style="align-self:flex-start;margin-top:var(--space-2)">Nova subcoleção</button></div>
+</sc-if>
+</div>
+<p style="margin:0;font-size:.75rem;color:var(--color-text-muted);text-wrap:pretty">{{ inner.emptyNote }}</p>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isHolding }}" hint-placeholder-val="{{ false }}">
+<nav aria-label="Caminho" style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:calc(-1 * var(--space-3))"><button type="button" class="link-btn" onClick="{{ goHome }}">Coleção</button><span aria-hidden="true" style="color:var(--color-text-muted);font-size:.875rem">·</span><span aria-current="page" style="font-size:.875rem;color:var(--color-text-muted)">Caixa temporária</span></nav>
+<div style="display:flex;align-items:center;gap:var(--space-3)"><span aria-hidden="true" style="flex:none;width:24px;height:24px;border:1px solid var(--color-text-muted);border-radius:4px"></span><h1 tabindex="-1" style="margin:0;font:600 2rem/1.1 var(--font-display);text-shadow:var(--glow-title)">Caixa temporária</h1></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-2);max-width:360px">
+<div class="plate"><span style="font:600 1.5rem/1.2 var(--font-display)">{{ holding.cards }}</span><span class="micro-label">Cartas</span></div>
+<div class="plate"><span style="font:600 1.5rem/1.2 var(--font-display)">{{ holding.sale }}</span><span class="micro-label">À venda</span></div>
+</div>
+<p style="margin:0;max-width:52ch;font-size:.875rem;color:var(--color-text-muted);text-wrap:pretty">Cartas que ficaram sem coleção quando uma coleção foi excluída. Elas guardam todos os dados. Quando a última sair daqui, esta caixa some sozinha.</p>
+</sc-if>
+
+</div>
+</div>
+<sc-if value="{{ showAside }}" hint-placeholder-val="{{ true }}">
+<aside aria-label="Filtros" style="position:sticky;top:var(--space-5);display:flex;flex-direction:column;gap:var(--space-2);padding-left:var(--space-5);border-left:1px solid var(--color-border);min-height:240px">
+<span class="eyebrow">Filtros</span>
+<p style="margin:0;font-size:.875rem;color:var(--color-text-muted);text-wrap:pretty">Busca e filtros chegam em breve.</p>
+</aside>
+</sc-if>
+</div>
+
+<aside aria-label="Aviso legal" style="flex-shrink:0;display:flex;flex-direction:column;gap:var(--space-2);margin-top:auto;padding:{{ page.noticePad }};border-top:1px solid var(--color-border);font-size:.75rem;line-height:1.5;color:var(--color-text-muted)">
+<p style="margin:0;max-width:72ch;text-wrap:pretty">Grimorio é Fan Content não-oficial, permitido segundo a <a href="https://company.wizards.com/en/legal/fancontentpolicy" target="_blank" rel="noopener">Fan Content Policy</a> da Wizards of the Coast. Não é aprovado nem endossado pela Wizards. Partes dos materiais usados são propriedade da Wizards of the Coast. ©Wizards of the Coast LLC.</p>
+<p style="margin:0;max-width:72ch">Os dados e imagens de cartas exibidos no Grimorio são fornecidos por <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a>.</p>
+<p style="margin:0;max-width:72ch">Parte do desenvolvimento deste app contou com ferramentas de inteligência artificial.</p>
+</aside>
+</main>
+</div>
+
+<sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeDrawer }}" style="position:fixed;inset:0;z-index:8;background:var(--overlay-backdrop)"></div>
+<div role="dialog" aria-label="Menu" style="position:fixed;top:0;right:0;bottom:0;z-index:9;width:min(288px,85%);display:flex;flex-direction:column;border-left:1px solid var(--color-border);background:var(--color-bg);box-shadow:var(--glow-overlay);overflow:hidden">
+<span aria-hidden="true" style="position:absolute;top:0;bottom:0;right:11px;width:1px;pointer-events:none;background:var(--band-v) repeat-y;background-size:1px 2400px;box-shadow:0 0 6px rgb(from var(--role-primary) r g b / 35%);animation:grm-flow-v 120s linear infinite"></span>
+<span aria-hidden="true" style="position:absolute;top:0;right:0;width:100%;height:360px;max-height:70%;opacity:.3;pointer-events:none;background:var(--band-v) repeat-y;background-size:100% 2400px;mask-image:radial-gradient(ellipse 150% 100% at 100% 0%,#000,transparent 75%);animation:grm-flow-v 120s linear infinite"></span>
+<div style="position:relative;display:flex;align-items:center;min-height:44px;padding:4px 20px 4px var(--space-1)"><button type="button" aria-label="Fechar" onClick="{{ closeDrawer }}" style="width:44px;height:44px;padding:0;border:none;background:transparent;color:var(--color-text-muted);font:inherit;cursor:pointer" style-hover="color:var(--color-text)">✕</button></div>
+<div style="position:relative;display:flex;flex-direction:column;align-items:flex-end;gap:var(--space-1);padding:var(--space-2) 28px var(--space-4) var(--space-4);text-align:right">
+<button type="button" aria-label="{{ profileLabel }}" style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:44px;padding:0;border:none;background:transparent;color:var(--color-text);font:inherit;font-weight:700;font-size:1rem;cursor:pointer"><span aria-hidden="true" style="display:inline-flex;gap:3px"><sc-for list="{{ dots }}" as="d" hint-placeholder-count="3"><span style="width:8px;height:8px;border-radius:50%;background:{{ d }};box-shadow:0 0 6px {{ d }}"></span></sc-for></span><span>Rafa</span></button>
+<p role="status" style="display:inline-flex;align-items:center;gap:var(--space-2);margin:0;font-size:.75rem;line-height:1.2;color:var(--color-text-muted)"><span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:var(--color-text-muted)"></span>Sincronizado há 12 min</p>
+<button type="button" class="link-btn" style="font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-muted)">Sincronizar agora</button>
+</div>
+<hr style="position:relative;flex:none;height:1px;margin:0 20px var(--space-2) var(--space-4);border:0;background:var(--color-border)">
+<nav aria-label="Navegação principal" style="position:relative;display:flex;flex-direction:column;gap:4px;padding-left:var(--space-4)">
+<a href="#" aria-current="page" onClick="{{ goHome }}" style="display:flex;flex-direction:row-reverse;align-items:center;gap:14px;min-height:44px;padding:0 4px;border-radius:4px 0 0 4px;font-size:.875rem;text-decoration:none"><span aria-hidden="true" style="flex:none;width:7px;height:7px;margin-right:3px;border:1px solid var(--role-primary);border-radius:50%;background:var(--role-primary);box-shadow:0 0 0 3px var(--color-bg),0 0 10px 1px var(--role-primary)"></span><span style="font-weight:700;color:transparent;background:var(--band-lit) repeat-x;background-size:2400px 100%;-webkit-background-clip:text;background-clip:text">Coleção</span></a>
+<a href="#" onClick="{{ noop }}" style="display:flex;flex-direction:row-reverse;align-items:center;gap:14px;min-height:44px;padding:0 4px;border-radius:4px 0 0 4px;color:var(--color-text-muted);font-size:.875rem;text-decoration:none"><span aria-hidden="true" style="flex:none;width:7px;height:7px;margin-right:3px;border:1px solid var(--color-border);border-radius:50%;background:var(--color-bg)"></span><span>Modos de jogo</span></a>
+</nav>
+</div>
+</sc-if>
+
+<sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ backdropClick }}" style="position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:var(--overlay-backdrop);padding:{{ m.outerPad }}">
+<div role="dialog" aria-modal="true" aria-labelledby="grm-dlg-title" onClick="{{ stop }}" style="position:relative;width:{{ m.w }};height:{{ m.h }};padding:{{ m.ringPad }};border-radius:{{ m.ringR }};background:var(--ring-gradient);animation:spin-angle 28s linear infinite;display:flex">
+<sc-if value="{{ m.desk }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position:absolute;inset:-32px;border-radius:70px;filter:blur(26px);background:var(--halo-gradient);pointer-events:none;animation:spin-angle 28s linear infinite,flicker 6s ease-in-out infinite"></div></sc-if>
+<div style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;min-height:0;max-height:{{ m.faceMax }};border-radius:{{ m.faceR }};background:var(--color-bg);box-shadow:0 1px 3px rgba(0,0,0,.4);overflow:hidden">
+<sc-if value="{{ m.desk }}" hint-placeholder-val="{{ true }}"><div style="display:flex;justify-content:flex-end;padding:var(--space-3) var(--space-3) 0"><button type="button" aria-label="Fechar" onClick="{{ closeModal }}" style="min-width:44px;min-height:44px;padding:0;border:none;background:transparent;color:var(--color-text);font:inherit;cursor:pointer">✕</button></div></sc-if>
+<sc-if value="{{ m.mob }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);padding:var(--space-3) var(--space-3) var(--space-3) var(--space-5);border-bottom:1px solid var(--color-border);background:var(--wash-header)"><span style="font-family:var(--font-display);font-weight:700;font-size:1.25rem;line-height:1;color:var(--role-primary);text-shadow:var(--glow-title)">Grimorio</span><button type="button" aria-label="Fechar" onClick="{{ closeModal }}" style="min-width:44px;min-height:44px;padding:0;border:none;background:transparent;color:var(--color-text);font:inherit;cursor:pointer">✕</button></div></sc-if>
+<div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:var(--space-4);padding:{{ m.bodyPad }};scrollbar-width:thin;scrollbar-color:var(--color-surface-raised) var(--color-bg)">
+
+<sc-if value="{{ formOpen }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<h2 id="grm-dlg-title" style="margin:0;font-family:var(--font-display);font-weight:600;font-size:{{ m.titleSize }};line-height:1.2;text-shadow:var(--glow-title);overflow-wrap:anywhere">{{ f.title }}</h2>
+<sc-if value="{{ f.subtitle }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:.875rem;color:var(--color-text-muted)">{{ f.subtitle }}</p></sc-if>
+</div>
+<sc-if value="{{ f.moveNote }}" hint-placeholder-val="{{ false }}"><p class="plate" style="color:var(--color-text-muted);text-wrap:pretty">{{ f.moveNote }}</p></sc-if>
+<div class="field">
+<label class="field__label" for="grm-col-name">Nome</label>
+<input id="grm-col-name" class="field__input" value="{{ f.name }}" onInput="{{ f.onName }}" onKeyDown="{{ f.onKey }}" aria-invalid="{{ f.invalid }}" aria-describedby="grm-col-name-help" autocomplete="off">
+<div style="display:flex;justify-content:space-between;gap:var(--space-3)">
+<sc-if value="{{ f.error }}" hint-placeholder-val="{{ false }}"><span id="grm-col-name-help" class="field__error">{{ f.error }}</span></sc-if>
+<sc-if value="{{ f.noError }}" hint-placeholder-val="{{ true }}"><span id="grm-col-name-help" class="field__helper">Uma caixa, um fichário, uma divisória.</span></sc-if>
+<span aria-hidden="true" style="flex:none;font-size:.75rem;color:{{ f.countColor }}">{{ f.count }}/40</span>
+</div>
+</div>
+<div class="field" role="radiogroup" aria-labelledby="grm-col-color">
+<span id="grm-col-color" class="field__label">Cor · <span style="color:var(--color-text-muted)">{{ f.colorName }}</span></span>
+<div style="display:flex;flex-direction:column;gap:6px;padding-top:var(--space-2);align-self:{{ m.combAlign }}">
+<sc-for list="{{ f.comb }}" as="row" hint-placeholder-count="3">
+<div style="display:flex;gap:12px;padding-left:{{ row.indent }}">
+<sc-for list="{{ row.items }}" as="p" hint-placeholder-count="5">
+<button type="button" role="radio" aria-checked="{{ p.sel }}" aria-label="{{ p.name }}" title="{{ p.name }}" onClick="{{ p.pick }}" style="flex:none;width:36px;height:36px;padding:0;border-radius:50%;border:{{ p.bd }};background:{{ p.hex }};box-shadow:{{ p.ring }};cursor:pointer;transition:box-shadow .5s cubic-bezier(.4,0,.2,1)"></button>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;flex-direction:{{ m.actDir }};justify-content:flex-end;gap:var(--space-2);margin-top:var(--space-2)">
+<button type="button" class="btn btn--ghost" onClick="{{ closeModal }}">Cancelar</button>
+<button type="button" class="btn btn--primary" onClick="{{ f.submit }}">{{ f.verb }}</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ delOpen }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<h2 id="grm-dlg-title" style="margin:0;font-family:var(--font-display);font-weight:600;font-size:{{ m.titleSize }};line-height:1.2;text-shadow:var(--glow-title);overflow-wrap:anywhere">Excluir {{ d.name }}?</h2>
+<p style="margin:0;font-size:.875rem;color:var(--color-text-muted);text-wrap:pretty">{{ d.subtitle }}</p>
+</div>
+<sc-if value="{{ d.hasCards }}" hint-placeholder-val="{{ false }}">
+<div role="radiogroup" aria-label="O que fazer com as cartas" style="display:flex;flex-direction:column;gap:var(--space-2)">
+<button type="button" role="radio" aria-checked="{{ d.moveSel }}" onClick="{{ d.pickMove }}" style="display:flex;align-items:flex-start;gap:var(--space-3);width:100%;padding:var(--space-3);border:1px solid {{ d.moveBd }};border-radius:8px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));color:var(--color-text);font:inherit;text-align:left;cursor:pointer;box-shadow:{{ d.moveGlow }};transition:border-color .18s,box-shadow .18s" style-hover="border-color:var(--role-primary)"><span aria-hidden="true" style="flex:none;width:18px;height:18px;margin-top:2px;border-radius:50%;border:1px solid {{ d.moveBd }};box-shadow:inset 0 0 0 4px var(--color-bg);background:{{ d.moveDot }}"></span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:700">Mover para a caixa temporária</span><span style="font-size:.75rem;color:var(--color-text-muted);text-wrap:pretty">As {{ d.cards }} cartas ficam guardadas, com todos os dados, até você colocá-las em outra coleção.</span></span></button>
+<button type="button" role="radio" aria-checked="{{ d.delSel }}" onClick="{{ d.pickDel }}" style="display:flex;align-items:flex-start;gap:var(--space-3);width:100%;padding:var(--space-3);border:1px solid {{ d.delBd }};border-radius:8px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));color:var(--color-text);font:inherit;text-align:left;cursor:pointer;transition:border-color .18s" style-hover="border-color:var(--color-danger)"><span aria-hidden="true" style="flex:none;width:18px;height:18px;margin-top:2px;border-radius:50%;border:1px solid {{ d.delBd }};box-shadow:inset 0 0 0 4px var(--color-bg);background:{{ d.delDot }}"></span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:700">Excluir as cartas</span><span style="font-size:.75rem;color:var(--color-danger);text-wrap:pretty">As {{ d.cards }} cartas saem do app. Não dá para desfazer.</span></span></button>
+</div>
+</sc-if>
+<div style="display:flex;flex-direction:{{ m.actDir }};justify-content:flex-end;gap:var(--space-2);margin-top:var(--space-2)">
+<button type="button" class="btn btn--ghost" onClick="{{ closeModal }}" disabled="{{ d.busy }}">Cancelar</button>
+<button type="button" class="btn btn--danger" onClick="{{ d.confirm }}" aria-disabled="{{ d.locked }}">{{ d.verb }}</button>
+</div>
+</sc-if>
+
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div role="status" style="position:fixed;z-index:12;top:{{ toastPos.top }};right:{{ toastPos.side }};left:{{ toastPos.left }};max-width:{{ toastPos.max }};display:flex;align-items:flex-start;gap:var(--space-3);padding:var(--space-3) var(--space-4);border:1px solid var(--role-primary);border-radius:8px;background:var(--color-surface-raised);box-shadow:0 0 18px -4px rgb(from var(--role-primary) r g b / 55%);font-size:.875rem;line-height:1.5">
+<span aria-hidden="true" style="flex:none;width:8px;height:8px;margin-top:6px;border-radius:50%;background:var(--role-accent);box-shadow:0 0 8px var(--role-accent)"></span>
+<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span class="micro-label">{{ toast.label }}</span><span style="text-wrap:pretty">{{ toast.text }}</span></span>
+<button type="button" aria-label="Fechar aviso" onClick="{{ closeToast }}" style="flex:none;width:44px;height:44px;margin:-8px -8px -8px auto;padding:0;border:none;background:transparent;color:var(--color-text-muted);font:inherit;cursor:pointer">✕</button>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;identity&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Padrão&quot;,&quot;Izzet&quot;,&quot;Selesnya&quot;,&quot;Rakdos&quot;,&quot;Mono-azul&quot;],&quot;default&quot;:&quot;Padrão&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;startEmpty&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;reserveSearch&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const PAL_ROWS = [
+  [['Branco','#d8cdb0'],['Azul','#3d6b85'],['Violeta','#7c5aa6'],['Vermelho','#a8402c'],['Verde','#4c7a43']],
+  [['Carvão','#3a3531'],['Névoa','#a3b4b6'],['Anil','#565f99'],['Vinho','#7a3553'],['Ocre','#7d5c2e'],['Sálvia','#a6b07c']],
+  [['Cinza','#8a837e'],['Turquesa','#2e8279'],['Rosa','#d197a0'],['Laranja','#c86a28'],['Dourado','#cfab45']],
+];
+const PAL = PAL_ROWS.flat().map(([name, hex]) => ({ name, hex }));
+const HEX = Object.fromEntries(PAL.map(p => [p.name, p.hex]));
+const ID = { W: ['#d8cdb0','#e6dcc2'], U: ['#3d6b85','#4c7f9c'], B: ['#7c5aa6','#8f6bb8'], R: ['#a8402c','#bf4f39'], G: ['#4c7a43','#5c8f52'] };
+const THEMES = { 'Padrão': 'RUG', 'Izzet': 'UR', 'Selesnya': 'GW', 'Rakdos': 'BR', 'Mono-azul': 'U' };
+const SEED = [
+  { id: 'a', name: 'Caixa de trocas', color: 'Azul', parent: null, cards: 0, sale: 0 },
+  { id: 'a1', name: 'Azuis', color: 'Azul', parent: 'a', cards: 0, sale: 0 },
+  { id: 'a11', name: 'Raras', color: 'Violeta', parent: 'a1', cards: 42, sale: 9 },
+  { id: 'a12', name: 'Comuns', color: 'Cinza', parent: 'a1', cards: 298, sale: 13 },
+  { id: 'a2', name: 'Brancas', color: 'Branco', parent: 'a', cards: 210, sale: 12 },
+  { id: 'a3', name: 'Verdes', color: 'Verde', parent: 'a', cards: 388, sale: 20 },
+  { id: 'a4', name: 'Vermelhas', color: 'Vermelho', parent: 'a', cards: 302, sale: 31 },
+  { id: 'b', name: 'Deck box do Commander', color: 'Sálvia', parent: null, cards: 100, sale: 0 },
+  { id: 'c', name: 'Fichário azul', color: 'Anil', parent: null, cards: 0, sale: 0 },
+  { id: 'c1', name: 'Páginas 1–10', color: 'Névoa', parent: 'c', cards: 360, sale: 20 },
+  { id: 'c2', name: 'Páginas 11–20', color: 'Turquesa', parent: 'c', cards: 468, sale: 20 },
+  { id: 'd', name: 'Fichário vermelho', color: 'Vermelho', parent: null, cards: 512, sale: 16 },
+  { id: 'e', name: 'Fichário verde', color: 'Verde', parent: null, cards: 0, sale: 0 },
+];
+const fmt = n => n.toLocaleString('pt-BR');
+const pl = (n, s, p) => `${fmt(n)} ${n === 1 ? s : p}`;
+const norm = s => s.trim().toLocaleLowerCase('pt-BR');
+const byName = (a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
+const swBd = n => n === 'Carvão' ? '1px solid #6b635c' : '1px solid transparent';
+
+class Component extends DCLogic {
+  state = this.fresh();
+  innerRef = React.createRef();
+  fresh() {
+    const empty = !!this.props.startEmpty;
+    return { cols: empty ? [] : SEED.map(c => ({ ...c })), holding: empty ? { cards: 0, sale: 0 } : { cards: 37, sale: 4 },
+      view: { type: 'list' }, form: null, del: null, toast: null, navHover: false, drawer: false, vw: typeof window !== 'undefined' ? window.innerWidth : 1280 };
+  }
+  componentDidMount() {
+    this.onResize = () => this.setState({ vw: window.innerWidth });
+    this.onKey = e => { if (e.key === 'Escape') this.setState({ form: null, del: null, drawer: false }); };
+    window.addEventListener('resize', this.onResize);
+    window.addEventListener('keydown', this.onKey);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('keydown', this.onKey);
+    clearTimeout(this.tt); clearTimeout(this.nt); clearTimeout(this.gt); clearTimeout(this.ht); clearTimeout(this.ot); cancelAnimationFrame(this.gr);
+  }
+  componentDidUpdate(prev) { if (prev.startEmpty !== this.props.startEmpty) this.setState(this.fresh()); }
+
+  kids(id) { return this.state.cols.filter(c => c.parent === id).sort(byName); }
+  tree(id) { return [id, ...this.state.cols.filter(c => c.parent === id).flatMap(c => this.tree(c.id))]; }
+  get(id) { return this.state.cols.find(c => c.id === id); }
+  depth(id) { const c = this.get(id); return c && c.parent ? 1 + this.depth(c.parent) : 1; }
+  totals(id) {
+    const ids = this.tree(id);
+    return ids.reduce((t, i) => { const c = this.get(i); t.cards += c.cards; t.sale += c.sale; return t; }, { cards: 0, sale: 0, subs: ids.length - 1 });
+  }
+  meta(id) {
+    const t = this.totals(id);
+    if (!t.cards && !t.subs) return 'Vazia';
+    const parts = [pl(t.cards, 'carta', 'cartas'), `${fmt(t.sale)} à venda`];
+    if (t.subs) parts.push(pl(t.subs, 'subcoleção', 'subcoleções'));
+    return parts.join(' · ');
+  }
+  row(c) {
+    const meta = this.meta(c.id);
+    return { id: c.id, name: c.name, hex: HEX[c.color], bd: swBd(c.color), meta, label: `${c.name}, cor ${c.color}. ${meta}.`, open: () => this.go({ type: 'col', id: c.id }) };
+  }
+  level(v) { return v.type === 'list' ? 0 : v.type === 'holding' ? 1 : (this.get(v.id) ? this.depth(v.id) : 0); }
+  go(view) {
+    const cur = this.state.view;
+    if (cur.type === view.type && cur.id === view.id) return this.setState({ drawer: false });
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const swap = () => { this.setState({ view, drawer: false, phase: reduce ? 'in' : 'pre' }); const m = document.querySelector('main'); if (m) m.scrollTop = 0; };
+    clearTimeout(this.gt); clearTimeout(this.ht); clearTimeout(this.ot); cancelAnimationFrame(this.gr);
+    if (reduce) return swap();
+    const dir = this.level(view) >= this.level(cur) ? 1 : -1;
+    const el = this.innerRef.current, h0 = el ? el.offsetHeight : 0;
+    this.setState({ phase: 'out', dir, drawer: false, lockH: h0 ? h0 + 'px' : 'auto', burst: { key: Date.now(), dir } });
+    this.ot = setTimeout(() => this.setState({ burst: null }), 1500);
+    this.gt = setTimeout(() => {
+      swap();
+      this.gr = requestAnimationFrame(() => {
+        const h1 = this.innerRef.current ? this.innerRef.current.offsetHeight : 0;
+        this.gr = requestAnimationFrame(() => {
+          this.setState({ phase: 'in', lockH: h1 ? h1 + 'px' : 'auto' });
+          this.ht = setTimeout(() => this.setState({ lockH: 'auto' }), 280);
+        });
+      });
+    }, 140);
+  }
+  orbEls(theme) {
+    const b = this.state.burst; if (!b) return null;
+    const cols = [theme.p, theme.a, theme.t], h = React.createElement;
+    let seed = b.key % 9973; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const orbs = Array.from({ length: 13 }, (_, i) => {
+      const size = (5 + rnd() * 11) * 0.4, c = cols[i % 3], dur = 750 + rnd() * 500, delay = rnd() * 220;
+      return h('span', { key: i, style: { position: 'absolute', left: `${(b.dir > 0 ? 8 : 35) + rnd() * 55}%`, top: `${10 + rnd() * 70}%`, width: size, height: size, borderRadius: '50%',
+        background: `radial-gradient(circle, ${c} 0%, ${c}aa 40%, transparent 72%)`, boxShadow: `0 0 ${size * 1.6}px ${size * 0.4}px ${c}66`, opacity: 0,
+        '--dx': `${b.dir * (50 + rnd() * 110)}px`, '--dy': `${-(15 + rnd() * 60)}px`,
+        animation: `grm-orb ${dur}ms cubic-bezier(0.4, 0, 0.2, 1) ${delay}ms forwards` } });
+    });
+    return h('div', { key: b.key, 'aria-hidden': 'true', style: { position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none', overflow: 'hidden', mixBlendMode: 'screen' } }, orbs);
+  }
+  toast(label, text) { clearTimeout(this.tt); this.setState({ toast: { label, text } }); this.tt = setTimeout(() => this.setState({ toast: null }), 6000); }
+
+  openForm(mode, parentId, id) {
+    let name = '', color;
+    if (mode === 'edit') { const c = this.get(id); name = c.name; color = c.color; parentId = c.parent; }
+    else { const used = new Set(this.kids(parentId).map(c => c.color)); color = (PAL.find(p => !used.has(p.name)) || PAL[0]).name; }
+    this.setState({ form: { mode, parentId, id, name, color, error: '' } });
+    setTimeout(() => { const el = document.getElementById('grm-col-name'); if (el) el.focus(); }, 30);
+  }
+  submitForm() {
+    const f = this.state.form, name = f.name.trim();
+    let error = '';
+    if (!name) error = 'Dê um nome à coleção.';
+    else if (name.length > 40) error = 'Use no máximo 40 caracteres.';
+    else if (this.state.cols.some(c => c.parent === f.parentId && c.id !== f.id && norm(c.name) === norm(name))) error = 'Já existe uma coleção com esse nome aqui.';
+    if (error) return this.setState({ form: { ...f, error } });
+    if (f.mode === 'edit') {
+      this.setState(s => ({ form: null, cols: s.cols.map(c => c.id === f.id ? { ...c, name, color: f.color } : c) }));
+    } else {
+      const id = 'n' + Date.now();
+      this.setState(s => {
+        const p = f.parentId && s.cols.find(c => c.id === f.parentId);
+        const moved = p && p.cards ? { cards: p.cards, sale: p.sale } : { cards: 0, sale: 0 };
+        const cols = s.cols.map(c => c.id === f.parentId ? { ...c, cards: 0, sale: 0 } : c);
+        return { form: null, cols: [...cols, { id, name, color: f.color, parent: f.parentId, ...moved }] };
+      });
+    }
+  }
+  confirmDel() {
+    const d = this.state.del; if (!d || d.busy) return;
+    const t = this.totals(d.id);
+    if (t.cards && !d.choice) return;
+    this.setState({ del: { ...d, busy: true } });
+    setTimeout(() => {
+      const c = this.get(d.id), ids = new Set(this.tree(d.id));
+      const inView = this.state.view.type === 'col' && ids.has(this.state.view.id);
+      this.setState(s => ({
+        cols: s.cols.filter(x => !ids.has(x.id)), del: null,
+        holding: d.choice === 'move' ? { cards: s.holding.cards + t.cards, sale: s.holding.sale + t.sale } : s.holding,
+        view: inView ? (c.parent ? { type: 'col', id: c.parent } : { type: 'list' }) : s.view,
+      }));
+      const text = !t.cards ? `${c.name} foi excluída.` : d.choice === 'move'
+        ? `${c.name} foi excluída. ${t.cards === 1 ? '1 carta foi' : fmt(t.cards) + ' cartas foram'} para a caixa temporária.`
+        : `${c.name} e ${pl(t.cards, 'carta', 'cartas')} foram excluídas.`;
+      this.toast('Coleção', text);
+    }, 700);
+  }
+
+  renderVals() {
+    const s = this.state, vw = s.vw, wide = vw >= 960, mobile = vw <= 640;
+    const reserve = this.props.reserveSearch ?? true;
+    const codes = THEMES[this.props.identity ?? 'Padrão'] || 'RUG';
+    const r = codes.split('').map(k => ID[k]);
+    const role = i => r[Math.min(i, r.length - 1)];
+    const theme = { p: role(0)[0], ph: role(0)[1], a: role(1)[0], ah: role(1)[1], t: role(2)[0], th: role(2)[1] };
+    const navExp = s.navHover;
+    let view = s.view;
+    if (view.type === 'col' && !this.get(view.id)) view = { type: 'list' };
+    if (view.type === 'holding' && !s.holding.cards) view = { type: 'list' };
+    const isList = view.type === 'list', isInner = view.type === 'col', isHolding = view.type === 'holding';
+    const tops = this.kids(null);
+    const holdingShow = s.holding.cards > 0;
+    const isEmpty = isList && !tops.length && !holdingShow;
+
+    let inner = { crumbs: [], rows: [] };
+    if (isInner) {
+      const c = this.get(view.id), t = this.totals(c.id), dep = this.depth(c.id), kids = this.kids(c.id);
+      const crumbs = [{ name: 'Coleção', go: () => this.go({ type: 'list' }) }];
+      const chain = []; let p = c.parent; while (p) { chain.unshift(this.get(p)); p = this.get(p).parent; }
+      chain.forEach(a => crumbs.push({ name: a.name, go: () => this.go({ type: 'col', id: a.id }) }));
+      const hasSubs = kids.length > 0, hasCards = !hasSubs && c.cards > 0, canNest = dep < 3;
+      inner = { name: c.name, hex: HEX[c.color], bd: swBd(c.color), glow: HEX[c.color] + '66', colorName: c.color, depth: dep,
+        cards: fmt(t.cards), sale: fmt(t.sale), subs: fmt(t.subs), crumbs, rows: kids.map(k => this.row(k)),
+        hasSubs, hasCards, isEmptyC: !hasSubs && !hasCards, canNest, lastLevel: !canNest,
+        actFlex: mobile ? '1 1 100%' : 'none', emptyCols: mobile || !canNest ? 'minmax(0,1fr)' : 'repeat(2,minmax(0,1fr))',
+        emptyNote: canNest ? 'Uma coleção guarda cartas ou subcoleções — o que entrar primeiro define qual.' : 'Último nível — guarda só cartas.',
+        edit: () => this.openForm('edit', null, c.id),
+        del: () => this.setState({ del: { id: c.id, choice: null, busy: false } }),
+        createSub: () => this.openForm('create', c.id) };
+    }
+
+    let f = {};
+    if (s.form) {
+      const fm = s.form, parent = fm.parentId && this.get(fm.parentId);
+      const count = fm.name.trim().length;
+      f = { title: fm.mode === 'edit' ? (fm.parentId ? 'Editar subcoleção' : 'Editar coleção') : (fm.parentId ? 'Nova subcoleção' : 'Nova coleção'),
+        subtitle: parent ? `Dentro de ${parent.name}.` : '',
+        moveNote: fm.mode === 'create' && parent && parent.cards ? `${parent.name} tem ${pl(parent.cards, 'carta', 'cartas')}. Uma coleção guarda cartas ou subcoleções — ${parent.cards === 1 ? 'ela vai' : 'elas vão'} para esta nova subcoleção.` : '',
+        name: fm.name, error: fm.error, noError: !fm.error, invalid: fm.error ? 'true' : 'false', count, countColor: count > 40 ? 'var(--color-danger)' : 'var(--color-text-muted)',
+        colorName: fm.color,
+        verb: fm.mode === 'edit' ? 'Salvar' : (parent && parent.cards ? 'Criar e mover cartas' : (fm.parentId ? 'Criar subcoleção' : 'Criar coleção')),
+        onName: e => this.setState({ form: { ...this.state.form, name: e.target.value, error: '' } }),
+        onKey: e => { if (e.key === 'Enter') this.submitForm(); },
+        submit: () => this.submitForm(),
+        comb: PAL_ROWS.map((row, i) => ({ indent: i === 1 ? '0px' : '24px', items: row.map(([name, hex]) => {
+          const sel = name === fm.color;
+          return { name, hex, sel: sel ? 'true' : 'false', bd: swBd(name), pick: () => this.setState({ form: { ...this.state.form, color: name } }),
+            ring: sel ? `0 0 0 3px var(--color-bg), 0 0 0 4px ${name === 'Carvão' ? '#8a837e' : hex}, 0 0 20px ${hex}80` : 'none' };
+        }) })) };
+    }
+
+    let d = {};
+    if (s.del && this.get(s.del.id)) {
+      const c = this.get(s.del.id), t = this.totals(c.id), ch = s.del.choice;
+      const subsTxt = t.subs ? `${t.subs === 1 ? 'A subcoleção vai junto' : `As ${t.subs} subcoleções vão junto`}.` : '';
+      d = { name: c.name, cards: fmt(t.cards), hasCards: t.cards > 0, busy: s.del.busy,
+        subtitle: t.cards ? `${subsTxt} Há ${pl(t.cards, 'carta guardada', 'cartas guardadas')} aqui — escolha o que fazer com ${t.cards === 1 ? 'ela' : 'elas'}.`.trim()
+          : `Não há cartas aqui. ${subsTxt || 'Nada mais é afetado.'}`,
+        moveSel: ch === 'move' ? 'true' : 'false', delSel: ch === 'delete' ? 'true' : 'false',
+        moveBd: ch === 'move' ? 'var(--role-primary)' : 'var(--color-border)', moveGlow: ch === 'move' ? 'var(--glow-plate-hover)' : 'none', moveDot: ch === 'move' ? 'var(--role-primary)' : 'transparent',
+        delBd: ch === 'delete' ? 'var(--color-danger)' : 'var(--color-border)', delDot: ch === 'delete' ? 'var(--color-danger)' : 'transparent',
+        locked: s.del.busy || (t.cards > 0 && !ch) ? 'true' : 'false',
+        verb: s.del.busy ? 'Excluindo…' : (c.parent ? 'Excluir subcoleção' : 'Excluir coleção'),
+        pickMove: () => this.setState({ del: { ...this.state.del, choice: 'move' } }),
+        pickDel: () => this.setState({ del: { ...this.state.del, choice: 'delete' } }),
+        confirm: () => this.confirmDel() };
+    }
+
+    const modalOpen = !!(s.form || (s.del && this.get(s.del.id)));
+    const m = mobile
+      ? { desk: false, mob: true, outerPad: '0', w: '100vw', h: '100vh', ringPad: '0', ringR: '0', faceR: '0', faceMax: 'none', bodyPad: 'var(--space-5)', titleSize: '1.5rem', actDir: 'column-reverse', combAlign: 'center' }
+      : { desk: true, mob: false, outerPad: 'var(--space-4)', w: 'min(480px, calc(100vw - 2rem))', h: 'auto', ringPad: '2px', ringR: '10px', faceR: '8px', faceMax: 'calc(100vh - 4rem)', bodyPad: '0 var(--space-6) var(--space-6)', titleSize: '2rem', actDir: 'row', combAlign: 'center' };
+
+    const dir = s.dir || 1, ph = s.phase || 'in', ease = 'cubic-bezier(0.4, 0, 0.2, 1)';
+    const lockH = s.lockH || 'auto';
+    const tx = ph === 'out' ? { op: 0, tf: `translateX(${-dir * 8}px)`, tr: `opacity .14s ${ease}, transform .14s ${ease}` }
+      : ph === 'pre' ? { op: 0, tf: `translateX(${dir * 12}px)`, tr: 'none' }
+      : { op: 1, tf: 'none', tr: `opacity .24s ${ease}, transform .24s ${ease}, height .24s ${ease}` };
+    tx.h = lockH; tx.ov = lockH === 'auto' ? 'visible' : 'hidden';
+    return {
+      tx, innerRef: this.innerRef, orbs: this.orbEls(theme),
+      wide, narrow: !wide, theme, dots: r.map(x => x[0]),
+      profileLabel: `Perfil Rafa — ${this.props.identity ?? 'Padrão'}. Gerenciar perfil.`,
+      nav: { w: navExp ? '232px' : '24px', pad: navExp ? '10px 10px 10px 0' : '10px 0', bd: navExp ? 'var(--color-border)' : 'transparent', shadow: navExp ? 'var(--glow-overlay)' : 'none', vis: navExp ? 'visible' : 'hidden', op: navExp ? 1 : 0 },
+      navEnter: () => { clearTimeout(this.nt); this.setState({ navHover: true }); },
+      navLeave: () => { clearTimeout(this.nt); this.nt = setTimeout(() => this.setState({ navHover: false }), 120); },
+      drawerOpen: s.drawer, openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
+      goHome: e => { if (e && e.preventDefault) e.preventDefault(); this.go({ type: 'list' }); },
+      noop: e => e && e.preventDefault && e.preventDefault(),
+      page: { max: wide && reserve ? '1080px' : '760px', pad: mobile ? 'var(--space-4)' : 'var(--space-5)', cols: wide && reserve ? 'minmax(0,1fr) 220px' : 'minmax(0,1fr)', noticePad: wide ? 'var(--space-5) var(--space-6)' : 'var(--space-5) var(--space-4)' },
+      showAside: wide && reserve && !isEmpty,
+      isList, isInner, isHolding, isEmpty,
+      showSearch: isList && reserve && !isEmpty,
+      showHeaderCreate: isList && !mobile && !isEmpty,
+      showRowCreate: isList && mobile && !isEmpty,
+      listRows: isList ? tops.map(c => this.row(c)) : [],
+      holding: { show: isList && holdingShow, cards: fmt(s.holding.cards), sale: fmt(s.holding.sale), short: pl(s.holding.cards, 'carta', 'cartas'),
+        label: `Caixa temporária. ${pl(s.holding.cards, 'carta', 'cartas')} sem coleção, ${fmt(s.holding.sale)} à venda.`, open: () => this.go({ type: 'holding' }) },
+      createTop: () => this.openForm('create', null),
+      inner, f, d, m, modalOpen, formOpen: !!s.form, delOpen: !s.form && modalOpen,
+      closeModal: () => { if (!(s.del && s.del.busy)) this.setState({ form: null, del: null }); },
+      backdropClick: () => { if (!(s.del && s.del.busy)) this.setState({ form: null, del: null }); },
+      stop: e => e.stopPropagation(),
+      toast: s.toast, closeToast: () => this.setState({ toast: null }),
+      toastPos: mobile ? { top: 'var(--space-3)', side: 'var(--space-3)', left: 'var(--space-3)', max: 'none' } : { top: 'calc(44px + var(--space-4))', side: 'var(--space-4)', left: 'auto', max: '380px' },
+    };
+  }
+}
+</script>
+</body>
+</html>
