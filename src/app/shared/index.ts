@@ -1,13 +1,9 @@
 export { AddCardModal } from './cards/add-card-modal/add-card-modal';
 export { CardAddDetailPanel } from './cards/card-add-detail-panel/card-add-detail-panel';
 export { CardList } from './cards/card-list/card-list';
-export { CardPicker } from './cards/card-picker/card-picker';
 export { CardScanCapture } from './cards/card-scan-capture/card-scan-capture';
 export { CardSearchPanel } from './cards/card-search-panel/card-search-panel';
-export { ColorIdentity } from './cards/color-identity/color-identity';
 export { DashboardPanel } from './layout/dashboard-panel/dashboard-panel';
-export { DeckCardList } from './cards/deck-card-list/deck-card-list';
-export { DeckList } from './decks/deck-list/deck-list';
 export { EntityList } from './common/entity-list/entity-list';
 export { LeylineField } from './effects/leyline-field/leyline-field';
 export { SparkRerollDirective } from './effects/spark-reroll/spark-reroll.directive';

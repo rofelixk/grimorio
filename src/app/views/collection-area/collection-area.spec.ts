@@ -8,7 +8,7 @@ import { CollectionService } from '@services/collection.service';
 import { ToastService } from '@services/toast.service';
 import { mockCardEntry } from '@testing/card.mocks';
 import { stubDialog } from '@testing/dialog';
-import { ORB_COUNT } from '@utils/collection-transition.util';
+import { SWEEP_MS } from '@shared/effects/page-sweep/page-sweep';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { collectionMatcher } from '../../app.routes';
 import { openProfileDb } from '../../core/db/profile-db';
@@ -476,46 +476,43 @@ describe('CollectionArea', () => {
     });
   });
 
-  describe('quick navigation', () => {
-    it('replays the orbs with fresh elements when a second move starts mid-burst', async () => {
-      await seed('p1', tree);
-      const { el, harness, router } = await setUp('/collection', { reduced: false });
-      await router.navigate(['/collection', 'fich']);
-      await settle(harness);
-      const firstBurst = el.querySelector('.orb')!;
-      expect(firstBurst).not.toBeNull();
-
-      await router.navigate(['/collection', 'azuis']);
-      await settle(harness);
-      expect(firstBurst.isConnected).toBe(false);
-      expect(el.querySelectorAll('.orb')).toHaveLength(ORB_COUNT);
-    });
-  });
-
   describe('transition', () => {
-    it('swaps instantly under reduced motion, with no orbs', async () => {
+    it('swaps instantly under reduced motion, with no sweep layer and no canvas', async () => {
       await seed('p1', tree);
       const { el, harness } = await setUp('/collection');
       el.querySelector<HTMLButtonElement>('app-collection-row button')!.click();
       await settle(harness);
       expect(text(el.querySelector('h1'))).toBe('Álbum');
-      expect(el.querySelector('.orbs')).toBeNull();
-      expect(el.querySelector('.stage')!.className).not.toMatch(/is-(out|in)/);
+      expect(el.querySelector('.sweep')).toBeNull();
+      expect(el.querySelector('canvas.dust')).toBeNull();
     });
 
-    it('fades out, swaps and releases with orbs when motion is allowed', async () => {
+    it('sweeps the outgoing page over the incoming one, inert while it runs', async () => {
       await seed('p1', tree);
       const { el, harness } = await setUp('/collection', { reduced: false });
       el.querySelector<HTMLButtonElement>('app-collection-row button')!.click();
       await settle(harness);
-      expect(el.querySelector('.stage')!.classList).toContain('is-out');
-      expect(el.querySelectorAll('.orb')).toHaveLength(ORB_COUNT);
-      expect(text(el.querySelector('h1'))).toBe('Coleção');
+      expect(el.hasAttribute('inert')).toBe(true);
+      expect(el.querySelector('canvas.dust')).not.toBeNull();
+      expect(text(el.querySelector('.sweep h1'))).toBe('Coleção');
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, SWEEP_MS + 100));
       await settle(harness);
+      expect(el.hasAttribute('inert')).toBe(false);
+      expect(el.querySelector('.sweep')).toBeNull();
       expect(text(el.querySelector('h1'))).toBe('Álbum');
-      expect(el.querySelector('.stage')!.className).not.toMatch(/is-(out|in|locked)/);
+    });
+
+    it('still sweeps the next move after a redirect back to the same place', async () => {
+      await seed('p1', tree, treeCards);
+      const { el, harness, router } = await setUp('/collection', { reduced: false });
+      await router.navigate(['/collection', 'caixa']);
+      await settle(harness);
+      expect(router.url).toBe('/collection');
+
+      el.querySelector<HTMLButtonElement>('app-collection-row button')!.click();
+      await settle(harness);
+      expect(el.querySelector('.sweep')).not.toBeNull();
     });
   });
 });

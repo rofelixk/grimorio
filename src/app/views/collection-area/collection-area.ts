@@ -12,6 +12,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { HOLDING_REF, MAX_DEPTH, colorOf, type Collection } from '@models/collection.model';
 import { CollectionService } from '@services/collection.service';
@@ -25,6 +26,7 @@ import {
 import { CollectionFormDialog } from '@shared/collections/collection-form-dialog/collection-form-dialog';
 import { CollectionRow } from '@shared/collections/collection-row/collection-row';
 import { CreateRow } from '@shared/collections/create-row/create-row';
+import { PageSweep } from '@shared/effects/page-sweep/page-sweep';
 import { COLLECTION, formatCount } from '@utils/collection-copy';
 import { subtreeIds } from '@utils/collection-tree.util';
 import type { Place } from '@utils/collection-transition.util';
@@ -37,14 +39,18 @@ function samePlace(a: Place, b: Place): boolean {
 // The collection area view (spec 008): one route/component instance for the list, a collection
 // page and the holding box, matched by `collectionMatcher` (app.routes.ts) and fed `ref` via
 // `withComponentInputBinding`. The routed place drives `CollectionTransition`; the template
-// always renders the transition's `shown()` place, so the outgoing page stays up during "out".
+// renders its `shown()` place, plus — while a change runs — the outgoing place over it, dissolving
+// behind the dust's front.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-collection-area',
-  imports: [CollectionDeleteDialog, CollectionFormDialog, CollectionRow, CreateRow, RouterLink],
-  providers: [CollectionTransition],
+  imports: [CollectionDeleteDialog, CollectionFormDialog, CollectionRow, CreateRow, NgTemplateOutlet, RouterLink],
+  providers: [CollectionTransition, PageSweep],
   styleUrl: './collection-area.scss',
   templateUrl: './collection-area.html',
+  host: {
+    '[attr.inert]': "transition.turning() ? '' : null",
+  },
 })
 export class CollectionArea {
   readonly ref = input<string>();
@@ -52,6 +58,8 @@ export class CollectionArea {
   private readonly router = inject(Router);
   private readonly toasts = inject(ToastService);
   private readonly injector = inject(Injector);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  protected readonly sweep = inject(PageSweep);
   protected readonly collections = inject(CollectionService);
   protected readonly transition = inject(CollectionTransition);
   protected readonly wide = inject(ShellState).wide;
@@ -61,9 +69,8 @@ export class CollectionArea {
   protected readonly formatCount = formatCount;
   protected readonly maxDepth = MAX_DEPTH;
 
-  private readonly stage = viewChild.required<ElementRef<HTMLElement>>('stage');
-  private readonly inner = viewChild.required<ElementRef<HTMLElement>>('inner');
   private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
+  private readonly dust = viewChild<ElementRef<HTMLCanvasElement>>('dust');
 
   /** The place the address asks for (FR-006). */
   protected readonly routed = computed<Place>(
@@ -100,35 +107,27 @@ export class CollectionArea {
   protected readonly stats = this.collections.stats;
   protected readonly empty = computed(() => this.topLevel().length === 0 && this.stats().holding.cards === 0);
 
-  /** The collection on screen (undefined on the list/holding places, or once it's gone). */
-  protected readonly current = computed<Collection | undefined>(() => {
-    const shown = this.transition.shown();
-    return shown.kind === 'collection' ? this.collections.byId().get(shown.id) : undefined;
-  });
-  protected readonly currentColor = computed(() => {
-    const current = this.current();
-    return current ? colorOf(current.color) : undefined;
-  });
-  protected readonly ancestors = computed(() => {
-    const current = this.current();
-    return current ? this.collections.path(current.id).slice(0, -1) : [];
-  });
-  protected readonly depth = computed(() => {
-    const current = this.current();
-    return current ? this.collections.depth(current.id) : 0;
-  });
-  protected readonly kind = computed(() => {
-    const current = this.current();
-    return current ? this.collections.kind(current.id) : 'empty';
-  });
-  protected readonly totals = computed(() => {
-    const current = this.current();
-    return (current && this.stats().byId.get(current.id)) || { cards: 0, sale: 0, subs: 0, directEntries: 0 };
-  });
-  protected readonly children = computed(() => {
-    const current = this.current();
-    return current ? (this.collections.childrenOf().get(current.id) ?? []) : [];
-  });
+  /** Set while the missing-place redirect runs, so its landing swaps with no sweep. */
+  private redirecting = false;
+
+  /**
+   * A collection page's data (undefined once the collection is gone). Read from the template for
+   * both the shown place and, during a change, the outgoing one.
+   */
+  protected pageOf(id: string) {
+    const collection = this.collections.byId().get(id);
+    if (!collection) return undefined;
+    const depth = this.collections.depth(id);
+    return {
+      collection,
+      color: colorOf(collection.color),
+      ancestors: this.collections.path(id).slice(0, -1),
+      depth,
+      kind: this.collections.kind(id),
+      totals: this.stats().byId.get(id) || { cards: 0, sale: 0, subs: 0, directEntries: 0 },
+      children: this.collections.childrenOf().get(id) ?? [],
+    };
+  }
 
   constructor() {
     // Drive the transition from the address, once per new place. A missing place is left to the
@@ -138,15 +137,16 @@ export class CollectionArea {
       const place = this.routed();
       if (this.missing()) return;
       untracked(() => {
+        // Consumed before the same-place check: a redirect back to the current place must not
+        // leave it set for the next real navigation.
+        const instant = this.redirecting;
+        this.redirecting = false;
         if (last && samePlace(last, place)) return;
         last = place;
         if (place.kind === 'collection') {
           this.knownDepth.set(place.id, this.collections.depth(place.id));
         }
-        this.transition.go(place, this.depthOf, {
-          outer: () => this.stage().nativeElement.offsetHeight,
-          inner: () => this.inner().nativeElement.scrollHeight,
-        });
+        this.transition.go(place, this.depthOf, instant);
       });
     });
 
@@ -159,19 +159,28 @@ export class CollectionArea {
       untracked(() => {
         const del = this.del();
         const inDeleted = place.kind === 'collection' && del?.subtree.has(place.id) && del.parentId;
+        this.redirecting = true;
         this.router.navigate(inDeleted ? ['/collection', del!.parentId] : ['/collection'], { replaceUrl: true });
       });
     });
 
-    // Focus the new place's h1 after each swap (not the first render), so it's announced.
+    // Focus the new place's h1 after each swap or change (not the first render), so it's announced.
     let first = true;
     effect(() => {
       this.transition.shown();
+      if (this.transition.turning()) return;
       if (first) {
         first = false;
         return;
       }
       afterNextRender(() => this.heading()?.nativeElement.focus(), { injector: this.injector });
+    });
+
+    effect(() => {
+      const canvas = this.dust();
+      if (canvas) {
+        this.sweep.attach(canvas.nativeElement, this.host.nativeElement);
+      }
     });
   }
 
@@ -205,9 +214,5 @@ export class CollectionArea {
           ? COLLECTION.toastMoved(name, result.cards)
           : COLLECTION.toastDeleted(name, result.cards);
     this.toasts.show(COLLECTION.toastLabel, text);
-  }
-
-  protected orbRole(role: number): string {
-    return `orb--${role}`;
   }
 }

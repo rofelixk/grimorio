@@ -1,0 +1,21 @@
+<app-compact-modal [roles]="roles()" [labelledBy]="titleId" [locked]="busy()" (closed)="cancel()">
+  <div class="heading">
+    <h2 class="title" [id]="titleId">{{ copy.deleteTitle(snapshot().name) }}</h2>
+    <p class="subtitle">{{ body() }}</p>
+  </div>
+
+  <div class="actions">
+    <button
+      type="button"
+      class="btn btn--ghost"
+      data-autofocus
+      [attr.aria-disabled]="busy() || null"
+      (click)="cancel()"
+    >
+      {{ copy.verbs.cancel }}
+    </button>
+    <button type="button" class="btn btn--danger" [attr.aria-disabled]="busy() || null" (click)="confirm()">
+      {{ verb() }}
+    </button>
+  </div>
+</app-compact-modal>

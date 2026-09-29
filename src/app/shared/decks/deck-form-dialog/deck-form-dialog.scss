@@ -1,0 +1,26 @@
+@use '../../collections/dialog';
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// The name counter sits right-aligned on the label row (DESIGN.md "Decks" → "Name counter").
+.label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.counter {
+  flex: none;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.counter--over {
+  color: var(--color-danger);
+}

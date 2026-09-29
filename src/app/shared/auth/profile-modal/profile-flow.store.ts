@@ -188,8 +188,6 @@ export class ProfileFlowStore extends CloudFlowHost {
   /** `delprofile`: locked while its own sync or a shell sync runs (FR-018a, R17). */
   readonly deleteLocked = computed(() => this.loading() || this.blockSync() === 'syncing' || this.syncBusy());
   readonly blockFailure = computed(() => BLOCK_FAILURE_LABEL[this.blockSync()] ?? null);
-  /** FR-018a: a linked profile that has decks is told they leave with it. */
-  readonly decksNote = computed(() => this.linkState() !== 'local' && this.decks.decks().length > 0);
 
   readonly doneCopy = computed(() => {
     const kind = this.done();
@@ -624,9 +622,10 @@ export class ProfileFlowStore extends CloudFlowHost {
     if (!active) {
       return;
     }
-    const [cardTombstones, collectionTombstones] = await Promise.all([
+    const [cardTombstones, collectionTombstones, deckTombstones] = await Promise.all([
       this.cards.getTombstones(),
       this.collections.getTombstones(),
+      this.decks.getTombstones(),
     ]);
     if (this.stale(generation)) {
       return;
@@ -637,7 +636,8 @@ export class ProfileFlowStore extends CloudFlowHost {
         lastSyncedAt: this.sync.lastSyncedAt(),
         cards: this.cards.cards(),
         collections: this.collections.collections(),
-        tombstoneCount: cardTombstones.length + collectionTombstones.length,
+        decks: this.decks.decks(),
+        tombstoneCount: cardTombstones.length + collectionTombstones.length + deckTombstones.length,
         colorsUpdatedAt: active.colorsUpdatedAt,
         nameUpdatedAt: active.nameUpdatedAt,
         planarSelectionUpdatedAt: this.planarSelection.selection()?.updatedAt ?? null,

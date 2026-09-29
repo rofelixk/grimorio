@@ -38,6 +38,7 @@ describe('ProfileFlowStore', () => {
   let lifecycle: { deleteProfile: ReturnType<typeof vi.fn> };
   let router: { navigateByUrl: ReturnType<typeof vi.fn> };
   let cardTombstones: unknown[];
+  let deckTombstones: unknown[];
   let rafaId: string;
 
   beforeEach(async () => {
@@ -45,6 +46,7 @@ describe('ProfileFlowStore', () => {
     busy.set(false);
     decks.set([]);
     cardTombstones = [];
+    deckTombstones = [];
     cloudAuth = {
       discardPending: vi.fn().mockResolvedValue(undefined),
       signIn: vi.fn().mockResolvedValue({ userId: 'u1', email: 'rafa@exemplo.com' }),
@@ -88,7 +90,7 @@ describe('ProfileFlowStore', () => {
         { provide: ProfileLifecycleService, useValue: lifecycle },
         { provide: CardService, useValue: { cards: signal([]), getTombstones: async () => cardTombstones } },
         { provide: CollectionService, useValue: { collections: signal([]), getTombstones: async () => [] } },
-        { provide: DeckService, useValue: { decks } },
+        { provide: DeckService, useValue: { decks, getTombstones: async () => deckTombstones } },
         { provide: Router, useValue: router },
       ],
     });
@@ -360,6 +362,14 @@ describe('ProfileFlowStore', () => {
       await vi.waitFor(() => expect(store.unsynced()).toBe(true));
     });
 
+    it('counts a deck tombstone as unsynced', async () => {
+      await link();
+      deckTombstones = [{ id: 'd1', deletedAt: '' }];
+      store.openLocal();
+      store.openStep('delprofile');
+      await vi.waitFor(() => expect(store.unsynced()).toBe(true));
+    });
+
     it('never warns a local profile', async () => {
       cardTombstones = [{ id: 'c1', deletedAt: '' }];
       store.openLocal();
@@ -407,14 +417,6 @@ describe('ProfileFlowStore', () => {
 
       expect(router.navigateByUrl).toHaveBeenCalledWith('/');
       expect(entryModal.open).not.toHaveBeenCalled();
-    });
-
-    it('notes that decks leave with a linked profile that has them', async () => {
-      expect(store.decksNote()).toBe(false);
-      decks.set([{}]);
-      expect(store.decksNote()).toBe(false);
-      await link();
-      expect(store.decksNote()).toBe(true);
     });
 
     it('deletes the cloud account and names it on the done screen', async () => {

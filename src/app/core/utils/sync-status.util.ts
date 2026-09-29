@@ -86,15 +86,15 @@ export function syncDisplay(input: {
 
 /**
  * Whether a linked profile has local changes its account doesn't have yet (FR-018a, research
- * R10): a tombstone, or a card, location, planar deck, color or name change after the last sync.
- * Decks never sync, so they never count. Conservative: clock skew can only add a warning, never
- * hide one.
+ * R10): a tombstone, or a card, collection, deck, planar deck, color or name change after the last
+ * sync. Conservative: clock skew can only add a warning, never hide one.
  */
 export function hasUnsyncedChanges(input: {
   linked: boolean;
   lastSyncedAt: string | null;
   cards: { updatedAt: string }[];
   collections: { updatedAt: string }[];
+  decks: { updatedAt: string }[];
   tombstoneCount: number;
   colorsUpdatedAt: string;
   nameUpdatedAt: string;
@@ -112,6 +112,7 @@ export function hasUnsyncedChanges(input: {
   return (
     input.cards.some((c) => newer(c.updatedAt)) ||
     input.collections.some((l) => newer(l.updatedAt)) ||
+    input.decks.some((d) => newer(d.updatedAt)) ||
     (input.planarSelectionUpdatedAt !== null && newer(input.planarSelectionUpdatedAt)) ||
     (since !== null && (input.colorsUpdatedAt > since || input.nameUpdatedAt > since))
   );

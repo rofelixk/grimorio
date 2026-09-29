@@ -1,10 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DeckCardIdentity } from '@models/deck.model';
 import { CardOcrService } from '@services/card-ocr.service';
 import { CardService } from '@services/card.service';
-import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
-import { DeckService } from '@services/deck.service';
+import { CardLookupService } from '@services/card-lookup.service';
 import { mockCardLookupResult } from '@testing/card.mocks';
 import { AddCardModal } from './add-card-modal';
 
@@ -13,7 +11,6 @@ describe('AddCardModal', () => {
   let fixture: ComponentFixture<AddCardModal>;
   let cardLookup: Pick<CardLookupService, 'lookup' | 'searchByName'>;
   let cardService: Pick<CardService, 'add'>;
-  let deckService: Pick<DeckService, 'addCard'>;
   let cardOcr: Pick<CardOcrService, 'run'>;
 
   beforeEach(async () => {
@@ -22,7 +19,6 @@ describe('AddCardModal', () => {
       searchByName: vi.fn().mockResolvedValue([mockCardLookupResult()]),
     };
     cardService = { add: vi.fn() };
-    deckService = { addCard: vi.fn() };
     cardOcr = { run: vi.fn() };
 
     await TestBed.configureTestingModule({
@@ -30,13 +26,11 @@ describe('AddCardModal', () => {
       providers: [
         { provide: CardLookupService, useValue: cardLookup },
         { provide: CardService, useValue: cardService },
-        { provide: DeckService, useValue: deckService },
         { provide: CardOcrService, useValue: cardOcr },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddCardModal);
-    fixture.componentRef.setInput('context', 'collection');
     fixture.componentRef.setInput('locationId', 'loc-1');
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -71,18 +65,6 @@ describe('AddCardModal', () => {
     await component.runSearch();
 
     expect(component.results().length).toBe(2);
-    expect(component.selected()).toBeNull();
-  });
-
-  it('does not auto-pick a single raw result that the deck filter rejects', async () => {
-    fixture.componentRef.setInput('context', 'deck');
-    fixture.componentRef.setInput('deckId', 'deck-1');
-    fixture.componentRef.setInput('filter', () => false);
-
-    component.nameQuery.set('Sol Ring');
-    await component.runSearch();
-
-    expect(component.results().length).toBe(1);
     expect(component.selected()).toBeNull();
   });
 
@@ -159,23 +141,6 @@ describe('AddCardModal', () => {
     expect(cardLookup.searchByName).toHaveBeenCalledTimes(2);
   });
 
-  it('filters results by the deck color-identity predicate in deck context', async () => {
-    fixture.componentRef.setInput('context', 'deck');
-    fixture.componentRef.setInput('deckId', 'deck-1');
-    fixture.componentRef.setInput('filter', (c: DeckCardIdentity) => c.colorIdentity.includes('R'));
-    vi.mocked(cardLookup.searchByName).mockResolvedValueOnce([
-      mockCardLookupResult({ name: 'Lightning Bolt', colorIdentity: ['R'] }),
-      mockCardLookupResult({ name: 'Sol Ring', colorIdentity: [] }),
-    ]);
-
-    component.nameQuery.set('a');
-    await component.runSearch();
-
-    expect(component.filteredResults().map((r: CardLookupResult) => r.name)).toEqual([
-      'Lightning Bolt',
-    ]);
-  });
-
   it('preserves search state when a result is picked, then backed out of', async () => {
     component.nameQuery.set('Sol Ring');
     await component.runSearch();
@@ -220,35 +185,6 @@ describe('AddCardModal', () => {
     expect(closed).toBe(true);
     expect(component.selected()).toBeNull();
     expect(component.nameQuery()).toBe('');
-  });
-
-  it('submits a deck add as a freeBuild DeckCard', async () => {
-    fixture.componentRef.setInput('context', 'deck');
-    fixture.componentRef.setInput('deckId', 'deck-1');
-    fixture.componentRef.setInput('filter', () => true);
-
-    component.nameQuery.set('Sol Ring');
-    await component.runSearch();
-    component.pickResult(component.results()[0]);
-    component.submit();
-
-    expect(deckService.addCard).toHaveBeenCalledWith(
-      'deck-1',
-      expect.objectContaining({ source: 'freeBuild' }),
-    );
-  });
-
-  it('does not submit a deck add that fails the filter (defense in depth)', async () => {
-    fixture.componentRef.setInput('context', 'deck');
-    fixture.componentRef.setInput('deckId', 'deck-1');
-    fixture.componentRef.setInput('filter', () => false);
-
-    component.nameQuery.set('Sol Ring');
-    await component.runSearch();
-    component.pickResult(component.results()[0]);
-    component.submit();
-
-    expect(deckService.addCard).not.toHaveBeenCalled();
   });
 
   it('jumps straight to the confirm step when the camera reads both fields', async () => {
@@ -332,34 +268,4 @@ describe('AddCardModal', () => {
     expect(cardLookup.searchByName).toHaveBeenCalledTimes(1);
   });
 
-  it('submitAndContinue() inserts a deck add as a freeBuild DeckCard', async () => {
-    fixture.componentRef.setInput('context', 'deck');
-    fixture.componentRef.setInput('deckId', 'deck-1');
-    fixture.componentRef.setInput('filter', () => true);
-
-    component.nameQuery.set('Sol Ring');
-    await component.runSearch();
-    component.pickResult(component.results()[0]);
-    component.submitAndContinue();
-
-    expect(deckService.addCard).toHaveBeenCalledWith(
-      'deck-1',
-      expect.objectContaining({ source: 'freeBuild' }),
-    );
-    expect(component.selected()).toBeNull();
-  });
-
-  it('does not submitAndContinue() a deck add that fails the filter (defense in depth)', async () => {
-    fixture.componentRef.setInput('context', 'deck');
-    fixture.componentRef.setInput('deckId', 'deck-1');
-    fixture.componentRef.setInput('filter', () => false);
-
-    component.nameQuery.set('Sol Ring');
-    await component.runSearch();
-    component.pickResult(component.results()[0]);
-    component.submitAndContinue();
-
-    expect(deckService.addCard).not.toHaveBeenCalled();
-    expect(component.selected()).not.toBeNull();
-  });
 });

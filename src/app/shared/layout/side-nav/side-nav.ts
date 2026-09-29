@@ -61,8 +61,12 @@ export class SideNav {
     this.leaveTimer = setTimeout(() => this.hover.set(false), LEAVE_DELAY_MS);
   }
 
-  protected onFocusIn(): void {
-    this.focusWithin.set(true);
+  // Only keyboard focus holds it open: a clicked link keeps focus, and the nav would stay expanded
+  // after the pointer left.
+  protected onFocusIn(event: FocusEvent): void {
+    if (event.target instanceof Element && event.target.matches(':focus-visible')) {
+      this.focusWithin.set(true);
+    }
   }
 
   protected onFocusOut(event: FocusEvent, nav: HTMLElement): void {

@@ -6,7 +6,7 @@
   [class.is-overlay]="expanded() && !shell.pinned()"
   (pointerenter)="onPointerEnter($event)"
   (pointerleave)="onPointerLeave()"
-  (focusin)="onFocusIn()"
+  (focusin)="onFocusIn($event)"
   (focusout)="onFocusOut($event, nav)"
 >
   <span class="thread" aria-hidden="true"></span>

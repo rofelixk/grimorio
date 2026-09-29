@@ -278,8 +278,6 @@ export const PROFILE = {
     items: (nome: string) => `Cartas · Locais de armazenamento · Decks · Cores · O perfil ${nome}`,
     linkedNote: (email: string) =>
       `A conta ${email} e os dados dela na nuvem não são apagados. Dá para configurá-la de novo neste ou em outro aparelho.`,
-    // review: not in the handoff (spec 005 FR-018a).
-    decksNote: 'Decks ainda não vão para a nuvem — saem junto com o perfil.',
     unsynced: 'Há mudanças que ainda não foram sincronizadas. Se excluir agora, elas se perdem.',
     syncNow: 'Sincronizar agora',
     retry: 'Tentar de novo',
@@ -344,6 +342,7 @@ export const SHELL = {
   close: ACTION.close,
   navLabel: 'Navegação principal',
   collection: 'Coleção',
+  decks: 'Decks',
   modes: 'Modos de jogo',
   pin: 'Fixar menu',
   unpin: 'Recolher menu',

@@ -19,9 +19,6 @@ import { ProfileFlowStore } from '../profile-flow.store';
     @if (store.linkState() !== 'local') {
       <p class="note">{{ linkedNote() }}</p>
     }
-    @if (store.decksNote()) {
-      <p class="note">{{ copy.decksNote }}</p>
-    }
     @if (store.unsynced()) {
       <div class="plate plate--danger plate--block" role="status">
         <span class="danger-label">{{ copy.unsynced }}</span>

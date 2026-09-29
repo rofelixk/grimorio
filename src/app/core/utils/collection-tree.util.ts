@@ -100,6 +100,7 @@ export function depthOf(id: string, byId: Map<string, Collection>): number {
 export function computeStats(
   collections: Collection[],
   cards: Pick<CardEntry, 'locationId' | 'quantity' | 'forSale'>[],
+  deckIds: ReadonlySet<string> = new Set(),
 ): CollectionStats {
   const byId = new Map(collections.map((collection) => [collection.id, collection]));
   const childrenOf = buildChildrenOf(collections);
@@ -112,6 +113,8 @@ export function computeStats(
   const holding = { cards: 0, sale: 0 };
 
   for (const entry of cards) {
+    // A card in a deck is neither in a collection nor in the holding box (spec 009, research R1).
+    if (deckIds.has(entry.locationId)) continue;
     const target = byId.get(entry.locationId);
     if (!target) {
       holding.cards += entry.quantity;

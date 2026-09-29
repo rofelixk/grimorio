@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/components.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+<script src="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>html{background:#0d0b0a}body{margin:0;min-height:100%;background:#0d0b0a;font-family:var(--font-sans);color:var(--color-text)}a{color:var(--role-accent)}a:hover{color:var(--role-accent-hover)}.dv-turn{padding:40px 44px 32px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-text);color:var(--color-bg);border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 var(--font-sans);color:var(--color-text)}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-surface-raised);color:var(--color-text);border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 12px/1.3 var(--font-sans);color:var(--color-text-muted)}.dv-card{max-width:100%;background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden}.dv-opt:target .dv-oid{background:var(--role-primary);color:var(--color-bg)}.dv-next{margin:22px 0 0;font:12px/1.5 var(--font-sans);color:var(--color-text-muted)}</style>
+</helmet>
+<section class="dv-turn" id="t6" style="border-bottom:1px solid var(--color-border)">
+<div class="dv-thd"><a class="dv-tid" href="#t6">6</a><span class="dv-tname">Topo da página do deck e formulário com um só Commander</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="6a">
+<div class="dv-olabel"><a class="dv-oid" href="#6a">6a</a>Página do deck — revisão de <a class="dv-oid" href="#1c">1c</a></div>
+<div class="dv-card" style="width:720px">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--color-border);background:var(--wash-header)"><span class="grm-wordmark" style="font-size:1.25rem">Grimorio</span><span style="font-size:12px;color:var(--color-text-muted)">● Sincronizado há 42 min · rafa</span></div>
+<div style="display:flex">
+<div style="width:24px;border-right:1px solid var(--color-border)"></div>
+<div style="flex:1;padding:20px;display:flex;flex-direction:column;gap:16px">
+<nav aria-label="Caminho" style="display:flex;align-items:center;gap:8px;font-size:var(--font-size-sm)"><a class="link-btn" href="#t4">Decks</a><span style="color:var(--color-text-muted)">·</span><span aria-current="page" style="color:var(--color-text-muted)">Krenko goblins</span></nav>
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+<h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;line-height:1.2;text-shadow:var(--glow-title);text-wrap:pretty">Krenko goblins</h1>
+<span style="font-size:var(--font-size-sm);color:var(--color-text-muted)">Commander</span>
+</div>
+<div style="display:flex;gap:8px"><button class="btn btn--secondary">Editar</button><button class="btn btn--secondary">Excluir</button></div>
+</div>
+<div style="border-top:1px solid var(--color-border)"></div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted);text-wrap:pretty">Só o topo da página: caminho, nome e formato logo abaixo, ações do lado oposto. O conteúdo abaixo da linha (as cartas do deck) fica para a próxima spec. Celular: ações em linha própria, 50/50.</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="6b">
+<div class="dv-olabel"><a class="dv-oid" href="#6b">6b</a>Criar deck — revisão de <a class="dv-oid" href="#1d">1d</a> (interativo)</div>
+<div class="dv-card" style="width:600px">
+<div style="min-height:560px;background:var(--overlay-backdrop);display:flex;align-items:center;justify-content:center;padding:24px 0">
+<div style="width:480px;padding:2px;border-radius:10px;background:var(--ring-gradient)">
+<div style="background:var(--color-bg);border-radius:8px;box-shadow:var(--shadow-rest);padding:0 20px 20px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:flex-end;align-items:center;height:44px;margin:0 -12px 0 0"><button class="btn btn--ghost" aria-label="Fechar">✕</button></div>
+<h2 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:1.5rem;text-shadow:var(--glow-title)">Novo deck</h2>
+<div class="field">
+<label class="field__label" for="deck-name-6">Nome</label>
+<input id="deck-name-6" class="field__input" placeholder="Krenko goblins">
+<div style="display:flex;justify-content:space-between;gap:8px"><span class="field__helper">Como você chama esse deck na estante.</span><span class="field__helper">0/40</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<span class="field__label">Formato · {{ fmtName6 }}</span>
+<div role="radiogroup" aria-label="Formato" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+<sc-for list="{{ families6 }}" as="f" hint-placeholder-count="6">
+<button role="radio" aria-checked="{{ f.on }}" onClick="{{ f.pick }}" class="btn" style="font-size:var(--font-size-sm);{{ f.style }}">{{ f.name }}</button>
+</sc-for>
+</div>
+
+<div class="plate" style="gap:6px;padding:12px">
+<ul style="margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:4px;font-size:var(--font-size-sm);line-height:1.5;color:var(--color-text-muted)">
+<sc-for list="{{ rules6 }}" as="r" hint-placeholder-count="4"><li style="text-wrap:pretty">{{ r }}</li></sc-for>
+</ul>
+</div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn btn--secondary">Cancelar</button><button class="btn btn--primary">Criar deck</button></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "lista de decks com o leque <a class="dv-oid" href="#4c">4c</a> na grade" · "<a class="dv-oid" href="#6b">6b</a> em 360 px"</p>
+</section>
+<section class="dv-turn" id="t5" style="border-bottom:1px solid var(--color-border)">
+<div class="dv-thd"><a class="dv-tid" href="#t5">5</a><span class="dv-tname">Em 3D — <a class="dv-oid" href="#4a">4a</a> e <a class="dv-oid" href="#4c">4c</a> com profundidade, a carta sempre reta</span></div>
+<p style="margin:0 0 24px;max-width:78ch;font-size:13px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">A regra: a face que leva a carta fica sempre paralela à tela, em profundidade zero. Em perspectiva, uma face assim não deforma nem muda de escala — a carta aparece exatamente em 244 × 340, inteira. Todo o 3D acontece em volta dela: lombadas, páginas, prateleira, capas de trás. Mova o mouse sobre as cenas: o ponto de vista acompanha, e só o que está em volta da carta se mexe.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="5a">
+<div class="dv-olabel"><a class="dv-oid" href="#5a">5a</a>Estante 3D (<a class="dv-oid" href="#4a">4a</a>) — lombadas saem da prateleira</div>
+<div class="dv-card" style="width:680px;overflow:hidden;padding:24px;display:flex;flex-direction:column;gap:16px">
+<div onMouseMove="{{ move5a }}" onMouseLeave="{{ leave5a }}" style="position:relative;height:470px;perspective:1400px;perspective-origin:{{ origin5a }};transform-style:preserve-3d">
+<div style="position:absolute;left:-40px;right:-40px;bottom:40px;height:320px;transform-origin:50% 100%;transform:rotateX(90deg);background:linear-gradient(var(--color-bg),var(--color-surface));border-top:1px solid var(--color-border);box-shadow:inset 0 -40px 60px -30px rgb(from var(--role-primary) r g b / 30%)"></div>
+<div style="position:absolute;left:24px;bottom:40px;display:flex;align-items:flex-end;gap:6px;transform-style:preserve-3d">
+<div style="position:relative;width:280px;height:388px;transform-style:preserve-3d;margin-right:10px">
+<div style="position:absolute;left:0;top:0;width:280px;height:56px;transform-origin:50% 0;transform:rotateX(-90deg);background:repeating-linear-gradient(90deg,rgb(from var(--color-text) r g b / 22%) 0 1px,rgb(from var(--color-text) r g b / 10%) 1px 3px);border:1px solid var(--color-border);box-sizing:border-box"></div>
+<div style="position:absolute;left:0;top:0;width:56px;height:388px;transform-origin:0 50%;transform:rotateY(90deg);background:linear-gradient(90deg,var(--color-bg),var(--color-surface-raised),var(--color-bg));border:1px solid var(--color-border);box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0"><div style="width:34px;height:1px;background:var(--role-primary);box-shadow:0 4px 0 var(--role-primary)"></div><span style="writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--font-display);font-weight:600;white-space:nowrap">Krenko, Mob Boss e os goblins de Jund</span><span class="micro-label" style="writing-mode:vertical-rl;transform:rotate(180deg)">Commander</span></div>
+<div style="position:absolute;inset:0;background:linear-gradient(var(--color-surface-raised),var(--color-surface));border:1px solid var(--role-primary);border-radius:2px 6px 6px 2px;box-shadow:0 0 24px -6px rgb(from var(--role-primary) r g b / 60%);display:flex;justify-content:center;padding-top:18px;box-sizing:border-box">
+<image-slot id="deck-card-3d-book" fit="contain" shape="rounded" radius="12" placeholder="Carta em destaque (244 × 340)" style="width:244px;height:340px;display:block"></image-slot>
+</div>
+</div>
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="position:relative;width:56px;height:388px;transform-style:preserve-3d;cursor:pointer;transition:transform .5s cubic-bezier(0.4,0,0.2,1)" style-hover="transform:translateZ(60px)">
+<div style="position:absolute;left:0;top:0;width:56px;height:280px;transform-origin:50% 0;transform:rotateX(-90deg);background:repeating-linear-gradient(90deg,rgb(from var(--color-text) r g b / 22%) 0 1px,rgb(from var(--color-text) r g b / 10%) 1px 3px);border:1px solid var(--color-border);box-sizing:border-box"></div>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0;box-sizing:border-box;border:1px solid var(--color-border);border-radius:4px 4px 0 0;background:linear-gradient(90deg,var(--color-bg),var(--color-surface-raised),var(--color-bg))"><div style="width:34px;height:1px;background:var(--role-primary);box-shadow:0 4px 0 var(--role-primary)"></div><span style="writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--font-display);font-weight:600;white-space:nowrap">{{ d.name }}</span><span class="micro-label" style="writing-mode:vertical-rl;transform:rotate(180deg)">{{ d.format }}</span></div>
+</div>
+</sc-for>
+</div>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted);text-wrap:pretty">Os livros são caixas de verdade: lombada na frente, páginas em cima, capa na lateral. O deck aberto fica de capa para a frente, com a lombada visível de lado. Hover numa lombada: o livro desliza para fora da prateleira (só a lombada cresce — a carta nunca está nela). Reduced motion: ponto de vista fixo, sem deslizar.</p>
+</div>
+</div>
+
+<div class="dv-opt" id="5b">
+<div class="dv-olabel"><a class="dv-oid" href="#5b">5b</a>Leque 3D (<a class="dv-oid" href="#4c">4c</a>) — o deck tem espessura</div>
+<div class="dv-card" style="width:460px;padding:24px;display:flex;flex-direction:column;gap:16px">
+<div onMouseMove="{{ move5b }}" onMouseLeave="{{ leave5b }}" style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer">
+<div style="position:relative;width:412px;height:470px;perspective:900px;perspective-origin:{{ origin5b }}">
+<div style="position:absolute;left:78px;top:50px;width:256px;height:352px;transform-style:preserve-3d">
+<div style="position:absolute;inset:0;border:1px solid var(--role-tertiary);border-radius:14px;background:var(--color-surface);transform:translateZ(-90px) rotate(-12deg);transform-origin:50% 100%;opacity:.85"></div>
+<div style="position:absolute;inset:0;border:1px solid var(--role-accent);border-radius:14px;background:var(--color-surface-raised);transform:translateZ(-45px) rotate(-6deg);transform-origin:50% 100%;opacity:.92"></div>
+<div style="position:absolute;inset:0;border:1px solid rgb(from var(--role-primary) r g b / 35%);border-radius:14px;background:var(--color-bg);transform:translateZ(-16px)"></div>
+<div style="position:absolute;inset:0;border:1px solid rgb(from var(--role-primary) r g b / 40%);border-radius:14px;background:var(--color-bg);transform:translateZ(-12px)"></div>
+<div style="position:absolute;inset:0;border:1px solid rgb(from var(--role-primary) r g b / 45%);border-radius:14px;background:var(--color-bg);transform:translateZ(-8px)"></div>
+<div style="position:absolute;inset:0;border:1px solid rgb(from var(--role-primary) r g b / 50%);border-radius:14px;background:var(--color-bg);transform:translateZ(-4px)"></div>
+<div style="position:absolute;inset:0;padding:5px;box-sizing:border-box;border:1px solid var(--role-primary);border-radius:14px;background:var(--color-bg);box-shadow:0 0 24px -4px rgb(from var(--role-primary) r g b / 60%)">
+<image-slot id="deck-card-3d-fan" fit="contain" shape="rounded" radius="12" placeholder="Carta em destaque (244 × 340)" style="width:244px;height:340px;display:block"></image-slot>
+</div>
+</div>
+</div>
+<div style="width:320px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center"><span style="font-weight:700;font-size:var(--font-size-md);line-height:1.2;text-wrap:pretty">Krenko, Mob Boss e os goblins de Jund</span><span style="font-size:var(--font-size-sm);color:var(--color-text-muted)">Commander</span></div>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted);text-wrap:pretty">O leque vira uma pilha: logo atrás da carta, camadas finas dão espessura ao deck encapado. As capas de acento e terciária flutuam mais ao fundo. Com o mouse, a pilha e as capas deslizam em paralaxe, e a carta da frente fica parada e reta. Com a espessura real no futuro, a pilha pode crescer conforme o número de cartas.</p>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "<a class="dv-oid" href="#5a">5a</a> com a prateleira inteira e 12 lombadas" · "<a class="dv-oid" href="#5b">5b</a> na grade, com paralaxe por inclinação do celular" · "página do deck com <a class="dv-oid" href="#5b">5b</a>"</p>
+</section>
+<section class="dv-turn" id="t4" style="border-bottom:1px solid var(--color-border)">
+<div class="dv-thd"><a class="dv-tid" href="#t4">4</a><span class="dv-tname">Tamanho real — <a class="dv-oid" href="#3b">3b</a>, <a class="dv-oid" href="#3d">3d</a> e <a class="dv-oid" href="#3e">3e</a> com a carta inteira, sem corte</span></div>
+<p style="margin:0 0 24px;max-width:78ch;font-size:13px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">A carta ocupa uma janela exata de 244 × 340 px (proporção 63 : 88 da carta, metade da imagem “normal” do Scryfall), sem corte e sem máscara — a imagem entra inteira. Arraste uma imagem de carta para as janelas para testar. Os nomes usam o limite de 40 caracteres para mostrar o pior caso.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="4a">
+<div class="dv-olabel"><a class="dv-oid" href="#4a">4a</a>Estante de lombadas em tamanho real (<a class="dv-oid" href="#3b">3b</a>)</div>
+<div class="dv-card" style="width:620px;padding:24px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:flex-end;gap:6px;padding:0 8px;border-bottom:1px solid var(--color-border);box-shadow:0 8px 16px -10px rgb(from var(--role-primary) r g b / 45%)">
+<div style="display:flex;width:338px;height:388px;border:1px solid var(--role-primary);border-bottom:none;border-radius:4px 4px 0 0;background:var(--color-surface);box-shadow:var(--glow-plate-hover)">
+<div style="flex:none;width:56px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0;background:linear-gradient(90deg,var(--color-bg),var(--color-surface-raised),var(--color-bg));border-right:1px solid var(--color-border)">
+<div style="width:34px;height:1px;background:var(--role-primary);box-shadow:0 4px 0 var(--role-primary)"></div>
+<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--font-display);font-weight:600;font-size:var(--font-size-md);white-space:nowrap;text-shadow:var(--glow-title)">Krenko, Mob Boss e os goblins de Jund</span>
+<span class="micro-label" style="writing-mode:vertical-rl;transform:rotate(180deg)">Commander</span>
+</div>
+<div style="flex:none;padding:24px 18px 0;display:flex;flex-direction:column;gap:8px">
+<image-slot id="deck-card-spine" fit="contain" shape="rounded" radius="12" placeholder="Carta em destaque (244 × 340)" style="width:244px;height:340px;display:block"></image-slot>
+</div>
+</div>
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;width:56px;height:388px;box-sizing:border-box;padding:12px 0;border:1px solid var(--color-border);border-bottom:none;border-radius:4px 4px 0 0;background:linear-gradient(90deg,var(--color-bg),var(--color-surface-raised),var(--color-bg));cursor:pointer;transition:border-color .18s" style-hover="border-color:var(--role-primary)">
+<div style="width:34px;height:1px;background:var(--role-primary);box-shadow:0 4px 0 var(--role-primary)"></div>
+<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--font-display);font-weight:600;font-size:var(--font-size-md);white-space:nowrap">{{ d.name }}</span>
+<span class="micro-label" style="writing-mode:vertical-rl;transform:rotate(180deg)">{{ d.format }}</span>
+</div>
+</sc-for>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted);text-wrap:pretty">Lombada fechada: 56 × 388 px — cabe um nome de 40 caracteres a 1rem, com o formato embaixo. Aberta: 338 px de largura. Numa área de 1080 px cabem 1 aberta + ≈ 12 fechadas por prateleira. Celular 360 px: 1 aberta + 0 fechadas — lá a estante vira lista de lombadas deitadas, e o toque abre a página do deck.</p>
+</div>
+</div>
+
+<div class="dv-opt" id="4b">
+<div class="dv-olabel"><a class="dv-oid" href="#4b">4b</a>Grimório aberto em tamanho real (<a class="dv-oid" href="#3d">3d</a>)</div>
+<div class="dv-card" style="width:640px;padding:24px;display:flex;flex-direction:column;gap:16px">
+<div style="display:grid;grid-template-columns:276px 276px;border:1px solid var(--role-primary);border-radius:8px;overflow:hidden;cursor:pointer;background:linear-gradient(90deg,var(--color-surface) 46%,var(--color-bg) 50%,var(--color-surface) 54%);box-shadow:var(--glow-plate-hover);align-self:flex-start">
+<div style="padding:16px"><image-slot id="deck-card-spread" fit="contain" shape="rounded" radius="12" placeholder="Carta em destaque (244 × 340)" style="width:244px;height:340px;display:block"></image-slot></div>
+<div style="padding:24px 20px;display:flex;flex-direction:column;gap:8px;min-width:0">
+<span class="eyebrow">Commander</span>
+<span style="font-family:var(--font-display);font-weight:600;font-size:var(--font-size-xl);line-height:1.2;text-shadow:var(--glow-title);text-wrap:pretty">Krenko, Mob Boss e os goblins de Jund</span>
+<span class="micro-label" style="margin-top:auto;align-self:flex-end">Abrir</span>
+</div>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted);text-wrap:pretty">Página dupla: 552 × 372 px. O nome de 40 caracteres a 1.5rem ocupa 3 linhas, e sobra espaço na página direita para o que vier depois (contagem, cor, legalidade). Em 1080 px cabem 1 por linha e meia; ficaria 1 por linha até ≈ 1150 px. Celular 360 px: a dupla não cabe — a carta fica em cima (244 px, centralizada) e o nome embaixo, virando página única.</p>
+</div>
+</div>
+
+<div class="dv-opt" id="4c">
+<div class="dv-olabel"><a class="dv-oid" href="#4c">4c</a>Leque em tamanho real (<a class="dv-oid" href="#3e">3e</a>)</div>
+<div class="dv-card" style="width:420px;padding:24px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer">
+<div style="position:relative;width:320px;height:392px">
+<div style="position:absolute;left:32px;top:20px;width:256px;height:352px;border:1px solid var(--role-tertiary);border-radius:14px;background:var(--color-surface);transform:rotate(-9deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:32px;top:20px;width:256px;height:352px;border:1px solid var(--role-accent);border-radius:14px;background:var(--color-surface-raised);transform:rotate(-4deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:32px;top:20px;width:256px;height:352px;padding:5px;box-sizing:border-box;border:1px solid var(--role-primary);border-radius:14px;background:var(--color-bg);box-shadow:0 0 20px -4px rgb(from var(--role-primary) r g b / 55%);transition:transform .5s cubic-bezier(0.4,0,0.2,1)" style-hover="transform:translateY(-8px)">
+<image-slot id="deck-card-fan" fit="contain" shape="rounded" radius="12" placeholder="Carta em destaque (244 × 340)" style="width:244px;height:340px;display:block"></image-slot>
+</div>
+</div>
+<div style="width:320px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center"><span style="font-weight:700;font-size:var(--font-size-md);line-height:1.2;text-wrap:pretty">Krenko, Mob Boss e os goblins de Jund</span><span style="font-size:var(--font-size-sm);color:var(--color-text-muted)">Commander</span></div>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted);text-wrap:pretty">A carta do topo fica reta e inteira; só as capas de trás (vazias, nas cores de acento e terciária do perfil) giram. A capa da frente é uma borda de 5 px em volta da imagem, sem tocar nela. Peça: 320 × ≈ 440 px com nome em 2 linhas. Em 1080 px cabem 3 por linha; em 360 px, 1 por linha sem reduzir a carta.</p>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "<a class="dv-oid" href="#4c">4c</a> na grade com 6 decks" · "<a class="dv-oid" href="#4a">4a</a> em 360 px" · "<a class="dv-oid" href="#4b">4b</a> com carta de 183 × 255 (¾) para caber 2 por linha" · "página do deck no estilo <a class="dv-oid" href="#4b">4b</a>"</p>
+</section>
+<section class="dv-turn" id="t3" style="border-bottom:1px solid var(--color-border)">
+<div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Vitrine de decks — cinco leituras de “grimório”</span></div>
+<p style="margin:0 0 24px;max-width:78ch;font-size:13px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">A caixa da foto fica como referência (uma moldura física que exibe a carta principal), não como modelo. Grimorio é um livro de feitiços, então cada opção trata o deck como uma peça desse mundo: tomo, lombada, relicário, página aberta, leque de cartas. Em todas, a carta em destaque é um espaço reservado com a luz do perfil até os dados de carta chegarem. Passe o mouse sobre as peças.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="3a">
+<div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>Tomo — a capa emoldura a carta num arco</div>
+<div class="dv-card" style="width:600px;padding:20px;display:flex;flex-direction:column;gap:16px">
+<h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Decks</h1>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 16px">
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;cursor:pointer">
+<div style="position:relative;width:118px;height:160px;border:1px solid var(--color-border);border-radius:2px 6px 6px 2px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));box-shadow:2px 2px 0 -1px rgb(from var(--color-text) r g b / 22%),4px 4px 0 -2px rgb(from var(--color-text) r g b / 14%);transition:transform .18s cubic-bezier(0.4,0,0.2,1),box-shadow .18s" style-hover="transform:translateY(-4px);box-shadow:2px 2px 0 -1px rgb(from var(--color-text) r g b / 22%),4px 4px 0 -2px rgb(from var(--color-text) r g b / 14%),0 0 18px -4px rgb(from var(--role-primary) r g b / 55%)">
+<div style="position:absolute;left:0;top:0;bottom:0;width:12px;background:var(--color-bg);border-right:1px solid var(--color-border);display:flex;flex-direction:column;justify-content:space-between;padding:18px 0"><div style="height:1px;background:var(--role-primary)"></div><div style="height:1px;background:var(--role-primary)"></div></div>
+<div style="position:absolute;top:12px;left:24px;right:12px;bottom:34px;border:1px solid var(--role-primary);border-radius:40px 40px 4px 4px;overflow:hidden;background:var(--color-bg);display:flex;align-items:center;justify-content:center"><div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgb(from var(--role-primary) r g b / 30%),transparent 70%)"></div><span class="micro-label" style="position:relative;font-size:9px">em breve</span></div>
+<div style="position:absolute;left:18px;right:6px;bottom:8px;text-align:center;font-family:var(--font-display);font-weight:600;font-size:11px;line-height:1.2;color:var(--color-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</div>
+</div>
+<div style="width:100%;text-align:center;display:flex;flex-direction:column;gap:2px"><span style="font-weight:700;font-size:var(--font-size-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ d.format }}</span></div>
+</div>
+</sc-for>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted)">Capa em couro neutro, nervuras da lombada na cor do perfil, bordas das páginas à direita. A janela em arco lembra uma iluminura. Hover: o livro sobe e acende.</p>
+</div>
+</div>
+
+<div class="dv-opt" id="3b">
+<div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>Estante de lombadas — denso, abre ao passar o mouse</div>
+<div class="dv-card" style="width:600px;padding:20px;display:flex;flex-direction:column;gap:16px">
+<h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Decks</h1>
+<div style="display:flex;align-items:flex-end;gap:6px;padding:0 8px;border-bottom:1px solid var(--color-border);box-shadow:0 8px 16px -10px rgb(from var(--role-primary) r g b / 45%);min-height:200px">
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;width:46px;height:184px;overflow:hidden;border:1px solid var(--color-border);border-bottom:none;border-radius:4px 4px 0 0;background:var(--color-surface);cursor:pointer;transition:width .5s cubic-bezier(0.4,0,0.2,1),border-color .18s" style-hover="width:176px;border-color:var(--role-primary)">
+<div style="flex:none;width:44px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 0;background:linear-gradient(90deg,var(--color-bg),var(--color-surface-raised),var(--color-bg));border-right:1px solid var(--color-border)">
+<div style="width:28px;height:1px;background:var(--role-primary);box-shadow:0 4px 0 var(--role-primary)"></div>
+<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--font-display);font-weight:600;font-size:var(--font-size-md);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:120px">{{ d.name }}</span>
+<span class="micro-label" style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px">{{ d.format }}</span>
+</div>
+<div style="flex:none;width:128px;padding:10px;display:flex;flex-direction:column;gap:8px">
+<div style="position:relative;flex:1;border:1px solid var(--role-primary);border-radius:4px;overflow:hidden;background:var(--color-bg);display:flex;align-items:center;justify-content:center"><div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgb(from var(--role-primary) r g b / 30%),transparent 70%)"></div><span class="micro-label" style="position:relative;font-size:9px">em breve</span></div>
+<span class="micro-label" style="font-size:9px">Abrir</span>
+</div>
+</div>
+</sc-for>
+<div style="display:flex;align-items:center;justify-content:center;width:46px;height:184px;border:1px dashed var(--color-border);border-bottom:none;border-radius:4px 4px 0 0;color:var(--color-text-muted);font-size:1.5rem;cursor:pointer" style-hover="border-color:var(--role-accent);color:var(--color-text)">+</div>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted)">A mais compacta: 200 decks cabem em poucas prateleiras. Nome e formato na lombada; hover ou foco puxa o livro e mostra a capa com a carta. Celular: toque abre direto.</p>
+</div>
+</div>
+
+<div class="dv-opt" id="3c">
+<div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a>Relicário — a carta num nicho com o anel do perfil</div>
+<div class="dv-card" style="width:600px;padding:20px;display:flex;flex-direction:column;gap:16px">
+<h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Decks</h1>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 16px">
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;cursor:pointer">
+<div style="position:relative;width:118px;height:164px;transition:transform .18s cubic-bezier(0.4,0,0.2,1)" style-hover="transform:translateY(-4px)">
+<div style="position:absolute;inset:-10px;border-radius:70px 70px 16px 16px;background:var(--halo-gradient);filter:blur(16px);opacity:.6"></div>
+<div style="position:relative;height:100%;padding:2px;border-radius:60px 60px 10px 10px;background:var(--ring-gradient);box-sizing:border-box">
+<div style="height:100%;padding:8px;border-radius:58px 58px 8px 8px;background:var(--color-bg);box-shadow:var(--shadow-rest);box-sizing:border-box">
+<div style="position:relative;height:100%;border:1px solid var(--color-border);border-radius:50px 50px 4px 4px;overflow:hidden;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgb(from var(--role-primary) r g b / 32%),transparent 70%)"></div><span class="micro-label" style="position:relative;font-size:9px">em breve</span></div>
+</div>
+</div>
+</div>
+<div style="width:100%;text-align:center;display:flex;flex-direction:column;gap:2px"><span style="font-family:var(--font-display);font-weight:600;font-size:var(--font-size-md);text-shadow:var(--glow-title);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</span><span class="micro-label">{{ d.format }}</span></div>
+</div>
+</sc-for>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted)">Reaproveita o anel cônico e o halo do modal de entrada, então parece nativo do Grimorio. O nome ganha o brilho de título. A mais atmosférica, e a mais pesada com 200 decks.</p>
+</div>
+</div>
+
+<div class="dv-opt" id="3d">
+<div class="dv-olabel"><a class="dv-oid" href="#3d">3d</a>Grimório aberto — cada deck é uma página dupla</div>
+<div class="dv-card" style="width:600px;padding:20px;display:flex;flex-direction:column;gap:16px">
+<h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Decks</h1>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px">
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:1fr 1fr;height:132px;border:1px solid var(--color-border);border-radius:8px;overflow:hidden;cursor:pointer;background:linear-gradient(90deg,var(--color-surface) 44%,var(--color-bg) 50%,var(--color-surface) 56%);transition:border-color .18s,box-shadow .18s" style-hover="border-color:var(--role-primary);box-shadow:var(--glow-plate-hover)">
+<div style="padding:12px 14px 12px 12px;display:flex"><div style="position:relative;flex:1;border:1px solid var(--role-primary);border-radius:4px;overflow:hidden;background:var(--color-bg);display:flex;align-items:center;justify-content:center"><div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgb(from var(--role-primary) r g b / 30%),transparent 70%)"></div><span class="micro-label" style="position:relative;font-size:9px">em breve</span></div></div>
+<div style="padding:12px 12px 12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0">
+<span class="eyebrow" style="font-size:9px">{{ d.format }}</span>
+<span style="font-family:var(--font-display);font-weight:600;font-size:var(--font-size-lg);line-height:1.2;text-shadow:var(--glow-title);text-wrap:pretty;overflow:hidden">{{ d.name }}</span>
+<span class="micro-label" style="margin-top:auto;align-self:flex-end;font-size:9px">Abrir</span>
+</div>
+</div>
+</sc-for>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted)">Carta à esquerda, nome à direita como título de capítulo, dobra central escura. Nomes longos quebram em duas linhas em vez de truncar. Celular: uma página dupla por linha.</p>
+</div>
+</div>
+
+<div class="dv-opt" id="3e">
+<div class="dv-olabel"><a class="dv-oid" href="#3e">3e</a>Leque — o próprio deck encapado, a carta no topo</div>
+<div class="dv-card" style="width:600px;padding:20px;display:flex;flex-direction:column;gap:16px">
+<h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Decks</h1>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 16px">
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;cursor:pointer">
+<div style="position:relative;width:120px;height:160px">
+<div style="position:absolute;left:14px;top:14px;width:96px;height:134px;border:1px solid var(--role-tertiary);border-radius:6px;background:var(--color-surface);transform:rotate(-10deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:14px;top:14px;width:96px;height:134px;border:1px solid var(--role-accent);border-radius:6px;background:var(--color-surface-raised);transform:rotate(-4deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:14px;top:14px;width:96px;height:134px;padding:6px;box-sizing:border-box;border:1px solid var(--role-primary);border-radius:6px;background:var(--color-bg);transform:rotate(4deg);transform-origin:50% 100%;box-shadow:0 0 16px -4px rgb(from var(--role-primary) r g b / 55%);transition:transform .5s cubic-bezier(0.4,0,0.2,1)" style-hover="transform:rotate(10deg) translateY(-6px)">
+<div style="position:relative;height:100%;border:1px solid var(--color-border);border-radius:3px;overflow:hidden;display:flex;align-items:center;justify-content:center"><div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgb(from var(--role-primary) r g b / 30%),transparent 70%)"></div><span class="micro-label" style="position:relative;font-size:9px">em breve</span></div>
+</div>
+</div>
+<div style="width:100%;text-align:center;display:flex;flex-direction:column;gap:2px"><span style="font-weight:700;font-size:var(--font-size-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ d.format }}</span></div>
+</div>
+</sc-for>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted)">Sem caixa nem livro: três cartas encapadas em leque, as de trás nas três cores do perfil (primária, acento, terciária). Hover: a carta do topo gira para fora.</p>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "junte a capa de <a class="dv-oid" href="#3a">3a</a> com a estante de <a class="dv-oid" href="#3b">3b</a>" · "página do deck no estilo <a class="dv-oid" href="#3c">3c</a>" · "<a class="dv-oid" href="#3d">3d</a> em 360 px"</p>
+</section>
+<section class="dv-turn" id="t2" style="border-bottom:1px solid var(--color-border)">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Decks como caixas de deck — janela com a carta em destaque</span></div>
+<p style="margin:0 0 24px;max-width:78ch;font-size:13px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">Cada deck vira uma pequena caixa de deck: couro escuro (neutros do tema), acabamento e costura na cor do perfil, aba magnética à esquerda e uma janela na frente para a carta em destaque. Como os dados de carta ainda não existem, a janela é um espaço reservado com luz do perfil — quando a carta chegar, a arte entra ali. Substitui <a class="dv-oid" href="#1a">1a</a> e <a class="dv-oid" href="#1c">1c</a>; <a class="dv-oid" href="#1b">1b</a>, <a class="dv-oid" href="#1d">1d</a> e <a class="dv-oid" href="#1e">1e</a> seguem valendo. Passe o mouse sobre as caixas.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Área de decks — estante de caixas (desktop)</div>
+<div class="dv-card" style="width:760px">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--color-border);background:var(--wash-header)"><span class="grm-wordmark" style="font-size:1.25rem">Grimorio</span><span style="font-size:12px;color:var(--color-text-muted)">● Sincronizado há 42 min · rafa</span></div>
+<div style="display:flex">
+<div style="width:24px;border-right:1px solid var(--color-border)"></div>
+<div style="flex:1;padding:20px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Decks</h1><button class="btn btn--primary">Novo deck</button></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:24px 16px">
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;min-width:0">
+<div style="position:relative;width:170px;height:212px;perspective:900px;display:flex;align-items:center;justify-content:center;--w:128px;--h:160px;--d:100px">
+<div style="position:absolute;bottom:6px;left:50%;width:150px;height:22px;margin-left:-72px;border-radius:50%;background:radial-gradient(closest-side,rgb(from var(--role-primary) r g b / 28%),transparent)"></div>
+<div style="position:relative;width:var(--w);height:var(--h);transform-style:preserve-3d;transform:rotateY(28deg) rotateX(-12deg);transition:transform .5s cubic-bezier(0.4,0,0.2,1)" style-hover="transform:rotateY(14deg) rotateX(-9deg) translateY(-6px)">
+<div style="position:absolute;left:calc((var(--w) - var(--d)) / 2);top:0;width:var(--d);height:var(--h);transform:rotateY(-90deg) translateZ(calc(var(--w) / 2));background:linear-gradient(90deg,#0b0908,var(--color-bg));border:1px solid var(--color-border);border-radius:4px;box-sizing:border-box">
+<div style="position:absolute;inset:6px;border:1px dashed rgb(from var(--role-primary) r g b / 45%);border-radius:3px"></div>
+</div>
+<div style="position:absolute;left:0;top:calc((var(--h) - var(--d)) / 2);width:var(--w);height:var(--d);transform:rotateX(90deg) translateZ(calc(var(--h) / 2));background:var(--color-surface);border:1px solid var(--color-border);border-radius:4px;box-sizing:border-box">
+<div style="position:absolute;inset:6px;border:1px dashed rgb(from var(--role-primary) r g b / 35%);border-radius:3px"></div>
+</div>
+<div style="position:absolute;inset:0;transform:translateZ(calc(var(--d) / 2));background:linear-gradient(var(--color-surface),var(--color-bg));border:1px solid var(--role-primary);border-radius:4px;box-sizing:border-box;box-shadow:0 0 14px -4px rgb(from var(--role-primary) r g b / 55%)">
+<div style="position:absolute;left:0;top:0;bottom:0;width:16px;background:var(--color-bg);border-right:1px solid var(--color-border);border-radius:4px 0 0 4px"><div style="position:absolute;top:6px;bottom:6px;right:4px;border-right:1px dashed rgb(from var(--role-primary) r g b / 55%)"></div></div>
+<div style="position:absolute;top:12px;right:10px;bottom:12px;left:26px;border:1px solid var(--role-primary);border-radius:6px;overflow:hidden;background:var(--color-bg);outline:1px dashed rgb(from var(--role-primary) r g b / 55%);outline-offset:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px">
+<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,rgb(from var(--role-primary) r g b / 30%),transparent 70%)"></div>
+<span class="micro-label" style="position:relative;font-size:9px">Carta em destaque</span>
+<span style="position:relative;font-size:10px;color:var(--color-text-muted)">em breve</span>
+</div>
+</div>
+</div>
+</div>
+<div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center"><span style="max-width:100%;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</span><span style="font-size:var(--font-size-sm);color:var(--color-text-muted)">{{ d.format }}</span></div>
+</div>
+</sc-for>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer">
+<div style="width:170px;height:212px;display:flex;align-items:center;justify-content:center">
+<div style="width:128px;height:160px;border:1px dashed var(--color-border);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--color-text-muted);transition:border-color .18s,color .18s" style-hover="border-color:var(--role-accent);color:var(--color-text)"><span style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.5rem">+</span><span style="font-size:var(--font-size-sm)">Novo deck</span></div>
+</div>
+</div>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted)">Grade automática (mín. 160 px por caixa). Hover: a caixa gira para frente e sobe; a luz no chão vem da cor do perfil. Reduced motion: caixas paradas, sem giro. Nome longo trunca com title.</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Página do deck — a caixa em destaque</div>
+<div class="dv-card" style="width:640px">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--color-border);background:var(--wash-header)"><span class="grm-wordmark" style="font-size:1.25rem">Grimorio</span><span style="font-size:12px;color:var(--color-text-muted)">● Sincronizado há 42 min · rafa</span></div>
+<div style="display:flex">
+<div style="width:24px;border-right:1px solid var(--color-border)"></div>
+<div style="flex:1;padding:20px;display:flex;flex-direction:column;gap:16px">
+<nav aria-label="Caminho" style="display:flex;align-items:center;gap:8px;font-size:var(--font-size-sm)"><a class="link-btn" href="#2a">Decks</a><span style="color:var(--color-text-muted)">·</span><span aria-current="page" style="color:var(--color-text-muted)">Krenko goblins</span></nav>
+<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+<div style="position:relative;width:260px;height:320px;perspective:1100px;display:flex;align-items:center;justify-content:center;--w:190px;--h:240px;--d:148px">
+<div style="position:absolute;bottom:8px;left:50%;width:220px;height:30px;margin-left:-104px;border-radius:50%;background:radial-gradient(closest-side,rgb(from var(--role-primary) r g b / 32%),transparent)"></div>
+<div style="position:relative;width:var(--w);height:var(--h);transform-style:preserve-3d;transform:rotateY(24deg) rotateX(-10deg);transition:transform .5s cubic-bezier(0.4,0,0.2,1)" style-hover="transform:rotateY(8deg) rotateX(-6deg)">
+<div style="position:absolute;left:calc((var(--w) - var(--d)) / 2);top:0;width:var(--d);height:var(--h);transform:rotateY(-90deg) translateZ(calc(var(--w) / 2));background:linear-gradient(90deg,#0b0908,var(--color-bg));border:1px solid var(--color-border);border-radius:4px;box-sizing:border-box"><div style="position:absolute;inset:8px;border:1px dashed rgb(from var(--role-primary) r g b / 45%);border-radius:3px"></div></div>
+<div style="position:absolute;left:0;top:calc((var(--h) - var(--d)) / 2);width:var(--w);height:var(--d);transform:rotateX(90deg) translateZ(calc(var(--h) / 2));background:var(--color-surface);border:1px solid var(--color-border);border-radius:4px;box-sizing:border-box"><div style="position:absolute;inset:8px;border:1px dashed rgb(from var(--role-primary) r g b / 35%);border-radius:3px"></div></div>
+<div style="position:absolute;inset:0;transform:translateZ(calc(var(--d) / 2));background:linear-gradient(var(--color-surface),var(--color-bg));border:1px solid var(--role-primary);border-radius:4px;box-sizing:border-box;box-shadow:0 0 20px -4px rgb(from var(--role-primary) r g b / 55%)">
+<div style="position:absolute;left:0;top:0;bottom:0;width:22px;background:var(--color-bg);border-right:1px solid var(--color-border);border-radius:4px 0 0 4px"><div style="position:absolute;top:8px;bottom:8px;right:5px;border-right:1px dashed rgb(from var(--role-primary) r g b / 55%)"></div></div>
+<div style="position:absolute;top:16px;right:14px;bottom:16px;left:36px;border:1px solid var(--role-primary);border-radius:8px;overflow:hidden;background:var(--color-bg);outline:1px dashed rgb(from var(--role-primary) r g b / 55%);outline-offset:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:10px">
+<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,rgb(from var(--role-primary) r g b / 32%),transparent 70%)"></div>
+<span class="micro-label" style="position:relative">Carta em destaque</span>
+<span style="position:relative;font-size:var(--font-size-xs);line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">Você escolhe quando as cartas entrarem no deck.</span>
+</div>
+</div>
+</div>
+</div>
+<div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:12px">
+<h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;line-height:1.2;text-shadow:var(--glow-title)">Krenko goblins</h1>
+<div class="plate" style="align-self:flex-start"><span class="micro-label">Formato</span><span style="font-weight:700">Commander</span></div>
+<div style="display:flex;gap:8px"><button class="btn btn--secondary">Editar</button><button class="btn btn--secondary">Excluir</button></div>
+</div>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted)">A caixa é a peça central da página. Celular: caixa centralizada em cima (≈ 200 px), nome e ações abaixo, 50/50.</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2c">
+<div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Celular 360 px — frente da caixa, sem 3D</div>
+<div class="dv-card" style="width:360px">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--color-border);background:var(--wash-header)"><span class="grm-wordmark" style="font-size:1.25rem">Grimorio</span><span class="eyebrow">Menu</span></div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:16px">
+<h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Decks</h1>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px">
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0;cursor:pointer">
+<div style="position:relative;aspect-ratio:4/5;background:linear-gradient(var(--color-surface),var(--color-bg));border:1px solid var(--role-primary);border-radius:4px;box-shadow:0 0 14px -4px rgb(from var(--role-primary) r g b / 55%)">
+<div style="position:absolute;left:0;top:0;bottom:0;width:14px;background:var(--color-bg);border-right:1px solid var(--color-border);border-radius:4px 0 0 4px"><div style="position:absolute;top:6px;bottom:6px;right:3px;border-right:1px dashed rgb(from var(--role-primary) r g b / 55%)"></div></div>
+<div style="position:absolute;top:10px;right:9px;bottom:10px;left:23px;border:1px solid var(--role-primary);border-radius:6px;overflow:hidden;background:var(--color-bg);outline:1px dashed rgb(from var(--role-primary) r g b / 55%);outline-offset:3px;display:flex;align-items:center;justify-content:center"><div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,rgb(from var(--role-primary) r g b / 30%),transparent 70%)"></div><span class="micro-label" style="position:relative;font-size:9px">em breve</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:700;font-size:var(--font-size-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ d.format }}</span></div>
+</div>
+</sc-for>
+<div style="display:flex;flex-direction:column;gap:6px;cursor:pointer"><div style="aspect-ratio:4/5;border:1px dashed var(--color-border);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--color-text-muted)"><span style="font-size:1.5rem">+</span><span style="font-size:var(--font-size-sm)">Novo deck</span></div></div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "caixas com cores de couro diferentes por formato" · "<a class="dv-oid" href="#2a">2a</a> com a tampa abrindo no hover" · "campo 'Carta em destaque (em breve)' no formulário <a class="dv-oid" href="#1d">1d</a>"</p>
+</section>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Decks foundation (spec 009) — as 5 telas do escopo</span></div>
+<p style="margin:0 0 24px;max-width:78ch;font-size:13px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">Premissas: reaproveita os padrões da área de coleção (spec 008) — linhas, diálogo compacto, estado vazio, caminho. Decks não têm cor, então a linha perde o swatch e mostra o formato na meta. O seletor de formato é uma grade de 8 opções com o resumo logo abaixo (FR-016). Nada de lista de cartas ou contagens na página do deck (FR-005). <a class="dv-oid" href="#1d">1d</a> e <a class="dv-oid" href="#1e">1e</a> são clicáveis.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Área de decks — lista (US1, FR-004)</div>
+<div class="dv-card" style="width:600px">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--color-border);background:var(--wash-header)"><span class="grm-wordmark" style="font-size:1.25rem">Grimorio</span><span style="font-size:12px;color:var(--color-text-muted)">● Sincronizado há 42 min · rafa</span></div>
+<div style="display:flex;min-height:420px">
+<div style="width:24px;border-right:1px solid var(--color-border);display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:24px"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-border)"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--role-primary);box-shadow:0 0 8px var(--role-primary)"></span></div>
+<div style="flex:1;padding:20px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Decks</h1><button class="btn btn--primary">Novo deck</button></div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ decks }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 16px;border:1px solid var(--color-border);border-radius:8px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));cursor:pointer;transition:border-color .18s,box-shadow .18s" style-hover="border-color:var(--role-primary);box-shadow:var(--glow-plate-hover)">
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</span><span style="font-size:var(--font-size-sm);color:var(--color-text-muted)">{{ d.format }}</span></div>
+<span class="micro-label">Abrir</span>
+</div>
+</sc-for>
+</div>
+<p style="margin:0;font-size:12px;color:var(--color-text-muted)">Ordem alfabética (pt-BR, sem caixa/acentos). Nome longo trunca com reticências; nome completo no title. Linha só abre o deck. ≤ 640 px: botão do header vira linha tracejada “+ Novo deck” no fim.</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Área de decks — vazio (US1-3, FR-006)</div>
+<div class="dv-card" style="width:600px">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--color-border);background:var(--wash-header)"><span class="grm-wordmark" style="font-size:1.25rem">Grimorio</span><span style="font-size:12px;color:var(--color-text-muted)">● Sincronizado há 42 min · rafa</span></div>
+<div style="display:flex;min-height:420px">
+<div style="width:24px;border-right:1px solid var(--color-border)"></div>
+<div style="flex:1;padding:20px;display:flex;flex-direction:column;gap:16px">
+<h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Decks</h1>
+<div style="flex:1;display:flex;align-items:center;justify-content:center">
+<div style="max-width:360px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+<span class="eyebrow">Nenhum deck ainda</span>
+<h2 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:1.5rem;text-shadow:var(--glow-title)">Prontos para a mesa</h2>
+<p style="margin:0;font-size:var(--font-size-sm);line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">Um deck é uma caixa de deck na estante — encapado e pronto para jogar. Crie um para cada deck que você montou.</p>
+<button class="btn btn--primary">Criar deck</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Página do deck (US1-2, FR-005)</div>
+<div class="dv-card" style="width:600px">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--color-border);background:var(--wash-header)"><span class="grm-wordmark" style="font-size:1.25rem">Grimorio</span><span style="font-size:12px;color:var(--color-text-muted)">● Sincronizado há 42 min · rafa</span></div>
+<div style="display:flex;min-height:420px">
+<div style="width:24px;border-right:1px solid var(--color-border)"></div>
+<div style="flex:1;padding:20px;display:flex;flex-direction:column;gap:16px">
+<nav aria-label="Caminho" style="display:flex;align-items:center;gap:8px;font-size:var(--font-size-sm)"><a class="link-btn" href="#1a">Decks</a><span style="color:var(--color-text-muted)">·</span><span aria-current="page" style="color:var(--color-text-muted)">Krenko goblins</span></nav>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><h1 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:2rem;text-shadow:var(--glow-title)">Krenko goblins</h1><div style="display:flex;gap:8px"><button class="btn btn--secondary">Editar</button><button class="btn btn--secondary">Excluir</button></div></div>
+<div class="plate" style="align-self:flex-start"><span class="micro-label">Formato</span><span style="font-weight:700">Commander</span></div>
+<p style="margin:auto 0 0;font-size:12px;color:var(--color-text-muted)">Só nome e formato — sem lista de cartas, contagens ou espaço reservado. URL própria (/decks/{id}); deck inexistente volta para a lista. Celular: ações em linha própria, 50/50.</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Criar / editar deck (US2, FR-003, FR-016) — interativo</div>
+<div class="dv-card" style="width:600px">
+<div style="min-height:464px;background:var(--overlay-backdrop);display:flex;align-items:center;justify-content:center;padding:24px 0">
+<div style="width:480px;padding:2px;border-radius:10px;background:var(--ring-gradient)">
+<div style="background:var(--color-bg);border-radius:8px;box-shadow:var(--shadow-rest);padding:0 20px 20px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;align-items:center;height:44px;margin:0 -12px 0 0"><div style="display:flex;gap:4px"><button class="btn btn--ghost" style="font-size:12px;min-height:32px;padding:4px 8px;{{ createTabStyle }}" onClick="{{ setCreate }}">Novo</button><button class="btn btn--ghost" style="font-size:12px;min-height:32px;padding:4px 8px;{{ editTabStyle }}" onClick="{{ setEdit }}">Editar</button></div><button class="btn btn--ghost" aria-label="Fechar">✕</button></div>
+<h2 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:1.5rem;text-shadow:var(--glow-title)">{{ formTitle }}</h2>
+<div class="field">
+<label class="field__label" for="deck-name">Nome</label>
+<input id="deck-name" class="field__input" value="{{ name }}" onInput="{{ onName }}" placeholder="Krenko goblins" style="{{ inputStyle }}">
+<div style="display:flex;justify-content:space-between;gap:8px"><span style="{{ helperStyle }}">{{ helper }}</span><span style="font-size:var(--font-size-xs);{{ countStyle }}">{{ count }}/40</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px" role="radiogroup" aria-label="Formato">
+<span class="field__label">Formato · {{ fmtName }}</span>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+<sc-for list="{{ formats }}" as="f" hint-placeholder-count="8">
+<button role="radio" aria-checked="{{ f.on }}" onClick="{{ f.pick }}" class="btn" style="font-size:var(--font-size-sm);padding:4px 6px;{{ f.style }}">{{ f.name }}</button>
+</sc-for>
+</div>
+<div class="plate" style="min-height:4.5em"><span style="font-size:var(--font-size-sm);line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">{{ summary }}</span></div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn btn--secondary">Cancelar</button><button class="btn btn--primary" onClick="{{ submit }}">{{ verb }}</button></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Excluir deck (US3, FR-008, FR-009) — interativo</div>
+<div class="dv-card" style="width:600px">
+<div style="position:relative;min-height:464px;background:var(--overlay-backdrop);display:flex;align-items:center;justify-content:center">
+<sc-if value="{{ showDialog }}" hint-placeholder-val="{{ true }}">
+<div style="width:480px;padding:2px;border-radius:10px;background:var(--ring-gradient)">
+<div style="background:var(--color-bg);border-radius:8px;box-shadow:var(--shadow-rest);padding:0 20px 20px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center;height:44px;margin:0 -12px 0 0"><button class="btn btn--ghost" style="font-size:12px;min-height:32px;padding:4px 8px" onClick="{{ toggleCards }}">{{ cardsToggleLabel }}</button><button class="btn btn--ghost" aria-label="Fechar" aria-disabled="{{ deleting }}">✕</button></div>
+<h2 style="margin:0;font-family:var(--font-display);font-weight:600;font-size:1.5rem;text-shadow:var(--glow-title)">Excluir Krenko goblins?</h2>
+<p style="margin:0;font-size:var(--font-size-sm);line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">{{ deleteCopy }}</p>
+<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px"><button class="btn btn--secondary" aria-disabled="{{ deleting }}">Cancelar</button><button class="btn btn--danger" aria-disabled="{{ deleting }}" onClick="{{ doDelete }}">{{ deleteVerb }}</button></div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ showToast }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+<div class="plate" style="max-width:380px"><span class="micro-label">Deck</span><span style="font-size:var(--font-size-sm)">{{ toastText }}</span></div>
+<button class="link-btn" onClick="{{ reset }}">Ver de novo</button>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "variações do seletor de formato em <a class="dv-oid" href="#1d">1d</a> (lista vertical, select)" · "versões mobile 360 px" · "hi-fi de <a class="dv-oid" href="#1a">1a</a> com transição de página"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const FORMATS = [
+  ['Commander','Exatamente 100 cartas, contando o comandante. Uma cópia de cada carta, exceto terrenos básicos. O comandante é uma criatura lendária; todas as cartas devem estar na identidade de cor dele. Sem sideboard.'],
+  ['Duel Commander','Mesma estrutura do Commander — 100 cartas com o comandante, uma cópia de cada, identidade de cor — para partidas 1 contra 1, com lista de banidas própria.'],
+  ['cEDH','Mesma estrutura do Commander — 100 cartas com o comandante, uma cópia de cada, identidade de cor — montado para o jogo competitivo.'],
+  ['Pauper','Mínimo de 60 cartas e sideboard de até 15. Até 4 cópias de cada carta, exceto terrenos básicos. Só cartas impressas como comuns.'],
+  ['Modern','Mínimo de 60 cartas e sideboard de até 15. Até 4 cópias de cada carta, exceto terrenos básicos. Cartas de coleções a partir da Oitava Edição.'],
+  ['Standard','Mínimo de 60 cartas e sideboard de até 15. Até 4 cópias de cada carta, exceto terrenos básicos. Só cartas das coleções mais recentes, que rodam com o tempo.'],
+  ['Premodern','Mínimo de 60 cartas e sideboard de até 15. Até 4 cópias de cada carta, exceto terrenos básicos. Cartas das coleções da Quarta Edição até Scourge.'],
+  ['Casual','Sem regras fixas: o deck segue o que o seu grupo de jogo combinar.']
+];
+const SIXTY = ['Mínimo de 60 cartas.', 'Sideboard de até 15 cartas.', 'Até 4 cópias de cada carta, exceto terrenos básicos.'];
+const FAMILIES = [
+  { name: 'Commander', rules: ['Exatamente 100 cartas, contando o comandante.', 'Uma cópia de cada carta, exceto terrenos básicos.', 'O comandante é uma criatura lendária.', 'Todas as cartas na identidade de cor do comandante.', 'Sem sideboard.'],
+  },
+  { name: 'Pauper', rules: [...SIXTY, 'Só cartas impressas como comuns.'] },
+  { name: 'Modern', rules: [...SIXTY, 'Cartas de coleções a partir da Oitava Edição.'] },
+  { name: 'Standard', rules: [...SIXTY, 'Só cartas das coleções mais recentes, que rodam com o tempo.'] },
+  { name: 'Premodern', rules: [...SIXTY, 'Cartas das coleções da Quarta Edição até Scourge.'] },
+  { name: 'Casual', rules: ['Sem regras fixas: o deck segue o que o seu grupo de jogo combinar.'] }
+];
+const PICK_ON = 'color:var(--role-primary);border-color:var(--role-primary);font-weight:700;box-shadow:var(--glow-button);text-shadow:var(--glow-button-text)';
+const DECKS = [
+  { name: 'Atraxa superfriends', format: 'Commander' },
+  { name: 'Krenko goblins', format: 'Commander' },
+  { name: 'Mono-red burn', format: 'Modern' },
+  { name: 'Pauper faeries', format: 'Pauper' }
+];
+class Component extends DCLogic {
+  state = { mode: 'create', name: '', fmt: 0, error: null, saved: null, cards: false, deleting: false, done: false };
+  submit = () => {
+    const n = this.state.name.trim();
+    let error = null;
+    if (!n) error = 'Dê um nome ao deck.';
+    else if (n.length > 40) error = 'Use no máximo 40 caracteres.';
+    else if (this.state.mode === 'create' && DECKS.some(d => d.name.toLowerCase() === n.toLowerCase())) error = 'Já existe um deck com esse nome.';
+    this.setState({ error, saved: error ? null : n });
+  };
+  doDelete = () => {
+    if (this.state.deleting) return;
+    this.setState({ deleting: true });
+    setTimeout(() => this.setState({ deleting: false, done: true }), 1200);
+  };
+  renderVals() {
+    const s = this.state;
+    const len = s.name.length;
+    const tabOn = 'border-color:var(--color-border);color:var(--color-text)';
+    const tabOff = 'color:var(--color-text-muted)';
+    const helper = s.error || (s.saved ? `${s.saved} salvo neste aparelho.` : 'Como você chama esse deck na estante.');
+    const pov = (key, base) => ({
+      move: e => { const r = e.currentTarget.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height; this.setState({ [key]: `${Math.round(base[0] + (x - .5) * base[2])}% ${Math.round(base[1] + (y - .5) * base[2])}%` }); },
+      leave: () => this.setState({ [key]: null })
+    });
+    const a = pov('o5a', [5, -40, 120]), b = pov('o5b', [30, 10, 160]);
+    const fam = FAMILIES[s.f6 || 0], vi = s.v6 || 0;
+    const r6 = {
+      families6: FAMILIES.map((f, i) => ({ name: f.name, on: i === (s.f6 || 0), pick: () => this.setState({ f6: i, v6: 0 }), style: i === (s.f6 || 0) ? PICK_ON : 'color:var(--color-text)' })),
+      hasVariants6: !!fam.variants,
+      variants6: (fam.variants || []).map(([name], i) => ({ name, on: i === vi, pick: () => this.setState({ v6: i }), style: i === vi ? 'border-color:var(--role-primary);color:var(--color-text);font-weight:700' : 'color:var(--color-text-muted)' })),
+      variantNote6: fam.variants ? fam.variants[vi][1] : '',
+      fmtName6: fam.variants ? fam.variants[vi][0] : fam.name,
+      rules6: fam.rules
+    };
+    return {
+      ...r6,
+      origin5a: s.o5a || '5% -40%', move5a: a.move, leave5a: a.leave,
+      origin5b: s.o5b || '30% 10%', move5b: b.move, leave5b: b.leave,
+      decks: DECKS,
+      formTitle: s.mode === 'create' ? 'Novo deck' : 'Editar deck',
+      verb: s.mode === 'create' ? 'Criar deck' : 'Salvar',
+      createTabStyle: s.mode === 'create' ? tabOn : tabOff,
+      editTabStyle: s.mode === 'edit' ? tabOn : tabOff,
+      setCreate: () => this.setState({ mode: 'create', name: '', fmt: 0, error: null, saved: null }),
+      setEdit: () => this.setState({ mode: 'edit', name: 'Krenko goblins', fmt: 0, error: null, saved: null }),
+      name: s.name,
+      onName: e => this.setState({ name: e.target.value, error: null, saved: null }),
+      inputStyle: s.error ? 'border-color:var(--color-danger)' : '',
+      helper,
+      helperStyle: s.error ? 'font-size:var(--font-size-sm);color:var(--color-danger)' : 'font-size:var(--font-size-xs);color:var(--color-text-muted)',
+      count: len,
+      countStyle: len > 40 ? 'color:var(--color-danger)' : 'color:var(--color-text-muted)',
+      fmtName: FORMATS[s.fmt][0],
+      summary: FORMATS[s.fmt][1],
+      formats: FORMATS.map(([name], i) => ({
+        name, on: i === s.fmt,
+        pick: () => this.setState({ fmt: i }),
+        style: i === s.fmt ? 'color:var(--role-primary);border-color:var(--role-primary);font-weight:700;box-shadow:var(--glow-button);text-shadow:var(--glow-button-text)' : 'color:var(--color-text)'
+      })),
+      submit: this.submit,
+      showDialog: !s.done,
+      showToast: s.done,
+      deleting: s.deleting,
+      cardsToggleLabel: s.cards ? 'Estado: com 12 cartas' : 'Estado: sem cartas',
+      toggleCards: () => !s.deleting && this.setState({ cards: !s.cards }),
+      deleteCopy: s.cards
+        ? 'As 12 cartas deste deck vão para a Caixa temporária, com todos os dados, até você guardá-las em outro lugar.'
+        : 'Não há cartas aqui. Nada mais é afetado.',
+      deleteVerb: s.deleting ? 'Excluindo…' : 'Excluir deck',
+      doDelete: this.doDelete,
+      toastText: s.cards ? 'Krenko goblins foi excluído. 12 cartas foram para a caixa temporária.' : 'Krenko goblins foi excluído.',
+      reset: () => this.setState({ done: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

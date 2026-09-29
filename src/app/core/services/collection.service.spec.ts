@@ -7,6 +7,7 @@ import { getAllFromStore } from '../db/entity-store';
 import { openProfileDb } from '../db/profile-db';
 import { CardService } from './card.service';
 import { CollectionService } from './collection.service';
+import { DeckService } from './deck.service';
 
 function mockCollection(overrides: Partial<Collection> = {}): Collection {
   return {
@@ -106,6 +107,16 @@ describe('CollectionService', () => {
       cards.add(mockCardEntryWithoutId({ locationId: 'root', quantity: 3 }));
 
       expect(service.stats().byId.get('root')?.cards).toBe(3);
+    });
+
+    it('keeps a card placed in a deck out of the holding box', async () => {
+      const db = await openProfileDb('p1');
+      await db.put('decks', { id: 'deck-1', name: 'Elfos', format: 'pauper', updatedAt: '2026-01-01T00:00:00.000Z' });
+      await TestBed.inject(DeckService).load('p1');
+
+      cards.add(mockCardEntryWithoutId({ locationId: 'deck-1', quantity: 2 }));
+
+      expect(service.stats().holding.cards).toBe(0);
     });
   });
 

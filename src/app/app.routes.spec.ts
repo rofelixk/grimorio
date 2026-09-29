@@ -1,11 +1,12 @@
 import { UrlSegment } from '@angular/router';
 import { describe, expect, it } from 'vitest';
-import { collectionMatcher, routes } from './app.routes';
+import { collectionMatcher, deckMatcher, routes } from './app.routes';
 import { profileGuard } from './core/guards/profile.guard';
 
 const route = (path: string) => routes.find((r) => r.path === path);
 const collectionRoute = () => routes.find((r) => 'matcher' in r && r.matcher === collectionMatcher);
-const segments = (...paths: string[]) => paths.map((p) => new UrlSegment(p, {}));
+const deckRoute = () => routes.find((r) => 'matcher' in r && r.matcher === deckMatcher);
+const segments =(...paths: string[]) => paths.map((p) => new UrlSegment(p, {}));
 
 describe('app routes', () => {
   it.each(['', 'about'])('leaves "%s" open with no profile (FR-011, FR-011a)', (path) => {
@@ -13,13 +14,26 @@ describe('app routes', () => {
     expect(route(path)?.canActivate).toBeUndefined();
   });
 
-  it.each(['decks', 'decks/:id'])(
-    'gates "%s" behind an active profile (FR-001)',
-    (path) => {
-      expect(route(path)?.canActivate).toEqual([profileGuard]);
-      expect(route(path)?.runGuardsAndResolvers).toBe('always');
-    },
-  );
+  it('gates the deck route behind an active profile (FR-001)', () => {
+    expect(deckRoute()?.canActivate).toEqual([profileGuard]);
+    expect(deckRoute()?.runGuardsAndResolvers).toBe('always');
+  });
+
+  describe('deckMatcher (spec 009 R7)', () => {
+    it('matches "/decks"', () => {
+      expect(deckMatcher(segments('decks'))).toEqual({ consumed: segments('decks') });
+    });
+
+    it('matches "/decks/{id}" with a posParam', () => {
+      const result = deckMatcher(segments('decks', 'x'));
+      expect(result?.consumed).toHaveLength(2);
+      expect(result?.posParams?.['ref'].path).toBe('x');
+    });
+
+    it('rejects "/decks/x/y"', () => {
+      expect(deckMatcher(segments('decks', 'x', 'y'))).toBeNull();
+    });
+  });
 
   it('gates the collection route behind an active profile (FR-001)', () => {
     expect(collectionRoute()?.canActivate).toEqual([profileGuard]);

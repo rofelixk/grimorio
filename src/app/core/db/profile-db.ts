@@ -4,7 +4,7 @@ import { Collection } from '@models/collection.model';
 import { Deck } from '@models/deck.model';
 import { DEVICE_DB_NAME } from './device-db';
 
-export type TombstoneEntity = 'cards' | 'collections';
+export type TombstoneEntity = 'cards' | 'collections' | 'decks';
 
 export interface TombstoneRecord {
   key: string;
@@ -32,7 +32,7 @@ export interface ProfileDbSchema extends DBSchema {
 
 export type ProfileDb = IDBPDatabase<ProfileDbSchema>;
 
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 export function profileDbName(profileId: string): string {
   return `grimorio-profile-${profileId}`;
@@ -48,8 +48,12 @@ export function openProfileDb(profileId: string): Promise<ProfileDb> {
     connection = openDB<ProfileDbSchema>(profileDbName(profileId), DB_VERSION, {
       // Not a data migration (research R13): `locations` is simply dropped, and every other
       // store is created only if it's missing, so an existing v1 database ends up with the
-      // same stores a fresh v2 database would have gotten.
-      upgrade(db) {
+      // same stores a fresh v2 database would have gotten. v3 (spec 009) recreates `decks`
+      // empty, dropping the old-shaped deck records rather than migrating them.
+      upgrade(db, oldVersion) {
+        if (oldVersion < 3 && db.objectStoreNames.contains('decks')) {
+          db.deleteObjectStore('decks');
+        }
         if (!db.objectStoreNames.contains('cards')) {
           db.createObjectStore('cards', { keyPath: 'id' });
         }

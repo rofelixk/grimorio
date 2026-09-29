@@ -1,15 +1,36 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { Deck, DeckCard } from '@models/deck.model';
-import { currentDbHandle, getAllFromStore, replaceStore, setActiveProfileDb } from '../db/entity-store';
+import { Injectable, Signal, computed, inject, signal } from '@angular/core';
+import { Deck, DeckFormatId, DeckNameError } from '@models/deck.model';
+import { Tombstone } from '@models/tombstone.model';
+import { compareDeckNames, validateDeckName } from '../utils/deck.util';
+import {
+  RowOp,
+  clearTombstones,
+  currentDbHandle,
+  getAllFromStore,
+  getTombstonesFor,
+  setActiveProfileDb,
+  writeRows,
+} from '../db/entity-store';
+import { CardService } from './card.service';
 
+// Decks (spec 009): a card location next to collections. Every write is a per-row `writeRows`
+// with the profile handle captured when it's enqueued (research R3), like CollectionService.
 @Injectable({ providedIn: 'root' })
 export class DeckService {
+  private readonly cards = inject(CardService);
+
   private readonly decksSignal = signal<Deck[]>([]);
-  readonly decks = this.decksSignal.asReadonly();
+  readonly decks: Signal<Deck[]> = this.decksSignal.asReadonly();
+
+  readonly sorted: Signal<Deck[]> = computed(() => [...this.decks()].sort(compareDeckNames));
+
+  readonly byId: Signal<Map<string, Deck>> = computed(() => new Map(this.decks().map((deck) => [deck.id, deck])));
+
+  // Read by CollectionService.stats (research R1): a card placed in a deck is not a holding-box card.
+  readonly ids: Signal<ReadonlySet<string>> = computed(() => new Set(this.decks().map((deck) => deck.id)));
 
   private readonly changeCountSignal = signal(0);
-  // Bumped by user mutations (add/addMany/update/remove), never by applySyncResult — feeds
-  // the automatic-sync debounce (R11).
+  // Bumped by user mutations (create/update/remove), never by applySyncResult.
   readonly changeCount = this.changeCountSignal.asReadonly();
 
   private readyPromise: Promise<void> = Promise.resolve();
@@ -43,58 +64,121 @@ export class DeckService {
     return this.writeQueue.then(() => undefined);
   }
 
-  private persist(decks: Deck[]): void {
+  private enqueueWrite(fn: () => Promise<unknown>): void {
+    this.writeQueue = this.writeQueue.then(fn).catch((e) => console.error('Grimorio: failed to persist decks.', e));
+  }
+
+  /** Copies (Σ quantity) of the cards whose `locationId` is this deck. */
+  cardCount(id: string): number {
+    return this.cards.cards().reduce((sum, card) => (card.locationId === id ? sum + card.quantity : sum), 0);
+  }
+
+  create(input: { name: string; format: DeckFormatId }): { ok: true; deck: Deck } | { ok: false; error: DeckNameError } {
+    const error = validateDeckName(input.name, this.decks());
+    if (error) return { ok: false, error };
+
+    const deck: Deck = {
+      id: crypto.randomUUID(),
+      name: input.name.trim(),
+      format: input.format,
+      updatedAt: new Date().toISOString(),
+    };
+    this.decksSignal.update((decks) => [...decks, deck]);
+    this.changeCountSignal.update((n) => n + 1);
     const handle = currentDbHandle();
-    this.writeQueue = this.writeQueue
-      .then(() => replaceStore('decks', decks, handle))
-      .catch((e) => console.error('Grimorio: failed to persist decks.', e));
+    this.enqueueWrite(() => writeRows([{ store: 'decks', put: deck }], handle));
+    return { ok: true, deck };
   }
 
-  private update(id: string, patch: (deck: Deck) => Deck): void {
-    this.decksSignal.update((decks) => {
-      const next = decks.map((deck) => (deck.id === id ? patch(deck) : deck));
-      this.persist(next);
-      return next;
-    });
+  /** Renames and/or changes the format of one deck; the name is validated only when it changes. */
+  update(
+    id: string,
+    patch: { name?: string; format?: DeckFormatId },
+  ): { ok: true } | { ok: false; error: DeckNameError | 'not-found' } {
+    const current = this.byId().get(id);
+    if (!current) return { ok: false, error: 'not-found' };
+
+    let name = current.name;
+    if (patch.name !== undefined && patch.name.trim() !== current.name) {
+      const error = validateDeckName(patch.name, this.decks(), id);
+      if (error) return { ok: false, error };
+      name = patch.name.trim();
+    }
+
+    const updated: Deck = { ...current, name, format: patch.format ?? current.format, updatedAt: new Date().toISOString() };
+    this.decksSignal.update((decks) => decks.map((deck) => (deck.id === id ? updated : deck)));
     this.changeCountSignal.update((n) => n + 1);
+    const handle = currentDbHandle();
+    this.enqueueWrite(() => writeRows([{ store: 'decks', put: updated }], handle));
+    return { ok: true };
   }
 
-  add(deck: Omit<Deck, 'id'>): Deck {
-    const entry: Deck = { ...deck, id: crypto.randomUUID() };
-    this.decksSignal.update((decks) => {
-      const next = [...decks, entry];
-      this.persist(next);
-      return next;
-    });
+  /**
+   * Deletes a deck (FR-009): the row and its tombstone in one transaction, and **no card write** —
+   * the deck's cards now match no location, which puts them in the holding box (research R1).
+   * Settles when the transaction commits, with the copies that went to the holding box.
+   */
+  remove(id: string): Promise<{ cards: number }> {
+    if (!this.byId().has(id)) {
+      return Promise.resolve({ cards: 0 });
+    }
+    const result = { cards: this.cardCount(id) };
+    const deletedAt = new Date().toISOString();
+    const ops: RowOp[] = [
+      { store: 'decks', delete: id },
+      { store: 'tombstones', put: { key: `decks:${id}`, entity: 'decks', id, deletedAt } },
+    ];
+
+    this.decksSignal.update((decks) => decks.filter((deck) => deck.id !== id));
     this.changeCountSignal.update((n) => n + 1);
-    return entry;
-  }
-
-  remove(id: string): void {
-    this.decksSignal.update((decks) => {
-      const next = decks.filter((deck) => deck.id !== id);
-      this.persist(next);
-      return next;
+    const handle = currentDbHandle();
+    return new Promise((resolve, reject) => {
+      this.enqueueWrite(() =>
+        writeRows(ops, handle).then(
+          () => resolve(result),
+          (e: unknown) => {
+            reject(e);
+            throw e;
+          },
+        ),
+      );
     });
-    this.changeCountSignal.update((n) => n + 1);
   }
 
-  byId(id: string) {
-    return computed(() => this.decks().find((deck) => deck.id === id));
+  // Sync-only: tombstones let SyncService tell a locally-deleted id apart from one that never
+  // existed on this device, so a pull doesn't resurrect a deck this device removed.
+  getTombstones(): Promise<Tombstone[]> {
+    return getTombstonesFor('decks');
   }
 
-  setCommander(deckId: string, card: DeckCard | null): void {
-    this.update(deckId, (deck) => ({ ...deck, commander: card }));
+  clearTombstones(ids: string[]): Promise<void> {
+    return clearTombstones('decks', ids);
   }
 
-  addCard(deckId: string, card: DeckCard): void {
-    this.update(deckId, (deck) => ({ ...deck, cards: [...deck.cards, card] }));
+  // Sync-only: applies an already-reconciled result verbatim — no id generation, no restamping,
+  // no tombstoning. Writes only the diff: a put per changed row, a delete per id gone.
+  applySyncResult(merged: Deck[]): void {
+    const before = this.byId();
+    const mergedIds = new Set(merged.map((deck) => deck.id));
+    const ops: RowOp[] = [];
+    for (const deck of merged) {
+      if (!sameDeck(before.get(deck.id), deck)) {
+        ops.push({ store: 'decks', put: deck });
+      }
+    }
+    for (const id of before.keys()) {
+      if (!mergedIds.has(id)) {
+        ops.push({ store: 'decks', delete: id });
+      }
+    }
+    this.decksSignal.set(merged);
+    if (ops.length > 0) {
+      const handle = currentDbHandle();
+      this.enqueueWrite(() => writeRows(ops, handle));
+    }
   }
+}
 
-  removeCard(deckId: string, cardId: string): void {
-    this.update(deckId, (deck) => ({
-      ...deck,
-      cards: deck.cards.filter((card) => card.id !== cardId),
-    }));
-  }
+function sameDeck(a: Deck | undefined, b: Deck): boolean {
+  return !!a && a.name === b.name && a.format === b.format && a.updatedAt === b.updatedAt;
 }

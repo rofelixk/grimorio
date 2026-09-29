@@ -11,11 +11,9 @@ import {
   viewChild,
 } from '@angular/core';
 import { CardCondition, CardEntry, CardFinish } from '@models/card.model';
-import { DeckCardIdentity } from '@models/deck.model';
 import { CardOcrService } from '@services/card-ocr.service';
 import { CardService } from '@services/card.service';
 import { CardLookupResult, CardLookupService } from '@services/card-lookup.service';
-import { DeckService } from '@services/deck.service';
 import { ThemeService } from '@services/theme.service';
 import { SparkRerollDirective } from '@shared/effects/spark-reroll/spark-reroll.directive';
 import { getCardGlowColors } from '@utils/card-color.util';
@@ -39,15 +37,11 @@ import { CardSearchMode, CardSearchPanel } from '../card-search-panel/card-searc
 export class AddCardModal {
   private readonly cardLookup = inject(CardLookupService);
   private readonly cardService = inject(CardService);
-  private readonly deckService = inject(DeckService);
   private readonly cardOcr = inject(CardOcrService);
   protected readonly themeService = inject(ThemeService);
 
   readonly open = input(false);
-  readonly context = input.required<'collection' | 'deck'>();
-  readonly filter = input<(card: DeckCardIdentity) => boolean>();
   readonly locationId = input<string>();
-  readonly deckId = input<string>();
   readonly editingCard = input<CardEntry | null>(null);
   readonly prefillName = input('');
 
@@ -85,18 +79,6 @@ export class AddCardModal {
   readonly quantity = signal('');
   readonly forSale = signal(false);
   readonly notes = signal('');
-
-  readonly filteredResults = computed<CardLookupResult[]>(() => {
-    const raw = this.results();
-    if (this.context() !== 'deck') {
-      return raw;
-    }
-    const filterFn = this.filter();
-    if (!filterFn) {
-      return raw;
-    }
-    return raw.filter((result) => filterFn(this.toIdentity(result)));
-  });
 
   constructor() {
     effect(() => {
@@ -184,10 +166,8 @@ export class AddCardModal {
 
       // A single unambiguous match skips the extra click straight to the
       // confirm step, same as the OCR flow already does when it reads a
-      // card unambiguously. Checked against filteredResults() (not
-      // results()), so a deck-context search that filters its one match
-      // down to zero doesn't jump the user into a card the filter rejected.
-      const visible = this.filteredResults();
+      // card unambiguously.
+      const visible = this.results();
       if (visible.length === 1) {
         this.pickResult(visible[0]);
       }
@@ -329,28 +309,11 @@ export class AddCardModal {
   }
 
   private insertCandidate(candidate: CardLookupResult): boolean {
-    if (this.context() === 'deck') {
-      const identity = this.toIdentity(candidate);
-      const filterFn = this.filter();
-      if (filterFn && !filterFn(identity)) {
-        return false;
-      }
-      const deckId = this.deckId();
-      if (!deckId) {
-        return false;
-      }
-      this.deckService.addCard(deckId, {
-        id: crypto.randomUUID(),
-        source: 'freeBuild',
-        card: identity,
-      });
-    } else {
-      const locationId = this.locationId();
-      if (!locationId) {
-        return false;
-      }
-      this.cardService.add({ ...this.buildCardEntryPayload(candidate), locationId });
+    const locationId = this.locationId();
+    if (!locationId) {
+      return false;
     }
+    this.cardService.add({ ...this.buildCardEntryPayload(candidate), locationId });
     return true;
   }
 
@@ -394,10 +357,6 @@ export class AddCardModal {
     this.quantity.set('');
     this.forSale.set(false);
     this.notes.set('');
-  }
-
-  private toIdentity(result: CardLookupResult): DeckCardIdentity {
-    return { ...result, finish: this.finish() || 'nonfoil' };
   }
 
   private buildCardEntryPayload(

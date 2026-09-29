@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileSummary } from '@models/profile.model';
 import type { CardEntry } from '@models/card.model';
 import type { Collection } from '@models/collection.model';
+import type { Deck } from '@models/deck.model';
 import { mockCardEntry } from '@testing/card.mocks';
 import { hasUnsyncedChanges } from '../utils/sync-status.util';
 import { CardService } from './card.service';
@@ -11,6 +12,7 @@ import { CloudAuthService } from './cloud-auth.service';
 import { CloudSessionService } from './cloud-session.service';
 import { CollectionService } from './collection.service';
 import { ConnectivityService } from './connectivity.service';
+import { DeckService } from './deck.service';
 import type { PlanarSelection } from '@models/planar-selection.model';
 import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileSessionService, SessionHooks } from './profile-session.service';
@@ -124,6 +126,15 @@ describe('SyncService', () => {
     resolveMixedCollections: ReturnType<typeof vi.fn>;
   };
 
+  const localDecks = signal<Deck[]>([]);
+  let decksService: {
+    decks: typeof localDecks;
+    flush: ReturnType<typeof vi.fn>;
+    getTombstones: ReturnType<typeof vi.fn>;
+    applySyncResult: ReturnType<typeof vi.fn>;
+    clearTombstones: ReturnType<typeof vi.fn>;
+  };
+
   /** The account's user, with metadata matching LINKED unless patched. */
   const user = (meta: Record<string, unknown> = {}) => ({
     id: 'u1',
@@ -182,8 +193,17 @@ describe('SyncService', () => {
       clearTombstones: vi.fn(async () => undefined),
       resolveMixedCollections: vi.fn(),
     };
+    localDecks.set([]);
+    decksService = {
+      decks: localDecks,
+      flush: vi.fn(async () => undefined),
+      getTombstones: vi.fn(async () => []),
+      applySyncResult: vi.fn(),
+      clearTombstones: vi.fn(async () => undefined),
+    };
     TestBed.configureTestingModule({
       providers: [
+        { provide: DeckService, useValue: decksService },
         {
           provide: PlanarSelectionService,
           useValue: { selection: planarSelection, flush: async () => undefined, applySyncResult: applyPlanarSelection },
@@ -519,6 +539,7 @@ describe('SyncService', () => {
             lastSyncedAt: syncedAt,
             cards: localCards(),
             collections: [],
+            decks: [],
             tombstoneCount: 0,
             colorsUpdatedAt: OLD,
             nameUpdatedAt: OLD,
@@ -549,6 +570,126 @@ describe('SyncService', () => {
       expect(deletes).toEqual([['c1']]);
       expect(collectionsService.applySyncResult).toHaveBeenCalledWith([]);
       expect(collectionsService.clearTombstones).toHaveBeenCalledWith(['c1']);
+    });
+  });
+
+  describe('decks', () => {
+    const OLD = '2026-06-01T00:00:00.000Z';
+    const NEW = '2026-06-02T00:00:00.000Z';
+    let upserts: unknown[][];
+    let deletes: unknown[][];
+    let tables: string[];
+
+    const deck = (id: string, name: string, updatedAt: string, format: Deck['format'] = 'commander'): Deck => ({
+      id,
+      name,
+      format,
+      updatedAt,
+    });
+    const row = (d: Deck) => ({ id: d.id, user_id: 'u1', name: d.name, format: d.format, updated_at: d.updatedAt });
+
+    /** Every table answers at once; decks with `remote` (or `error`), recording writes and table order. */
+    const answer = (remote: unknown[], upsertError: unknown = null) => {
+      upserts = [];
+      deletes = [];
+      tables = [];
+      const result = Promise.resolve({ data: remote, error: null });
+      const failed = Promise.resolve({ data: null, error: upsertError });
+      let failing = false;
+      const query = {
+        select: () => query,
+        eq: () => query,
+        in: (...args: unknown[]) => (deletes.push(args[1] as unknown[]), query),
+        upsert: (...args: unknown[]) => (upserts.push(args), (failing = !!upsertError), query),
+        delete: () => query,
+        abortSignal: () => query,
+        then: (...args: Parameters<Promise<unknown>['then']>) => (failing ? failed : result).then(...args),
+      };
+      from.mockImplementation((table: string) => {
+        tables.push(table);
+        return table === 'decks' ? query : settledQuery([], []);
+      });
+    };
+
+    it('upserts a local deck and applies the merge', async () => {
+      const local = deck('d1', 'Elfos', NEW, 'pauper');
+      localDecks.set([local]);
+      answer([]);
+      await sync.syncNow();
+
+      expect(upserts).toEqual([
+        [[{ id: 'd1', user_id: 'u1', name: 'Elfos', format: 'pauper', updated_at: NEW }], { onConflict: 'user_id,id' }],
+      ]);
+      expect(decksService.applySyncResult).toHaveBeenCalledWith([local]);
+    });
+
+    it('applies a remote deck, mapping an unknown format to Casual', async () => {
+      answer([{ ...row(deck('d1', 'Elfos', NEW)), format: 'oathbreaker' }]);
+      await sync.syncNow();
+
+      expect(upserts).toEqual([]);
+      expect(decksService.applySyncResult).toHaveBeenCalledWith([deck('d1', 'Elfos', NEW, 'casual')]);
+    });
+
+    it('lets a remote edit newer than the local one win', async () => {
+      localDecks.set([deck('d1', 'Elfos', OLD)]);
+      answer([row(deck('d1', 'Elfos do Legacy', NEW, 'legacy'))]);
+      await sync.syncNow();
+
+      expect(upserts).toEqual([]);
+      expect(decksService.applySyncResult).toHaveBeenCalledWith([deck('d1', 'Elfos do Legacy', NEW, 'legacy')]);
+    });
+
+    it('deletes a tombstoned deck remotely and clears its tombstone', async () => {
+      decksService.getTombstones.mockResolvedValue([{ id: 'd1', deletedAt: NEW }]);
+      answer([row(deck('d1', 'Elfos', OLD))]);
+      await sync.syncNow();
+
+      expect(deletes).toEqual([['d1']]);
+      expect(decksService.applySyncResult).toHaveBeenCalledWith([]);
+      expect(decksService.clearTombstones).toHaveBeenCalledWith(['d1']);
+    });
+
+    it('keeps a deck whose remote edit is newer than the local deletion', async () => {
+      decksService.getTombstones.mockResolvedValue([{ id: 'd1', deletedAt: OLD }]);
+      answer([row(deck('d1', 'Elfos', NEW))]);
+      await sync.syncNow();
+
+      expect(deletes).toEqual([]);
+      expect(decksService.applySyncResult).toHaveBeenCalledWith([deck('d1', 'Elfos', NEW)]);
+      expect(decksService.clearTombstones).toHaveBeenCalledWith(['d1']);
+    });
+
+    it('renames a same-named deck from this device "(2)" and uploads it', async () => {
+      localDecks.set([deck('b', 'Krenko', NEW)]);
+      answer([row(deck('a', 'krênko', OLD))]);
+      await sync.syncNow();
+
+      expect(upserts).toHaveLength(1);
+      expect(upserts[0][0]).toEqual([expect.objectContaining({ id: 'b', name: 'Krenko (2)' })]);
+      const applied = decksService.applySyncResult.mock.calls[0][0] as Deck[];
+      expect(applied.map((d) => [d.id, d.name]).sort()).toEqual([
+        ['a', 'krênko'],
+        ['b', 'Krenko (2)'],
+      ]);
+    });
+
+    it('ends in the error state on a decks upsert error, applying nothing', async () => {
+      localDecks.set([deck('d1', 'Elfos', NEW)]);
+      answer([], { message: 'permission denied for table decks', code: '42501' });
+
+      expect(await sync.syncNow()).toBe('error');
+      expect(sync.state()).toBe('error');
+      expect(decksService.applySyncResult).not.toHaveBeenCalled();
+    });
+
+    it('syncs collections, then decks, then cards, after flushing decks', async () => {
+      answer([]);
+      await sync.syncNow();
+
+      expect(decksService.flush).toHaveBeenCalled();
+      expect(tables.indexOf('collections')).toBeLessThan(tables.indexOf('decks'));
+      expect(tables.indexOf('decks')).toBeLessThan(tables.indexOf('card_entries'));
     });
   });
 

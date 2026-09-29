@@ -92,6 +92,7 @@ describe('hasUnsyncedChanges', () => {
     lastSyncedAt: SYNCED,
     cards: [{ updatedAt: BEFORE }],
     collections: [{ updatedAt: BEFORE }],
+    decks: [{ updatedAt: BEFORE }],
     tombstoneCount: 0,
     colorsUpdatedAt: BEFORE,
     nameUpdatedAt: BEFORE,
@@ -110,11 +111,13 @@ describe('hasUnsyncedChanges', () => {
   it('is true with a card or collection newer than the last sync', () => {
     expect(hasUnsyncedChanges(input({ cards: [{ updatedAt: AFTER }] }))).toBe(true);
     expect(hasUnsyncedChanges(input({ collections: [{ updatedAt: AFTER }] }))).toBe(true);
+    expect(hasUnsyncedChanges(input({ decks: [{ updatedAt: AFTER }] }))).toBe(true);
+    expect(hasUnsyncedChanges(input({ decks: [{ updatedAt: BEFORE }] }))).toBe(false);
   });
 
   it('is true with any row when it never synced', () => {
     expect(hasUnsyncedChanges(input({ lastSyncedAt: null }))).toBe(true);
-    expect(hasUnsyncedChanges(input({ lastSyncedAt: null, cards: [], collections: [] }))).toBe(false);
+    expect(hasUnsyncedChanges(input({ lastSyncedAt: null, cards: [], collections: [], decks: [] }))).toBe(false);
   });
 
   it('is true when the colors or the name changed after the last sync', () => {
@@ -126,7 +129,7 @@ describe('hasUnsyncedChanges', () => {
     expect(hasUnsyncedChanges(input({ planarSelectionUpdatedAt: AFTER }))).toBe(true);
     expect(hasUnsyncedChanges(input({ planarSelectionUpdatedAt: BEFORE }))).toBe(false);
     expect(
-      hasUnsyncedChanges(input({ lastSyncedAt: null, cards: [], collections: [], planarSelectionUpdatedAt: BEFORE })),
+      hasUnsyncedChanges(input({ lastSyncedAt: null, cards: [], collections: [], decks: [], planarSelectionUpdatedAt: BEFORE })),
     ).toBe(true);
   });
 

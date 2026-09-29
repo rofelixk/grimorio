@@ -2,11 +2,13 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { SupabaseClient, User } from '@supabase/supabase-js';
 import { CardEntry, CardFace } from '@models/card.model';
 import { Collection, CollectionColorHex } from '@models/collection.model';
+import { type Deck, formatOf } from '@models/deck.model';
 import type { PlanarSelection } from '@models/planar-selection.model';
 import { ProfileSummary } from '@models/profile.model';
 import { currentDbHandle, getMeta, setMeta } from '../db/entity-store';
 import { isAuthSessionError, isNetworkError } from '../utils/cloud-error.util';
 import { repairCollectionTree } from '../utils/collection-tree.util';
+import { repairDeckNames } from '../utils/deck.util';
 import { reconcileEntities } from '../utils/sync-reconcile.util';
 import { reconcileIdentity } from '../utils/identity-sync.util';
 import { CardService } from './card.service';
@@ -14,6 +16,7 @@ import { CloudAuthService, identityOf } from './cloud-auth.service';
 import { CloudSessionService } from './cloud-session.service';
 import { CollectionService } from './collection.service';
 import { ConnectivityService } from './connectivity.service';
+import { DeckService } from './deck.service';
 import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileSessionService } from './profile-session.service';
 import { ProfileStore } from './profile-store.service';
@@ -50,6 +53,14 @@ interface CollectionRow {
   name: string;
   color: CollectionColorHex;
   parent_id: string | null;
+  updated_at: string;
+}
+
+interface DeckRow {
+  id: string;
+  user_id: string;
+  name: string;
+  format: string;
   updated_at: string;
 }
 
@@ -149,6 +160,25 @@ function collectionFromRow(row: CollectionRow): Collection {
   };
 }
 
+function deckToRow(deck: Deck, userId: string): DeckRow {
+  return {
+    id: deck.id,
+    user_id: userId,
+    name: deck.name,
+    format: deck.format,
+    updated_at: new Date(deck.updatedAt).toISOString(),
+  };
+}
+
+function deckFromRow(row: DeckRow): Deck {
+  return {
+    id: row.id,
+    name: row.name,
+    format: formatOf(row.format),
+    updatedAt: new Date(row.updated_at).toISOString(),
+  };
+}
+
 /** One sync attempt: its generation disowns it once it times out or another run starts. */
 interface Run {
   profile: ProfileSummary;
@@ -166,7 +196,8 @@ class Superseded extends Error {}
 // R12): a deleted one turns the profile local-only, a dead session asks for "Entrar de novo", and
 // otherwise the identity step reconciles the colors and label (R6). Collections sync reconciles,
 // then repairs the tree (repairCollectionTree, R6): orphans are dropped and duplicate sibling
-// names are renamed before anything uploads. Decks never sync. Sync is manual
+// names are renamed before anything uploads. Decks sync the same way between collections and
+// cards, then duplicate deck names are renamed (repairDeckNames). Sync is manual
 // only: nothing but syncNow() starts one, and only SyncStatusService calls it (spec 004, SC-011).
 // Single-flight and bounded by SYNC_TIMEOUT_MS; a run that was switched away from or timed out
 // never writes state or applies its results.
@@ -177,6 +208,7 @@ export class SyncService {
   private readonly connectivity = inject(ConnectivityService);
   private readonly cards = inject(CardService);
   private readonly collections = inject(CollectionService);
+  private readonly decks = inject(DeckService);
   private readonly planarSelection = inject(PlanarSelectionService);
   private readonly cloudAuth = inject(CloudAuthService);
   private readonly profiles = inject(ProfileStore);
@@ -299,8 +331,9 @@ export class SyncService {
       }
       const client = this.cloud.client(profile.id);
       await this.syncIdentity(client, account.user, run);
-      await Promise.all([this.collections.flush(), this.cards.flush()]);
+      await Promise.all([this.collections.flush(), this.decks.flush(), this.cards.flush()]);
       await this.syncCollections(client, run);
+      await this.syncDecks(client, run);
       await this.syncCards(client, run);
 
       // Captured here (contracts/services.md): the FR-029 fix-up below stamps its moved cards
@@ -439,6 +472,64 @@ export class SyncService {
     this.ensureCurrent(run);
     this.collections.applySyncResult(repair.collections);
     await this.collections.clearTombstones(result.tombstonesToClear);
+  }
+
+  // Decks (spec 009): reconcile, then rename duplicate names (research R6) before uploading, so
+  // two devices never keep two same-named decks.
+  private async syncDecks(client: SupabaseClient, run: Run): Promise<void> {
+    const signal = run.abort.signal;
+    const userId = run.profile.cloud!.userId;
+    const { data, error } = await client
+      .from('decks')
+      .select('id, user_id, name, format, updated_at')
+      .eq('user_id', userId)
+      .abortSignal(signal);
+    if (error) {
+      throw error;
+    }
+    this.ensureCurrent(run);
+    const tombstones = await this.decks.getTombstones();
+    const remoteRows = data as DeckRow[];
+    const result = reconcileEntities(this.decks.decks(), remoteRows.map(deckFromRow), tombstones);
+    const repair = repairDeckNames(result.merged, new Set(remoteRows.map((row) => row.id)), new Date().toISOString());
+
+    const toUpsertRemote = [...result.toUpsertRemote];
+    for (const renamed of repair.renamed) {
+      const index = toUpsertRemote.findIndex((deck) => deck.id === renamed.id);
+      if (index >= 0) {
+        toUpsertRemote[index] = renamed;
+      } else {
+        toUpsertRemote.push(renamed);
+      }
+    }
+
+    if (toUpsertRemote.length > 0) {
+      const { error: upsertError } = await client
+        .from('decks')
+        .upsert(
+          toUpsertRemote.map((deck) => deckToRow(deck, userId)),
+          { onConflict: 'user_id,id' },
+        )
+        .abortSignal(signal);
+      if (upsertError) {
+        throw upsertError;
+      }
+    }
+    if (result.toDeleteRemoteIds.length > 0) {
+      const { error: deleteError } = await client
+        .from('decks')
+        .delete()
+        .eq('user_id', userId)
+        .in('id', result.toDeleteRemoteIds)
+        .abortSignal(signal);
+      if (deleteError) {
+        throw deleteError;
+      }
+    }
+
+    this.ensureCurrent(run);
+    this.decks.applySyncResult(repair.decks);
+    await this.decks.clearTombstones(result.tombstonesToClear);
   }
 
   private async syncCards(client: SupabaseClient, run: Run): Promise<void> {

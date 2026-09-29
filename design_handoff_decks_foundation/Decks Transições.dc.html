@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+<script src="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/_ds_bundle.js"></script>
+<style>html{background:#0d0b0a}body{margin:0;min-height:100%;background:#0d0b0a;font-family:var(--font-sans);color:var(--color-text)}a{color:var(--role-accent)}a:hover{color:var(--role-accent-hover)}@media (prefers-reduced-motion:reduce){*{transition:none !important}}</style>
+</helmet>
+<section id="t4" style="padding:40px 44px;border-bottom:1px solid var(--color-border)">
+<div style="display:flex;align-items:baseline;gap:10px;margin:0 0 8px"><a href="#t4" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-text);color:var(--color-bg);border-radius:4px;text-decoration:none">4</a><span style="font:600 13px/1.2 var(--font-sans)">Poeira de verdade — um tomo antigo aberto numa ruína esquecida</span></div>
+<p style="margin:0 0 16px;max-width:80ch;font-size:13px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">Evolução de <a href="#3c">3c</a>. A poeira já está no ar, invisível no escuro. Quando a página vira, o ar que ela desloca empurra os grãos perto da borda: eles giram em pequenos redemoinhos e só brilham enquanto se movem — pegam a luz. Quando o movimento acaba, desaceleram, descem devagar e se apagam como quem sai do feixe de luz. Grãos 60% menores e 80% mais numerosos (16) que em 3c. A página vira mais devagar, com o peso de um livro velho.</p>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 24px">
+<span class="micro-label" style="margin-right:4px">Identidade do deck</span>
+<sc-for list="{{ idChips }}" as="c" hint-placeholder-count="5">
+<button class="btn" onClick="{{ c.toggle }}" aria-pressed="{{ c.on }}" style="display:inline-flex;align-items:center;gap:8px;font-size:var(--font-size-sm);{{ c.style }}"><span style="width:10px;height:10px;border-radius:50%;{{ c.dot }}"></span>{{ c.name }}</button>
+</sc-for>
+</div>
+<div id="4a" style="display:flex;flex-direction:column;gap:10px;width:300px;scroll-margin-top:16px">
+<div style="display:flex;align-items:baseline;gap:8px;font-size:12px;color:var(--color-text-muted)"><span style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-surface-raised);color:var(--color-text);border-radius:5px">4a</span><span style="font-weight:700;color:var(--color-text)">Poeira no ar</span></div>
+<div style="position:relative;width:300px;height:380px;overflow:hidden;background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;perspective:900px">
+<div style="position:absolute;inset:0">
+<div style="position:absolute;left:16px;top:16px;width:84px;height:10px;border-radius:2px;background:var(--role-accent);opacity:.6"></div>
+<div style="position:absolute;left:16px;top:34px;width:150px;height:18px;border-radius:2px;background:var(--color-text);opacity:.85"></div>
+<div style="position:absolute;left:16px;top:58px;width:64px;height:10px;border-radius:2px;background:var(--color-text-muted);opacity:.7"></div>
+<div style="position:absolute;right:16px;top:34px;display:flex;gap:6px"><div style="width:40px;height:20px;border:1px solid var(--color-border);border-radius:3px"></div><div style="width:40px;height:20px;border:1px solid var(--color-danger);border-radius:3px"></div></div>
+<div style="position:absolute;left:0;right:0;top:86px;height:1px;background:var(--color-border)"></div>
+<div style="position:absolute;left:16px;right:16px;top:104px;display:flex;flex-direction:column;gap:8px">
+<div style="height:28px;border:1px dashed var(--color-border);border-radius:6px;display:flex;align-items:center;justify-content:center"><span class="micro-label" style="font-size:9px">Cartas do deck — próxima spec</span></div>
+<div style="height:28px;border-radius:6px;background:var(--color-surface)"></div>
+<div style="height:28px;border-radius:6px;background:var(--color-surface)"></div>
+<div style="height:28px;border-radius:6px;background:var(--color-surface)"></div>
+</div>
+</div>
+<div ref="{{ turn4Ref }}" style="position:absolute;inset:0;transform-style:preserve-3d;transform-origin:0 50%">
+<div onClick="{{ play4 }}" style="position:absolute;inset:0;background:var(--color-bg);backface-visibility:hidden;cursor:pointer">
+<div style="position:absolute;left:16px;top:18px;width:80px;height:18px;border-radius:2px;background:var(--color-text);opacity:.85"></div>
+<sc-for list="{{ fans }}" as="x" hint-placeholder-count="4">
+<div style="position:absolute;width:100px;height:130px;{{ x.style }}">
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;border:1px solid var(--role-tertiary);border-radius:6px;transform:rotate(-9deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;border:1px solid var(--role-accent);border-radius:6px;background:var(--color-surface);transform:rotate(-4deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;border:1px solid var(--color-border);border-radius:6px;background:var(--color-surface-raised);{{ x.top }}"></div>
+</div>
+</sc-for>
+</div>
+<div style="position:absolute;inset:0;transform:rotateY(180deg);backface-visibility:hidden;background:var(--color-surface);border-left:1px solid var(--color-border);box-sizing:border-box"></div>
+</div>
+<canvas ref="{{ dust4Ref }}" width="600" height="760" style="position:absolute;inset:0;width:300px;height:380px;pointer-events:none"></canvas>
+</div>
+<div style="display:flex;gap:8px"><button class="btn btn--primary" style="flex:1" onClick="{{ play4 }}">Abrir deck</button><button class="btn btn--secondary" style="flex:1" onClick="{{ back4 }}">Voltar</button></div>
+<p style="margin:0;font-size:12px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">Grãos de 1,6 a 4 px com núcleo cor de pergaminho e brilho na cor do deck. Brilho proporcional à velocidade; ao parar, somem em cerca de 1 s. Nada fica na tela depois. Reduced motion: página troca direto, sem poeira.</p>
+</div>
+</section>
+<section id="t3" style="padding:40px 44px;border-bottom:1px solid var(--color-border)">
+<div style="display:flex;align-items:baseline;gap:10px;margin:0 0 8px"><a href="#t3" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-text);color:var(--color-bg);border-radius:4px;text-decoration:none">3</a><span style="font:600 13px/1.2 var(--font-sans)">Virar a página com orbes na identidade do deck</span></div>
+<p style="margin:0 0 16px;max-width:80ch;font-size:13px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">Sem wash: a página do deck fica neutra, então nada briga com a barra e o menu na cor do perfil. A cor do deck só aparece nos orbes, que andam junto com a borda da página enquanto ela vira — na abertura e no fechamento — e se apagam antes de a página assentar. Os orbes sempre encaram a tela (não achatam de perfil). Escolha a identidade do deck para testar; o perfil continua Vermelho · Azul · Verde.</p>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 24px">
+<span class="micro-label" style="margin-right:4px">Identidade do deck</span>
+<sc-for list="{{ idChips }}" as="c" hint-placeholder-count="5">
+<button class="btn" onClick="{{ c.toggle }}" aria-pressed="{{ c.on }}" style="display:inline-flex;align-items:center;gap:8px;font-size:var(--font-size-sm);{{ c.style }}"><span style="width:10px;height:10px;border-radius:50%;{{ c.dot }}"></span>{{ c.name }}</button>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+<sc-for list="{{ r3 }}" as="o" hint-placeholder-count="3">
+<div id="{{ o.id }}" style="display:flex;flex-direction:column;gap:10px;width:300px;scroll-margin-top:16px">
+<div style="display:flex;align-items:baseline;gap:8px;font-size:12px;color:var(--color-text-muted)"><span style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-surface-raised);color:var(--color-text);border-radius:5px">{{ o.id }}</span><span style="font-weight:700;color:var(--color-text)">{{ o.name }}</span></div>
+<div style="position:relative;width:300px;height:380px;overflow:hidden;background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;perspective:900px">
+<div style="position:absolute;inset:0">
+<div style="position:absolute;left:16px;top:16px;width:84px;height:10px;border-radius:2px;background:var(--role-accent);opacity:.6"></div>
+<div style="position:absolute;left:16px;top:34px;width:150px;height:18px;border-radius:2px;background:var(--color-text);opacity:.85"></div>
+<div style="position:absolute;left:16px;top:58px;width:64px;height:10px;border-radius:2px;background:var(--color-text-muted);opacity:.7"></div>
+<div style="position:absolute;right:16px;top:34px;display:flex;gap:6px"><div style="width:40px;height:20px;border:1px solid var(--color-border);border-radius:3px"></div><div style="width:40px;height:20px;border:1px solid var(--color-danger);border-radius:3px"></div></div>
+<div style="position:absolute;left:0;right:0;top:86px;height:1px;background:var(--color-border)"></div>
+<div style="position:absolute;left:16px;right:16px;top:104px;display:flex;flex-direction:column;gap:8px">
+<div style="height:28px;border:1px dashed var(--color-border);border-radius:6px;display:flex;align-items:center;justify-content:center"><span class="micro-label" style="font-size:9px">Cartas do deck — próxima spec</span></div>
+<div style="height:28px;border-radius:6px;background:var(--color-surface)"></div>
+<div style="height:28px;border-radius:6px;background:var(--color-surface)"></div>
+<div style="height:28px;border-radius:6px;background:var(--color-surface)"></div>
+</div>
+</div>
+<div style="position:absolute;inset:0;transform-style:preserve-3d;transform-origin:0 50%;{{ o.turn }}">
+<div onClick="{{ o.play }}" style="position:absolute;inset:0;background:var(--color-bg);backface-visibility:hidden;cursor:pointer">
+<div style="position:absolute;left:16px;top:18px;width:80px;height:18px;border-radius:2px;background:var(--color-text);opacity:.85"></div>
+<sc-for list="{{ fans }}" as="x" hint-placeholder-count="4">
+<div style="position:absolute;width:100px;height:130px;{{ x.style }}">
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;border:1px solid var(--role-tertiary);border-radius:6px;transform:rotate(-9deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;border:1px solid var(--role-accent);border-radius:6px;background:var(--color-surface);transform:rotate(-4deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;border:1px solid var(--color-border);border-radius:6px;background:var(--color-surface-raised);{{ x.top }}"></div>
+</div>
+</sc-for>
+</div>
+<div style="position:absolute;inset:0;transform:rotateY(180deg);backface-visibility:hidden;background:var(--color-surface);border-left:1px solid var(--color-border);box-sizing:border-box"></div>
+</div>
+<sc-for list="{{ o.orbs }}" as="b" hint-placeholder-count="5">
+<div style="position:absolute;inset:0;pointer-events:none;transform-style:preserve-3d;transform-origin:0 50%;{{ b.rig }}"><div style="position:absolute;border-radius:50%;{{ b.orb }}"></div></div>
+</sc-for>
+</div>
+<div style="display:flex;gap:8px"><button class="btn btn--primary" style="flex:1" onClick="{{ o.play }}">Abrir deck</button><button class="btn btn--secondary" style="flex:1" onClick="{{ o.back }}">Voltar</button></div>
+<p style="margin:0;font-size:12px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">{{ o.desc }}</p>
+</div>
+</sc-for>
+</div>
+</section>
+<sc-for list="{{ rounds }}" as="r" hint-placeholder-count="2">
+<section id="{{ r.id }}" style="padding:40px 44px;border-bottom:1px solid var(--color-border)">
+<div style="display:flex;align-items:baseline;gap:10px;margin:0 0 8px"><a href="#{{ r.id }}" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-text);color:var(--color-bg);border-radius:4px;text-decoration:none">{{ r.n }}</a><span style="font:600 13px/1.2 var(--font-sans)">{{ r.title }}</span></div>
+<p style="margin:0 0 24px;max-width:80ch;font-size:13px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">{{ r.desc }}</p>
+<div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+<sc-for list="{{ r.options }}" as="o" hint-placeholder-count="6">
+<div id="{{ o.id }}" style="display:flex;flex-direction:column;gap:10px;width:300px;scroll-margin-top:16px">
+<div style="display:flex;align-items:baseline;gap:8px;font-size:12px;color:var(--color-text-muted)"><span style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-surface-raised);color:var(--color-text);border-radius:5px">{{ o.id }}</span><span style="font-weight:700;color:var(--color-text)">{{ o.name }}</span></div>
+<div style="position:relative;width:300px;height:380px;overflow:hidden;background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;perspective:900px">
+
+<div style="position:absolute;inset:0;{{ o.page }}">
+<div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 0% 0%,rgb(from var(--role-primary) r g b / 18%),transparent 58%);{{ o.wash }}"></div>
+<div style="position:absolute;left:16px;top:16px;width:84px;height:10px;border-radius:2px;background:var(--role-accent);opacity:.6"></div>
+<div style="position:absolute;left:16px;top:34px;width:150px;height:18px;border-radius:2px;background:var(--color-text);opacity:.85"></div>
+<div style="position:absolute;left:16px;top:58px;width:64px;height:10px;border-radius:2px;background:var(--color-text-muted);opacity:.7"></div>
+<div style="position:absolute;right:16px;top:34px;display:flex;gap:6px"><div style="width:40px;height:20px;border:1px solid var(--color-border);border-radius:3px"></div><div style="width:40px;height:20px;border:1px solid var(--color-danger);border-radius:3px"></div></div>
+<div style="position:absolute;left:0;right:0;top:86px;height:1px;background:var(--color-border)"></div>
+<div style="position:absolute;left:16px;right:16px;top:104px;display:flex;flex-direction:column;gap:8px">
+<div style="height:28px;border:1px dashed var(--color-border);border-radius:6px;display:flex;align-items:center;justify-content:center"><span class="micro-label" style="font-size:9px">Cartas do deck — próxima spec</span></div>
+<div style="height:28px;border-radius:6px;background:var(--color-surface)"></div>
+<div style="height:28px;border-radius:6px;background:var(--color-surface)"></div>
+<div style="height:28px;border-radius:6px;background:var(--color-surface)"></div>
+</div>
+</div>
+
+<div style="position:absolute;left:0;top:0;width:150px;height:100%;background:var(--color-surface);border-right:1px solid var(--role-primary);box-sizing:border-box;{{ o.cutL }}"></div>
+<div style="position:absolute;left:150px;top:0;width:150px;height:100%;background:var(--color-surface);border-left:1px solid var(--role-primary);box-sizing:border-box;{{ o.cutR }}"></div>
+
+<div style="position:absolute;inset:0;transform-style:preserve-3d;{{ o.turn }}">
+<div style="position:absolute;inset:0;background:var(--color-bg);backface-visibility:hidden;{{ o.list }}">
+<div style="position:absolute;left:16px;top:18px;width:80px;height:18px;border-radius:2px;background:var(--color-text);opacity:.85"></div>
+<sc-for list="{{ o.others }}" as="x" hint-placeholder-count="3">
+<div style="position:absolute;width:100px;height:130px;{{ x.style }}">
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;border:1px solid var(--role-tertiary);border-radius:6px;transform:rotate(-9deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;border:1px solid var(--role-accent);border-radius:6px;background:var(--color-surface);transform:rotate(-4deg);transform-origin:50% 100%"></div>
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;border:1px solid var(--color-border);border-radius:6px;background:var(--color-surface-raised)"></div>
+</div>
+</sc-for>
+</div>
+<div style="position:absolute;inset:0;transform:rotateY(180deg);backface-visibility:hidden;border-right:1px solid var(--color-border);box-sizing:border-box;{{ o.backs }}"></div>
+<div style="position:absolute;left:30px;top:60px;width:100px;height:130px;border-radius:40px;pointer-events:none;filter:blur(14px);background:radial-gradient(closest-side,rgb(from var(--role-primary) r g b / 70%),rgb(from var(--role-accent) r g b / 30%) 65%,transparent);backface-visibility:hidden;{{ o.halo }}"></div>
+<div onClick="{{ o.play }}" style="position:absolute;left:30px;top:60px;width:100px;height:130px;cursor:pointer;backface-visibility:hidden;{{ o.chosen }}">
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;box-sizing:border-box;border-radius:6px;background:var(--role-tertiary);transform-origin:50% 100%;{{ o.s1 }}"></div>
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;box-sizing:border-box;border-radius:6px;background:var(--role-accent);transform-origin:50% 100%;{{ o.s2 }}"></div>
+<div style="position:absolute;left:18px;top:20px;width:64px;height:90px;box-sizing:border-box;padding:3px;border-radius:6px;background:var(--role-primary);box-shadow:0 0 14px -2px rgb(from var(--role-primary) r g b / 60%);transform-origin:50% 100%;{{ o.s3 }}"><div style="width:100%;height:100%;border-radius:4px;background:var(--color-surface-raised);{{ o.s3in }}"></div></div>
+</div>
+</div>
+
+<div style="position:absolute;left:80px;top:125px;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;pointer-events:none;background:radial-gradient(closest-side,rgb(from var(--role-primary) r g b / 70%),rgb(from var(--role-primary) r g b / 25%) 60%,transparent);{{ o.fx }}"></div>
+</div>
+<div style="display:flex;gap:8px"><button class="btn btn--primary" style="flex:1" onClick="{{ o.play }}">Abrir deck</button><button class="btn btn--secondary" style="flex:1" onClick="{{ o.back }}">Voltar</button></div>
+<p style="margin:0;font-size:12px;line-height:1.5;color:var(--color-text-muted);text-wrap:pretty">{{ o.desc }}</p>
+</div>
+</sc-for>
+</div>
+</section>
+</sc-for>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const E = 'cubic-bezier(0.4,0,0.2,1)';
+const tr = (d = .45, delay = 0) => `transition:all ${d}s ${E} ${delay}s;`;
+const OTHERS = [[170, 60], [30, 215], [170, 215]];
+const LIT_BACK = 'background:radial-gradient(ellipse at 0% 50%,rgb(from var(--role-primary) r g b / 55%),rgb(from var(--role-accent) r g b / 18%) 45%,var(--color-surface) 75%);';
+const base = () => ({
+  page: tr() + 'opacity:0;',
+  wash: tr() + 'opacity:0;',
+  turn: tr(.8) + 'transform-origin:0 50%;transform:none;',
+  list: tr() + 'opacity:1;',
+  backs: 'background:var(--color-surface);',
+  halo: tr() + 'opacity:0;transform:scale(.6);',
+  chosen: tr() + 'opacity:1;transform:none;',
+  s1: tr() + 'transform:rotate(-9deg);',
+  s2: tr() + 'transform:rotate(-4deg);',
+  s3: tr() + 'transform:none;',
+  s3in: tr() + 'opacity:1;',
+  fx: tr() + 'opacity:0;transform:scale(0);',
+  cutL: 'opacity:0;',
+  cutR: 'opacity:0;',
+  others: OTHERS.map(([x, y]) => tr() + `left:${x}px;top:${y}px;transform:none;opacity:1;`)
+});
+const R1 = [
+  { id: '1a', name: 'Mergulho', t2: 380,
+    desc: 'A câmera mergulha no leque: os outros decks somem, o escolhido cresce até passar da tela e a página surge por baixo, subindo 12 px. A mais direta e a mais barata de construir.',
+    at: (p, s) => {
+      if (p >= 1) { s.list = tr(.3) + 'opacity:0;'; s.chosen = tr(.38) + 'transform:translate(70px,65px) scale(1.6);'; s.page = tr() + 'opacity:0;transform:translateY(12px);'; }
+      if (p >= 2) { s.chosen = tr(.4) + 'opacity:0;transform:translate(70px,65px) scale(4);'; s.page = tr(.4, .1) + 'opacity:1;transform:none;'; }
+    } },
+  { id: '1b', name: 'O leque vira a faixa', t2: 420,
+    desc: 'O leque se abre, e as três capas se esticam até virar a linha tricolor sob o cabeçalho do deck — a mesma faixa de cores do perfil da barra do app.',
+    at: (p, s) => {
+      if (p >= 1) { s.list = tr(.3) + 'opacity:0;'; s.s1 = tr(.4) + 'transform:rotate(-30deg);'; s.s2 = tr(.4) + 'transform:rotate(30deg);'; }
+      if (p >= 2) {
+        const bar = x => tr(.5) + `left:${x}px;top:6px;width:100px;height:2px;border-radius:0;padding:0;transform:none;`;
+        s.s1 = bar(52); s.s2 = bar(152); s.s3 = bar(-48); s.s3in = tr(.2) + 'opacity:0;';
+        s.page = tr(.4, .3) + 'opacity:1;';
+      }
+    } },
+  { id: '1c', name: 'Virar a página', t2: 800,
+    desc: 'A estante é uma página do grimório: ela vira pela lombada à esquerda e o deck está na página seguinte. Voltar vira de novo.',
+    at: (p, s) => { if (p >= 1) { s.page = 'opacity:1;'; s.turn = tr(.8) + 'transform-origin:0 50%;transform:rotateY(-180deg);'; } } },
+  { id: '1d', name: 'Recolher a estante', t2: 450,
+    desc: 'Os outros decks deslizam para dentro do escolhido, empilhando, e a pilha sobe e se dissolve no título da página.',
+    at: (p, s) => {
+      if (p >= 1) s.others = OTHERS.map(() => tr(.4) + 'left:30px;top:60px;transform:none;opacity:.6;');
+      if (p >= 2) { s.list = tr(.35) + 'opacity:0;'; s.chosen = tr(.4) + 'opacity:0;transform:translate(-20px,-40px) scale(.35);'; s.page = tr(.35, .15) + 'opacity:1;'; }
+    } },
+  { id: '1e', name: 'Luz de vela', t2: 480,
+    desc: 'O deck acende e a luz da cor primária se espalha pela tela; quando ela baixa, você já está dentro. Segue a regra da vela: a elevação é luz, não sombra.',
+    at: (p, s) => {
+      if (p >= 1) { s.list = tr(.45) + 'opacity:.25;'; s.chosen = tr(.3) + 'filter:drop-shadow(0 0 14px var(--role-primary));'; s.fx = tr(.48) + 'opacity:1;transform:scale(90);'; }
+      if (p >= 2) { s.list = tr(.1) + 'opacity:0;'; s.chosen = tr(.3) + 'opacity:0;'; s.fx = tr(.6) + 'opacity:0;transform:scale(90);'; s.page = tr(.4) + 'opacity:1;'; }
+    } },
+  { id: '1f', name: 'Cortar o deck', t2: 420,
+    desc: 'O leque vai ao centro, a tela se parte em duas metades onde a costura brilha, e elas se abrem como um corte de baralho.',
+    at: (p, s) => {
+      if (p >= 1) { s.list = tr(.3) + 'opacity:0;'; s.chosen = tr(.38) + 'transform:translate(70px,65px);'; s.cutL = tr(.2) + 'opacity:1;transform:none;'; s.cutR = tr(.2) + 'opacity:1;transform:none;'; s.page = 'opacity:1;'; }
+      if (p >= 2) { s.chosen = tr(.2) + 'opacity:0;transform:translate(70px,65px) scaleX(.1);'; s.cutL = tr(.5, .1) + 'opacity:1;transform:translateX(-151px);'; s.cutR = tr(.5, .1) + 'opacity:1;transform:translateX(151px);'; }
+      if (p >= 3) { s.cutL = tr(.1) + 'opacity:0;transform:translateX(-151px);'; s.cutR = tr(.1) + 'opacity:0;transform:translateX(151px);'; }
+    } }
+];
+const R2 = [
+  { id: '2a', name: 'Mergulho iluminado', t2: 400,
+    desc: '1a + 1e. O leque vai ao centro e cresce com um halo por trás; no mergulho o halo se abre e a luz fica na página como o wash do canto superior esquerdo — o mesmo da área de identidade.',
+    at: (p, s) => {
+      if (p >= 1) {
+        s.list = tr(.3) + 'opacity:0;';
+        s.chosen = tr(.4) + 'transform:translate(70px,65px) scale(1.6);filter:drop-shadow(0 0 12px var(--role-primary));';
+        s.halo = tr(.4) + 'opacity:1;transform:translate(70px,65px) scale(2.2);';
+      }
+      if (p >= 2) {
+        s.chosen = tr(.4) + 'opacity:0;transform:translate(70px,65px) scale(4);';
+        s.halo = tr(.6) + 'opacity:0;transform:translate(70px,65px) scale(7);';
+        s.page = tr(.4, .1) + 'opacity:1;'; s.wash = tr(.8, .1) + 'opacity:1;';
+      }
+    } },
+  { id: '2b', name: 'Página acesa', t2: 900,
+    desc: '1c + 1e. A página vira, e o verso dela está aceso perto da lombada; quando ela passa, a luz fica na página nova como wash. A vela está do lado de lá da página.',
+    at: (p, s) => {
+      s.backs = LIT_BACK;
+      if (p >= 1) { s.page = 'opacity:1;'; s.turn = tr(.9) + 'transform-origin:0 50%;transform:rotateY(-180deg);'; s.wash = tr(.6, .45) + 'opacity:1;'; }
+    } },
+  { id: '2c', name: 'Abrir o tomo', t2: 450,
+    desc: '1a e depois 1c. Os outros decks somem e o escolhido vem ao centro, crescendo; então a página vira levando o deck junto, como se ele fosse a capa do livro.',
+    at: (p, s) => {
+      if (p >= 1) { s.others = OTHERS.map(([x, y]) => tr(.3) + `left:${x}px;top:${y}px;opacity:0;`); s.chosen = tr(.4) + 'transform:translate(70px,65px) scale(1.3);'; }
+      if (p >= 2) { s.page = 'opacity:1;'; s.turn = tr(.8) + 'transform-origin:0 50%;transform:rotateY(-180deg);'; }
+    } },
+  { id: '2d', name: 'Luz que guia', t2: 420,
+    desc: '1e contido. A luz acende no leque, mas não inunda a tela: ela viaja até o canto superior esquerdo e vira o wash da página. Menos flash, mais direção.',
+    at: (p, s) => {
+      if (p >= 1) { s.list = tr(.4) + 'opacity:.35;'; s.chosen = tr(.3) + 'filter:drop-shadow(0 0 14px var(--role-primary));'; s.fx = tr(.42) + 'opacity:1;transform:scale(22);'; }
+      if (p >= 2) {
+        s.list = tr(.25) + 'opacity:0;'; s.chosen = tr(.25) + 'opacity:0;';
+        s.fx = tr(.6) + 'opacity:0;transform:translate(-80px,-125px) scale(46);';
+        s.wash = tr(.6, .1) + 'opacity:1;'; s.page = tr(.4, .15) + 'opacity:1;';
+      }
+    } },
+  { id: '2e', name: 'Empurrar a câmera', t2: 600,
+    desc: '1a na cena inteira. Em vez de só o leque crescer, a estante toda se aproxima a partir do deck clicado e some; a página chega de um pouco mais longe (94%) e assenta.',
+    at: (p, s) => {
+      if (p >= 1) { s.turn = tr(.55) + 'transform-origin:80px 125px;transform:scale(2.4);opacity:0;'; s.page = tr(.45, .15) + 'opacity:1;transform:none;'; }
+      else { s.turn = tr(.45) + 'transform-origin:80px 125px;transform:none;opacity:1;'; s.page = tr(.3) + 'opacity:0;transform:scale(.94);'; }
+    } },
+  { id: '2f', name: 'Halo no leque', t2: 380,
+    desc: '1e em miniatura. O deck sobe 8 px e acende um halo como o do modal de entrada, os outros escurecem; o halo se abre e a página entra com wash. A mais curta — boa para quem entra e sai muito.',
+    at: (p, s) => {
+      if (p >= 1) { s.others = OTHERS.map(([x, y]) => tr(.3) + `left:${x}px;top:${y}px;opacity:.3;`); s.chosen = tr(.3) + 'transform:translateY(-8px);'; s.halo = tr(.3) + 'opacity:1;transform:translateY(-8px) scale(1.25);'; }
+      if (p >= 2) {
+        s.list = tr(.25) + 'opacity:0;'; s.chosen = tr(.25) + 'opacity:0;transform:translateY(-8px);';
+        s.halo = tr(.45) + 'opacity:0;transform:translateY(-8px) scale(3.5);';
+        s.page = tr(.35) + 'opacity:1;'; s.wash = tr(.6) + 'opacity:1;';
+      }
+    } }
+];
+const ROUNDS = [
+  { id: 't2', n: '2', title: 'Segunda rodada — a partir de 1a, 1c e 1e', desc: 'Combina o mergulho, a página que vira e a luz de vela. A luz sempre termina como o wash do canto superior esquerdo (18% → transparente em 58%), que já existe no sistema, em vez de um flash que some. A carta do topo só se move ou escala por inteiro.', defs: R2 },
+  { id: 't1', n: '1', title: 'Da estante para dentro do deck — seis transições', desc: 'Wireframe puro: caixas cinza, só as cores de papel (primária, acento, terciária) para o leque. Clique em “Abrir deck” (ou no leque destacado) para tocar; “Voltar” mostra o caminho inverso. Com reduced motion, todas viram um corte seco.', defs: R1 }
+];
+
+const IDS = [['w', 'Branco'], ['u', 'Azul'], ['b', 'Preto'], ['r', 'Vermelho'], ['g', 'Verde']];
+const FANS = [[30, 60], [170, 60], [30, 215], [170, 215]];
+const D = .9;
+const R3 = [
+  { id: '3a', name: 'Na borda',
+    desc: 'Cinco orbes presos à borda da página, em fila, alternando as cores do deck. Aparecem quando a página levanta, cruzam a tela com ela e somem antes do fim. A mais limpa.',
+    orbs: [50, 120, 190, 260, 330].map((y, i) => ({ y, sz: 10, dx: 0, lag: 0, i })) },
+  { id: '3b', name: 'Rastro',
+    desc: 'Os orbes seguem a borda com um pequeno atraso, do maior ao menor, desenhando uma curva atrás dela — um rastro de luz que se apaga em escada.',
+    orbs: [60, 120, 190, 260, 320].map((y, i) => ({ y, sz: 14 - i * 2, dx: 0, lag: i * .035, i })) },
+  { id: '3c', name: 'Poeira',
+    desc: 'Nove orbes miúdos em tamanhos diferentes, soltos um pouco para dentro e para fora da borda, como poeira de feitiço presa à página. Mais atmosférica, ainda sem deixar nada para trás.',
+    orbs: [[30, 5, -4], [70, 8, 3], [105, 4, -8], [150, 7, 2], [190, 10, -3], [230, 5, 6], [270, 8, -5], [310, 4, 4], [350, 6, -2]].map(([y, sz, dx], i) => ({ y, sz, dx, lag: (i % 3) * .02, i })) }
+];
+const DUST_SIZES = [2, 3.2, 1.6, 2.8, 4, 2, 3.2, 1.6, 2.4];
+const bez = (() => {
+  const x1 = .4, y1 = 0, x2 = .2, y2 = 1;
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sx = t => ((ax * t + bx) * t + cx) * t, sy = t => ((ay * t + by) * t + cy) * t, dx = t => (3 * ax * t + 2 * bx) * t + cx;
+  return x => { let t = x; for (let i = 0; i < 6; i++) { const d = dx(t); if (Math.abs(d) < 1e-6) break; t -= (sx(t) - x) / d; } return sy(Math.min(1, Math.max(0, t))); };
+})();
+const reduce = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+class Component extends DCLogic {
+  state = { ph: {}, p3: {}, deckIds: ['b', 'g'] };
+  turn4Ref = React.createRef();
+  dust4Ref = React.createRef();
+  angle4 = 0;
+  run4(to) {
+    cancelAnimationFrame(this.raf4);
+    const el = this.turn4Ref.current, cv = this.dust4Ref.current;
+    if (!el || !cv) return;
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+    if (reduce()) { this.angle4 = to; el.style.transform = `rotateY(${to}deg)`; ctx.clearRect(0, 0, 300, 380); return; }
+    const cs = getComputedStyle(cv);
+    const cols = this.state.deckIds.map(k => cs.getPropertyValue(`--identity-${k}`).trim() || '#f2ede8');
+    const parch = cs.getPropertyValue('--color-text').trim() || '#f2ede8';
+    const from = this.angle4, dur = 1300, t0 = performance.now();
+    const parts = Array.from({ length: 16 }, (_, i) => ({
+      x: 10 + Math.random() * 280, y: 20 + Math.random() * 340, vx: 0, vy: 0, kx: 0, ky: 0, a: 0,
+      s: DUST_SIZES[i % DUST_SIZES.length] * (0.85 + Math.random() * 0.3), c: cols[i % cols.length], seed: Math.random() * 100
+    }));
+    const edge = th => { const r = th * Math.PI / 180, xp = 300 * Math.cos(r), zp = -300 * Math.sin(r), k = 900 / (900 - zp); return 150 + (xp - 150) * k; };
+    let prev = edge(from);
+    const step = now => {
+      const t = Math.min(1, (now - t0) / dur);
+      const th = from + (to - from) * bez(t);
+      this.angle4 = th;
+      el.style.transform = `rotateY(${th}deg)`;
+      const ex = edge(th), vex = ex - prev; prev = ex;
+      let alive = false;
+      ctx.clearRect(0, 0, 300, 380);
+      for (const p of parts) {
+        const d = p.x - ex, w = Math.exp(-(d * d) / (2 * 30 * 30));
+        if (t < 1) {
+          p.kx += vex * w * 0.3;
+          p.ky += (Math.sin(p.seed + now * 0.004) * 0.5 - 0.2) * Math.abs(vex) * w * 0.25;
+        }
+        const kSp = Math.hypot(p.kx, p.ky);
+        const swirl = Math.min(1, kSp);
+        p.kx += Math.sin(p.y * 0.045 + now * 0.0021 + p.seed) * 0.05 * swirl;
+        p.ky += Math.cos(p.x * 0.045 + now * 0.0017 + p.seed) * 0.05 * swirl;
+        if (kSp > 3.5) { p.kx *= 3.5 / kSp; p.ky *= 3.5 / kSp; }
+        p.kx *= 0.95; p.ky *= 0.95;
+        p.vx += Math.sin(p.y * 0.045 + now * 0.0021 + p.seed) * 0.003;
+        p.vy += Math.cos(p.x * 0.045 + now * 0.0017 + p.seed) * 0.003 + 0.002;
+        p.vx *= 0.955; p.vy *= 0.955;
+        p.x += p.vx + p.kx; p.y += p.vy + p.ky;
+        if (t < 1) {
+          const target = Math.min(1, Math.max(0, (Math.hypot(p.kx, p.ky) - 0.12) / 1.1));
+          p.a += (target - p.a) * (target > p.a ? 0.3 : 0.04);
+        } else p.a *= 0.93;
+        if (p.a > 0.01) {
+          alive = true;
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s * 2.4);
+          g.addColorStop(0, parch); g.addColorStop(0.28, p.c); g.addColorStop(1, 'transparent');
+          ctx.globalAlpha = p.a;
+          ctx.fillStyle = g;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.s * 2.4, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+      if (t < 1 || alive) this.raf4 = requestAnimationFrame(step);
+      else ctx.clearRect(0, 0, 300, 380);
+    };
+    this.raf4 = requestAnimationFrame(step);
+  }
+  set3(id, v) { this.setState(st => ({ p3: { ...st.p3, [id]: v } })); }
+  run3(id, dir) {
+    (this.timers['3' + id] || []).forEach(clearTimeout);
+    if (reduce()) return this.set3(id, dir === 'open' ? 'open' : 'closed');
+    this.set3(id, dir + '1');
+    this.timers['3' + id] = [setTimeout(() => this.set3(id, dir + '2'), 560), setTimeout(() => this.set3(id, dir === 'open' ? 'open' : 'closed'), 1100)];
+  }
+  toggleId(k) {
+    const cur = this.state.deckIds;
+    let next = cur.includes(k) ? cur.filter(x => x !== k) : [...cur, k];
+    if (next.length > 3) next = next.slice(1);
+    if (!next.length) return;
+    this.setState({ deckIds: next });
+  }
+  r3Vals() {
+    const ids = this.state.deckIds;
+    return R3.map(o => {
+      const p = this.state.p3[o.id] || 'closed';
+      const opened = p.startsWith('open');
+      const a = opened ? -180 : 0;
+      const lit = p === 'open1' || p === 'close1';
+      const fading = p === 'open2' || p === 'close2';
+      return {
+        id: o.id, name: o.name, desc: o.desc,
+        turn: `transition:transform ${D}s ${E};transform:rotateY(${a}deg);`,
+        orbs: o.orbs.map(b => {
+          const c = ids[b.i % ids.length];
+          const op = lit ? 1 : 0;
+          const fade = lit ? `opacity .15s linear ${b.lag}s` : fading ? `opacity .28s linear ${b.lag}s` : 'opacity 0s';
+          return {
+            rig: `transition:transform ${D}s ${E} ${b.lag}s;transform:rotateY(${a}deg);`,
+            orb: `left:${300 + b.dx - b.sz / 2}px;top:${b.y - b.sz / 2}px;width:${b.sz}px;height:${b.sz}px;background:radial-gradient(circle,var(--color-text) 0 18%,var(--identity-${c}) 60%);box-shadow:0 0 6px 1px var(--identity-${c}),0 0 16px 4px rgb(from var(--identity-${c}) r g b / 45%);transition:transform ${D}s ${E} ${b.lag}s,${fade};transform:rotateY(${-a}deg);opacity:${op};`
+          };
+        }),
+        play: () => this.run3(o.id, 'open'),
+        back: () => this.run3(o.id, 'close')
+      };
+    });
+  }
+  timers = {};
+  componentWillUnmount() { Object.values(this.timers).flat().forEach(clearTimeout); cancelAnimationFrame(this.raf4); }
+  set(id, p) { this.setState(st => ({ ph: { ...st.ph, [id]: p } })); }
+  play(d) {
+    (this.timers[d.id] || []).forEach(clearTimeout);
+    this.set(d.id, 1);
+    this.timers[d.id] = [setTimeout(() => this.set(d.id, 2), d.t2), setTimeout(() => this.set(d.id, 3), d.t2 + 700)];
+  }
+  back(d) { (this.timers[d.id] || []).forEach(clearTimeout); this.set(d.id, 0); }
+  renderVals() {
+    const ids = this.state.deckIds;
+    return {
+      idChips: IDS.map(([k, name]) => ({ name, on: ids.includes(k) ? 'true' : 'false', toggle: () => this.toggleId(k), dot: `background:var(--identity-${k});box-shadow:0 0 6px var(--identity-${k})`, style: ids.includes(k) ? 'border-color:var(--color-text);color:var(--color-text);font-weight:700' : 'color:var(--color-text-muted)' })),
+      fans: FANS.map(([x, y], i) => ({ style: `left:${x}px;top:${y}px;`, top: i === 0 ? 'border-color:var(--color-text-muted)' : '' })),
+      r3: this.r3Vals(),
+      turn4Ref: this.turn4Ref, dust4Ref: this.dust4Ref,
+      play4: () => this.run4(-180), back4: () => this.run4(0),
+      rounds: ROUNDS.map(r => ({
+        id: r.id, n: r.n, title: r.title, desc: r.desc,
+        options: r.defs.map(d => {
+          const s = base();
+          d.at(this.state.ph[d.id] || 0, s);
+          return { id: d.id, name: d.name, desc: d.desc, ...s, others: s.others.map(style => ({ style })), play: () => this.play(d), back: () => this.back(d) };
+        })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

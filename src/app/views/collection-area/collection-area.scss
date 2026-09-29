@@ -1,8 +1,9 @@
 @use 'breakpoints' as bp;
+@use 'page-sweep';
 
 // The view fills the view area (like Planechase), so short pages leave no dead space and the legal
-// notice rests at the bottom. The orb layer is positioned over the whole of it (DESIGN.md Motion
-// "Collections page transition"); the height-locked stage keeps its natural height inside.
+// notice rests at the bottom, and the page sweep and its dust cover the whole of it (DESIGN.md
+// Motion "Collections page change").
 :host {
   position: relative;
   display: flex;
@@ -10,42 +11,15 @@
   flex: 1 0 auto;
 }
 
-// ── Transition wrapper ─────────────────────────────────────────────────────
-// The stage is the height-locked column; `--dir` is +1 going deeper or sideways, -1 going up.
-.stage {
-  --dir: 1;
-
-  &.is-locked {
-    overflow: hidden;
-  }
-
-  &.is-out {
-    opacity: 0;
-    transform: translateX(calc(var(--dir) * -8px));
-    transition:
-      opacity 140ms var(--ease-standard),
-      transform 140ms var(--ease-standard);
-  }
-
-  &.is-entering {
-    opacity: 0;
-    transform: translateX(calc(var(--dir) * 12px));
-    transition: none;
-  }
-
-  &.is-in {
-    opacity: 1;
-    transform: translateX(0);
-    transition:
-      opacity 240ms var(--ease-standard),
-      transform 240ms var(--ease-standard),
-      height var(--height-ms, 240ms) var(--ease-standard);
-  }
-}
+// ── Page change ────────────────────────────────────────────────────────────
+@include page-sweep.layers;
 
 // ── Page column (ui.md §2) ─────────────────────────────────────────────────
-// Centered, 760px max; 1080px with the 220px filters aside. No max-width on the host itself.
+// Centered, 760px max; 1080px with the 220px filters aside. No max-width on the host itself. The
+// explicit width keeps it the same size as a flex item of the host and inside the sweep layer.
 .page {
+  box-sizing: border-box;
+  width: 100%;
   max-width: 760px;
   margin: 0 auto;
   padding: var(--space-5);
@@ -286,55 +260,4 @@
 
 .choice-btn {
   align-self: flex-start;
-}
-
-// ── Light orbs ─────────────────────────────────────────────────────────────
-.orbs {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  mix-blend-mode: screen;
-}
-
-.orb {
-  --c: var(--role-primary);
-
-  position: absolute;
-  width: var(--size);
-  height: var(--size);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    var(--c) 0%,
-    rgb(from var(--c) r g b / 67%) 40%,
-    transparent 72%
-  );
-  box-shadow: 0 0 calc(var(--size) * 1.6) calc(var(--size) * 0.4) rgb(from var(--c) r g b / 40%);
-  opacity: 0;
-  animation-name: grm-orb;
-  animation-timing-function: var(--ease-standard);
-  animation-fill-mode: both;
-}
-
-.orb--1 {
-  --c: var(--role-accent);
-}
-
-.orb--2 {
-  --c: var(--role-tertiary);
-}
-
-@keyframes grm-orb {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  25% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(var(--dx), var(--dy)) scale(1.1);
-  }
 }
