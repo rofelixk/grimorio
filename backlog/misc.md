@@ -45,7 +45,3 @@ Flagged by `design-auditor`: the compact modal's desktop fluid height (the face 
 ## 11. Default-identity fallback repeated
 
 `activeColors() ?? DEFAULT_IDENTITY` appears in `page-sweep.ts`, `theme.service.ts` (`colors`) and `identity.service.ts` (`roles`). One `effectiveColors` computed on `IdentityService` would cover all three.
-
-## 12. Flaky Planechase test
-
-`planechase-game.util.spec.ts`, SC-004 "after an anytime reset, the next N−1 planeswalks show every card but the current one exactly once", failed once in a full run ("Planechase: planeswalk isn't allowed in this state.") and passed 3/3 alone. Likely randomness-dependent.
