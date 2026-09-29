@@ -57,3 +57,63 @@ Delete legacy code nothing references anymore. Candidates to verify first (none 
 ## 15. Add proper mobile-landscape layout
 
 A phone in landscape is short (~390px tall) but often wider than `$bp-mobile` (640px), so it gets the tablet/desktop layout on a very short screen. The breakpoints only look at width. Add a height-aware condition (e.g. `(orientation: landscape) and (max-height: …)`), then check the app shell, top bar, modals (the fluid-height faces and their viewport cap) and the Planechase phone dock against it.
+
+## 16. Split the auth flow stores
+
+`profile-flow.store.ts` (~720 lines) and `entry-flow.store.ts` (~580) are the largest files in the app. The cloud-form steps they share through `CloudFlowHost` (sign-in, reauth, reset code) likely repeat logic in both. Extract a shared cloud sub-store and leave each store with only its own screens.
+
+## 17. Split `SyncService`
+
+`sync.service.ts` (~620 lines) runs the identity step, collections, decks, cards, planar selection and the repair passes (`repairCollectionTree`, `repairDeckNames`, `resolveMixedCollections`) in one class. Make each entity a small sync step behind a thin orchestrator, the way `reconcileEntities` is already generic.
+
+## 18. One shared write queue
+
+`enqueueWrite` and its `console.error('Grimorio: failed to persist …')` catch are copied in `CardService`, `CollectionService`, `DeckService`, `PlanarSelectionService` and `PlanechaseGameService`. Extract a `WriteQueue` helper. It is also the one place to surface persist failures (e.g. via `ToastService`) instead of failing silently.
+
+## 19. Focus-management helper
+
+Focus moves by hand through `querySelector(...).focus()` in `collection-delete-dialog.ts` (roving choice), `nav-drawer.ts` (return focus to the toggle), `compact-modal.ts` (`[data-autofocus]`) and `fluid-face.ts` (first field). One roving-focus/autofocus helper or directive could cover them.
+
+## 20. Retire `ThemeService`
+
+Only `card-color.util.ts` and `add-card-modal.ts` still use the legacy adapter. Move them to `IdentityService` and delete it (with its spec). Narrows #14 and removes one of #11's three call sites.
+
+## 21. Retire `_modal.scss` / `_dropdown.scss`
+
+Only four stylesheets still `@use` them: `add-card-modal.scss` and `card-add-detail-panel.scss` (`modal`), `select.scss` and `filter-select.scss` (`dropdown`). Move those to DESIGN.md primitives, then delete the partials. Narrows #14.
+
+## 22. Specs for untested logic
+
+Pure logic with no spec: `card-import.util.ts`, `dropdown-placement.util.ts`, `dropdown-dismiss.util.ts`, `card-color.util.ts`, `db/entity-store.ts` (the all-or-nothing `writeRows` transaction), `profile-session.service.ts` and `identity.service.ts`. Cheap to test and the most likely to break silently.
+
+## 23. `setTimeout` audit
+
+19 `setTimeout` calls outside specs. Check which should instead be tied to `animationend`/`transitionend` or signals; timer-based sequencing is a flakiness source (see the SC-004 fix).
+
+## 24. Bundle budgets
+
+`angular.json` sets no `budgets`. Add initial and per-lazy-chunk limits so a static `tesseract.js` import or the Planechase data leaking into the main bundle fails the build.
+
+## 25. Stricter lint rules
+
+Consider `@typescript-eslint/no-floating-promises` (many `whenReady()`/`flush()` calls), angular-eslint's `prefer-signals`, and a `no-restricted-imports` rule forbidding relative `../` imports into `core`/`shared` so the path-alias convention is enforced.
+
+## 26. Stale nav doc
+
+`.claude/docs/architecture.md` still describes `src/app/shared/layout/nav-bar/`, which no longer exists (now `nav-drawer`, `side-nav`, `nav-links`), including its `--nav-bar-height` note. Update it to the current layout components.
+
+## 27. Request persistent storage
+
+Call `navigator.storage.persist()` (e.g. after the first profile is created) so the browser or Android WebView is less likely to evict the IndexedDB data under storage pressure.
+
+## 28. `effect` audit
+
+22 `effect(` calls outside specs. Check which are really derived state and should be `computed` or `linkedSignal` (the idiom in architecture.md), keeping `effect` for real side effects.
+
+## 29. Multi-tab IndexedDB handling
+
+With the installed PWA and a browser tab open on the same profile, each tab holds its own in-memory collections/decks and never sees the other's edits. `openProfileDb` (`core/db/profile-db.ts`) also passes no `blocked`/`blocking` callbacks, so an old tab never closes its connection on `versionchange` and a new tab's `DB_VERSION` upgrade stalls. Close on `blocking` (and reload or rehydrate), and decide whether tabs should resync via `BroadcastChannel`.
+
+## 30. Sync paging for collections and decks
+
+`syncCollections`/`syncDecks` (`sync.service.ts`) pull each table with one unpaged `select`. The hosted Data API caps a response at 1,000 rows by default, so past that the rest are silently missing and look local-only to the reconciler. Unlikely at today's sizes; page with `.range()` (or pull only `updated_at > lastSyncedAt`, which also cuts egress) when sync is next touched.
