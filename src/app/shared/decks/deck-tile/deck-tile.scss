@@ -7,6 +7,9 @@
   min-width: 0;
   content-visibility: auto;
   contain-intrinsic-size: auto 240px auto 360px;
+  // content-visibility clips painting to this box; the back sleeve's −9° corner and the front
+  // sleeve's glow and lift reach past it.
+  overflow-clip-margin: var(--space-6);
 
   @include bp.mobile {
     contain-intrinsic-size: auto 320px auto 460px;

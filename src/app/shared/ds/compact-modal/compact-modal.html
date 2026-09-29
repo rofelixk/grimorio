@@ -14,31 +14,33 @@
 >
   <div class="ring">
     <div class="halo" aria-hidden="true"></div>
-    <div class="face">
-      @if (mobile()) {
-        <header class="m-header">
-          <span class="wordmark">{{ wordmark }}</span>
-          <button
-            type="button"
-            class="close"
-            [attr.aria-label]="closeLabel"
-            [attr.aria-disabled]="locked() || null"
-            (click)="requestClose()"
-          >✕</button>
-        </header>
-      } @else {
-        <div class="close-row">
-          <button
-            type="button"
-            class="close"
-            [attr.aria-label]="closeLabel"
-            [attr.aria-disabled]="locked() || null"
-            (click)="requestClose()"
-          >✕</button>
+    <div #face class="face" [class.is-sized]="sized()" (transitionend)="onTransitionEnd($event)">
+      <div #content class="content">
+        @if (mobile()) {
+          <header class="m-header">
+            <span class="wordmark">{{ wordmark }}</span>
+            <button
+              type="button"
+              class="close"
+              [attr.aria-label]="closeLabel"
+              [attr.aria-disabled]="locked() || null"
+              (click)="requestClose()"
+            >✕</button>
+          </header>
+        } @else {
+          <div class="close-row">
+            <button
+              type="button"
+              class="close"
+              [attr.aria-label]="closeLabel"
+              [attr.aria-disabled]="locked() || null"
+              (click)="requestClose()"
+            >✕</button>
+          </div>
+        }
+        <div class="body">
+          <ng-content />
         </div>
-      }
-      <div class="body">
-        <ng-content />
       </div>
     </div>
   </div>

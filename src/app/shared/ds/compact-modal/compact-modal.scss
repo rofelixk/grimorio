@@ -44,6 +44,27 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-surface-raised) var(--color-bg);
+
+  // Desktop: the face follows its content's height (bound from `CompactModal`), animated like the
+  // themed modal's from the first interaction on (never while opening); instant under reduced motion.
+  &.is-sized {
+    transition: height var(--duration-base) var(--ease-standard);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  // No scrollbar flashing mid-change.
+  &.is-resizing {
+    overflow-y: hidden;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: none;
 }
 
 .close-row {

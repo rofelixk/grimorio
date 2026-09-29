@@ -8,7 +8,7 @@ import { stubDialog } from '@testing/dialog';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { deckMatcher } from '../../app.routes';
 import { DeckArea } from './deck-area';
-import { TURN_MS } from './deck-turn';
+import { SWEEP_MS } from '@shared/effects/page-sweep/page-sweep';
 
 interface Media {
   mobile?: boolean;
@@ -116,23 +116,23 @@ describe('DeckArea', () => {
     await settle(harness);
 
     expect(el.hasAttribute('inert')).toBe(true);
-    expect(el.querySelector('.page')).not.toBeNull();
+    expect(el.querySelector('.sweep')).not.toBeNull();
     expect(el.querySelector('canvas.dust')).not.toBeNull();
     expect(text(el.querySelector('.column--deck h1'))).toBe('Elfos');
 
-    await new Promise((resolve) => setTimeout(resolve, TURN_MS + 50));
+    await new Promise((resolve) => setTimeout(resolve, SWEEP_MS + 100));
     await settle(harness);
     expect(el.hasAttribute('inert')).toBe(false);
-    expect(el.querySelector('.page')).toBeNull();
+    expect(el.querySelector('.sweep')).toBeNull();
     expect(text(el.querySelector('h1'))).toBe('Elfos');
   });
 
-  it('swaps instantly under reduced motion, with no page layer and no canvas', async () => {
+  it('swaps instantly under reduced motion, with no sweep layer and no canvas', async () => {
     const { el, harness } = await setUp('/decks', ['Elfos']);
     el.querySelector<HTMLAnchorElement>('app-deck-tile a')!.click();
     await settle(harness);
 
-    expect(el.querySelector('.page')).toBeNull();
+    expect(el.querySelector('.sweep')).toBeNull();
     expect(el.querySelector('canvas')).toBeNull();
     expect(text(el.querySelector('h1'))).toBe('Elfos');
   });
@@ -202,7 +202,7 @@ describe('DeckArea', () => {
       expect(router.url).toBe('/decks');
       expect(navigate).toHaveBeenCalledTimes(1);
       expect(navigate).toHaveBeenCalledWith(['/decks'], { info: { deckTurn: false } });
-      expect(el.querySelector('.page')).toBeNull();
+      expect(el.querySelector('.sweep')).toBeNull();
       expect(el.hasAttribute('inert')).toBe(false);
       expect(el.querySelector('app-deck-delete-dialog')).toBeNull();
       expect(TestBed.inject(ToastService).toast()).toMatchObject({ label: 'Deck', text: 'Elfos foi excluído.' });

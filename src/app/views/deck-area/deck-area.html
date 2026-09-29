@@ -1,16 +1,8 @@
-@if (turn.turning()) {
-  <!-- The deck page underneath, the list turning over it (DESIGN.md Motion "Decks page turn"). -->
-  <ng-container [ngTemplateOutlet]="deckPlace" />
-  <div
-    class="page"
-    [class.is-entering]="turn.entering()"
-    [style.top.px]="-pageOffset()"
-    [style.transform]="pageTransform()"
-  >
-    <div class="page__front">
-      <ng-container [ngTemplateOutlet]="listPlace" />
-    </div>
-    <div class="page__back"></div>
+@if (turn.turning(); as dir) {
+  <!-- The incoming place underneath, the outgoing one dissolving behind the dust front (DESIGN.md Motion "Decks page change"). -->
+  <ng-container [ngTemplateOutlet]="dir === 'open' ? deckPlace : listPlace" />
+  <div class="sweep" [class.sweep--close]="dir === 'close'" [style.top.px]="-sweep.pageOffset()">
+    <ng-container [ngTemplateOutlet]="dir === 'open' ? listPlace : deckPlace" />
   </div>
 } @else if (turn.shown().kind === 'deck') {
   <ng-container [ngTemplateOutlet]="deckPlace" />

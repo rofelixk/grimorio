@@ -23,20 +23,21 @@ import { CreateRow } from '@shared/collections/create-row/create-row';
 import { DeckDeleteDialog, type DeckDeleted } from '@shared/decks/deck-delete-dialog/deck-delete-dialog';
 import { DeckFormDialog } from '@shared/decks/deck-form-dialog/deck-form-dialog';
 import { DeckTile } from '@shared/decks/deck-tile/deck-tile';
+import { PageSweep } from '@shared/effects/page-sweep/page-sweep';
 import { DECK } from '@utils/deck-copy';
 import { type DeckPlace, samePlace } from '@utils/deck-turn.util';
 import { DeckTurn } from './deck-turn';
 
 // The deck area view (spec 009): one route/component instance for the deck list and a deck page,
 // matched by `deckMatcher` (app.routes.ts) and fed `ref` via `withComponentInputBinding`. The
-// routed place drives `DeckTurn`; the template renders its `shown()` place, plus — while a turn
-// runs — the list as a page turning over the deck page. No wash or theme scope: a deck's colors
-// appear only in the dust (research R13).
+// routed place drives `DeckTurn`; the template renders its `shown()` place, plus — while a change
+// runs — the outgoing place over the incoming one, dissolving behind the dust's front. No wash or theme scope: a
+// deck's colors appear only in the dust (research R13).
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-deck-area',
   imports: [NgTemplateOutlet, RouterLink, CreateRow, DeckDeleteDialog, DeckFormDialog, DeckTile],
-  providers: [DeckTurn],
+  providers: [DeckTurn, PageSweep],
   styleUrl: './deck-area.scss',
   templateUrl: './deck-area.html',
   host: {
@@ -53,6 +54,7 @@ export class DeckArea {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly decks = inject(DeckService);
   protected readonly turn = inject(DeckTurn);
+  protected readonly sweep = inject(PageSweep);
   protected readonly mobile = mediaQuerySignal(MOBILE_QUERY);
 
   protected readonly copy = DECK;
@@ -97,16 +99,6 @@ export class DeckArea {
   /** The deck whose delete dialog is open. */
   protected readonly del = signal<string | null>(null);
 
-  /** The `<main>` scroll captured when a turn starts, so the page lifts from where the person was. */
-  protected readonly pageOffset = signal(0);
-
-  /** The page layer's angle: it starts flat (open) or turned over (close) for the entering frames. */
-  protected readonly pageTransform = computed(() => {
-    const open = this.turn.turning() === 'open';
-    const entering = this.turn.entering();
-    return `rotateY(${open === entering ? 0 : -180}deg)`;
-  });
-
   constructor() {
     // Drive the turn from the address, once per new place. A missing deck is left to the redirect
     // below, so the page never turns into nothing.
@@ -117,13 +109,7 @@ export class DeckArea {
       untracked(() => {
         if (last && samePlace(last, place)) return;
         last = place;
-        const main = this.host.nativeElement.closest('main');
-        const scroll = main?.scrollTop ?? 0;
         this.turn.go(place);
-        if (this.turn.turning() && main) {
-          this.pageOffset.set(scroll);
-          main.scrollTop = 0;
-        }
       });
     });
 
@@ -152,7 +138,7 @@ export class DeckArea {
     effect(() => {
       const canvas = this.dust();
       if (canvas) {
-        this.turn.attachCanvas(canvas.nativeElement, this.host.nativeElement);
+        this.sweep.attach(canvas.nativeElement, this.host.nativeElement);
       }
     });
   }

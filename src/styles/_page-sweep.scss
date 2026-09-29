@@ -1,0 +1,57 @@
+// The page sweep's layers (DESIGN.md Motion "Page sweep"; `PageSweep` in
+// shared/effects/page-sweep). A view's host is `position: relative` and fills the view area; while
+// a sweep runs, the incoming page renders normally and the outgoing one sits over it in `.sweep`.
+
+// The outgoing page, held still. `PageSweep` moves `--front` (the dust's edge, in page px) every
+// frame and the page dissolves behind it over a `--band` wide, smoothstep-shaped fade. Open: the
+// page shows left of the front and fades to its right. Close (`.sweep--close`) mirrors it: the page
+// shows right of the front and fades to its left. Before the first frame the outgoing page is
+// whole. `--band` matches `FRONT_BAND` in deck-dust.util.ts.
+@mixin layers {
+  // Not inherited: the per-frame write restyles only `.sweep`, not the whole outgoing page.
+  @property --front {
+    syntax: '<length-percentage>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  .sweep {
+    --band: 160px;
+    --front: 100%;
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    min-height: 100%;
+    background: var(--color-bg);
+    mask-image: linear-gradient(
+      to right,
+      #000 var(--front),
+      rgb(0 0 0 / 0.9) calc(var(--front) + var(--band) * 0.2),
+      rgb(0 0 0 / 0.5) calc(var(--front) + var(--band) * 0.5),
+      rgb(0 0 0 / 0.1) calc(var(--front) + var(--band) * 0.8),
+      transparent calc(var(--front) + var(--band))
+    );
+  }
+
+  .sweep--close {
+    --front: 0px;
+
+    mask-image: linear-gradient(
+      to right,
+      transparent calc(var(--front) - var(--band)),
+      rgb(0 0 0 / 0.1) calc(var(--front) - var(--band) * 0.8),
+      rgb(0 0 0 / 0.5) calc(var(--front) - var(--band) * 0.5),
+      rgb(0 0 0 / 0.9) calc(var(--front) - var(--band) * 0.2),
+      #000 var(--front)
+    );
+  }
+
+  .dust {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+}

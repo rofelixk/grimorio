@@ -337,23 +337,21 @@ These are deliberate exceptions to two rules: the flowing line and the thread ar
 - **Drawer:** slides in from the right over 0.36s (`--duration-drawer`), and the backdrop fades over the same time.
 - **Side nav:** width, border and glow change over `base` 0.24s. It collapses 120ms after the pointer leaves.
 - **`prefers-reduced-motion`:** all ring, halo, spark, ripple and band animation stops, as do the wheel's spin, breathing, motes and bursts. Rings and bands freeze, the drawer opens and closes instantly (0s), modal height changes are instant, and the toast appears without a transition.
-- **Collections page transition** (list ↔ collection ↔ holding box): out 140ms — the content column fades to opacity 0 and slides `translateX(-dir*8px)`, standard easing. Swap: the view is replaced, the content starting at opacity 0 and `translateX(dir*12px)` with no transition. In 240ms — fades to opacity 1 and slides to `translateX(0)`. `dir = +1` going deeper or sideways, `-1` going up. Height is locked to the outgoing content just before "out" (`overflow: hidden`), transitions to the new content's height over the 240ms "in", and releases to `auto` about 280ms after the swap, so the page never flickers. On phone (≤ 640px) the height change takes 480ms and releases about 520ms after the swap, so a tall ↔ short swap doesn't snap on the narrow screen; the fade and slide keep their timings.
-  - **Light orbs:** 23 of them, in an `aria-hidden`, `pointer-events: none`, `overflow: hidden`, `mix-blend-mode: screen` layer, starting with "out" and lasting about 1.5s. Size `(5 + r*11) * 0.4` (2–6.4px). Colors cycle `--role-primary`, `--role-accent`, `--role-tertiary`. Fill `radial-gradient(circle, c 0%, c/67% 40%, transparent 72%)` plus a glow `0 0 {1.6*size}px {0.4*size}px c/40%`. Start position: left 8–63% going deeper, 35–90% going up; top 10–80%. Keyframe `grm-orb`: 0% opacity 0 scale .5, 25% opacity 1, 100% opacity 0 and `translate(dx, dy) scale(1.1)`, with `dx = dir*(50…160)px`, `dy = -(15…75)px`. Duration 750–1250ms, delay 0–220ms, standard easing.
-  - **`prefers-reduced-motion`:** no fade, slide, height animation or orbs — the view swaps instantly, matching the global rule.
-- **Decks page turn** (list ↔ deck): the list inside the view becomes a page turned like a book.
-  - **Page:** `transform-origin: 0 50%` (the spine is the view's left edge), `transform-style: preserve-3d`. The front face is the list (`backface-visibility: hidden`, on `bg`); the back face is flat `surface` with a 1px `border` left edge. The deck page renders underneath.
-  - **Perspective** on the view host: 2800px desktop, 1100px on phone (≤ 640px).
-  - **Turn:** `rotateY(0 → -180deg)` to open, the reverse to close, over 1300ms with the standard easing. On close the deck page stays underneath until the list lands. Input is blocked (`inert`) while turning.
+- **Collections page change** (list ↔ collection ↔ holding box): the page sweep — open going deeper or sideways, close going up. Every navigation sweeps except the first load and the missing-place redirect (including landing on the parent after a delete), which swap instantly.
+- **Decks page change** (list ↔ deck): the page sweep — open into a deck, close back to the list.
   - **Triggers:** opening a deck from its tile; returning from a deck page by its back link, side-nav "Decks", or browser/Android back. A direct load, the wordmark (Home), landing on the list after a delete, and the missing-deck redirect never animate.
+- **Page sweep** (shared by the collections and decks page changes): the outgoing page dissolves behind a front that sweeps with the dust, like the planeswalk's light front. Close is open mirrored. Nothing rotates.
+  - **Front:** flat and linear, like the planeswalk's: over 500ms it crosses the page at a constant speed. Open: right → left, from `F = W` (the outgoing page whole) to `F = −band` (gone). Close: left → right, from `F = 0` (whole) to `F = W + band` (gone).
+  - **Page:** the outgoing page is a flat layer on `bg` over the incoming one, lifted from where it was scrolled. It fades over a 160px band trailing the front, smoothstep-shaped (alpha 1 → .9 at 20% → .5 at 50% → .1 at 80% → 0), so the edge reads soft. Open: `mask-image: linear-gradient(to right, #000 F, … transparent F + band)`; close mirrors it (`transparent F − band … #000 F`). The layer itself never moves. Input is blocked (`inert`) while it runs.
   - **Dust:** a DPR-scaled `<canvas>` over the view, `aria-hidden`, `pointer-events: none`.
-    - Count: 260 desktop, 110 phone; random positions each run.
-    - Radius `0.45 + r^2.2 × 1.1`px, drawn as a pre-rendered sprite at 5× radius: parchment core 0–12% → the speck color to 45% → transparent, alpha 1 → .55 at 20% → 0. Draw alpha is `a × 0.7`. Colors cycle through the deck's colors; parchment (`--color-text`) until decks have colors.
-    - Page-edge screen x each frame: `off + W/2 + (W·cosθ − W/2) · P / (P + W·sinθ)`; `vex` is its per-frame delta.
-    - Push (only while turning): `w = exp(-d²/(2σ²))`, `d = x − edgeX`, `σ = 30 · (W/300)^0.6`; `kx += vex·w·0.3·jitter(0.6–1.4)`, `ky += (sin(seed + t·0.004)·0.55 − 0.2)·|vex|·w·0.25`.
+    - Count: 130 desktop, 110 phone; random positions each run.
+    - Radius `0.25 + r^2.2 × 1.1`px, drawn as a pre-rendered sprite at 5× radius: parchment core 0–12% → the speck color to 45% → transparent, alpha 1 → .55 at 20% → 0. Draw alpha is `a × 0.7`. Colors cycle through the profile's identity (its 1–3 identity hexes, in order); the core is always parchment (`--color-text`).
+    - The front's screen x each frame is `edgeX`; `vex` is its per-frame delta.
+    - Push (only while the front moves): `w = exp(-d²/(2σ²))`, `d = x − edgeX`, `σ = 30 · (W/300)^0.6`; `kx += vex·w·0.3·jitter(0.6–1.4)`, `ky += (sin(seed + t·0.004)·0.55 − 0.2)·|vex|·w·0.25`.
     - Swirl proportional to speed: `kx += sin(y·0.04 + t·0.0021 + seed)·0.06·min(1,|k|)`, `ky += cos(x·0.04 + t·0.0017 + seed)·0.06·min(1,|k|)`. Clamp |k| to `3.5·√(W/300)`, damping 0.95.
     - Ambient drift: ±0.003 sin/cos plus 0.002 gravity, damping 0.955 — never bright enough to show.
     - **Visibility = motion:** while turning, the alpha target is `clamp((|k| − 0.12) / (1.1·√(W/300)), 0, 1)`, rising 0.3 and falling 0.04 per frame.
-    - **Settle:** each speck gets a random delay of 0–600ms and a fade of 0.6–1.4s, so specks leave one by one. All are gone ≤ 2s after the page settles; then the canvas is cleared and the loop stopped.
+    - **Settle:** each speck gets a random delay of 0–300ms and a fade of 300–700ms, so specks leave one by one, ending anywhere from 0.3s to 1s. All are gone ≤ 1s after the page settles; then the canvas is cleared and the loop stopped.
   - **`prefers-reduced-motion`:** an instant swap and no dust (no canvas at all).
 
 ## Components
@@ -614,7 +612,7 @@ The collection area (spec 008): a list of collections, a per-collection page, an
 **Delete radios.** Two full-width radio rows (padding `space-3`, 8px radius, the row gradient), each with an 18px indicator (1px border, an inset 4px `--color-bg` ring, filled when selected). "Mover para a caixa temporária" selected: border and fill role-primary plus `--glow-plate-hover`. "Excluir as cartas" selected: border and fill danger, its sub-text in danger. Nothing is selected by default.
 
 ### Decks
-The deck area (spec 009): a list of deck fans, a header-only deck page, and the page turn between them (Motion, "Decks page turn").
+The deck area (spec 009): a list of deck fans, a header-only deck page, and the page change between them (Motion, "Decks page change").
 
 **List column.** 1080px, centered, padding `space-5` (`space-4` at ≤ 640px), a flex column with gap `space-4`. The grid is `repeat(4, minmax(0, 1fr))` with a 32px row / 24px column gap; on phone, one centered column.
 

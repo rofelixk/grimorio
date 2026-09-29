@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { type Speck, easeStandard, edgeX, makeSpecks, settleSchedule, settledAlpha, stepSpeck } from './deck-dust.util';
+import {
+  FRONT_BAND,
+  SETTLE_MAX_MS,
+  type Speck,
+  dustColors,
+  frontX,
+  makeSpecks,
+  settleSchedule,
+  settledAlpha,
+  stepSpeck,
+} from './deck-dust.util';
+import { IDENTITY_HEX } from './identity.util';
 
 /** A deterministic mulberry32. */
 function seeded(seed: number): () => number {
@@ -21,23 +32,27 @@ describe('deck dust', () => {
     const specks = makeSpecks(6, 300, 400, ['a', 'b'], seeded(7));
     expect(specks.map((s) => s.color)).toEqual(['a', 'b', 'a', 'b', 'a', 'b']);
     for (const s of specks) {
-      expect(s.r).toBeGreaterThanOrEqual(0.45);
-      expect(s.r).toBeLessThanOrEqual(1.55);
+      expect(s.r).toBeGreaterThanOrEqual(0.25);
+      expect(s.r).toBeLessThanOrEqual(1.35);
       expect(s.jitter).toBeGreaterThanOrEqual(0.6);
       expect(s.jitter).toBeLessThanOrEqual(1.4);
     }
   });
 
-  it('eases from 0 to 1 along the standard curve', () => {
-    expect(easeStandard(0)).toBeCloseTo(0);
-    expect(easeStandard(1)).toBeCloseTo(1);
-    expect(easeStandard(0.5)).toBeGreaterThan(0.5);
+  it('colors the dust with the identity hexes, in order', () => {
+    expect(dustColors(['U', 'G'])).toEqual([IDENTITY_HEX.U.base, IDENTITY_HEX.G.base]);
   });
 
-  it('puts the edge at the right side when flat and at the spine when turned over', () => {
-    expect(edgeX(0, 300, 2800, 0)).toBeCloseTo(300);
-    expect(edgeX(-Math.PI, 300, 2800, 0)).toBeCloseTo(-300);
-    expect(edgeX(0, 300, 2800, 24)).toBeCloseTo(324);
+  it('sweeps the front right → left to open, from the right side to one band past the left', () => {
+    expect(frontX(0, 1200, 'open')).toBe(1200);
+    expect(frontX(0.5, 1200, 'open')).toBeCloseTo(1200 - (1200 + FRONT_BAND) / 2);
+    expect(frontX(1, 1200, 'open')).toBe(-FRONT_BAND);
+  });
+
+  it('mirrors the front to close, from the left side to one band past the right', () => {
+    expect(frontX(0, 1200, 'close')).toBe(0);
+    expect(frontX(0.5, 1200, 'close')).toBeCloseTo((1200 + FRONT_BAND) / 2);
+    expect(frontX(1, 1200, 'close')).toBe(1200 + FRONT_BAND);
   });
 
   it('keeps a speck far from the edge at alpha 0', () => {
@@ -54,14 +69,14 @@ describe('deck dust', () => {
     expect(s.a).toBeGreaterThan(0);
   });
 
-  it('fades every speck out by 2000 ms after settling, at different times', () => {
+  it('fades every speck out within the settle window after settling, at different times', () => {
     const random = seeded(42);
     const specks = makeSpecks(50, 300, 300, ['#f2ede8'], random).map((s) => ({ ...s, a: 1 }));
     settleSchedule(specks, random);
 
-    expect(specks.every((s) => settledAlpha(s, 2000) === 0)).toBe(true);
+    expect(specks.every((s) => settledAlpha(s, SETTLE_MAX_MS) === 0)).toBe(true);
     const ends = new Set(specks.map((s) => Math.round(s.fadeDelay + s.fadeMs)));
     expect(ends.size).toBeGreaterThan(1);
-    expect(specks.some((s) => settledAlpha(s, 700) > 0)).toBe(true);
+    expect(specks.some((s) => settledAlpha(s, SETTLE_MAX_MS / 2) > 0)).toBe(true);
   });
 });

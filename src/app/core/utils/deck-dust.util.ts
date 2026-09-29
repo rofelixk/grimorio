@@ -1,6 +1,9 @@
-// The page turn's dust (spec 009 FR-018, research R10; DESIGN.md Motion "Decks page turn"). Pure
-// and seeded through an injected `random`, so the physics and the ≤ 2 s settle are unit-testable;
-// `DeckTurn` owns the canvas and the rAF loop. Constants are verbatim from the design handoff.
+// The page sweep's dust (spec 009 FR-018, research R10; DESIGN.md Motion "Page sweep"). Pure and
+// seeded through an injected `random`, so the physics and the ≤ 1 s settle are unit-testable;
+// `PageSweep` owns the canvas and the rAF loop. Constants are verbatim from the design handoff.
+
+import type { Color } from '@models/profile.model';
+import { IDENTITY_HEX } from './identity.util';
 
 export interface Speck {
   x: number;
@@ -35,15 +38,15 @@ export interface DustFrame {
   turning: boolean;
 }
 
-export const SPECKS_DESKTOP = 260;
+export const SPECKS_DESKTOP = 130;
 export const SPECKS_PHONE = 110;
-export const SETTLE_MAX_MS = 2000;
+export const SETTLE_MAX_MS = 1000;
 
 export function makeSpecks(count: number, width: number, height: number, colors: readonly string[], random: () => number): Speck[] {
   return Array.from({ length: count }, (_, i) => ({
     x: random() * width,
     y: random() * height,
-    r: 0.45 + random() ** 2.2 * 1.1,
+    r: 0.25 + random() ** 2.2 * 1.1,
     color: colors[i % colors.length],
     seed: random() * 100,
     jitter: 0.6 + random() * 0.8,
@@ -58,29 +61,23 @@ export function makeSpecks(count: number, width: number, height: number, colors:
   }));
 }
 
-/** The DS easing `cubic-bezier(0.4, 0, 0.2, 1)` at progress `x` (0–1), so the dust follows the CSS turn. */
-export function easeStandard(x: number): number {
-  const cx = 3 * 0.4;
-  const bx = 3 * (0.2 - 0.4) - cx;
-  const ax = 1 - cx - bx;
-  const cy = 0;
-  const by = 3 * (1 - 0) - cy;
-  const ay = 1 - cy - by;
-  const sampleX = (t: number) => ((ax * t + bx) * t + cx) * t;
-  const slopeX = (t: number) => (3 * ax * t + 2 * bx) * t + cx;
-  let t = x;
-  for (let i = 0; i < 6; i++) {
-    const slope = slopeX(t);
-    if (Math.abs(slope) < 1e-6) break;
-    t -= (sampleX(t) - x) / slope;
-  }
-  t = Math.min(1, Math.max(0, t));
-  return ((ay * t + by) * t + cy) * t;
+/** The speck colors: the profile's identity, as its identity hexes in order. */
+export function dustColors(identity: readonly Color[]): string[] {
+  return identity.map((color) => IDENTITY_HEX[color].base);
 }
 
-/** The turning edge's screen x for a `rotateY(theta)` page of width `w` under perspective `p`. */
-export function edgeX(theta: number, w: number, perspective: number, off: number): number {
-  return off + w / 2 + ((w * Math.cos(theta) - w / 2) * perspective) / (perspective + w * Math.sin(theta));
+/** The dissolve band trailing the front, in px (`--band` on `.sweep` in styles/_page-sweep.scss). */
+export const FRONT_BAND = 160;
+
+/**
+ * The front's x on the page at `progress` (0–1), flat and linear like the planeswalk's. The
+ * outgoing page dissolves behind it, and close mirrors open: to open it sweeps right → left, from
+ * the right side (the list whole) to one band past the left (the list gone); to close it sweeps
+ * left → right, from the left side (the deck page whole) to one band past the right.
+ */
+export function frontX(progress: number, width: number, dir: 'open' | 'close'): number {
+  const travel = progress * (width + FRONT_BAND);
+  return dir === 'open' ? width - travel : travel;
 }
 
 /** One frame of physics, in place (the hot loop). */
@@ -124,11 +121,15 @@ export function stepSpeck(s: Speck, { t, edgeX: ex, vex, width, turning }: DustF
   }
 }
 
-/** Gives each speck its own fade (delay 0–600 ms, duration 600–1400 ms), so they leave one by one. */
+/**
+ * Gives each speck its own fade inside the settle window, so they leave one by one: a delay of
+ * 0–30% of `SETTLE_MAX_MS`, then a fade of 30–70% of it. Every speck ends between 30% and 100% of
+ * the window, so none is still lit when the canvas is cleared.
+ */
 export function settleSchedule(specks: Speck[], random: () => number): void {
   for (const s of specks) {
-    s.fadeDelay = random() * 600;
-    s.fadeMs = 600 + random() * 800;
+    s.fadeDelay = random() * 0.3 * SETTLE_MAX_MS;
+    s.fadeMs = (0.3 + random() * 0.4) * SETTLE_MAX_MS;
     s.alphaAtSettle = s.a;
   }
 }
