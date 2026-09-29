@@ -1,0 +1,22 @@
+<section class="tunnel">
+  <h2 class="eyebrow" [id]="labelId">{{ label() }}</h2>
+  <div class="grid" role="radiogroup" [attr.aria-labelledby]="labelId">
+    @for (card of planes(); track card.id; let i = $index) {
+      <button
+        type="button"
+        role="radio"
+        class="choice"
+        lang="en"
+        [class.is-chosen]="card.id === selected()"
+        [attr.aria-checked]="card.id === selected()"
+        [attr.aria-label]="card.name"
+        [tabindex]="i === focusIndex() ? 0 : -1"
+        (click)="picked.emit(card.id)"
+        (keydown)="onKeydown($event, i)"
+      >
+        <app-planar-image class="image" [address]="card.images.large" [name]="card.name" />
+        <span class="bead" aria-hidden="true"></span>
+      </button>
+    }
+  </div>
+</section>

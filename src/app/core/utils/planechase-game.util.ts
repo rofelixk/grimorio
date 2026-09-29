@@ -103,7 +103,53 @@ export function chaos(game: PlanechaseGame): PlanechaseGame {
 /** The encounter is resolved: planeswalk again, possibly onto another phenomenon (312.7). */
 export function confirmPhenomenon(game: PlanechaseGame, kindOf: CardKindOf): PlanechaseGame {
   assertAllowed(game.pending === 'phenomenon', 'confirmPhenomenon');
+  assertAllowed(tunnelReveal(game, kindOf) === null, 'confirmPhenomenon without the tunnel choice');
   const state: PlanechaseGameState = { ...stateOf(game), pending: null };
+  return undoable(draw(state, kindOf, { kind: 'resolved', from: game.current }), game);
+}
+
+/** Interplanar Tunnel's oracle id: the one encounter that only the app, holding the deck, can resolve. */
+export const INTERPLANAR_TUNNEL = '7812174b-2dc1-43e8-b98f-639905e20ab7';
+const TUNNEL_PLANES = 5;
+
+/**
+ * Interplanar Tunnel's reveal while it waits: the top of the draw order down to the fifth plane,
+ * or all of it when it holds fewer. Derived from the draw order, so a reload shows the same cards.
+ * `null` when the tunnel isn't waiting, or when no plane would be revealed (then the encounter is
+ * a plain confirmation, like any other phenomenon).
+ */
+export function tunnelReveal(game: PlanechaseGameState, kindOf: CardKindOf): string[] | null {
+  if (game.pending !== 'phenomenon' || game.current !== INTERPLANAR_TUNNEL) {
+    return null;
+  }
+  const revealed: string[] = [];
+  let planes = 0;
+  for (const id of game.drawOrder) {
+    revealed.push(id);
+    if (kindOf(id) === 'plane' && ++planes === TUNNEL_PLANES) {
+      break;
+    }
+  }
+  return planes > 0 ? revealed : null;
+}
+
+/**
+ * Resolves Interplanar Tunnel: the chosen plane goes on top, every other revealed card (phenomena
+ * included) to the bottom in a random order, then the planeswalk away from the tunnel turns the
+ * chosen plane up.
+ */
+export function resolveTunnel(game: PlanechaseGame, choice: string, kindOf: CardKindOf, rnd: RandomInt): PlanechaseGame {
+  const revealed = tunnelReveal(game, kindOf);
+  assertAllowed(!!revealed && revealed.includes(choice) && kindOf(choice) === 'plane', 'resolveTunnel');
+  const rest = shuffle(
+    revealed!.filter((id) => id !== choice),
+    rnd,
+  );
+  const state: PlanechaseGameState = {
+    ...stateOf(game),
+    pending: null,
+    drawOrder: [choice, ...game.drawOrder.slice(revealed!.length), ...rest],
+  };
   return undoable(draw(state, kindOf, { kind: 'resolved', from: game.current }), game);
 }
 

@@ -23,6 +23,10 @@
       <app-planar-card [card]="card" [lit]="lit()" />
     }
 
+    @if (tunnelPlanes(); as planes) {
+      <app-tunnel-choice [planes]="planes" [selected]="tunnelChoice()" (picked)="tunnelChoice.set($event)" />
+    }
+
     @if (mobile()) {
       <div class="links links--grid">
         <a class="btn btn--secondary" routerLink="/modes/planechase/rules">{{ copy.rules }}</a>

@@ -10,6 +10,7 @@ import {
   repairGame,
   reshuffle,
   resetCost,
+  resolveTunnel,
   roll,
   startGame,
   undo,
@@ -82,6 +83,11 @@ export class PlanechaseGameService {
 
   confirmPhenomenon(): void {
     this.apply('confirm', (game) => confirmPhenomenon(game, this.kindOf));
+  }
+
+  /** Interplanar Tunnel: `choice`, one of the revealed planes, turns up next. */
+  resolveTunnel(choice: string): void {
+    this.apply('confirm', (game) => resolveTunnel(game, choice, this.kindOf, this.random));
   }
 
   resetCost(): void {

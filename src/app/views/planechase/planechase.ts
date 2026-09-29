@@ -8,6 +8,7 @@ import {
   computed,
   effect,
   inject,
+  linkedSignal,
   signal,
   viewChild,
 } from '@angular/core';
@@ -17,7 +18,7 @@ import { PlanarSelectionService } from '@services/planar-selection.service';
 import { PlanechaseCatalogService } from '@services/planechase-catalog.service';
 import { PlanechaseGameService } from '@services/planechase-game.service';
 import { PLANECHASE, planarDisplay } from '@utils/planechase-copy';
-import { abilityLit } from '@utils/planechase-game.util';
+import { abilityLit, tunnelReveal } from '@utils/planechase-game.util';
 import { enabledCards, validateSelection } from '@utils/planar-selection.util';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { ChaosFlair } from '@shared/gameplay/flairs/chaos-flair';
@@ -26,6 +27,8 @@ import { PlanarCard } from '@shared/gameplay/planar-card/planar-card';
 import { PlanarConsole } from '@shared/gameplay/planar-console/planar-console';
 import { PlanarConfirm } from '@shared/gameplay/planar-controls';
 import { PlanarDock } from '@shared/gameplay/planar-dock/planar-dock';
+import { TunnelChoice } from '@shared/gameplay/tunnel-choice/tunnel-choice';
+import type { PlanarCard as PlanarCardData } from '../../core/data/planechase/planar-card.model';
 
 // Planechase (FR-001–FR-015): the no-game intro, or the game — the console above the card on wide
 // screens, the card above the sticky dock on phones. Nothing here shows how many cards are used or
@@ -34,7 +37,7 @@ import { PlanarDock } from '@shared/gameplay/planar-dock/planar-dock';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-planechase',
-  imports: [RouterLink, PlanarCard, PlanarConsole, PlanarDock],
+  imports: [RouterLink, PlanarCard, PlanarConsole, PlanarDock, TunnelChoice],
   templateUrl: './planechase.html',
   styleUrl: './planechase.scss',
 })
@@ -48,10 +51,29 @@ export class Planechase {
   protected readonly copy = PLANECHASE;
   protected readonly mobile = mediaQuerySignal(MOBILE_QUERY);
   protected readonly game = this.service.game;
-  protected readonly actions = this.service.actions;
   protected readonly current = computed(() => {
     const game = this.game();
     return game ? this.catalog.byId(game.current) ?? null : null;
+  });
+  /** The planes Interplanar Tunnel revealed while it waits, else `null`. */
+  protected readonly tunnelPlanes = computed(() => {
+    const game = this.game();
+    const revealed = game ? tunnelReveal(game, this.catalog.kindOf) : null;
+    return revealed
+      ? revealed
+          .map((id) => this.catalog.byId(id))
+          .filter((card): card is PlanarCardData => card !== undefined && card.kind === 'plane')
+      : null;
+  });
+  /** The table's pick among them; a new reveal (or none) clears it. */
+  protected readonly tunnelChoice = linkedSignal({
+    source: this.tunnelPlanes,
+    computation: (): string | null => null,
+  });
+  /** "Concluir encontro" waits for the tunnel's pick. */
+  protected readonly actions = computed(() => {
+    const actions = this.service.actions();
+    return actions && this.tunnelPlanes() && !this.tunnelChoice() ? { ...actions, confirm: false } : actions;
   });
   protected readonly display = computed(() => {
     const game = this.game();
@@ -60,7 +82,7 @@ export class Planechase {
       return null;
     }
     const noChaos = card?.kind === 'plane' && card.ability === null;
-    return planarDisplay(game, (id) => this.catalog.byId(id)?.name ?? id, noChaos);
+    return planarDisplay(game, (id) => this.catalog.byId(id)?.name ?? id, noChaos, this.tunnelPlanes() !== null);
   });
   protected readonly lit = computed(() => {
     const game = this.game();
@@ -122,7 +144,11 @@ export class Planechase {
   }
 
   protected confirmPhenomenon(): void {
-    this.withFlairs(() => this.service.confirmPhenomenon());
+    const choice = this.tunnelChoice();
+    if (this.tunnelPlanes() && !choice) {
+      return;
+    }
+    this.withFlairs(() => (choice ? this.service.resolveTunnel(choice) : this.service.confirmPhenomenon()));
   }
 
   /** The all-used prompt is its own confirmation: "Reiniciar planos" completes the planeswalk. */
