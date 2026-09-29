@@ -50,12 +50,17 @@ function expectPartition(g: PlanechaseGameState): void {
   }
 }
 
+/** One planeswalk, or the confirmation a face-up phenomenon is waiting on. */
+function step(g: PlanechaseGame): PlanechaseGame {
+  return g.pending === 'phenomenon' ? confirmPhenomenon(g, kindOf) : planeswalk(g, kindOf);
+}
+
 /** Planeswalks (confirming phenomena) until the all-used state; returns every card turned up. */
 function walkUntilAllUsed(start: PlanechaseGame): { end: PlanechaseGame; seen: string[] } {
   let g = start;
   const seen: string[] = [];
   for (;;) {
-    g = g.pending === 'phenomenon' ? confirmPhenomenon(g, kindOf) : planeswalk(g, kindOf);
+    g = step(g);
     if (g.pending === 'reset') {
       return { end: g, seen };
     }
@@ -339,14 +344,16 @@ describe('SC-004', () => {
   });
 
   it('after an anytime reset, the next N−1 planeswalks show every card but the current one exactly once', () => {
-    let g = startGame(ALL_IDS, kindOf, randomInt);
-    g = planeswalk(planeswalk(g, kindOf), kindOf);
-    while (g.pending === 'phenomenon') {
-      g = confirmPhenomenon(g, kindOf);
+    for (let run = 0; run < 25; run++) {
+      // Two draws in, stepping through any phenomenon either one turns up.
+      let g = step(step(startGame(ALL_IDS, kindOf, randomInt)));
+      while (g.pending === 'phenomenon') {
+        g = confirmPhenomenon(g, kindOf);
+      }
+      g = reshuffle(g, kindOf, randomInt);
+      const { seen } = walkUntilAllUsed(g);
+      expect([...seen].sort()).toEqual(ALL_IDS.filter((id) => id !== g.current).sort());
     }
-    g = reshuffle(g, kindOf, randomInt);
-    const { seen } = walkUntilAllUsed(g);
-    expect([...seen].sort()).toEqual(ALL_IDS.filter((id) => id !== g.current).sort());
   });
 });
 

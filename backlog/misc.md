@@ -46,6 +46,14 @@ Flagged by `design-auditor`: the compact modal's desktop fluid height (the face 
 
 `activeColors() ?? DEFAULT_IDENTITY` appears in `page-sweep.ts`, `theme.service.ts` (`colors`) and `identity.service.ts` (`roles`). One `effectiveColors` computed on `IdentityService` would cover all three.
 
-## 12. Flaky Planechase test
+## 13. Sync card artist data
 
-`planechase-game.util.spec.ts`, SC-004 "after an anytime reset, the next N−1 planeswalks show every card but the current one exactly once", failed once in a full run ("Planechase: planeswalk isn't allowed in this state.") and passed 3/3 alone. Likely randomness-dependent.
+Scryfall provides artist info, but `scripts/sync-scryfall.ts` doesn't extract it. The `ScryfallCard` interface has the artist field available, but `toCardRow` and `toPrintingRow` skip it. Add `artist` to the sync (likely to `printings` table since it's printing-specific in Scryfall) and ensure the Supabase schema has the column.
+
+## 14. Remove all old unused code
+
+Delete legacy code nothing references anymore. Candidates to verify first (none confirmed yet): the `ThemeService` adapter over `IdentityService`, the legacy mixin partials in `src/styles/` (`_modal.scss`, `_dropdown.scss`), legacy component `.scss`, dead exports and imports. Confirm each is unused with grep/lint before removing it.
+
+## 15. Add proper mobile-landscape layout
+
+A phone in landscape is short (~390px tall) but often wider than `$bp-mobile` (640px), so it gets the tablet/desktop layout on a very short screen. The breakpoints only look at width. Add a height-aware condition (e.g. `(orientation: landscape) and (max-height: …)`), then check the app shell, top bar, modals (the fluid-height faces and their viewport cap) and the Planechase phone dock against it.
