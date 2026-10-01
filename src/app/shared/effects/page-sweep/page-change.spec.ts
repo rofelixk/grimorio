@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, type WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -15,18 +15,29 @@ const RULE: PageRule<string> = {
 describe('PageChange', () => {
   let reduced: ReturnType<typeof signal<boolean>>;
   let nav: PageNav | null;
+  /** Every set is a new routed value, as an area's routed place is a new object per navigation. */
+  let target: WritableSignal<string | null>;
+  let change: PageChange<string>;
 
   function create(): PageChange<string> {
-    return new PageChange(RULE, reduced, () => nav);
+    change = new PageChange(RULE, reduced, target, () => nav);
+    return change;
+  }
+
+  /** Routes to `to`, then reads the change, as rendering the area after each navigation does. */
+  function go(to: string | null): void {
+    target.set(to);
+    change.shown();
   }
 
   beforeEach(() => {
     reduced = signal(false);
     nav = null;
+    target = signal<string | null>(null, { equal: () => false });
   });
 
   it('starts on the rule’s initial place, with nothing running', () => {
-    const change = create();
+    create();
 
     expect(change.shown()).toBe('a');
     expect(change.leaving()).toBeNull();
@@ -34,32 +45,42 @@ describe('PageChange', () => {
   });
 
   it('shows the first place instantly', () => {
-    const change = create();
-    change.go('c');
+    create();
+    go('c');
 
     expect(change.shown()).toBe('c');
     expect(change.run()).toBeNull();
   });
 
+  it('is current on the first read after the target changes, with no tick', () => {
+    create();
+    go('a');
+    target.set('b');
+
+    expect(change.shown()).toBe('b');
+    expect(change.leaving()).toBe('a');
+    expect(change.run()).toEqual({ dir: 'open' });
+  });
+
   it('sweeps: the new place underneath, the old one leaving, in the rule’s direction', () => {
-    const change = create();
-    change.go('a');
-    change.go('b');
+    create();
+    go('a');
+    go('b');
 
     expect(change.shown()).toBe('b');
     expect(change.leaving()).toBe('a');
     expect(change.run()).toEqual({ dir: 'open' });
 
-    change.go('b');
+    go('b');
     expect(change.run()).toBeNull();
   });
 
   it('ends a sweep, ignoring a stale end', () => {
-    const change = create();
-    change.go('a');
-    change.go('b');
+    create();
+    go('a');
+    go('b');
     const first = change.run()!;
-    change.go('a');
+    go('a');
     const second = change.run()!;
 
     change.end(first);
@@ -73,18 +94,18 @@ describe('PageChange', () => {
   });
 
   it('closes going back', () => {
-    const change = create();
-    change.go('c');
-    change.go('b');
+    create();
+    go('c');
+    go('b');
 
     expect(change.run()).toEqual({ dir: 'close' });
     expect(change.leaving()).toBe('c');
   });
 
   it('swaps instantly when the rule says so', () => {
-    const change = create();
-    change.go('a');
-    change.go('x');
+    create();
+    go('a');
+    go('x');
 
     expect(change.shown()).toBe('x');
     expect(change.run()).toBeNull();
@@ -93,10 +114,10 @@ describe('PageChange', () => {
 
   it('swaps instantly for a NO_SWEEP_INFO navigation, before asking the rule', () => {
     const sweep = vi.spyOn(RULE, 'sweep');
-    const change = create();
-    change.go('a');
+    create();
+    go('a');
     nav = { trigger: 'imperative', info: NO_SWEEP_INFO };
-    change.go('b');
+    go('b');
 
     expect(change.shown()).toBe('b');
     expect(change.run()).toBeNull();
@@ -106,29 +127,38 @@ describe('PageChange', () => {
 
   it('swaps instantly under reduced motion', () => {
     reduced.set(true);
-    const change = create();
-    change.go('a');
-    change.go('b');
+    create();
+    go('a');
+    go('b');
 
     expect(change.shown()).toBe('b');
     expect(change.run()).toBeNull();
   });
 
   it('does nothing for the place already shown', () => {
-    const change = create();
-    change.go('a');
-    change.go('a');
+    create();
+    go('a');
+    go('a');
 
     expect(change.run()).toBeNull();
     expect(change.leaving()).toBeNull();
   });
 
+  it('keeps its place while the target is missing', () => {
+    create();
+    go('b');
+    go(null);
+
+    expect(change.shown()).toBe('b');
+    expect(change.run()).toBeNull();
+  });
+
   it('passes the captured navigation to the rule', () => {
     const sweep = vi.spyOn(RULE, 'sweep');
-    const change = create();
-    change.go('a');
+    create();
+    go('a');
     nav = { trigger: 'popstate', info: SWEEP_INFO };
-    change.go('b');
+    go('b');
 
     expect(sweep).toHaveBeenCalledWith('a', 'b', nav);
     sweep.mockRestore();
@@ -136,11 +166,11 @@ describe('PageChange', () => {
 
   describe('a change during a change', () => {
     it('finishes the running sweep and starts a new one from the place just reached', () => {
-      const change = create();
-      change.go('a');
-      change.go('b');
+      create();
+      go('a');
+      go('b');
       const first = change.run();
-      change.go('c');
+      go('c');
 
       expect(change.run()).not.toBe(first);
       expect(change.run()).toEqual({ dir: 'open' });
@@ -149,21 +179,21 @@ describe('PageChange', () => {
     });
 
     it('starts a new run object even in the same direction', () => {
-      const change = create();
-      change.go('a');
-      change.go('b');
+      create();
+      go('a');
+      go('b');
       const first = change.run();
-      change.go('c');
+      go('c');
 
       expect(first?.dir).toBe(change.run()?.dir);
       expect(change.run()).not.toBe(first);
     });
 
     it('finishes the running sweep with nothing new for an instant swap', () => {
-      const change = create();
-      change.go('a');
-      change.go('b');
-      change.go('x');
+      create();
+      go('a');
+      go('b');
+      go('x');
 
       expect(change.run()).toBeNull();
       expect(change.leaving()).toBeNull();
@@ -171,22 +201,22 @@ describe('PageChange', () => {
     });
 
     it('finishes the running sweep with nothing new for a NO_SWEEP_INFO navigation', () => {
-      const change = create();
-      change.go('a');
-      change.go('b');
+      create();
+      go('a');
+      go('b');
       nav = { trigger: 'imperative', info: NO_SWEEP_INFO };
-      change.go('c');
+      go('c');
 
       expect(change.run()).toBeNull();
       expect(change.shown()).toBe('c');
     });
 
     it('finishes the running sweep with nothing new under reduced motion', () => {
-      const change = create();
-      change.go('a');
-      change.go('b');
+      create();
+      go('a');
+      go('b');
       reduced.set(true);
-      change.go('c');
+      go('c');
 
       expect(change.run()).toBeNull();
       expect(change.leaving()).toBeNull();
@@ -194,10 +224,10 @@ describe('PageChange', () => {
     });
 
     it('finishes the running sweep when returning to the place already shown', () => {
-      const change = create();
-      change.go('a');
-      change.go('b');
-      change.go('b');
+      create();
+      go('a');
+      go('b');
+      go('b');
 
       expect(change.run()).toBeNull();
       expect(change.leaving()).toBeNull();
@@ -205,12 +235,12 @@ describe('PageChange', () => {
     });
 
     it('ignores the finished sweep’s late end', () => {
-      const change = create();
-      change.go('a');
-      change.go('b');
+      create();
+      go('a');
+      go('b');
       const first = change.run()!;
-      change.go('x');
-      change.go('c');
+      go('x');
+      go('c');
       const current = change.run();
 
       change.end(first);
@@ -218,12 +248,12 @@ describe('PageChange', () => {
     });
 
     it('does not let a redirect back to the shown place make the next navigation instant', () => {
-      const change = create();
-      change.go('a');
+      create();
+      go('a');
       nav = { trigger: 'imperative', info: NO_SWEEP_INFO };
-      change.go('a');
+      go('a');
       nav = { trigger: 'imperative' };
-      change.go('b');
+      go('b');
 
       expect(change.run()).toEqual({ dir: 'open' });
     });
@@ -256,11 +286,9 @@ describe('injectPageChange', () => {
 
   it('does nothing while the target is null', () => {
     const change = create();
-    TestBed.tick();
 
     expect(change.shown()).toBe('a');
     target.set('c');
-    TestBed.tick();
     expect(change.shown()).toBe('c');
     expect(change.run()).toBeNull();
   });
@@ -268,22 +296,22 @@ describe('injectPageChange', () => {
   it('follows the target', () => {
     const change = create();
     target.set('a');
-    TestBed.tick();
+    expect(change.shown()).toBe('a');
     target.set('b');
-    TestBed.tick();
 
     expect(change.shown()).toBe('b');
     expect(change.run()).toEqual({ dir: 'open' });
   });
 
-  it('captures the trigger and info at NavigationStart', async () => {
+  it('passes the trigger and info of the navigation that set the target', async () => {
     const sweep = vi.fn(RULE.sweep);
     const change = create({ ...RULE, sweep });
     target.set('a');
-    TestBed.tick();
+    change.shown();
 
     await TestBed.inject(Router).navigate(['/b'], { info: SWEEP_INFO });
-    change.go('b');
+    target.set('b');
+    change.shown();
 
     expect(sweep).toHaveBeenCalledWith('a', 'b', { trigger: 'imperative', info: SWEEP_INFO });
   });

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, type WritableSignal, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PageRule } from '@utils/page-change.util';
@@ -37,7 +37,9 @@ const FULL_SWEEP = FRAME + CROSSING;
   `,
 })
 class Host {
-  readonly pages = new PageChange<string>(RULE, reduced, () => null);
+  /** The routed place; every set is a new routed value, as an area's is. */
+  readonly target: WritableSignal<string | null> = signal<string | null>(null, { equal: () => false });
+  readonly pages = new PageChange<string>(RULE, reduced, this.target, () => null);
 }
 
 function fakeContext() {
@@ -62,13 +64,13 @@ describe('PageSweep', () => {
   function mount(first = 'a'): void {
     fixture = TestBed.createComponent(Host);
     pages = fixture.componentInstance.pages;
-    pages.go(first);
+    fixture.componentInstance.target.set(first);
     fixture.detectChanges();
     sweepEl = fixture.nativeElement.querySelector('app-page-sweep');
   }
 
   function go(place: string): void {
-    pages.go(place);
+    fixture.componentInstance.target.set(place);
     fixture.detectChanges();
   }
 

@@ -82,7 +82,7 @@ description: "Task list for the Reactivity & Timing Audit"
 
 **Independent Test**: In `page-change.spec.ts`, setting `target` and then reading `shown()`/`leaving()`/`run()` with no `detectChanges`/`flushEffects`/tick in between gives the new state (US2 independent test, quickstart §3).
 
-- [ ] T014 [US2] In `src/app/shared/effects/page-sweep/page-change.ts` (research R3, data-model "PageChange<P> state", contract `PageChange<P>`):
+- [X] T014 [US2] In `src/app/shared/effects/page-sweep/page-change.ts` (research R3, data-model "PageChange<P> state", contract `PageChange<P>`):
   - Change the constructor to `new PageChange(rule, reducedMotion, target: () => P | null, nav: () => PageNav | null)`.
   - Replace the three writable signals with one `linkedSignal<P | null, PageState<P>>`, with source `target` and value `{ started, shown, leaving, run }`. Its computation follows the data-model transition table exactly:
     - no previous state → `{ started: to !== null, shown: to ?? rule.initial, leaving: null, run: null }`
@@ -96,10 +96,10 @@ description: "Task list for the Reactivity & Timing Audit"
   - Remove `go()`.
   - In `injectPageChange` (same signature), remove the `effect` (E6) and the `router.events` `NavigationStart` subscription with its `DestroyRef` cleanup (row R3). Pass a `nav` that reads `router.currentNavigation() ?? router.lastSuccessfulNavigation()` and maps it to `{ trigger: nav.trigger, info: nav.extras.info }`, or `null`.
   - Before writing it, confirm in `node_modules/@angular/router` that both signals exist in 22.1 under those names. If they don't, stop and report rather than improvising.
-- [ ] T015 [US2] In `src/app/shared/effects/page-sweep/page-change.spec.ts`, build `PageChange` with a writable `target` signal and a writable `nav` signal (or stub). Replace every `change.go(x)` with `target.set(x)`. The assertions stay the same: behavior is unchanged (FR-013). Add one case that sets `target` and reads `shown()`/`run()` immediately, with no tick or effect flush (US2 independent test) (depends on T014).
-- [ ] T016 [US2] In `src/app/shared/effects/page-sweep/page-sweep.spec.ts`, replace the `pages.go(first)`/`pages.go(place)` helpers (lines ~58, ~64) with setting the test host's target signal. Keep the Phase 3 rAF-only faking (depends on T014, T011).
-- [ ] T017 [US2] Check `src/app/views/collection-area/collection-area.ts`, `src/app/views/deck-area/deck-area.ts` and `src/app/shared/decks/deck-tile/deck-tile.ts` for any use of `go()` or the removed `PageChange` members, and adapt them. `injectPageChange`'s signature is unchanged, so normally nothing changes. Then, through `test-runner`, run `npx ng test --include='**/collection-area.spec.ts'` and `--include='**/deck-area.spec.ts'` and fix only specs that tested the replaced mechanism (FR-013) (depends on T014).
-- [ ] T018 [US2] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 4 ("Reactivity audit: page change").
+- [X] T015 [US2] In `src/app/shared/effects/page-sweep/page-change.spec.ts`, build `PageChange` with a writable `target` signal and a writable `nav` signal (or stub). Replace every `change.go(x)` with `target.set(x)`. The assertions stay the same: behavior is unchanged (FR-013). Add one case that sets `target` and reads `shown()`/`run()` immediately, with no tick or effect flush (US2 independent test) (depends on T014).
+- [X] T016 [US2] In `src/app/shared/effects/page-sweep/page-sweep.spec.ts`, replace the `pages.go(first)`/`pages.go(place)` helpers (lines ~58, ~64) with setting the test host's target signal. Keep the Phase 3 rAF-only faking (depends on T014, T011).
+- [X] T017 [US2] Check `src/app/views/collection-area/collection-area.ts`, `src/app/views/deck-area/deck-area.ts` and `src/app/shared/decks/deck-tile/deck-tile.ts` for any use of `go()` or the removed `PageChange` members, and adapt them. `injectPageChange`'s signature is unchanged, so normally nothing changes. Then, through `test-runner`, run `npx ng test --include='**/collection-area.spec.ts'` and `--include='**/deck-area.spec.ts'` and fix only specs that tested the replaced mechanism (FR-013) (depends on T014).
+- [X] T018 [US2] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 4 ("Reactivity audit: page change").
 
 **Checkpoint**: `page-change.ts` has no `effect(` and no `.events.subscribe`. Area navigation, browser back and `NO_SWEEP_INFO` deletes behave as before.
 
