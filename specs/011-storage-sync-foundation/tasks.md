@@ -158,11 +158,11 @@ description: "Task list for 011 Storage & Sync Foundation"
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T057 Propose the `.claude/docs/architecture.md` update (plan: a durable convention) and apply it after the user reviews it: in the persistence paragraph, the `WriteQueue` (`core/db/write-queue.ts`, built by `SaveQueueService`, `run()` for caller-reported saves) replacing `enqueueWrite`, `refresh()` plus `CrossTabService` announcements as part of the entity-service pattern, the `blocking`/takeover handling with the reload prompt, and `SYNC_LOCK`; in the Sync bullet, the `core/services/sync/` steps and the paged reads.
-- [ ] T058 Run `npm run build` and confirm it succeeds within the existing budgets (SC-008).
-- [ ] T059 Run `design-auditor` on the whole feature's UI (the reload prompt, `app.html`, both toasts' copy) and fix what it reports.
-- [ ] T060 Walk the manual scenarios in `specs/011-storage-sync-foundation/quickstart.md` with the user (they run the dev server and `serve:pwa`; scenario 7 only against a test account), and fix what fails.
-- [ ] T061 Checkpoint: run the full suite and lint through `test-runner`, fix everything, then commit the polish phase ("Storage & sync foundation: docs and polish").
+- [X] T057 Propose the `.claude/docs/architecture.md` update (plan: a durable convention) and apply it after the user reviews it: in the persistence paragraph, the `WriteQueue` (`core/db/write-queue.ts`, built by `SaveQueueService`, `run()` for caller-reported saves) replacing `enqueueWrite`, `refresh()` plus `CrossTabService` announcements as part of the entity-service pattern, the `blocking`/takeover handling with the reload prompt, and `SYNC_LOCK`; in the Sync bullet, the `core/services/sync/` steps and the paged reads.
+- [X] T058 Run `npm run build` and confirm it succeeds within the existing budgets (SC-008).
+- [X] T059 Run `design-auditor` on the whole feature's UI (the reload prompt, `app.html`, both toasts' copy) and fix what it reports.
+- [X] T060 Walk the manual scenarios in `specs/011-storage-sync-foundation/quickstart.md` with the user (they run the dev server and `serve:pwa`; scenario 7 only against a test account), and fix what fails.
+- [X] T061 Checkpoint: run the full suite and lint through `test-runner`, fix everything, then commit the polish phase ("Storage & sync foundation: docs and polish").
 
 ---
 
