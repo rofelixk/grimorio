@@ -42,3 +42,30 @@ export async function fetchAll<Row>(build: () => PagedQuery, ctx: SyncStepContex
     }
   }
 }
+
+/** Upserts the account's rows in one request; nothing to send, no request. */
+export async function upsertRows(ctx: SyncStepContext, table: string, rows: object[], onConflict: string): Promise<void> {
+  if (rows.length === 0) {
+    return;
+  }
+  const { error } = await ctx.client.from(table).upsert(rows, { onConflict }).abortSignal(ctx.signal);
+  if (error) {
+    throw error;
+  }
+}
+
+/** Deletes the account's rows with these ids in one request; nothing to delete, no request. */
+export async function deleteRows(ctx: SyncStepContext, table: string, ids: string[]): Promise<void> {
+  if (ids.length === 0) {
+    return;
+  }
+  const { error } = await ctx.client
+    .from(table)
+    .delete()
+    .eq('user_id', ctx.userId)
+    .in('id', ids)
+    .abortSignal(ctx.signal);
+  if (error) {
+    throw error;
+  }
+}

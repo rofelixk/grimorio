@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { describe, expect, it, vi } from 'vitest';
-import { type PagedQuery, fetchAll } from './sync-remote';
+import { type PagedQuery, deleteRows, fetchAll, upsertRows } from './sync-remote';
 import { Superseded, type SyncStepContext } from './sync-run';
 
 interface Row {
@@ -103,5 +103,57 @@ describe('fetchAll', () => {
     const { build } = fakeTable(rowsOf(10), { error: failure });
 
     await expect(fetchAll<Row>(build, context())).rejects.toBe(failure);
+  });
+});
+
+describe('upsertRows / deleteRows', () => {
+  /** A client recording each builder call as [method, ...args], answering `error`. */
+  function recordingContext(error: unknown = null) {
+    const calls: unknown[][] = [];
+    const query: Record<string, unknown> = {};
+    for (const method of ['upsert', 'delete', 'eq', 'in', 'abortSignal']) {
+      query[method] = (...args: unknown[]) => (calls.push([method, ...args]), query);
+    }
+    query['then'] = (resolve: (value: unknown) => unknown) => Promise.resolve({ error }).then(resolve);
+    const client = { from: (table: string) => (calls.push(['from', table]), query) } as unknown as SupabaseClient;
+    const signal = new AbortController().signal;
+    const ctx: SyncStepContext = { client, userId: 'u1', signal, ensureCurrent: () => undefined };
+    return { ctx, calls, signal };
+  }
+
+  it('sends nothing for an empty list', async () => {
+    const { ctx, calls } = recordingContext();
+    await upsertRows(ctx, 'decks', [], 'user_id,id');
+    await deleteRows(ctx, 'decks', []);
+    expect(calls).toEqual([]);
+  });
+
+  it('upserts every row in one request', async () => {
+    const { ctx, calls, signal } = recordingContext();
+    await upsertRows(ctx, 'decks', [{ id: 'd1' }, { id: 'd2' }], 'user_id,id');
+    expect(calls).toEqual([
+      ['from', 'decks'],
+      ['upsert', [{ id: 'd1' }, { id: 'd2' }], { onConflict: 'user_id,id' }],
+      ['abortSignal', signal],
+    ]);
+  });
+
+  it("deletes only the account's rows with those ids", async () => {
+    const { ctx, calls, signal } = recordingContext();
+    await deleteRows(ctx, 'card_entries', ['c1']);
+    expect(calls).toEqual([
+      ['from', 'card_entries'],
+      ['delete'],
+      ['eq', 'user_id', 'u1'],
+      ['in', 'id', ['c1']],
+      ['abortSignal', signal],
+    ]);
+  });
+
+  it('rejects with the response error', async () => {
+    const failure = { code: '42501' };
+    const { ctx } = recordingContext(failure);
+    await expect(upsertRows(ctx, 'decks', [{ id: 'd1' }], 'user_id,id')).rejects.toBe(failure);
+    await expect(deleteRows(ctx, 'decks', ['d1'])).rejects.toBe(failure);
   });
 });
