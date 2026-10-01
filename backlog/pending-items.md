@@ -1,14 +1,12 @@
 # Pending items
 
-Known work that isn't specced yet. [features.md](features.md) groups items into planned specs by number (`#N`), so **numbers are permanent**: never renumber, and give a new item the next free number (the next is **#40**; #12 was retired). When a spec ships, delete its items here. Check each item still applies before planning it.
+Known work that isn't specced yet. [features.md](features.md) groups items into planned specs by number (`#N`), so **numbers are permanent**: never renumber, and give a new item the next free number (the next is **#41**; #12 was retired). When a spec ships, delete its items here. Check each item still applies before planning it.
 
 **Size**: `S` a focused change, `M` several files or one design decision, `L` changes a model or spans the app. Every **L** is listed under "Big items" too.
 
 ## Big items
 
 - **#31 Planechase: cards that need the planar deck** — five cards still can't be played as written; two of them need several face-up planes.
-- **#29 Multi-tab IndexedDB handling** — a second tab can stall the database upgrade and never sees the other tab's edits.
-- **#17 Split `SyncService`** — ~620 lines, one class for every entity.
 - **#16 Split the auth flow stores** — the two largest files in the app.
 - **#15 Mobile-landscape layout** — the breakpoints only look at width.
 
@@ -38,12 +36,8 @@ Known work that isn't specced yet. [features.md](features.md) groups items into 
 | 16 | Split the auth flow stores | **L** | 3 |
 | 19 | Focus-management helper | M | 3 |
 | **Storage & sync** | | | |
-| 17 | Split `SyncService` | **L** | 2 |
-| 18 | One shared write queue | M | 2 |
-| 27 | Request persistent storage | S | 2 |
-| 29 | Multi-tab IndexedDB handling | **L** | 2 |
-| 30 | Sync paging for every pull | S | 2 |
 | 39 | Cross-device deletes | M | — |
+| 40 | Card refresh vs. a pending collection write | S | — |
 | **Codebase health** | | | |
 | 23 | `setTimeout` audit | M | 5 |
 | 28 | `effect` audit | M | 5 |
@@ -155,29 +149,13 @@ Focus moves by hand through `querySelector(...).focus()` in `collection-delete-d
 
 ## Storage & sync
 
-### #17 · Split `SyncService` — L
-
-`sync.service.ts` (~620 lines) runs the identity step, collections, decks, cards, planar selection and the repair passes (`repairCollectionTree`, `repairDeckNames`, `resolveMixedCollections`) in one class. Make each entity a small sync step behind a thin orchestrator, the way `reconcileEntities` is already generic.
-
-### #18 · One shared write queue — M
-
-`enqueueWrite` and its `console.error('Grimorio: failed to persist …')` catch are copied in `CardService`, `CollectionService`, `DeckService`, `PlanarSelectionService` and `PlanechaseGameService`. Extract a `WriteQueue` helper. It is also the one place to surface persist failures (e.g. via `ToastService`) instead of failing silently.
-
-### #27 · Request persistent storage — S
-
-Call `navigator.storage.persist()` (e.g. after the first profile is created) so the browser or Android WebView is less likely to evict the IndexedDB data under storage pressure.
-
-### #29 · Multi-tab IndexedDB handling — L
-
-With the installed PWA and a browser tab open on the same profile, each tab holds its own in-memory collections/decks and never sees the other's edits. `openProfileDb` (`core/db/profile-db.ts`) also passes no `blocked`/`blocking` callbacks, so an old tab never closes its connection on `versionchange` and a new tab's `DB_VERSION` upgrade stalls. Close on `blocking` (and reload or rehydrate), and decide whether tabs should resync via `BroadcastChannel`.
-
-### #30 · Sync paging for every pull — S
-
-`syncCollections`, `syncDecks` and `syncCards` (`sync.service.ts`) pull each table with one unpaged `select`; `card_entries` is the one most likely to pass the cap. The hosted Data API caps a response at 1,000 rows by default, so past that the rest are silently missing and look local-only to the reconciler, which re-uploads them every sync. Page the full pull with `.range()`; an incremental pull (`updated_at > lastSyncedAt`) was rejected because it breaks the reconciler's "local-only = never synced" rule (see #39).
-
 ### #39 · Cross-device deletes — M
 
 A row deleted on device A is deleted remotely, but device B still has it locally, finds no remote copy, and `reconcileEntities` (`core/utils/sync-reconcile.util.ts`) treats "local-only" as "never synced", so B uploads it again. Deletes don't reach other devices. A fix needs remote tombstones (a soft-delete column or tombstone table, with a migration per synced table) so absence can be told apart from deletion.
+
+### #40 · Card refresh vs. a pending collection write — S
+
+Found in spec 011. `CardService.refresh()` (run when another copy announces `cards`) awaits only its own `flush()`. A `CollectionService` write that moves or deletes cards (create-with-move, delete with "Excluir as cartas", `resolveMixedCollections`) changes the card signal through `applyMoved`/`applyRemoved` but persists through the collection queue. If another copy's announcement arrives while that write is still queued, the refresh reads IndexedDB before it lands and the screen shows the old card locations until the next load; the stored data is correct. A fix: let the refresh also wait for writes queued elsewhere that touch cards (e.g. a flush hook `CollectionService` registers with `CardService`).
 
 ---
 

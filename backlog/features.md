@@ -4,38 +4,15 @@ Planned specs, in build order: earlier specs lay groundwork the later ones rely 
 
 Each entry:
 
-- **Status**: `planned` → `specifying` (spec folder exists, fill in **Spec**) → `in progress` → `done`.
+- **Status**: `planned` → `specifying` (spec folder exists, fill in **Spec**) → `in progress`.
 - **Goal**: the outcome, one or two sentences; the seed for `/speckit-specify`.
 - **Items**: backlog items it absorbs. Check each still applies before specifying.
 - **Why here**: what it needs from earlier specs, or what later specs need from it.
 - **Open decisions**: questions to settle during `/speckit-clarify`.
 
-When a spec ships, set it to `done` and delete its items from pending-items.md.
+When a spec ships, delete its entry here and its items from pending-items.md; the spec folder is the record. Entry numbers are permanent (pending-items.md refers to them), so the rest keep theirs. Shipped so far: 1 (spec 010, codebase baseline) and 2 (spec 011, storage & sync foundation).
 
 ---
-
-## 1. Codebase baseline
-
-- **Status**: done
-- **Spec**: [010-codebase-baseline](../specs/010-codebase-baseline/spec.md)
-- **Goal**: A smaller, guarded codebase: dead code gone, one default-identity source, and lint rules, bundle budgets and tests that catch regressions in the refactors that follow.
-- **Items**: #14, #11, #24, #25, #22, #26; also #20 and #21, which went with the removed card code.
-- **Why here**: Every later spec is a refactor and runs against these guardrails. Removing dead code first keeps the new lint rules from flagging code about to be deleted.
-
-## 2. Storage & sync foundation
-
-- **Status**: specifying
-- **Spec**: [011-storage-sync-foundation](../specs/011-storage-sync-foundation/spec.md)
-- **Goal**: A safe, shared data layer: writes that report failure, storage the browser won't evict, correct behavior with several tabs open, and a sync split into per-entity steps that scale past today's sizes.
-- **Items**:
-  - #18 One shared write queue, surfacing failed saves
-  - #27 Request persistent storage
-  - #29 Multi-tab IndexedDB handling
-  - #30 Sync paging for every pull (collections, decks, cards)
-  - #17 Split `SyncService` into sync steps
-- **Why here**: The data layer every feature writes through. The card redesign and future entities plug into the write queue and the sync-step pattern instead of copying the old shape. Independent of spec 3; the two can swap.
-- **Decided**: a failed save shows a toast (`ToastService`); tabs close on `versionchange` and resync through `BroadcastChannel`; sync pages the full pull with `.range()` (no incremental pull, reconciler unchanged).
-- **Open decisions**: None yet.
 
 ## 3. Modals, focus & auth stores
 
@@ -47,7 +24,7 @@ When a spec ships, set it to `done` and delete its items from pending-items.md.
   - #7 DESIGN.md: compact modal fluid height
   - #19 Focus-management helper
   - #16 Split the auth flow stores
-- **Why here**: Modals are the shell for most future UI; settling them now means later specs just use them. Needs spec 1's tests before splitting the stores.
+- **Why here**: Modals are the shell for most future UI; settling them now means later specs just use them. Spec 010's tests guard the store split.
 - **Open decisions**: Helper vs. directive for focus; how the shared cloud sub-store is provided to both modals.
 
 ## 4. Page transitions
@@ -64,7 +41,7 @@ When a spec ships, set it to `done` and delete its items from pending-items.md.
   - #8 Memoize `pageOf`
   - #9 `--band` duplication
   - #10 Naming leftovers
-- **Why here**: The largest group and pure refactoring, so it needs spec 1's guardrails. The card redesign can then reuse it.
+- **Why here**: The largest group and pure refactoring, so it leans on spec 010's guardrails. The card redesign can then reuse it.
 - **Open decisions**: #4's intended dust behavior when a change finishes without a new sweep; component vs. directive for `PageSweep`.
 
 ## 5. Reactivity & timing audit
