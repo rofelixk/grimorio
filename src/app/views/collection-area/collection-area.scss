@@ -1,18 +1,13 @@
 @use 'breakpoints' as bp;
-@use 'page-sweep';
 
 // The view fills the view area (like Planechase), so short pages leave no dead space and the legal
 // notice rests at the bottom, and the page sweep and its dust cover the whole of it (DESIGN.md
 // Motion "Collections page change").
 :host {
-  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
 }
-
-// ── Page change ────────────────────────────────────────────────────────────
-@include page-sweep.layers;
 
 // ── Page column (ui.md §2) ─────────────────────────────────────────────────
 // Centered, 760px max; 1080px with the 220px filters aside. No max-width on the host itself. The

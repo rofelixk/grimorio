@@ -11,12 +11,7 @@
   },
   "src/app/views/collection-area/collection-area.ts": {
     "@typescript-eslint/no-floating-promises": {
-      "count": 3
-    }
-  },
-  "src/app/views/deck-area/deck-area.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 1
+      "count": 2
     }
   }
 }

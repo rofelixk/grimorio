@@ -20,7 +20,7 @@ import { SweepLoop } from './sweep-loop';
 
 /**
  * The page sweep (DESIGN.md Motion "Page sweep"): renders an area's page change. The area
- * projects one `<ng-template appPagePlace>`, stamped for the shown place and, while a sweep runs, for
+ * projects one `<ng-template [appPagePlace]="pages">`, stamped for the shown place and, while a sweep runs, for
  * the leaving one inside the `.sweep` layer, which dissolves behind the dust's front. It owns the
  * dust canvas, the layer's scroll offset, the band width, blocking input while a sweep runs, and
  * focusing the new page's `h1` once a change ends.

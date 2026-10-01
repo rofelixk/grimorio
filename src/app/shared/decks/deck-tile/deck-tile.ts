@@ -3,13 +3,14 @@ import { RouterLink } from '@angular/router';
 import { type Deck, formatOf } from '@models/deck.model';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { DECK } from '@utils/deck-copy';
+import { SWEEP_INFO } from '@utils/page-change.util';
 import { DeckFan } from '../deck-fan/deck-fan';
 
 const NARROW_QUERY = '(max-width: 359px)';
 
 // One deck in the list (DESIGN.md "Decks" → "Deck tile"): a single link to its page carrying
-// `info.deckTurn`, so opening it turns the page (research R8). Fan and caption are aria-hidden in
-// favor of the link's own name.
+// `SWEEP_INFO`, so opening it sweeps the page change open. Fan and caption are aria-hidden in favor
+// of the link's own name.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-deck-tile',
@@ -18,7 +19,7 @@ const NARROW_QUERY = '(max-width: 359px)';
     <a
       class="tile"
       [routerLink]="['/decks', deck().id]"
-      [info]="turnInfo"
+      [info]="sweepInfo"
       [attr.aria-label]="label()"
       (pointerenter)="hovered.set(true)"
       (pointerleave)="hovered.set(false)"
@@ -41,7 +42,7 @@ export class DeckTile {
   private readonly narrow = mediaQuerySignal(NARROW_QUERY);
   /** 0.75 on desktop, 1 on phone, 0.85 on the narrowest phones so the fan fits a 288px column. */
   protected readonly scale = computed(() => (this.narrow() ? 0.85 : this.mobile() ? 1 : 0.75));
-  protected readonly turnInfo = { deckTurn: true };
+  protected readonly sweepInfo = SWEEP_INFO;
   protected readonly hovered = signal(false);
   protected readonly focusVisible = signal(false);
 

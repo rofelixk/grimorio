@@ -8,7 +8,7 @@ import { CollectionService } from '@services/collection.service';
 import { ToastService } from '@services/toast.service';
 import { mockCardEntry } from '@testing/card.mocks';
 import { stubDialog } from '@testing/dialog';
-import { SWEEP_MS } from '@shared/effects/page-sweep/page-sweep.service';
+import { SWEEP_MS, SweepLoop } from '@shared/effects/page-sweep/sweep-loop';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { collectionMatcher } from '../../app.routes';
 import { openProfileDb } from '@db/profile-db';
@@ -73,6 +73,8 @@ async function settle(harness: RouterTestingHarness) {
 
 const text = (el: Element | null) => el?.textContent?.trim() ?? '';
 const rowNames = (el: HTMLElement) => [...el.querySelectorAll('app-collection-row .name')].map(text);
+const inert = (el: HTMLElement) => el.querySelector('app-page-sweep')!.hasAttribute('inert');
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // A tree: Fichário (> Azuis > Lote 1, > Vermelhas), Caixa de trocas (cards), Álbum (empty).
 const tree = [
@@ -227,11 +229,14 @@ describe('CollectionArea', () => {
       expect([...el.querySelectorAll('.meta')].map(text)).toContain('Último nível — guarda só cartas.');
     });
 
-    it('redirects an unknown id to the list', async () => {
+    it('redirects an unknown id to the list, with no sweep', async () => {
       await seed('p1', tree);
+      const navigate = vi.spyOn(Router.prototype, 'navigate');
       const { router, el } = await setUp('/collection/nope');
       expect(router.url).toBe('/collection');
+      expect(navigate).toHaveBeenCalledWith(['/collection'], { replaceUrl: true, info: { sweep: false } });
       expect(text(el.querySelector('h1'))).toBe('Coleção');
+      navigate.mockRestore();
     });
 
     it('redirects when a sync removes the open collection', async () => {
@@ -492,15 +497,48 @@ describe('CollectionArea', () => {
       const { el, harness } = await setUp('/collection', { reduced: false });
       el.querySelector<HTMLButtonElement>('app-collection-row button')!.click();
       await settle(harness);
-      expect(el.hasAttribute('inert')).toBe(true);
+      expect(inert(el)).toBe(true);
       expect(el.querySelector('canvas.dust')).not.toBeNull();
       expect(text(el.querySelector('.sweep h1'))).toBe('Coleção');
 
-      await new Promise((resolve) => setTimeout(resolve, SWEEP_MS + 100));
+      await wait(SWEEP_MS + 100);
       await settle(harness);
-      expect(el.hasAttribute('inert')).toBe(false);
+      expect(inert(el)).toBe(false);
       expect(el.querySelector('.sweep')).toBeNull();
       expect(text(el.querySelector('h1'))).toBe('Álbum');
+    });
+
+    it('keeps a collection removed mid-sweep whole as it dissolves', async () => {
+      await seed('p1', tree, treeCards);
+      const { el, harness, router, collections } = await setUp('/collection/trocas', { reduced: false });
+      await router.navigate(['/collection']);
+      await settle(harness);
+      expect(el.querySelector('.sweep.sweep--close')).not.toBeNull();
+      expect(text(el.querySelector('.sweep h1'))).toBe('Caixa de trocas');
+
+      collections.applySyncResult(collections.collections().filter((c) => c.id !== 'trocas'));
+      await settle(harness);
+      expect(text(el.querySelector('.sweep h1'))).toBe('Caixa de trocas');
+      expect(el.querySelectorAll('.sweep .stat')).toHaveLength(3);
+    });
+
+    it('finishes a sweep cut short by a redirect at once, settling its dust', async () => {
+      await seed('p1', tree);
+      const settleDust = vi.spyOn(SweepLoop.prototype, 'settle');
+      const { el, harness, router } = await setUp('/collection', { reduced: false });
+      el.querySelector<HTMLButtonElement>('app-collection-row button')!.click();
+      await settle(harness);
+      expect(el.querySelector('.sweep')).not.toBeNull();
+
+      await router.navigate(['/collection', 'nope']);
+      await settle(harness);
+      await settle(harness);
+      expect(router.url).toBe('/collection');
+      expect(el.querySelector('.sweep')).toBeNull();
+      expect(inert(el)).toBe(false);
+      expect(text(el.querySelector('h1'))).toBe('Coleção');
+      expect(settleDust).toHaveBeenCalled();
+      settleDust.mockRestore();
     });
 
     it('still sweeps the next move after a redirect back to the same place', async () => {

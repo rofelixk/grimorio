@@ -8,7 +8,7 @@ import { stubDialog } from '@testing/dialog';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { deckMatcher } from '../../app.routes';
 import { DeckArea } from './deck-area';
-import { SWEEP_MS } from '@shared/effects/page-sweep/page-sweep.service';
+import { SWEEP_MS } from '@shared/effects/page-sweep/sweep-loop';
 
 interface Media {
   mobile?: boolean;
@@ -60,6 +60,8 @@ async function settle(harness: RouterTestingHarness) {
 }
 
 const text = (el: Element | null) => el?.textContent?.trim() ?? '';
+const inert = (el: HTMLElement) => el.querySelector('app-page-sweep')!.hasAttribute('inert');
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('DeckArea', () => {
   afterEach(async () => {
@@ -106,25 +108,60 @@ describe('DeckArea', () => {
     const { harness, router } = await setUp('/decks/missing');
     await settle(harness);
 
-    expect(navigate).toHaveBeenCalledWith(['/decks'], { replaceUrl: true });
+    expect(navigate).toHaveBeenCalledWith(['/decks'], { replaceUrl: true, info: { sweep: false } });
     expect(router.url).toBe('/decks');
   });
 
-  it('turns the page from a tile, inert while it runs', async () => {
+  it('sweeps the page from a tile, inert while it runs', async () => {
     const { el, harness } = await setUp('/decks', ['Elfos'], { reduced: false });
     el.querySelector<HTMLAnchorElement>('app-deck-tile a')!.click();
     await settle(harness);
 
-    expect(el.hasAttribute('inert')).toBe(true);
+    expect(inert(el)).toBe(true);
     expect(el.querySelector('.sweep')).not.toBeNull();
     expect(el.querySelector('canvas.dust')).not.toBeNull();
     expect(text(el.querySelector('.column--deck h1'))).toBe('Elfos');
 
-    await new Promise((resolve) => setTimeout(resolve, SWEEP_MS + 100));
+    await wait(SWEEP_MS + 100);
     await settle(harness);
-    expect(el.hasAttribute('inert')).toBe(false);
+    expect(inert(el)).toBe(false);
     expect(el.querySelector('.sweep')).toBeNull();
     expect(text(el.querySelector('h1'))).toBe('Elfos');
+  });
+
+  it('keeps the deck page whole as it dissolves on a close, even once the deck is removed', async () => {
+    const { el, harness, router, decks, created } = await setUp('/decks/:first', ['Elfos'], { reduced: false });
+    await router.navigate(['/decks']);
+    await settle(harness);
+
+    expect(el.querySelector('.sweep.sweep--close')).not.toBeNull();
+    expect(text(el.querySelector('.sweep h1'))).toBe('Elfos');
+    expect(text(el.querySelector('.sweep .format'))).toBe('Commander');
+    expect(el.querySelectorAll('.sweep .header-actions .btn')).toHaveLength(2);
+    expect(text(el.querySelector('h1'))).toBe('Decks');
+
+    void decks.remove(created[0].id);
+    await settle(harness);
+    expect(text(el.querySelector('.sweep h1'))).toBe('Elfos');
+    expect(text(el.querySelector('.sweep .format'))).toBe('Commander');
+  });
+
+  it('starts a close from the deck just opened when leaving mid-sweep, then unblocks input', async () => {
+    const { el, harness, router } = await setUp('/decks', ['Elfos'], { reduced: false });
+    el.querySelector<HTMLAnchorElement>('app-deck-tile a')!.click();
+    await settle(harness);
+    expect(el.querySelector('.sweep.sweep--close')).toBeNull();
+
+    await router.navigate(['/decks']);
+    await settle(harness);
+    expect(el.querySelector('.sweep.sweep--close')).not.toBeNull();
+    expect(text(el.querySelector('.sweep h1'))).toBe('Elfos');
+
+    await wait(SWEEP_MS + 100);
+    await settle(harness);
+    expect(el.querySelector('.sweep')).toBeNull();
+    expect(inert(el)).toBe(false);
+    expect(text(el.querySelector('h1'))).toBe('Decks');
   });
 
   it('swaps instantly under reduced motion, with no sweep layer and no canvas', async () => {
@@ -182,7 +219,7 @@ describe('DeckArea', () => {
     beforeEach(() => (restore = stubDialog()));
     afterEach(() => restore());
 
-    it('lands on the list through one navigation, with no turn, and toasts', async () => {
+    it('lands on the list through one navigation, with no sweep, and toasts', async () => {
       const { el, harness, router, decks } = await setUp('/decks/:first', ['Elfos', 'Goblins'], { reduced: false });
       const navigate = vi.spyOn(router, 'navigate');
       el.querySelector<HTMLButtonElement>('.header-actions .btn--danger')!.click();
@@ -201,9 +238,9 @@ describe('DeckArea', () => {
 
       expect(router.url).toBe('/decks');
       expect(navigate).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith(['/decks'], { info: { deckTurn: false } });
+      expect(navigate).toHaveBeenCalledWith(['/decks'], { info: { sweep: false } });
       expect(el.querySelector('.sweep')).toBeNull();
-      expect(el.hasAttribute('inert')).toBe(false);
+      expect(inert(el)).toBe(false);
       expect(el.querySelector('app-deck-delete-dialog')).toBeNull();
       expect(TestBed.inject(ToastService).toast()).toMatchObject({ label: 'Deck', text: 'Elfos foi excluído.' });
     });

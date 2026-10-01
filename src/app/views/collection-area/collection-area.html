@@ -1,37 +1,13 @@
-<!-- The incoming place underneath, the outgoing one dissolving over it behind the dust front (DESIGN.md Motion "Page sweep"). -->
-<ng-container [ngTemplateOutlet]="placeView" [ngTemplateOutletContext]="{ $implicit: transition.shown() }" />
-@if (transition.turning(); as dir) {
-  <div class="sweep" [class.sweep--close]="dir === 'close'" [style.top.px]="-sweep.pageOffset()">
-    <ng-container [ngTemplateOutlet]="placeView" [ngTemplateOutletContext]="{ $implicit: transition.leaving() }" />
-  </div>
-}
-
-@if (!transition.reducedMotion()) {
-  <canvas #dust class="dust" aria-hidden="true"></canvas>
-}
-
-@if (form(); as f) {
-  <app-collection-form-dialog
-    [mode]="f.mode"
-    [parentId]="f.parentId"
-    [collectionId]="f.collectionId"
-    (closed)="form.set(null)"
-    (saved)="form.set(null)"
-  />
-}
-
-@if (del(); as d) {
-  <app-collection-delete-dialog [collectionId]="d.id" (closed)="del.set(null)" (deleted)="onDeleted($event)" />
-}
-
-<ng-template #placeView let-place>
+<!-- One page per place; the sweep stamps it for the shown place and the leaving one (DESIGN.md Motion "Collections page change"). -->
+<app-page-sweep [change]="pages">
+  <ng-template [appPagePlace]="pages" let-place let-leaving="leaving">
     @switch (place.kind) {
       @case ('list') {
         @let showAside = wide() && !empty();
         <div class="page" [class.page--aside]="showAside">
           <div class="content">
             <div class="header">
-              <h1 #heading class="title" tabindex="-1">{{ copy.title }}</h1>
+              <h1 class="title" tabindex="-1">{{ copy.title }}</h1>
               @if (stats().holding.cards > 0) {
                 <button
                   type="button"
@@ -107,7 +83,7 @@
 
             <div class="header">
               <span class="hollow hollow--header" aria-hidden="true"></span>
-              <h1 #heading class="title" tabindex="-1">{{ copy.holdingName }}</h1>
+              <h1 class="title" tabindex="-1">{{ copy.holdingName }}</h1>
             </div>
 
             <div class="stats stats--holding">
@@ -127,7 +103,7 @@
       }
 
       @case ('collection') {
-        @if (pageOf(place.id); as p) {
+        @if (leaving ? leavingPage() : shownPage(); as p) {
           @let collection = p.collection;
           <div class="page">
             <div class="content">
@@ -148,7 +124,7 @@
                   [style.background]="p.color.hex"
                   [style.box-shadow]="'0 0 16px ' + p.color.hex + '66'"
                 ></span>
-                <h1 #heading class="title title--name" tabindex="-1">{{ collection.name }}</h1>
+                <h1 class="title title--name" tabindex="-1">{{ collection.name }}</h1>
                 <div class="header-actions">
                   <button type="button" class="btn btn--secondary" (click)="openEdit(collection.id)">
                     {{ copy.edit }}
@@ -174,16 +150,15 @@
                 </div>
               </div>
 
-
               @switch (p.kind) {
                 @case ('subcollections') {
                   <span class="eyebrow">{{ copy.subsEyebrow }}</span>
                   <div class="rows">
-                    @for (child of p.children; track child.id) {
+                    @for (child of p.children; track child.collection.id) {
                       <app-collection-row
-                        [collection]="child"
-                        [totals]="stats().byId.get(child.id)!"
-                        (open)="openCollection(child.id)"
+                        [collection]="child.collection"
+                        [totals]="child.totals"
+                        (open)="openCollection(child.collection.id)"
                       />
                     }
                     @if (p.depth < maxDepth) {
@@ -229,4 +204,19 @@
         }
       }
     }
-</ng-template>
+  </ng-template>
+</app-page-sweep>
+
+@if (form(); as f) {
+  <app-collection-form-dialog
+    [mode]="f.mode"
+    [parentId]="f.parentId"
+    [collectionId]="f.collectionId"
+    (closed)="form.set(null)"
+    (saved)="form.set(null)"
+  />
+}
+
+@if (del(); as d) {
+  <app-collection-delete-dialog [collectionId]="d.id" (closed)="del.set(null)" (deleted)="onDeleted($event)" />
+}

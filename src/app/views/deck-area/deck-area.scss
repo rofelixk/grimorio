@@ -1,17 +1,12 @@
 @use 'breakpoints' as bp;
-@use 'page-sweep';
 
-// The view fills the view area, so the page change and the dust cover the whole of it (DESIGN.md
+// The view fills the view area, so the page sweep and its dust cover the whole of it (DESIGN.md
 // Motion "Decks page change").
 :host {
-  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
 }
-
-// ── Page change ────────────────────────────────────────────────────────────
-@include page-sweep.layers;
 
 // ── Columns (ui.md §2) ─────────────────────────────────────────────────────
 .column {

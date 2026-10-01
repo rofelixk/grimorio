@@ -30,7 +30,7 @@ export const collectionMatcher = (segments: UrlSegment[]): UrlMatchResult | null
 };
 
 // Same reason for decks (spec 009, research R7): the list and a deck page share one `DeckArea`
-// instance, so the page turn can keep both in the DOM while it runs.
+// instance, so the page change can keep both in the DOM while it runs.
 export const deckMatcher = (segments: UrlSegment[]): UrlMatchResult | null => {
   if (segments.length === 1 && segments[0].path === 'decks') {
     return { consumed: segments };

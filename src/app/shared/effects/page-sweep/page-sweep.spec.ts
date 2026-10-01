@@ -22,7 +22,7 @@ const reduced = signal(false);
   template: `
     <main>
       <app-page-sweep [change]="pages">
-        <ng-template appPagePlace let-place let-leaving="leaving">
+        <ng-template [appPagePlace]="pages" let-place let-leaving="leaving">
           <h1 tabindex="-1" [attr.data-leaving]="leaving">{{ place }}</h1>
         </ng-template>
       </app-page-sweep>

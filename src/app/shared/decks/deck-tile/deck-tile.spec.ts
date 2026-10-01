@@ -16,13 +16,13 @@ function render(value: Deck = deck) {
 }
 
 describe('DeckTile', () => {
-  it('links to the deck page with the turn info', () => {
+  it('links to the deck page with the sweep info', () => {
     const fixture = render();
     const link: HTMLAnchorElement = fixture.nativeElement.querySelector('a');
     const routerLink = fixture.debugElement.query(By.directive(RouterLink)).injector.get(RouterLink);
 
     expect(link.getAttribute('href')).toBe('/decks/d1');
-    expect(routerLink.info).toEqual({ deckTurn: true });
+    expect(routerLink.info).toEqual({ sweep: true });
   });
 
   it('names the link "{nome}, {formato}"', () => {

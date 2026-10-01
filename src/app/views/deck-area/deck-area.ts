@@ -1,19 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  Injector,
-  afterNextRender,
-  computed,
-  effect,
-  inject,
-  input,
-  linkedSignal,
-  signal,
-  untracked,
-  viewChild,
-} from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { type Deck, formatOf } from '@models/deck.model';
 import { DeckService } from '@services/deck.service';
@@ -23,44 +8,36 @@ import { CreateRow } from '@shared/collections/create-row/create-row';
 import { DeckDeleteDialog, type DeckDeleted } from '@shared/decks/deck-delete-dialog/deck-delete-dialog';
 import { DeckFormDialog } from '@shared/decks/deck-form-dialog/deck-form-dialog';
 import { DeckTile } from '@shared/decks/deck-tile/deck-tile';
-import { PageSweep } from '@shared/effects/page-sweep/page-sweep.service';
+import { injectPageChange, retained } from '@shared/effects/page-sweep/page-change';
+import { PagePlace } from '@shared/effects/page-sweep/page-place';
+import { PageSweep } from '@shared/effects/page-sweep/page-sweep';
 import { DECK } from '@utils/deck-copy';
-import { type DeckPlace, samePlace } from '@utils/deck-turn.util';
-import { DeckTurn } from './deck-turn';
+import { type DeckPlace, DECK_PAGES } from '@utils/deck-pages.util';
+import { NO_SWEEP_INFO } from '@utils/page-change.util';
+
+const deckId = (place: DeckPlace | null) => (place?.kind === 'deck' ? place.id : null);
 
 // The deck area view (spec 009): one route/component instance for the deck list and a deck page,
 // matched by `deckMatcher` (app.routes.ts) and fed `ref` via `withComponentInputBinding`. The
-// routed place drives `DeckTurn`; the template renders its `shown()` place, plus — while a change
-// runs — the outgoing place over the incoming one, dissolving behind the dust's front. No wash or theme scope: a
-// deck's colors appear only in the dust (research R13).
+// routed place drives the shared page change (`DECK_PAGES`); `<app-page-sweep>` renders its shown
+// place, plus — while a sweep runs — the leaving place over it, dissolving behind the dust's front.
+// No wash or theme scope: a deck's colors appear only in the dust (research R13).
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-deck-area',
-  imports: [NgTemplateOutlet, RouterLink, CreateRow, DeckDeleteDialog, DeckFormDialog, DeckTile],
-  providers: [DeckTurn, PageSweep],
+  imports: [RouterLink, CreateRow, DeckDeleteDialog, DeckFormDialog, DeckTile, PagePlace, PageSweep],
   styleUrl: './deck-area.scss',
   templateUrl: './deck-area.html',
-  host: {
-    '[attr.inert]': "turn.turning() ? '' : null",
-    '[class.is-turning]': 'turn.turning() !== null',
-  },
 })
 export class DeckArea {
   readonly ref = input<string>();
 
   private readonly router = inject(Router);
   private readonly toasts = inject(ToastService);
-  private readonly injector = inject(Injector);
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly decks = inject(DeckService);
-  protected readonly turn = inject(DeckTurn);
-  protected readonly sweep = inject(PageSweep);
   protected readonly mobile = mediaQuerySignal(MOBILE_QUERY);
 
   protected readonly copy = DECK;
-
-  private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
-  private readonly dust = viewChild<ElementRef<HTMLCanvasElement>>('dust');
 
   /** The place the address asks for (FR-005). */
   protected readonly routed = computed<DeckPlace>(
@@ -68,7 +45,7 @@ export class DeckArea {
       const ref = this.ref();
       return ref ? { kind: 'deck', id: ref } : { kind: 'list' };
     },
-    { equal: samePlace },
+    { equal: DECK_PAGES.same },
   );
 
   /** The address names a deck that isn't there (deleted, removed by a sync, another profile's). */
@@ -77,21 +54,21 @@ export class DeckArea {
     return place.kind === 'deck' && !this.decks.byId().has(place.id);
   });
 
+  /** A missing deck is left to the redirect below, so the page never sweeps into nothing. */
+  protected readonly pages = injectPageChange<DeckPlace>({
+    ...DECK_PAGES,
+    target: () => (this.missing() ? null : this.routed()),
+  });
+
   protected readonly empty = computed(() => this.decks.decks().length === 0);
 
   /**
-   * The deck on the deck page. It follows the shown deck's record, but keeps its last value once
-   * the deck leaves the signal, so a delete in flight or a sync removal never blanks the header.
+   * The deck on the shown and on the leaving deck page. Each follows its deck's record, but keeps
+   * its last value once the deck leaves the signal, so a delete in flight or a sync removal never
+   * blanks the header, even while it dissolves.
    */
-  protected readonly shownDeck = linkedSignal<{ id: string | null; deck: Deck | undefined }, Deck | undefined>({
-    source: () => {
-      const shown = this.turn.shown();
-      const id = shown.kind === 'deck' ? shown.id : null;
-      return { id, deck: id ? this.decks.byId().get(id) : undefined };
-    },
-    computation: (source, previous) =>
-      source.deck ?? (previous?.value && previous.value.id === source.id ? previous.value : undefined),
-  });
+  protected readonly shownDeck = retained(() => deckId(this.pages.shown()), (id) => this.decks.byId().get(id));
+  protected readonly leavingDeck = retained(() => deckId(this.pages.leaving()), (id) => this.decks.byId().get(id));
 
   /** The open create/edit dialog, if any; the person stays on the current place after it. */
   protected readonly form = signal<{ mode: 'create' | 'edit'; deckId?: string } | null>(null);
@@ -100,46 +77,14 @@ export class DeckArea {
   protected readonly del = signal<string | null>(null);
 
   constructor() {
-    // Drive the turn from the address, once per new place. A missing deck is left to the redirect
-    // below, so the page never turns into nothing.
-    let last: DeckPlace | null = null;
-    effect(() => {
-      const place = this.routed();
-      if (this.missing()) return;
-      untracked(() => {
-        if (last && samePlace(last, place)) return;
-        last = place;
-        this.turn.go(place);
-      });
-    });
-
-    // Unknown ids go back to the list with no turn (FR-005). Skipped while a delete runs: its own
+    // Unknown ids go back to the list with no sweep (FR-005). Skipped while a delete runs: its own
     // navigation lands on the list once it commits.
     effect(() => {
       if (!this.missing()) return;
       untracked(() => {
         if (this.del()) return;
-        this.router.navigate(['/decks'], { replaceUrl: true });
+        void this.router.navigate(['/decks'], { replaceUrl: true, info: NO_SWEEP_INFO });
       });
-    });
-
-    // Focus the new place's h1 after each swap or turn (not the first render), so it's announced.
-    let first = true;
-    effect(() => {
-      this.turn.shown();
-      if (this.turn.turning()) return;
-      if (first) {
-        first = false;
-        return;
-      }
-      afterNextRender(() => this.heading()?.nativeElement.focus(), { injector: this.injector });
-    });
-
-    effect(() => {
-      const canvas = this.dust();
-      if (canvas) {
-        this.sweep.attach(canvas.nativeElement, this.host.nativeElement);
-      }
     });
   }
 
@@ -159,10 +104,10 @@ export class DeckArea {
     this.del.set(deckId);
   }
 
-  // Lands on the list with no turn (research R8), then closes the dialog. `del` stays set until the
-  // navigation lands, so the missing-deck redirect never fires a second navigation.
+  // Lands on the list with no sweep, then closes the dialog. `del` stays set until the navigation
+  // lands, so the missing-deck redirect never fires a second navigation.
   protected async onDeleted({ name, cards }: DeckDeleted): Promise<void> {
-    await this.router.navigate(['/decks'], { info: { deckTurn: false } });
+    await this.router.navigate(['/decks'], { info: NO_SWEEP_INFO });
     this.del.set(null);
     this.toasts.show(DECK.toastLabel, cards > 0 ? DECK.toastMoved(name, cards) : DECK.toastDeleted(name));
   }
