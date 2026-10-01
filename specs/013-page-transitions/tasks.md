@@ -130,10 +130,10 @@ description: "Task list for 013 Page Transitions"
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T031 Run `npm run build` and confirm the `angular.json` budgets hold, including `anyComponentStyle` for `src/app/shared/effects/page-sweep/page-sweep.scss` (quickstart "Automated" step 3). Fix the cause rather than raising a budget.
-- [ ] T032 Run quickstart.md "Manual" steps 1–6 with the `run` skill against the user's running dev server (never start or stop it), motion on and with reduced motion emulated; fix any difference from DESIGN.md Motion (SC-001, SC-004).
-- [ ] T033 Final `design-auditor` pass against DESIGN.md Motion and `specs/013-page-transitions/ui.md` (SC-006); fix what it reports.
-- [ ] T034 Checkpoint: run the full suite and lint via `test-runner`, fix everything, then commit the polish phase ("Page transitions: polish").
+- [X] T031 Run `npm run build` and confirm the `angular.json` budgets hold, including `anyComponentStyle` for `src/app/shared/effects/page-sweep/page-sweep.scss` (quickstart "Automated" step 3). Fix the cause rather than raising a budget.
+- [X] T032 Run quickstart.md "Manual" steps 1–6 with the `run` skill against the user's running dev server (never start or stop it), motion on and with reduced motion emulated; fix any difference from DESIGN.md Motion (SC-001, SC-004).
+- [X] T033 Final `design-auditor` pass against DESIGN.md Motion and `specs/013-page-transitions/ui.md` (SC-006); fix what it reports.
+- [X] T034 Checkpoint: run the full suite and lint via `test-runner`, fix everything, then commit the polish phase ("Page transitions: polish").
 
 ---
 
