@@ -4,12 +4,14 @@ import { EntryModalService } from '@services/entry-modal.service';
 import { IdentityService } from '@services/identity.service';
 import { ProfileModalService } from '@services/profile-modal.service';
 import { ShellState } from '@services/shell-state.service';
+import { StorageHealthService } from '@services/storage-health.service';
 import { SyncService } from '@services/sync.service';
 import { EntryModal } from '@shared/auth/entry-modal/entry-modal';
 import { ProfileModal } from '@shared/auth/profile-modal/profile-modal';
 import { LegalNotice } from '@shared/layout/legal-notice/legal-notice';
 import { ToastOutlet } from '@shared/ds/toast/toast-outlet';
 import { NavDrawer } from '@shared/layout/nav-drawer/nav-drawer';
+import { ReloadPrompt } from '@shared/layout/reload-prompt/reload-prompt';
 import { SideNav } from '@shared/layout/side-nav/side-nav';
 import { TopBar } from '@shared/layout/top-bar/top-bar';
 
@@ -20,7 +22,7 @@ const pathOf = (url: string) => url.split(/[?#]/, 1)[0];
 // also the app shell (spec 004): top bar, side nav (wide) or drawer (narrow), and <main>.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, TopBar, SideNav, NavDrawer, LegalNotice, ProfileModal, EntryModal, ToastOutlet],
+  imports: [RouterOutlet, TopBar, SideNav, NavDrawer, LegalNotice, ProfileModal, EntryModal, ReloadPrompt, ToastOutlet],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',
@@ -41,10 +43,12 @@ export class App {
   // Modals mount only while open (their stores, wheels and timers go with them).
   protected readonly profileModal = inject(ProfileModalService);
   protected readonly entryModal = inject(EntryModalService);
+  protected readonly storageHealth = inject(StorageHealthService);
   private readonly main = viewChild.required<ElementRef<HTMLElement>>('main');
 
   constructor() {
     inject(SyncService).start();
+    this.storageHealth.start();
 
     // <main> is the scroll container, so the router's window scrolling never applies (R3). A
     // new page starts at the top; a session re-guard of the same page keeps its position.

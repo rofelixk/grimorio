@@ -19,6 +19,7 @@ import {
 import { TombstoneEntity, TombstoneRecord } from '../db/profile-db';
 import {
   RowOp,
+  boundProfileId,
   clearTombstones,
   currentDbHandle,
   getAllFromStore,
@@ -27,6 +28,7 @@ import {
   writeRows,
 } from '../db/entity-store';
 import { CardService } from './card.service';
+import { CrossTabService } from './cross-tab.service';
 import { DeckService } from './deck.service';
 import { SaveQueueService } from './save-queue.service';
 
@@ -61,6 +63,11 @@ export class CollectionService {
   // Awaits CardService.flush() first (research R2): a card write CollectionService just made
   // through applyRemoved/applyMoved must never race CardService's own persist queue.
   private readonly queue = inject(SaveQueueService).create('collections', () => this.cards.flush());
+  private readonly crossTab = inject(CrossTabService);
+
+  constructor() {
+    this.crossTab.on('collections', () => this.refresh());
+  }
 
   // Points this service at a profile's database (or none) and rehydrates (R1). The signal
   // is cleared synchronously, before anything awaits, so no other profile's rows are ever
@@ -87,6 +94,44 @@ export class CollectionService {
   // Resolves once every write enqueued so far has landed in IndexedDB.
   flush(): Promise<void> {
     return this.queue.flush();
+  }
+
+  // Re-reads the bound profile's collections after another copy saved them (research R5). Never
+  // clears the signal first, never bumps changeCount and never writes; loses to a newer load(),
+  // and reads again if a change made here lands meanwhile, so it never overwrites it.
+  async refresh(): Promise<void> {
+    const generation = this.loadGeneration;
+    const before = this.collectionsSignal();
+    const handle = currentDbHandle();
+    await this.flush();
+    const collections = await getAllFromStore<Collection>('collections', handle);
+    if (generation !== this.loadGeneration) {
+      return;
+    }
+    if (this.collectionsSignal() !== before) {
+      return this.refresh();
+    }
+    this.collectionsSignal.set(collections);
+  }
+
+  // Queues one writeRows transaction with the profile it targets, announcing every kind it touched.
+  private save(ops: RowOp[]): void {
+    const handle = currentDbHandle();
+    const profileId = boundProfileId();
+    this.queue.enqueue(
+      () => writeRows(ops, handle),
+      () => this.announce(ops, profileId),
+    );
+  }
+
+  // A write that puts or deletes card rows announces 'cards' too: those changes went through
+  // applyMoved/applyRemoved, not CardService's queue.
+  private announce(ops: RowOp[], profileId: string | null): void {
+    for (const store of new Set(ops.map((op) => op.store))) {
+      if (store !== 'tombstones') {
+        this.crossTab.announce(store, profileId);
+      }
+    }
   }
 
   depth(id: string): number {
@@ -154,8 +199,7 @@ export class CollectionService {
 
     this.collectionsSignal.update((collections) => [...collections, collection]);
     this.changeCountSignal.update((n) => n + 1);
-    const handle = currentDbHandle();
-    this.queue.enqueue(() => writeRows(ops, handle));
+    this.save(ops);
     return { ok: true, collection, moved };
   }
 
@@ -177,8 +221,7 @@ export class CollectionService {
     const updated: Collection = { ...current, name, color: patch.color ?? current.color, updatedAt: new Date().toISOString() };
     this.collectionsSignal.update((collections) => collections.map((c) => (c.id === id ? updated : c)));
     this.changeCountSignal.update((n) => n + 1);
-    const handle = currentDbHandle();
-    this.queue.enqueue(() => writeRows([{ store: 'collections', put: updated }], handle));
+    this.save([{ store: 'collections', put: updated }]);
     return { ok: true };
   }
 
@@ -213,7 +256,13 @@ export class CollectionService {
     this.collectionsSignal.update((collections) => collections.filter((c) => !ids.has(c.id)));
     this.changeCountSignal.update((n) => n + 1);
     const handle = currentDbHandle();
-    return this.queue.run(() => writeRows(ops, handle)).then(() => result);
+    const profileId = boundProfileId();
+    return this.queue
+      .run(() => writeRows(ops, handle))
+      .then(() => {
+        this.announce(ops, profileId);
+        return result;
+      });
   }
 
   // Sync-only: tombstones let SyncService tell a locally-deleted id apart
@@ -262,8 +311,7 @@ export class CollectionService {
     }
 
     if (ops.length > 0) {
-      const handle = currentDbHandle();
-      this.queue.enqueue(() => writeRows(ops, handle));
+      this.save(ops);
     }
   }
 
@@ -286,8 +334,7 @@ export class CollectionService {
     }
     this.collectionsSignal.set(merged);
     if (ops.length > 0) {
-      const handle = currentDbHandle();
-      this.queue.enqueue(() => writeRows(ops, handle));
+      this.save(ops);
     }
   }
 }

@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mockCardEntryWithoutId } from '@testing/card.mocks';
+import { mockCardEntry, mockCardEntryWithoutId } from '@testing/card.mocks';
+import { otherCopy, settleChannel } from '@testing/cross-tab';
 import { getAllFromStore } from '../db/entity-store';
+import { openProfileDb } from '../db/profile-db';
 import { CardEntry } from '@models/card.model';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
@@ -42,6 +44,75 @@ describe('CardService', () => {
     restore();
     expect(show).toHaveBeenCalledOnce();
     expect(await getAllFromStore<CardEntry>('cards')).toHaveLength(2);
+  });
+
+  describe('with another open copy', () => {
+    let other: ReturnType<typeof otherCopy>;
+
+    beforeEach(async () => {
+      await service.flush();
+      TestBed.resetTestingModule();
+      other = otherCopy();
+      TestBed.configureTestingModule({ providers: [other.provider] });
+      service = TestBed.inject(CardService);
+      await service.load('p1');
+    });
+
+    /** Another copy's save: straight into p1's database. */
+    async function writeElsewhere(cards: CardEntry[]): Promise<void> {
+      const db = await openProfileDb('p1');
+      await Promise.all(cards.map((card) => db.put('cards', card)));
+    }
+
+    it('announces a landed save with its profile (FR-011)', async () => {
+      service.add(baseCard);
+      await service.flush();
+      await settleChannel();
+      expect(other.received).toEqual([{ kind: 'cards', profileId: 'p1' }]);
+
+      service.applySyncResult([]);
+      await service.flush();
+      await settleChannel();
+      expect(other.received).toHaveLength(2);
+    });
+
+    it('refreshes in place when another copy saves, counting no change', async () => {
+      const mine = service.add(baseCard);
+      await service.flush();
+      const count = service.changeCount();
+      const theirs = mockCardEntry({ id: 'theirs' });
+      await writeElsewhere([theirs]);
+
+      const delivered = other.announce('cards', 'p1');
+      expect(service.cards()).toEqual([mine]);
+      await delivered;
+      await vi.waitFor(() => expect(service.cards()).toHaveLength(2));
+      expect(service.cards()).toEqual(expect.arrayContaining([mine, theirs]));
+      expect(service.changeCount()).toBe(count);
+    });
+
+    it('ignores a save for another profile (FR-013)', async () => {
+      await writeElsewhere([mockCardEntry({ id: 'theirs' })]);
+      await other.announce('cards', 'p2');
+      await service.flush();
+      expect(service.cards()).toEqual([]);
+    });
+
+    it('loses a refresh to a newer load()', async () => {
+      await writeElsewhere([mockCardEntry({ id: 'theirs' })]);
+      const refreshed = service.refresh();
+      const loaded = service.load('p2');
+      await Promise.all([refreshed, loaded]);
+      expect(service.cards()).toEqual([]);
+    });
+
+    it('never overwrites a change made here while it reads', async () => {
+      await writeElsewhere([mockCardEntry({ id: 'theirs' })]);
+      const refreshed = service.refresh();
+      const mine = service.add(baseCard);
+      await refreshed;
+      expect(service.cards()).toEqual(expect.arrayContaining([mine]));
+    });
   });
 
   it('adds a card and persists it to IndexedDB', async () => {

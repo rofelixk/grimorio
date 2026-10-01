@@ -19,6 +19,7 @@ import { DeckService } from './deck.service';
 import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileSessionService } from './profile-session.service';
 import { ProfileStore } from './profile-store.service';
+import { SYNC_LOCK } from './sync/sync-lock';
 import { AuthExpired, Offline, type Run, Superseded } from './sync/sync-run';
 
 interface CardEntryRow {
@@ -200,6 +201,7 @@ export class SyncService {
   private readonly planarSelection = inject(PlanarSelectionService);
   private readonly cloudAuth = inject(CloudAuthService);
   private readonly profiles = inject(ProfileStore);
+  private readonly lock = inject(SYNC_LOCK);
 
   private readonly stateSignal = signal<SyncState>('idle');
   /**
@@ -275,8 +277,14 @@ export class SyncService {
       return 'offline';
     }
 
+    // 'syncing' shows while this copy waits for another copy's sync to end (FR-014a).
     this.stateSignal.set('syncing');
     const run: Run = { profile, generation: ++this.generation, abort: new AbortController() };
+    return this.lock(() => (this.isCurrent(run) ? this.timedExchange(run) : Promise.resolve('skipped' as const)));
+  }
+
+  // The bound starts once the lock is held; the lock is released when the race settles.
+  private async timedExchange(run: Run): Promise<SyncOutcome> {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const timedOut = new Promise<'timeout'>((resolve) => {
       timer = setTimeout(() => resolve('timeout'), SYNC_TIMEOUT_MS);
@@ -290,7 +298,7 @@ export class SyncService {
       this.generation++;
       run.abort.abort();
       const state = this.connectivity.online() ? 'error' : 'offline';
-      if (this.session.active()?.id === profile.id) {
+      if (this.session.active()?.id === run.profile.id) {
         this.stateSignal.set(state);
       }
       return state;

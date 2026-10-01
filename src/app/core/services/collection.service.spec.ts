@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntryWithoutId } from '@testing/card.mocks';
+import { otherCopy, settleChannel } from '@testing/cross-tab';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
 import { CardEntry } from '@models/card.model';
@@ -62,6 +63,112 @@ describe('CollectionService', () => {
     restore();
     expect(show).toHaveBeenCalledOnce();
     expect((await getAllFromStore<Collection>('collections')).map((c) => c.name)).toEqual(['Comuns']);
+  });
+
+  describe('with another open copy', () => {
+    let other: ReturnType<typeof otherCopy>;
+
+    beforeEach(async () => {
+      await service.flush();
+      await cards.flush();
+      TestBed.resetTestingModule();
+      other = otherCopy();
+      TestBed.configureTestingModule({ providers: [other.provider] });
+      service = TestBed.inject(CollectionService);
+      cards = TestBed.inject(CardService);
+      await cards.load('p1');
+      await service.load('p1');
+    });
+
+    const landed = async () => {
+      await service.flush();
+      await settleChannel();
+    };
+
+    function createRoot(name: string): Collection {
+      const result = service.create({ parentId: null, name, color: '#d8cdb0' });
+      if (!result.ok) throw new Error(result.error);
+      return result.collection;
+    }
+
+    it('announces a rename as collections only', async () => {
+      const root = createRoot('Raras');
+      await landed();
+      other.received.length = 0;
+
+      service.update(root.id, { name: 'Míticas' });
+      await landed();
+      expect(other.received).toEqual([{ kind: 'collections', profileId: 'p1' }]);
+    });
+
+    it('announces cards too when a create moves the parent’s cards', async () => {
+      const root = createRoot('Raras');
+      cards.add(mockCardEntryWithoutId({ locationId: root.id }));
+      await cards.flush();
+      await landed();
+      other.received.length = 0;
+
+      service.create({ parentId: root.id, name: 'Vermelhas', color: '#d8cdb0' });
+      await landed();
+      expect(other.received).toEqual(
+        expect.arrayContaining([
+          { kind: 'collections', profileId: 'p1' },
+          { kind: 'cards', profileId: 'p1' },
+        ]),
+      );
+      expect(other.received).toHaveLength(2);
+    });
+
+    it('announces a delete with its cards once it commits', async () => {
+      const root = createRoot('Raras');
+      cards.add(mockCardEntryWithoutId({ locationId: root.id }));
+      await cards.flush();
+      await landed();
+      other.received.length = 0;
+
+      await service.remove(root.id, 'delete');
+      await settleChannel();
+      expect(other.received).toHaveLength(2);
+      expect(other.received).toEqual(
+        expect.arrayContaining([
+          { kind: 'collections', profileId: 'p1' },
+          { kind: 'cards', profileId: 'p1' },
+        ]),
+      );
+    });
+
+    it('announces an applied sync result (FR-014)', async () => {
+      service.applySyncResult([mockCollection()]);
+      await landed();
+      expect(other.received).toEqual([{ kind: 'collections', profileId: 'p1' }]);
+    });
+
+    it('refreshes in place when another copy saves, counting no change', async () => {
+      const mine = createRoot('Raras');
+      await landed();
+      const count = service.changeCount();
+      const theirs = mockCollection({ id: 'theirs', name: 'Comuns' });
+      await seed('p1', [theirs]);
+
+      const delivered = other.announce('collections', 'p1');
+      expect(service.collections()).toEqual([mine]);
+      await delivered;
+      await vi.waitFor(() => expect(service.collections()).toHaveLength(2));
+      expect(service.changeCount()).toBe(count);
+    });
+
+    it('ignores a save for another profile (FR-013)', async () => {
+      await seed('p1', [mockCollection()]);
+      await other.announce('collections', 'p2');
+      await service.flush();
+      expect(service.collections()).toEqual([]);
+    });
+
+    it('loses a refresh to a newer load()', async () => {
+      await seed('p1', [mockCollection()]);
+      await Promise.all([service.refresh(), service.load('p2')]);
+      expect(service.collections()).toEqual([]);
+    });
   });
 
   it('rejects a failed remove() to its caller with no toast (FR-005)', async () => {

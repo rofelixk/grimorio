@@ -1,8 +1,10 @@
 import { Injectable, InjectionToken, inject, signal } from '@angular/core';
 import { CloudLink, Color, ProfileRecord, ProfileSummary } from '@models/profile.model';
 import { ACTIVE_PROFILE_KEY, getDeviceDb } from '../db/device-db';
+import { boundProfileId } from '../db/entity-store';
 import { WriteQueue } from '../db/write-queue';
 import { hashPassword, verifyPassword } from '../utils/password-hash.util';
+import { CrossTabService } from './cross-tab.service';
 
 /** PBKDF2 iteration count for new password hashes (R3); tests provide a small value. */
 export const PBKDF2_ITERATIONS = new InjectionToken<number>('PBKDF2_ITERATIONS', {
@@ -35,9 +37,29 @@ export class ProfileStore {
   // Unlike the entity services, a failed registry write is surfaced to the caller (run(), no
   // reporter): a profile that silently fails to save would vanish on the next launch.
   private readonly queue = new WriteQueue();
+  private readonly crossTab = inject(CrossTabService);
 
   constructor() {
     this.readyPromise = this.hydrate();
+    this.crossTab.on('profiles', () => this.refresh());
+  }
+
+  /**
+   * Re-reads the registry after another copy changed it (research R5). The profile this copy has
+   * open stays listed even if the other copy deleted it: the `deleted` takeover signs out
+   * (StorageHealthService), which is the only way to the no-profile state.
+   */
+  async refresh(): Promise<void> {
+    const before = this.records();
+    await this.flush();
+    const db = await getDeviceDb();
+    const records = await db.getAll('profiles');
+    if (this.records() !== before) {
+      return this.refresh();
+    }
+    const openId = boundProfileId();
+    const open = records.some((r) => r.id === openId) ? undefined : before.find((r) => r.id === openId);
+    this.setRecords(open ? [...records, open] : records);
   }
 
   private async hydrate(): Promise<void> {
@@ -60,10 +82,16 @@ export class ProfileStore {
   }
 
   private persist(record: ProfileRecord): Promise<void> {
-    return this.queue.run(async () => {
+    return this.write(async () => {
       const db = await getDeviceDb();
       await db.put('profiles', record);
     });
+  }
+
+  // Every registry write: caller-reported, and announced to other copies once it lands.
+  private async write(task: () => Promise<void>): Promise<void> {
+    await this.queue.run(task);
+    this.crossTab.announce('profiles', null);
   }
 
   private record(id: string): ProfileRecord {
@@ -137,7 +165,7 @@ export class ProfileStore {
   /** Drops the registry record (FR-017). If it was the active profile, none is active afterwards. */
   async remove(id: string): Promise<void> {
     this.setRecords(this.records().filter((r) => r.id !== id));
-    await this.queue.run(async () => {
+    await this.write(async () => {
       const db = await getDeviceDb();
       const tx = db.transaction(['profiles', 'meta'], 'readwrite');
       await tx.objectStore('profiles').delete(id);

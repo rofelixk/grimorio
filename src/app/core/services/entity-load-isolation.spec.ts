@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { mockCardEntryWithoutId } from '@testing/card.mocks';
+import { mockCardEntry, mockCardEntryWithoutId } from '@testing/card.mocks';
+import { otherCopy } from '@testing/cross-tab';
+import { openProfileDb } from '../db/profile-db';
 import { CardService } from './card.service';
 import { CollectionService } from './collection.service';
 import { DeckService } from './deck.service';
@@ -59,6 +61,29 @@ describe('entity services load() isolation', () => {
 
     await loadAll('B');
     expect(cards.cards()).toEqual([card]);
+  });
+
+  it("never shows another copy's saves to profile A while this copy has B open (FR-013)", async () => {
+    TestBed.resetTestingModule();
+    const other = otherCopy();
+    TestBed.configureTestingModule({ providers: [other.provider] });
+    cards = TestBed.inject(CardService);
+    collections = TestBed.inject(CollectionService);
+    decks = TestBed.inject(DeckService);
+    await loadAll('B');
+
+    const a = await openProfileDb('A');
+    await a.put('cards', mockCardEntry({ id: 'card-a' }));
+    await a.put('collections', { id: 'col-a', name: 'Caixa A', color: '#d8cdb0', parentId: null, updatedAt: 't' });
+    await a.put('decks', { id: 'deck-a', name: 'Deck A', format: 'commander', updatedAt: 't' });
+    await other.announce('cards', 'A');
+    await other.announce('collections', 'A');
+    await other.announce('decks', 'A');
+    await Promise.all([cards.flush(), collections.flush(), decks.flush()]);
+
+    expect(cards.cards()).toEqual([]);
+    expect(collections.collections()).toEqual([]);
+    expect(decks.decks()).toEqual([]);
   });
 
   it('clears the signal synchronously when a load starts', () => {

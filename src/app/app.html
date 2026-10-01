@@ -17,4 +17,7 @@
 @if (entryModal.isOpen()) {
   <app-entry-modal />
 }
+@if (storageHealth.reloadRequired()) {
+  <app-reload-prompt />
+}
 <app-toast-outlet />

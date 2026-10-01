@@ -13,6 +13,10 @@ if (!globalThis.crypto?.subtle) {
   Object.defineProperty(globalThis, 'crypto', { value: webcrypto });
 }
 
+// No real channel opens in specs (CROSS_TAB_CHANNEL falls back to null); a spec simulating another
+// open copy provides @testing/cross-tab's fake pair.
+Object.defineProperty(globalThis, 'BroadcastChannel', { value: undefined, configurable: true, writable: true });
+
 // Global reset so every spec starts with no profiles, no bound profile database and empty
 // `grimorio-*` IndexedDB databases.
 beforeEach(async () => {

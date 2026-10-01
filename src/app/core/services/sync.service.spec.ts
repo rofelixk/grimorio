@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
+import { Injector, signal } from '@angular/core';
+import { setActiveProfileDb } from '@db/entity-store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileSummary } from '@models/profile.model';
 import type { CardEntry } from '@models/card.model';
@@ -18,6 +19,7 @@ import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileSessionService, SessionHooks } from './profile-session.service';
 import { ProfileStore } from './profile-store.service';
 import { SYNC_TIMEOUT_MS, SyncService } from './sync.service';
+import { SYNC_LOCK, type SyncLock } from './sync/sync-lock';
 
 const LINKED: ProfileSummary = {
   id: 'p1',
@@ -55,6 +57,25 @@ function cardRow(card: CardEntry) {
     faces: card.faces ?? null,
     notes: card.notes ?? null,
     updated_at: card.updatedAt,
+  };
+}
+
+/** The Web Locks API in memory: one holder at a time, and `fn` runs at once when the lock is free. */
+function serialLock(): SyncLock {
+  let held: Promise<unknown> | null = null;
+  return async <T>(fn: () => Promise<T>): Promise<T> => {
+    while (held) {
+      await held.catch(() => undefined);
+    }
+    const run = fn();
+    held = run;
+    try {
+      return await run;
+    } finally {
+      if (held === run) {
+        held = null;
+      }
+    }
   };
 }
 
@@ -203,6 +224,7 @@ describe('SyncService', () => {
     };
     TestBed.configureTestingModule({
       providers: [
+        { provide: SYNC_LOCK, useValue: serialLock() },
         { provide: DeckService, useValue: decksService },
         {
           provide: PlanarSelectionService,
@@ -367,6 +389,25 @@ describe('SyncService', () => {
     auth.lookupAccount.mockResolvedValue({ status: 'offline' });
     expect(await sync.syncNow()).toBe('offline');
     expect(sync.state()).toBe('offline');
+  });
+
+  it('makes a second copy wait, syncing, until the first copy\u2019s sync ends (FR-014a)', async () => {
+    vi.useRealTimers();
+    await setActiveProfileDb('p1');
+    const other = Injector.create({ providers: [SyncService], parent: TestBed.inject(Injector) }).get(SyncService);
+    const settle = () => new Promise<void>((resolve) => setTimeout(resolve));
+
+    const first = sync.syncNow();
+    const second = other.syncNow();
+    await settle();
+    expect(sync.state()).toBe('syncing');
+    expect(other.state()).toBe('syncing');
+    expect(auth.lookupAccount).toHaveBeenCalledOnce();
+
+    pending.release();
+    expect(await first).toBe('done');
+    expect(await second).toBe('done');
+    expect(auth.lookupAccount).toHaveBeenCalledTimes(2);
   });
 
   describe('collections', () => {

@@ -2,6 +2,7 @@ import { DBSchema, IDBPDatabase, deleteDB, openDB } from 'idb';
 import { CardEntry } from '@models/card.model';
 import { Collection } from '@models/collection.model';
 import { Deck } from '@models/deck.model';
+import { emitTakeover } from './connection-events';
 import { DEVICE_DB_NAME } from './device-db';
 
 export type TombstoneEntity = 'cards' | 'collections' | 'decks';
@@ -42,10 +43,32 @@ export function profileDbName(profileId: string): string {
 // Connections are memoized per profile id; switching closes the previous one.
 const connections = new Map<string, Promise<ProfileDb>>();
 
+// Profiles another copy of the app deleted during this page's life (spec 011 R4): never reopened,
+// so a deleted database is never recreated empty (FR-010).
+const goneProfileIds = new Set<string>();
+
+/** The profile's database was deleted by another copy of the app. */
+export class ProfileGoneError extends Error {}
+
 export function openProfileDb(profileId: string): Promise<ProfileDb> {
+  if (goneProfileIds.has(profileId)) {
+    return Promise.reject(new ProfileGoneError(`Profile ${profileId} was deleted in another window.`));
+  }
   let connection = connections.get(profileId);
   if (!connection) {
     connection = openDB<ProfileDbSchema>(profileDbName(profileId), DB_VERSION, {
+      // Another copy wants this database (spec 011 R4): close at once so it isn't blocked.
+      // A null version means a delete; anything else is a newer version this code doesn't know.
+      blocking(_currentVersion, blockedVersion, event) {
+        (event.target as IDBDatabase).close();
+        if (blockedVersion === null) {
+          connections.delete(profileId);
+          goneProfileIds.add(profileId);
+          emitTakeover({ kind: 'deleted', profileId });
+        } else {
+          emitTakeover({ kind: 'upgrade' });
+        }
+      },
       // Not a data migration (research R13): `locations` is simply dropped, and every other
       // store is created only if it's missing, so an existing v1 database ends up with the
       // same stores a fresh v2 database would have gotten. v3 (spec 009) recreates `decks`
@@ -100,6 +123,7 @@ export async function deleteProfileDb(profileId: string): Promise<void> {
 // Test-only: closes every connection and deletes every `grimorio-*` database (the device
 // registry and all profile databases), so each spec starts from a clean slate.
 export async function resetAllGrimorioDbsForTests(): Promise<void> {
+  goneProfileIds.clear();
   await closeProfileDb();
   const names = new Set<string>([DEVICE_DB_NAME, 'grimorio']);
   const listed = typeof indexedDB.databases === 'function' ? await indexedDB.databases() : [];

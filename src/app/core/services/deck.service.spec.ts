@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntry } from '@testing/card.mocks';
+import { otherCopy, settleChannel } from '@testing/cross-tab';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
 import { CardEntry } from '@models/card.model';
@@ -64,6 +65,66 @@ describe('DeckService', () => {
     restore();
     expect(show).toHaveBeenCalledOnce();
     expect((await getAllFromStore<Deck>('decks')).map((d) => d.name)).toEqual(['Elfos']);
+  });
+
+  describe('with another open copy', () => {
+    let other: ReturnType<typeof otherCopy>;
+
+    beforeEach(async () => {
+      await service.flush();
+      TestBed.resetTestingModule();
+      other = otherCopy();
+      TestBed.configureTestingModule({ providers: [other.provider] });
+      service = TestBed.inject(DeckService);
+      cards = TestBed.inject(CardService);
+      await cards.load('p1');
+      await service.load('p1');
+    });
+
+    const landed = async () => {
+      await service.flush();
+      await settleChannel();
+    };
+
+    it('announces creates, deletes and applied sync results with their profile', async () => {
+      const deck = created(service.create({ name: 'Elfos', format: 'pauper' }));
+      await landed();
+      await service.remove(deck.id);
+      await settleChannel();
+      service.applySyncResult([mockDeck()]);
+      await landed();
+      expect(other.received).toEqual([
+        { kind: 'decks', profileId: 'p1' },
+        { kind: 'decks', profileId: 'p1' },
+        { kind: 'decks', profileId: 'p1' },
+      ]);
+    });
+
+    it('refreshes in place when another copy saves, counting no change', async () => {
+      const mine = created(service.create({ name: 'Elfos', format: 'pauper' }));
+      await landed();
+      const count = service.changeCount();
+      await seed('p1', [mockDeck({ id: 'theirs' })]);
+
+      const delivered = other.announce('decks', 'p1');
+      expect(service.decks()).toEqual([mine]);
+      await delivered;
+      await vi.waitFor(() => expect(service.decks()).toHaveLength(2));
+      expect(service.changeCount()).toBe(count);
+    });
+
+    it('ignores a save for another profile (FR-013)', async () => {
+      await seed('p1', [mockDeck()]);
+      await other.announce('decks', 'p2');
+      await service.flush();
+      expect(service.decks()).toEqual([]);
+    });
+
+    it('loses a refresh to a newer load()', async () => {
+      await seed('p1', [mockDeck()]);
+      await Promise.all([service.refresh(), service.load('p2')]);
+      expect(service.decks()).toEqual([]);
+    });
   });
 
   it('rejects a failed remove() to its caller with no toast (FR-005)', async () => {

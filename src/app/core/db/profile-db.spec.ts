@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { openDB } from 'idb';
+import { deleteDB, openDB } from 'idb';
 import type { Collection } from '@models/collection.model';
 import type { Deck } from '@models/deck.model';
-import { setActiveProfileDb, writeRows } from './entity-store';
-import { closeProfileDb, deleteProfileDb, openProfileDb } from './profile-db';
+import { type TakeoverEvent, onTakeover } from './connection-events';
+import { currentDbHandle, setActiveProfileDb, writeRows } from './entity-store';
+import {
+  ProfileGoneError,
+  closeProfileDb,
+  deleteProfileDb,
+  openProfileDb,
+  resetAllGrimorioDbsForTests,
+} from './profile-db';
 
 describe('openProfileDb', () => {
   it('creates the expected object stores, with no locations store', async () => {
@@ -74,6 +81,45 @@ describe('openProfileDb', () => {
     expect(names).not.toContain('grimorio-profile-p1');
     expect(await b.getAll('decks')).toHaveLength(1);
     expect(await (await openProfileDb('p1')).getAll('decks')).toEqual([]);
+  });
+});
+
+describe('takeovers by another copy', () => {
+  function recordTakeovers(): TakeoverEvent[] {
+    const events: TakeoverEvent[] = [];
+    onTakeover((event) => events.push(event));
+    return events;
+  }
+
+  it('closes and emits upgrade when another copy opens a newer version', async () => {
+    const events = recordTakeovers();
+    const db = await openProfileDb('p1');
+
+    const newer = await openDB('grimorio-profile-p1', 4);
+    newer.close();
+
+    expect(events).toEqual([{ kind: 'upgrade' }]);
+    expect(await openProfileDb('p1')).toBe(db);
+  });
+
+  it('lets another copy delete the bound profile, then never reopens it', async () => {
+    const events = recordTakeovers();
+    await setActiveProfileDb('p1');
+    await currentDbHandle();
+
+    await deleteDB('grimorio-profile-p1');
+
+    expect(events).toEqual([{ kind: 'deleted', profileId: 'p1' }]);
+    await expect(openProfileDb('p1')).rejects.toBeInstanceOf(ProfileGoneError);
+    expect((await indexedDB.databases()).map((d) => d.name)).not.toContain('grimorio-profile-p1');
+  });
+
+  it('the test reset forgets the gone ids', async () => {
+    await openProfileDb('p1');
+    await deleteDB('grimorio-profile-p1');
+    await resetAllGrimorioDbsForTests();
+
+    await expect(openProfileDb('p1')).resolves.toBeDefined();
   });
 });
 

@@ -28,6 +28,11 @@ export async function setActiveProfileDb(profileId: string | null): Promise<void
   await closeProfileDb(profileId);
 }
 
+/** The profile id bound now (null = none). Captured with the handle when a write is queued. */
+export function boundProfileId(): string | null {
+  return bound?.profileId ?? null;
+}
+
 /**
  * The currently bound database. Writers capture this when they enqueue a write, so a write
  * queued for profile A can never land in profile B's database after a switch.

@@ -1,0 +1,10 @@
+<app-compact-modal [roles]="roles()" [labelledBy]="titleId" [locked]="true">
+  <div class="heading">
+    <h2 class="title" [id]="titleId">{{ copy.title }}</h2>
+    <p class="subtitle">{{ copy.body }}</p>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn btn--primary" data-autofocus (click)="reload()">{{ copy.action }}</button>
+  </div>
+</app-compact-modal>

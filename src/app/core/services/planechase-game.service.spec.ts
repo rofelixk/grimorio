@@ -1,6 +1,9 @@
+import type { Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PlanechaseGame } from '@models/planechase-game.model';
+import { setActiveProfileDb } from '@db/entity-store';
+import { otherCopy, settleChannel } from '@testing/cross-tab';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
 import { PLANAR_DATA, PLANAR_RECORDS, PLANAR_TRANSLATIONS, scriptedRandom } from '@testing/planechase-fixtures';
@@ -13,10 +16,11 @@ const IDS = PLANAR_RECORDS.map((card) => card.id);
 /** Fisher–Yates with j = i at every step keeps the input order. */
 const IN_ORDER = Array.from({ length: IDS.length - 1 }, (_, i) => IDS.length - 1 - i);
 
-async function setUp(data = PLANAR_DATA): Promise<PlanechaseGameService> {
+async function setUp(data = PLANAR_DATA, extra: Provider[] = []): Promise<PlanechaseGameService> {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
+      ...extra,
       { provide: PLANECHASE_DATA, useValue: () => Promise.resolve({ cards: data, translations: PLANAR_TRANSLATIONS }) },
       { provide: PLANECHASE_RANDOM, useValue: scriptedRandom(IN_ORDER) },
     ],
@@ -116,5 +120,38 @@ describe('PlanechaseGameService', () => {
     expect(reloaded.game()).toEqual({ ...stored, list: ['p01', 'p02'], used: [] });
     await reloaded.flush();
     expect((await db.get('meta', 'planechaseGame'))?.value).toEqual(reloaded.game());
+  });
+
+  describe('with another open copy', () => {
+    let other: ReturnType<typeof otherCopy>;
+
+    beforeEach(async () => {
+      await service.flush();
+      other = otherCopy();
+      service = await setUp(PLANAR_DATA, [other.provider]);
+    });
+
+    it('announces each landed move as device data (FR-012)', async () => {
+      service.start(IDS);
+      service.planeswalk();
+      await service.flush();
+      await settleChannel();
+      expect(other.received).toEqual([
+        { kind: 'planechaseGame', profileId: null },
+        { kind: 'planechaseGame', profileId: null },
+      ]);
+    });
+
+    it('picks up the game another copy saved, whatever profile is open', async () => {
+      await setActiveProfileDb('p1');
+      service.start(IDS);
+      await service.flush();
+      const moved = { ...service.game()!, cost: 3 };
+      const db = await getDeviceDb();
+      await db.put('meta', { key: 'planechaseGame', value: moved });
+
+      await other.announce('planechaseGame', null);
+      await vi.waitFor(() => expect(service.game()).toEqual(moved));
+    });
   });
 });

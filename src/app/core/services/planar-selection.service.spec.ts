@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { otherCopy, settleChannel } from '@testing/cross-tab';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
 import { getDeviceDb } from '../db/device-db';
@@ -89,5 +90,62 @@ describe('PlanarSelectionService', () => {
     await service.flush();
     expect(service.selection()).toEqual(synced);
     expect(await profileSelection('p1')).toEqual(synced);
+  });
+
+  describe('with another open copy', () => {
+    let other: ReturnType<typeof otherCopy>;
+
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      other = otherCopy();
+      TestBed.configureTestingModule({ providers: [other.provider] });
+      service = TestBed.inject(PlanarSelectionService);
+    });
+
+    async function writeElsewhere(profileId: string | null, disabledIds: string[]): Promise<void> {
+      const value = { disabledIds, updatedAt: '2026-01-01T00:00:00.000Z' };
+      const record = { key: 'planarSelection', value };
+      await (profileId ? (await openProfileDb(profileId)).put('meta', record) : (await getDeviceDb()).put('meta', record));
+    }
+
+    it('announces a save with its profile, or null for the device selection', async () => {
+      await service.load('p1');
+      service.save(['a']);
+      await service.flush();
+      await service.load(null);
+      service.applySyncResult({ disabledIds: ['b'], updatedAt: '2026-01-01T00:00:00.000Z' });
+      await service.flush();
+      await settleChannel();
+      expect(other.received).toEqual([
+        { kind: 'planarSelection', profileId: 'p1' },
+        { kind: 'planarSelection', profileId: null },
+      ]);
+    });
+
+    it('refreshes from its own target only', async () => {
+      await service.load('p1');
+      await writeElsewhere('p1', ['x']);
+
+      await other.announce('planarSelection', null);
+      await service.flush();
+      expect(service.selection()).toBeNull();
+
+      await other.announce('planarSelection', 'p1');
+      await vi.waitFor(() => expect(service.selection()?.disabledIds).toEqual(['x']));
+    });
+
+    it('refreshes the device selection with no profile open', async () => {
+      await service.load(null);
+      await writeElsewhere(null, ['y']);
+      await other.announce('planarSelection', null);
+      await vi.waitFor(() => expect(service.selection()?.disabledIds).toEqual(['y']));
+    });
+
+    it('loses a refresh to a newer load()', async () => {
+      await service.load('p1');
+      await writeElsewhere('p1', ['x']);
+      await Promise.all([service.refresh(), service.load('p2')]);
+      expect(service.selection()).toBeNull();
+    });
   });
 });

@@ -16,6 +16,7 @@ import {
   undo,
 } from '@utils/planechase-game.util';
 import { getDeviceDb } from '../db/device-db';
+import { CrossTabService } from './cross-tab.service';
 import { PlanechaseCatalogService } from './planechase-catalog.service';
 import { SaveQueueService } from './save-queue.service';
 
@@ -27,6 +28,11 @@ export const PLANECHASE_RANDOM = new InjectionToken<RandomInt>('PLANECHASE_RANDO
 
 /** The device `meta` key holding the game in progress (R5). */
 const GAME_KEY = 'planechaseGame';
+
+async function readGame(): Promise<PlanechaseGame | null> {
+  const db = await getDeviceDb();
+  return ((await db.get('meta', GAME_KEY))?.value as PlanechaseGame | undefined) ?? null;
+}
 
 // The Planechase game in progress (FR-015): device-scoped, never tied to a profile and never
 // synced, so profile switches and sign-outs don't touch it (FR-022). Every action applies a pure
@@ -46,17 +52,34 @@ export class PlanechaseGameService {
 
   private readyPromise: Promise<void> | null = null;
   private readonly queue = inject(SaveQueueService).create('the Planechase game');
+  private readonly crossTab = inject(CrossTabService);
   private repaired = false;
   private readonly kindOf = (id: string) => this.catalog.kindOf(id);
+
+  constructor() {
+    this.crossTab.on('planechaseGame', () => this.refresh());
+  }
 
   /** Hydrates the saved game once; awaited by the app initializer. */
   whenReady(): Promise<void> {
     this.readyPromise ??= (async () => {
-      const db = await getDeviceDb();
-      const record = await db.get('meta', GAME_KEY);
-      this.gameSignal.set((record?.value as PlanechaseGame | undefined) ?? null);
+      this.gameSignal.set(await readGame());
     })();
     return this.readyPromise;
+  }
+
+  /**
+   * Re-reads the game after another copy saved it (research R5, FR-012). Never writes, and reads
+   * again if a move made here lands meanwhile.
+   */
+  async refresh(): Promise<void> {
+    const before = this.gameSignal();
+    await this.flush();
+    const game = await readGame();
+    if (this.gameSignal() !== before) {
+      return this.refresh();
+    }
+    this.gameSignal.set(game);
   }
 
   /** Resolves once every write enqueued so far has landed. */
@@ -133,9 +156,12 @@ export class PlanechaseGameService {
 
   private commit(game: PlanechaseGame | null): void {
     this.gameSignal.set(game);
-    this.queue.enqueue(async () => {
-      const db = await getDeviceDb();
-      await (game ? db.put('meta', { key: GAME_KEY, value: game }) : db.delete('meta', GAME_KEY));
-    });
+    this.queue.enqueue(
+      async () => {
+        const db = await getDeviceDb();
+        await (game ? db.put('meta', { key: GAME_KEY, value: game }) : db.delete('meta', GAME_KEY));
+      },
+      () => this.crossTab.announce('planechaseGame', null),
+    );
   }
 }

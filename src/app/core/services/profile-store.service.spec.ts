@@ -1,11 +1,14 @@
+import type { Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { otherCopy, settleChannel } from '@testing/cross-tab';
 import { ACTIVE_PROFILE_KEY, getDeviceDb } from '../db/device-db';
+import { setActiveProfileDb } from '../db/entity-store';
 import { PBKDF2_ITERATIONS, ProfileStore } from './profile-store.service';
 
-function freshStore(): ProfileStore {
+function freshStore(extra: Provider[] = []): ProfileStore {
   TestBed.resetTestingModule();
-  TestBed.configureTestingModule({ providers: [{ provide: PBKDF2_ITERATIONS, useValue: 5 }] });
+  TestBed.configureTestingModule({ providers: [{ provide: PBKDF2_ITERATIONS, useValue: 5 }, ...extra] });
   return TestBed.inject(ProfileStore);
 }
 
@@ -134,6 +137,53 @@ describe('ProfileStore', () => {
     expect(store.profiles().map((p) => p.id)).toEqual([bia.id]);
     expect(await db.get('profiles', rafa.id)).toBeUndefined();
     expect((await db.get('meta', ACTIVE_PROFILE_KEY))?.value).toBeNull();
+  });
+
+  describe('with another open copy', () => {
+    let other: ReturnType<typeof otherCopy>;
+
+    beforeEach(async () => {
+      other = otherCopy();
+      store = freshStore([other.provider]);
+      await store.whenReady();
+    });
+
+    it('announces every landed registry write as device data', async () => {
+      const rafa = await store.create({ name: 'rafa', password: 'grimorio123', colors: ['R'] });
+      await store.rename(rafa.id, 'rafael');
+      await store.remove(rafa.id);
+      await settleChannel();
+      expect(other.received).toEqual([
+        { kind: 'profiles', profileId: null },
+        { kind: 'profiles', profileId: null },
+        { kind: 'profiles', profileId: null },
+      ]);
+    });
+
+    it('picks up a profile another copy created', async () => {
+      const rafa = await store.create({ name: 'rafa', password: 'grimorio123', colors: ['R'] });
+      const db = await getDeviceDb();
+      const record = (await db.get('profiles', rafa.id))!;
+      await db.put('profiles', { ...record, id: 'theirs', name: 'bia', createdAt: '2030-01-01T00:00:00.000Z' });
+
+      await other.announce('profiles', null);
+      await vi.waitFor(() => expect(store.profiles().map((p) => p.name)).toEqual(['rafa', 'bia']));
+    });
+
+    it('keeps the open profile listed when another copy deleted it, until this copy leaves it', async () => {
+      const rafa = await store.create({ name: 'rafa', password: 'grimorio123', colors: ['R'] });
+      await setActiveProfileDb(rafa.id);
+      const db = await getDeviceDb();
+      await db.delete('profiles', rafa.id);
+
+      await other.announce('profiles', null);
+      await store.refresh();
+      expect(store.byId(rafa.id)).toBeDefined();
+
+      await setActiveProfileDb(null);
+      await store.refresh();
+      expect(store.byId(rafa.id)).toBeUndefined();
+    });
   });
 
   it('keeps activeProfileId when another profile is removed', async () => {

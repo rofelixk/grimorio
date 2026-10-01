@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { CardEntry } from '@models/card.model';
 import { Tombstone } from '@models/tombstone.model';
 import {
+  boundProfileId,
   clearTombstones,
   currentDbHandle,
   getAllFromStore,
@@ -10,6 +11,7 @@ import {
   replaceStore,
   setActiveProfileDb,
 } from '../db/entity-store';
+import { CrossTabService } from './cross-tab.service';
 import { SaveQueueService } from './save-queue.service';
 
 @Injectable({ providedIn: 'root' })
@@ -27,6 +29,11 @@ export class CardService {
   // Serializes IndexedDB writes so out-of-order async completions can never
   // leave stale data, and gives tests/callers a durability checkpoint.
   private readonly queue = inject(SaveQueueService).create('cards');
+  private readonly crossTab = inject(CrossTabService);
+
+  constructor() {
+    this.crossTab.on('cards', () => this.refresh());
+  }
 
   // Points this service at a profile's database (or none) and rehydrates (R1). The signal
   // is cleared synchronously, before anything awaits, so no other profile's rows are ever
@@ -50,6 +57,24 @@ export class CardService {
     return this.readyPromise;
   }
 
+  // Re-reads the bound profile's cards after another copy saved them (research R5). Never clears
+  // the signal first, never bumps changeCount and never writes; loses to a newer load(), and reads
+  // again if a change made here lands meanwhile, so it never overwrites it.
+  async refresh(): Promise<void> {
+    const generation = this.loadGeneration;
+    const before = this.cardsSignal();
+    const handle = currentDbHandle();
+    await this.flush();
+    const cards = await getAllFromStore<CardEntry>('cards', handle);
+    if (generation !== this.loadGeneration) {
+      return;
+    }
+    if (this.cardsSignal() !== before) {
+      return this.refresh();
+    }
+    this.cardsSignal.set(cards);
+  }
+
   // Resolves once every write enqueued so far has landed in IndexedDB.
   flush(): Promise<void> {
     return this.queue.flush();
@@ -57,7 +82,11 @@ export class CardService {
 
   private persist(cards: CardEntry[]): void {
     const handle = currentDbHandle();
-    this.queue.enqueue(() => replaceStore('cards', cards, handle));
+    const profileId = boundProfileId();
+    this.queue.enqueue(
+      () => replaceStore('cards', cards, handle),
+      () => this.crossTab.announce('cards', profileId),
+    );
   }
 
   add(card: Omit<CardEntry, 'id' | 'updatedAt'>): CardEntry {

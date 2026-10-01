@@ -4,6 +4,7 @@ import { Tombstone } from '@models/tombstone.model';
 import { compareDeckNames, validateDeckName } from '../utils/deck.util';
 import {
   RowOp,
+  boundProfileId,
   clearTombstones,
   currentDbHandle,
   getAllFromStore,
@@ -12,6 +13,7 @@ import {
   writeRows,
 } from '../db/entity-store';
 import { CardService } from './card.service';
+import { CrossTabService } from './cross-tab.service';
 import { SaveQueueService } from './save-queue.service';
 
 // Decks (spec 009): a card location next to collections. Every write is a per-row `writeRows`
@@ -37,6 +39,11 @@ export class DeckService {
   private readyPromise: Promise<void> = Promise.resolve();
   private loadGeneration = 0;
   private readonly queue = inject(SaveQueueService).create('decks');
+  private readonly crossTab = inject(CrossTabService);
+
+  constructor() {
+    this.crossTab.on('decks', () => this.refresh());
+  }
 
   // Points this service at a profile's database (or none) and rehydrates (R1). The signal
   // is cleared synchronously, before anything awaits, so no other profile's rows are ever
@@ -65,6 +72,42 @@ export class DeckService {
     return this.queue.flush();
   }
 
+  // Re-reads the bound profile's decks after another copy saved them (research R5). Never clears
+  // the signal first, never bumps changeCount and never writes; loses to a newer load(), and reads
+  // again if a change made here lands meanwhile, so it never overwrites it.
+  async refresh(): Promise<void> {
+    const generation = this.loadGeneration;
+    const before = this.decksSignal();
+    const handle = currentDbHandle();
+    await this.flush();
+    const decks = await getAllFromStore<Deck>('decks', handle);
+    if (generation !== this.loadGeneration) {
+      return;
+    }
+    if (this.decksSignal() !== before) {
+      return this.refresh();
+    }
+    this.decksSignal.set(decks);
+  }
+
+  // Queues one writeRows transaction with the profile it targets, announcing every kind it touched.
+  private save(ops: RowOp[]): void {
+    const handle = currentDbHandle();
+    const profileId = boundProfileId();
+    this.queue.enqueue(
+      () => writeRows(ops, handle),
+      () => this.announce(ops, profileId),
+    );
+  }
+
+  private announce(ops: RowOp[], profileId: string | null): void {
+    for (const store of new Set(ops.map((op) => op.store))) {
+      if (store !== 'tombstones') {
+        this.crossTab.announce(store, profileId);
+      }
+    }
+  }
+
   /** Copies (Σ quantity) of the cards whose `locationId` is this deck. */
   cardCount(id: string): number {
     return this.cards.cards().reduce((sum, card) => (card.locationId === id ? sum + card.quantity : sum), 0);
@@ -82,8 +125,7 @@ export class DeckService {
     };
     this.decksSignal.update((decks) => [...decks, deck]);
     this.changeCountSignal.update((n) => n + 1);
-    const handle = currentDbHandle();
-    this.queue.enqueue(() => writeRows([{ store: 'decks', put: deck }], handle));
+    this.save([{ store: 'decks', put: deck }]);
     return { ok: true, deck };
   }
 
@@ -105,8 +147,7 @@ export class DeckService {
     const updated: Deck = { ...current, name, format: patch.format ?? current.format, updatedAt: new Date().toISOString() };
     this.decksSignal.update((decks) => decks.map((deck) => (deck.id === id ? updated : deck)));
     this.changeCountSignal.update((n) => n + 1);
-    const handle = currentDbHandle();
-    this.queue.enqueue(() => writeRows([{ store: 'decks', put: updated }], handle));
+    this.save([{ store: 'decks', put: updated }]);
     return { ok: true };
   }
 
@@ -129,7 +170,13 @@ export class DeckService {
     this.decksSignal.update((decks) => decks.filter((deck) => deck.id !== id));
     this.changeCountSignal.update((n) => n + 1);
     const handle = currentDbHandle();
-    return this.queue.run(() => writeRows(ops, handle)).then(() => result);
+    const profileId = boundProfileId();
+    return this.queue
+      .run(() => writeRows(ops, handle))
+      .then(() => {
+        this.announce(ops, profileId);
+        return result;
+      });
   }
 
   // Sync-only: tombstones let SyncService tell a locally-deleted id apart from one that never
@@ -160,8 +207,7 @@ export class DeckService {
     }
     this.decksSignal.set(merged);
     if (ops.length > 0) {
-      const handle = currentDbHandle();
-      this.queue.enqueue(() => writeRows(ops, handle));
+      this.save(ops);
     }
   }
 }

@@ -1,5 +1,6 @@
 import { DBSchema, IDBPDatabase, openDB } from 'idb';
 import { ProfileRecord } from '@models/profile.model';
+import { emitTakeover } from './connection-events';
 
 interface DeviceMetaRecord {
   key: string;
@@ -23,6 +24,12 @@ let dbPromise: Promise<IDBPDatabase<DeviceDbSchema>> | null = null;
 export function getDeviceDb(): Promise<IDBPDatabase<DeviceDbSchema>> {
   if (!dbPromise) {
     dbPromise = openDB<DeviceDbSchema>(DEVICE_DB_NAME, DB_VERSION, {
+      // Another copy opened a newer version (spec 011 R4): close at once so it isn't blocked, and
+      // keep the closed connection memoized so this copy never reopens it at the old version.
+      blocking(_currentVersion, _blockedVersion, event) {
+        (event.target as IDBDatabase).close();
+        emitTakeover({ kind: 'upgrade' });
+      },
       upgrade(db) {
         db.createObjectStore('profiles', { keyPath: 'id' });
         db.createObjectStore('meta', { keyPath: 'key' });
