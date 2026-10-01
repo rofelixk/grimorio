@@ -10,7 +10,7 @@ npm run lint       # ESLint CLI (eslint src): TypeScript and templates, type-awa
 
 Run a single test file: `npx ng test --include='**/home.spec.ts'` (glob is relative to the project root, matching Vitest's `include` semantics).
 
-Lint one file: `npx eslint <path>`. After fixing a violation recorded in `eslint-suppressions.json`, run `npx eslint src --prune-suppressions` (lint fails while a recorded entry no longer occurs). Only when a new rule lands with existing violations: `npx eslint src --suppress-rule <rule>`.
+Lint one file: `npx eslint <path>`.
 
 ### Card data (maintainer-run)
 

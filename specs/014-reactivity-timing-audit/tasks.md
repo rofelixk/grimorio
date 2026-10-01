@@ -149,10 +149,10 @@ description: "Task list for the Reactivity & Timing Audit"
 
 **Independent Test**: Every line of the inventory grep matches a **keep** row, and no convert or remove row (T2, T3, T12, E3, E6, E12, row R3) still has a call site (quickstart §2, SC-002).
 
-- [ ] T031 [P] [US4] In `.claude/docs/architecture.md`, under "Lint and budgets", drop the `eslint-suppressions.json` sentences and keep the rule list (research R9). Add a new bullet, worded as in research R9 ("**Timers, effects and router events**: …"), next to the existing `linkedSignal` bullet. It is the only place the general rule lives (FR-016).
-- [ ] T032 [P] [US4] In `.claude/docs/commands.md`, drop the paragraph about `--prune-suppressions`/`--suppress-rule` and `eslint-suppressions.json` (research R9). Keep "Lint one file: `npx eslint <path>`."
-- [ ] T033 [US4] Re-run the inventory grep from T001 and match every line to a **keep** or **keep (fallback)** row in `specs/014-reactivity-timing-audit/research.md` (31 at plan time, plus any added in T001 or during implementation). Confirm that no line matches T2, T3, T12, E3, E6, E12 or row R3. Add any new call site introduced by this spec as a row (spec edge case). Confirm no justification comments were added at kept call sites (FR-016).
-- [ ] T034 [US4] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 7 ("Reactivity audit: docs and record").
+- [X] T031 [P] [US4] In `.claude/docs/architecture.md`, under "Lint and budgets", drop the `eslint-suppressions.json` sentences and keep the rule list (research R9). Add a new bullet, worded as in research R9 ("**Timers, effects and router events**: …"), next to the existing `linkedSignal` bullet. It is the only place the general rule lives (FR-016).
+- [X] T032 [P] [US4] In `.claude/docs/commands.md`, drop the paragraph about `--prune-suppressions`/`--suppress-rule` and `eslint-suppressions.json` (research R9). Keep "Lint one file: `npx eslint <path>`."
+- [X] T033 [US4] Re-run the inventory grep from T001 and match every line to a **keep** or **keep (fallback)** row in `specs/014-reactivity-timing-audit/research.md` (31 at plan time, plus any added in T001 or during implementation). Confirm that no line matches T2, T3, T12, E3, E6, E12 or row R3. Add any new call site introduced by this spec as a row (spec edge case). Confirm no justification comments were added at kept call sites (FR-016).
+- [X] T034 [US4] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 7 ("Reactivity audit: docs and record").
 
 ---
 
