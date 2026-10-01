@@ -108,6 +108,22 @@ describe('CollectionDeleteDialog', () => {
     expect(document.activeElement).toBe(radio('delete'));
   });
 
+  it('jumps to the ends with Home and End', async () => {
+    const top = make('Caixa');
+    cards.add(mockCardEntryWithoutId({ locationId: top.id }));
+    const { fixture, radio } = await render(top.id);
+    radio('move').click();
+    fixture.detectChanges();
+    radio('move').dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    fixture.detectChanges();
+    expect(radio('delete').getAttribute('aria-checked')).toBe('true');
+    expect(document.activeElement).toBe(radio('delete'));
+    radio('delete').dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    fixture.detectChanges();
+    expect(radio('move').getAttribute('aria-checked')).toBe('true');
+    expect(document.activeElement).toBe(radio('move'));
+  });
+
   it('locks while deleting, then emits the captured payload', async () => {
     const top = make('Fichário');
     const child = make('Azuis', top.id);

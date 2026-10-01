@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import type { PlanarCard } from '@data/planechase/planar-card.model';
 import { TUNNEL } from '@utils/planechase-copy';
+import { RovingRadios } from '@shared/ds/roving-radios';
 import { PlanarImage } from '@shared/gameplay/planar-image/planar-image';
 
 let nextId = 0;
@@ -11,7 +12,7 @@ let nextId = 0;
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-tunnel-choice',
-  imports: [PlanarImage],
+  imports: [PlanarImage, RovingRadios],
   templateUrl: './tunnel-choice.html',
   styleUrl: './tunnel-choice.scss',
 })
@@ -22,38 +23,9 @@ export class TunnelChoice {
 
   protected readonly labelId = `grm-tunnel-label-${nextId++}`;
   protected readonly label = computed(() => TUNNEL.label(this.planes().length));
-  /** The one radio in the tab order: the chosen plane, else the first. */
-  protected readonly focusIndex = computed(() =>
-    Math.max(
-      0,
-      this.planes().findIndex((card) => card.id === this.selected()),
-    ),
-  );
 
-  protected onKeydown(event: KeyboardEvent, index: number): void {
-    const last = this.planes().length - 1;
-    const target = (() => {
-      switch (event.key) {
-        case 'ArrowRight':
-        case 'ArrowDown':
-          return index === last ? 0 : index + 1;
-        case 'ArrowLeft':
-        case 'ArrowUp':
-          return index === 0 ? last : index - 1;
-        case 'Home':
-          return 0;
-        case 'End':
-          return last;
-        default:
-          return null;
-      }
-    })();
-    if (target === null) {
-      return;
-    }
-    event.preventDefault();
-    this.picked.emit(this.planes()[target].id);
-    const group = (event.currentTarget as HTMLElement).parentElement;
-    (group?.children[target] as HTMLElement | undefined)?.focus();
-  }
+  /** The chosen plane's position; −1 while nothing is chosen. */
+  protected readonly selectedIndex = computed(() => this.planes().findIndex((card) => card.id === this.selected()));
+  /** The one radio in the tab order: the chosen plane, else the first. */
+  protected readonly focusIndex = computed(() => Math.max(0, this.selectedIndex()));
 }

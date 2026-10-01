@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, model, viewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, model } from '@angular/core';
 import { DECK_FORMATS, DEFAULT_FORMAT, type DeckFormatId } from '@models/deck.model';
 import { DECK } from '@utils/deck-copy';
+import { RovingRadios } from '@shared/ds/roving-radios';
 
 let nextId = 0;
 
@@ -11,12 +12,18 @@ let nextId = 0;
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-format-picker',
+  imports: [RovingRadios],
   template: `
     <span class="label" [id]="labelId">{{ label() }}</span>
-    <div class="grid" role="radiogroup" [attr.aria-labelledby]="labelId">
+    <div
+      class="grid"
+      role="radiogroup"
+      [attr.aria-labelledby]="labelId"
+      [appRovingRadios]="index()"
+      (radioMove)="value.set(formats[$event])"
+    >
       @for (id of formats; track id) {
         <button
-          #option
           type="button"
           class="option"
           role="radio"
@@ -24,7 +31,6 @@ let nextId = 0;
           [attr.aria-checked]="id === value()"
           [attr.tabindex]="id === value() ? 0 : -1"
           (click)="value.set(id)"
-          (keydown)="onKeydown($event)"
         >
           {{ copy.formats[id].name }}
         </button>
@@ -46,32 +52,5 @@ export class FormatPicker {
   protected readonly labelId = `grm-format-label-${nextId++}`;
   protected readonly label = computed(() => DECK.formatLabel(DECK.formats[this.value()].name));
 
-  private readonly options = viewChildren<ElementRef<HTMLButtonElement>>('option');
-
-  protected onKeydown(event: KeyboardEvent): void {
-    const last = DECK_FORMATS.length - 1;
-    const current = DECK_FORMATS.indexOf(this.value());
-    let next: number;
-    switch (event.key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
-        next = current === last ? 0 : current + 1;
-        break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        next = current === 0 ? last : current - 1;
-        break;
-      case 'Home':
-        next = 0;
-        break;
-      case 'End':
-        next = last;
-        break;
-      default:
-        return;
-    }
-    event.preventDefault();
-    this.value.set(DECK_FORMATS[next]);
-    this.options()[next]?.nativeElement.focus();
-  }
+  protected readonly index = computed(() => DECK_FORMATS.indexOf(this.value()));
 }

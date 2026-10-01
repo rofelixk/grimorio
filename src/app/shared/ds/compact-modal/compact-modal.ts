@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FluidHeight } from '@shared/ds/fluid-height';
+import { MARKED_STOP, captureFocus, focusFirst } from '@shared/ds/focus';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { ACTION, MISC } from '@utils/entry-copy';
 import { Roles } from '@utils/identity.util';
@@ -41,7 +42,7 @@ export class CompactModal {
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly face = viewChild<ElementRef<HTMLElement>>('face');
   private readonly content = viewChild<ElementRef<HTMLElement>>('content');
-  private opener: HTMLElement | null = null;
+  private restoreFocus: (() => void) | null = null;
   // No minimum and no cap: the face's CSS max-height stops it and the whole face scrolls.
   protected readonly fluid = new FluidHeight({
     face: () => this.face()?.nativeElement,
@@ -52,10 +53,10 @@ export class CompactModal {
   constructor() {
     afterNextRender(() => {
       const dialog = this.dialog().nativeElement;
-      this.opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      this.restoreFocus = captureFocus();
       dialog.showModal();
       // Content marks its first stop (the name field, or Cancelar in a confirmation).
-      dialog.querySelector<HTMLElement>('[data-autofocus]')?.focus();
+      focusFirst(dialog, MARKED_STOP);
       // Pointer-only shortcut; keyboard users close with Esc (cancel) or ✕.
       dialog.addEventListener('click', (event) => {
         if (event.target === dialog) this.requestClose();
@@ -64,7 +65,7 @@ export class CompactModal {
 
     inject(DestroyRef).onDestroy(() => {
       this.dialog().nativeElement.close();
-      this.opener?.focus();
+      this.restoreFocus?.();
     });
   }
 

@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Roles } from '@utils/identity.util';
+import { captureFocus } from '@shared/ds/focus';
 import { ToastOutlet } from '@shared/ds/toast/toast-outlet';
 
 // The themed modal shell (DESIGN.md "Themed modal"): a native <dialog> with the conic ring,
@@ -34,12 +35,12 @@ export class ThemedModal {
   /** The face, sized by the owner's `FluidFace` (fluid height). */
   readonly face = viewChild.required<ElementRef<HTMLElement>>('face');
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
-  private opener: HTMLElement | null = null;
+  private restoreFocus: (() => void) | null = null;
 
   constructor() {
     afterNextRender(() => {
       const dialog = this.dialog().nativeElement;
-      this.opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      this.restoreFocus = captureFocus();
       dialog.showModal();
       // A click on the backdrop is a pointer-only shortcut; keyboard users close with Esc (the
       // dialog's cancel event) or ✕, so this listener is attached here rather than in the template.
@@ -48,7 +49,7 @@ export class ThemedModal {
 
     inject(DestroyRef).onDestroy(() => {
       this.dialog().nativeElement.close();
-      this.opener?.focus();
+      this.restoreFocus?.();
     });
   }
 

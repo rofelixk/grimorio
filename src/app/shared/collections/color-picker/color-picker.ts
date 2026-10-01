@@ -1,12 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  computed,
-  input,
-  output,
-  viewChildren,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import {
   COLLECTION_COLORS,
   colorOf,
@@ -14,6 +6,7 @@ import {
   type CollectionColorHex,
 } from '@models/collection.model';
 import { COLLECTION } from '@utils/collection-copy';
+import { RovingRadios } from '@shared/ds/roving-radios';
 
 let nextId = 0;
 
@@ -30,16 +23,22 @@ const ROWS: readonly (readonly CollectionColor[])[] = [
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-color-picker',
+  imports: [RovingRadios],
   template: `
     <span class="label" [id]="labelId">
       {{ copy.colorWord }} · <span class="label-name">{{ selected().name }}</span>
     </span>
-    <div class="grid" role="radiogroup" [attr.aria-labelledby]="labelId">
+    <div
+      class="grid"
+      role="radiogroup"
+      [attr.aria-labelledby]="labelId"
+      [appRovingRadios]="index()"
+      (radioMove)="valueChange.emit(colors[$event].hex)"
+    >
       @for (row of rows; track $index) {
         <div class="row" [class.row--indented]="$index !== 1">
           @for (color of row; track color.hex) {
             <button
-              #swatch
               type="button"
               class="swatch"
               role="radio"
@@ -52,7 +51,6 @@ const ROWS: readonly (readonly CollectionColor[])[] = [
               [style.--ring]="color.ring ?? color.hex"
               [style.--glow]="color.hex + '80'"
               (click)="valueChange.emit(color.hex)"
-              (keydown)="onKeydown($event)"
             ></button>
           }
         </div>
@@ -67,35 +65,9 @@ export class ColorPicker {
 
   protected readonly copy = COLLECTION;
   protected readonly rows = ROWS;
+  protected readonly colors = COLLECTION_COLORS;
   protected readonly labelId = `grm-color-label-${nextId++}`;
   protected readonly selected = computed(() => colorOf(this.value()));
 
-  private readonly swatches = viewChildren<ElementRef<HTMLButtonElement>>('swatch');
-
-  protected onKeydown(event: KeyboardEvent): void {
-    const last = COLLECTION_COLORS.length - 1;
-    const current = COLLECTION_COLORS.findIndex((color) => color.hex === this.value());
-    let next: number;
-    switch (event.key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
-        next = current === last ? 0 : current + 1;
-        break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        next = current === 0 ? last : current - 1;
-        break;
-      case 'Home':
-        next = 0;
-        break;
-      case 'End':
-        next = last;
-        break;
-      default:
-        return;
-    }
-    event.preventDefault();
-    this.valueChange.emit(COLLECTION_COLORS[next].hex);
-    this.swatches()[next]?.nativeElement.focus();
-  }
+  protected readonly index = computed(() => COLLECTION_COLORS.findIndex((color) => color.hex === this.value()));
 }

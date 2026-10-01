@@ -5,7 +5,13 @@
   </div>
 
   @if (snapshot().cards > 0) {
-    <div #group class="choices" role="radiogroup" [attr.aria-labelledby]="subtitleId">
+    <div
+      class="choices"
+      role="radiogroup"
+      [attr.aria-labelledby]="subtitleId"
+      [appRovingRadios]="choiceIndex()"
+      (radioMove)="pickIndex($event)"
+    >
       <button
         type="button"
         class="choice choice--move"
@@ -15,7 +21,6 @@
         [attr.aria-checked]="choice() === 'move'"
         [attr.tabindex]="choice() === 'delete' ? -1 : 0"
         (click)="pick('move')"
-        (keydown)="onRadioKey($event, group)"
       >
         <span class="indicator" aria-hidden="true"></span>
         <span class="choice-text">
@@ -32,7 +37,6 @@
         [attr.aria-checked]="choice() === 'delete'"
         [attr.tabindex]="choice() === 'delete' ? 0 : -1"
         (click)="pick('delete')"
-        (keydown)="onRadioKey($event, group)"
       >
         <span class="indicator" aria-hidden="true"></span>
         <span class="choice-text">

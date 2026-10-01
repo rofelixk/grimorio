@@ -15,6 +15,7 @@ import { ShellState } from '@services/shell-state.service';
 import { SyncStatusService } from '@services/sync-status.service';
 import { SHELL } from '@utils/entry-copy';
 import { SyncDisplay } from '@utils/sync-status.util';
+import { focusElement } from '@shared/ds/focus';
 import { ToastOutlet } from '@shared/ds/toast/toast-outlet';
 import { NavLinks } from '@shared/layout/nav-links/nav-links';
 import { ProfileControl } from '@shared/layout/profile-control/profile-control';
@@ -56,8 +57,7 @@ export class NavDrawer {
       untracked(() => {
         if (open && !dialog.open) {
           dialog.showModal();
-          const target = this.shell.openedViaKeyboard() ? this.closeButton().nativeElement : dialog;
-          target.focus({ preventScroll: true });
+          focusElement(this.shell.openedViaKeyboard() ? this.closeButton().nativeElement : dialog, { preventScroll: true });
         } else if (!open && dialog.open) {
           // Navigation closed it (ShellState): same close path, focus back on Menu.
           this.close();
@@ -73,7 +73,8 @@ export class NavDrawer {
     if (dialog.open) {
       dialog.close();
     }
-    document.querySelector<HTMLElement>('[aria-controls="grm-drawer"]')?.focus({ preventScroll: true });
+    // Menu by name, not a captured opener: Safari doesn't focus a button on click.
+    focusElement(document.querySelector<HTMLElement>('[aria-controls="grm-drawer"]'), { preventScroll: true });
   }
 
   protected onCancel(event: Event): void {

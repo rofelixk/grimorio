@@ -1,5 +1,6 @@
-import { ElementRef, Signal, afterRenderEffect } from '@angular/core';
+import { ElementRef, Signal } from '@angular/core';
 import { FluidHeight } from '@shared/ds/fluid-height';
+import { FIRST_STOP_ORDER, focusOnChange } from '@shared/ds/focus';
 
 const MIN_FACE_HEIGHT = 460;
 // Form pane chrome around the measured content: 12px top padding + 44px close row + 24px
@@ -8,14 +9,6 @@ const PANE_CHROME = 12 + 44 + 24;
 const PROMPT_GAP = 16;
 // ThemedModal caps the face at 100dvh − 2 × space-6.
 const FACE_VIEWPORT_MARGIN = 64;
-
-// Tried in order, so a field or action row wins over an earlier plate button or wheel swatch.
-const FOCUS_ORDER = [
-  'input:not([readonly])',
-  'app-action-row button:not([disabled])',
-  '[role="listitem"] button:not([disabled])',
-  'button:not([disabled])',
-];
 
 export interface FluidFaceRefs {
   /** `ThemedModal.face`: where the height is written. */
@@ -51,20 +44,6 @@ export class FluidFace {
       cap: FACE_VIEWPORT_MARGIN,
     });
 
-    let lastScreen = '';
-    afterRenderEffect(() => {
-      const screen = refs.screenKey();
-      if (screen && screen !== lastScreen) {
-        const content = refs.content()?.nativeElement;
-        for (const selector of FOCUS_ORDER) {
-          const target = content?.querySelector<HTMLElement>(selector);
-          if (target) {
-            target.focus();
-            break;
-          }
-        }
-      }
-      lastScreen = screen;
-    });
+    focusOnChange(refs.screenKey, refs.content, FIRST_STOP_ORDER);
   }
 }

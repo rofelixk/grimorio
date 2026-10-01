@@ -274,6 +274,11 @@ describe('Planechase', () => {
 
     it('moves the pick with the arrow keys, wrapping at the ends', async () => {
       const { el, fixture } = await tunnelSetUp();
+      // With nothing picked, the first arrow picks the focused plane (FR-017).
+      radios(el)[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+      await fixture.whenStable();
+      expect(radios(el)[0].getAttribute('aria-checked')).toBe('true');
+
       radios(el)[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
       await fixture.whenStable();
       expect(radios(el)[4].getAttribute('aria-checked')).toBe('true');

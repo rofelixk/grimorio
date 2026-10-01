@@ -2,11 +2,14 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, ou
 import { CollectionService } from '@services/collection.service';
 import { IdentityService } from '@services/identity.service';
 import { CompactModal } from '@shared/ds/compact-modal/compact-modal';
+import { RovingRadios } from '@shared/ds/roving-radios';
 import { COLLECTION } from '@utils/collection-copy';
 
 let nextId = 0;
 
 export type DeleteChoice = 'move' | 'delete';
+
+const CHOICES: readonly DeleteChoice[] = ['move', 'delete'];
 
 export interface CollectionDeleted {
   parentId: string | null;
@@ -30,7 +33,7 @@ interface Snapshot {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-collection-delete-dialog',
-  imports: [CompactModal],
+  imports: [CompactModal, RovingRadios],
   templateUrl: './collection-delete-dialog.html',
   styleUrl: './collection-delete-dialog.scss',
 })
@@ -49,6 +52,11 @@ export class CollectionDeleteDialog implements OnInit {
 
   protected readonly snapshot = signal<Snapshot>({ name: '', parentId: null, cards: 0, subs: 0 });
   protected readonly choice = signal<DeleteChoice | null>(null);
+  /** The radio order; −1 while nothing is chosen. */
+  protected readonly choiceIndex = computed(() => {
+    const choice = this.choice();
+    return choice ? CHOICES.indexOf(choice) : -1;
+  });
   protected readonly busy = signal(false);
 
   protected readonly subtitle = computed(() => {
@@ -82,12 +90,8 @@ export class CollectionDeleteDialog implements OnInit {
     if (!this.busy()) this.choice.set(choice);
   }
 
-  protected onRadioKey(event: KeyboardEvent, group: HTMLElement): void {
-    if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return;
-    event.preventDefault();
-    const next: DeleteChoice = this.choice() === 'move' ? 'delete' : 'move';
-    this.pick(next);
-    group.querySelector<HTMLElement>(`[data-choice="${next}"]`)?.focus();
+  protected pickIndex(index: number): void {
+    this.pick(CHOICES[index]);
   }
 
   protected cancel(): void {
