@@ -1,6 +1,6 @@
 # Pending items
 
-Known work that isn't specced yet. [features.md](features.md) groups items into planned specs by number (`#N`), so **numbers are permanent**: never renumber, and give a new item the next free number (the next is **#37**; #12 was retired). When a spec ships, delete its items here. Check each item still applies before planning it.
+Known work that isn't specced yet. [features.md](features.md) groups items into planned specs by number (`#N`), so **numbers are permanent**: never renumber, and give a new item the next free number (the next is **#39**; #12 was retired). When a spec ships, delete its items here. Check each item still applies before planning it.
 
 **Size**: `S` a focused change, `M` several files or one design decision, `L` changes a model or spans the app. Every **L** is listed under "Big items" too.
 
@@ -44,20 +44,14 @@ Known work that isn't specced yet. [features.md](features.md) groups items into 
 | 29 | Multi-tab IndexedDB handling | **L** | 2 |
 | 30 | Sync paging for collections and decks | S | 2 |
 | **Codebase health** | | | |
-| 11 | Default-identity fallback repeated | S | 1 |
-| 14 | Remove all old unused code | M | 1 |
-| 22 | Specs for untested logic | M | 1 (card files deferred) |
 | 23 | `setTimeout` audit | M | 5 |
-| 24 | Bundle budgets | S | 1 |
-| 25 | Stricter lint rules | M | 1 |
-| 26 | Stale nav doc | S | 1 |
 | 28 | `effect` audit | M | 5 |
+| 37 | Fix the recorded promise exceptions | S | 5 |
 | **Layout** | | | |
 | 15 | Mobile-landscape layout | **L** | 6 |
-| **Card redesign (deferred)** | | | |
+| **Card features (deferred)** | | | |
 | 13 | Sync card artist data | M | deferred |
-| 20 | Retire `ThemeService` | S | deferred |
-| 21 | Retire `_modal.scss` / `_dropdown.scss` | M | deferred |
+| 38 | Card-reading guardrails | S | deferred |
 
 ---
 
@@ -184,37 +178,17 @@ With the installed PWA and a browser tab open on the same profile, each tab hold
 
 ## Codebase health
 
-### #11 · Default-identity fallback repeated — S
-
-`activeColors() ?? DEFAULT_IDENTITY` appears in `page-sweep.ts`, `theme.service.ts` (`colors`) and `identity.service.ts` (`roles`). One `effectiveColors` computed on `IdentityService` would cover all three.
-
-### #14 · Remove all old unused code — M
-
-Delete legacy code nothing references anymore. Candidates to verify first (none confirmed yet): the `ThemeService` adapter over `IdentityService`, the legacy mixin partials in `src/styles/` (`_modal.scss`, `_dropdown.scss`), legacy component `.scss`, dead exports and imports. Confirm each is unused with grep/lint before removing it.
-
-### #22 · Specs for untested logic — M
-
-Pure logic with no spec: `card-import.util.ts`, `dropdown-placement.util.ts`, `dropdown-dismiss.util.ts`, `card-color.util.ts`, `db/entity-store.ts` (the all-or-nothing `writeRows` transaction), `profile-session.service.ts` and `identity.service.ts`. Cheap to test and the most likely to break silently.
-
 ### #23 · `setTimeout` audit — M
 
 19 `setTimeout` calls outside specs. Check which should instead be tied to `animationend`/`transitionend` or signals; timer-based sequencing is a flakiness source (see the SC-004 fix).
 
-### #24 · Bundle budgets — S
-
-`angular.json` sets no `budgets`. Add initial and per-lazy-chunk limits so a static `tesseract.js` import or the Planechase data leaking into the main bundle fails the build.
-
-### #25 · Stricter lint rules — M
-
-Consider `@typescript-eslint/no-floating-promises` (many `whenReady()`/`flush()` calls), angular-eslint's `prefer-signals`, and a `no-restricted-imports` rule forbidding relative `../` imports into `core`/`shared` so the path-alias convention is enforced.
-
-### #26 · Stale nav doc — S
-
-`.claude/docs/architecture.md` still describes `src/app/shared/layout/nav-bar/`, which no longer exists (now `nav-drawer`, `side-nav`, `nav-links`), including its `--nav-bar-height` note. Update it to the current layout components.
-
 ### #28 · `effect` audit — M
 
-22 `effect(` calls outside specs. Check which are really derived state and should be `computed` or `linkedSignal` (the idiom in architecture.md), keeping `effect` for real side effects.
+16 `effect(` calls outside specs. Check which are really derived state and should be `computed` or `linkedSignal` (the idiom in architecture.md), keeping `effect` for real side effects.
+
+### #37 · Fix the recorded promise exceptions — S
+
+Spec 010 recorded the existing promise violations in `eslint-suppressions.json` instead of fixing them (its FR-016): `no-floating-promises` in `views/collection-area/collection-area.ts` (3, the `router.navigate` calls) and `views/deck-area/deck-area.ts` (1); `no-misused-promises` in `core/services/sync.service.spec.ts` (3) and `shared/auth/profile-modal/profile-flow.store.spec.ts` (1). Await, handle or `void` each one, then run `npx eslint src --prune-suppressions`. The file should end up empty and can be deleted.
 
 ---
 
@@ -226,18 +200,14 @@ A phone in landscape is short (~390px tall) but often wider than `$bp-mobile` (6
 
 ---
 
-## Card redesign (deferred)
+## Card features (deferred)
 
-These touch card code the redesign will replace, so they wait for it (see features.md, "Deferred: card redesign").
+Spec 010 removed every card component, card reading (OCR), catalog lookup and CSV import; the card features start fresh. Their tuned configuration is in [reference/card-features.md](reference/card-features.md). These items wait for those specs (see features.md, "Deferred: card features").
 
 ### #13 · Sync card artist data — M
 
 Scryfall provides artist info, but `scripts/sync-scryfall.ts` doesn't extract it. The `ScryfallCard` interface has the artist field available, but `toCardRow` and `toPrintingRow` skip it. Add `artist` to the sync (likely to `printings` table since it's printing-specific in Scryfall) and ensure the Supabase schema has the column.
 
-### #20 · Retire `ThemeService` — S
+### #38 · Card-reading guardrails — S
 
-Only `card-color.util.ts` and `add-card-modal.ts` still use the legacy adapter. Move them to `IdentityService` and delete it (with its spec). Narrows #14 and removes one of #11's three call sites.
-
-### #21 · Retire `_modal.scss` / `_dropdown.scss` — M
-
-Only four stylesheets still `@use` them: `add-card-modal.scss` and `card-add-detail-panel.scss` (`modal`), `select.scss` and `filter-select.scss` (`dropdown`). Move those to DESIGN.md primitives, then delete the partials. Narrows #14.
+When card reading (OCR) returns, keep `tesseract.js` out of the initial bundle the way the Planechase data is (spec 010, FR-009): add a `tesseract.js` pattern to the `@typescript-eslint/no-restricted-imports` blocks in `eslint.config.js` (static imports fail lint, `import()` passes), and a named `bundle` budget in `angular.json` for its lazy chunk.

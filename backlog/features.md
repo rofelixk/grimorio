@@ -16,18 +16,11 @@ When a spec ships, set it to `done` and delete its items from pending-items.md.
 
 ## 1. Codebase baseline
 
-- **Status**: specifying
+- **Status**: done
 - **Spec**: [010-codebase-baseline](../specs/010-codebase-baseline/spec.md)
 - **Goal**: A smaller, guarded codebase: dead code gone, one default-identity source, and lint rules, bundle budgets and tests that catch regressions in the refactors that follow.
-- **Items**:
-  - #14 Remove unused code
-  - #11 One `effectiveColors` on `IdentityService`
-  - #24 Bundle budgets
-  - #25 Stricter lint rules
-  - #22 Specs for untested logic (non-card files only)
-  - #26 Stale nav section in architecture.md
+- **Items**: #14, #11, #24, #25, #22, #26; also #20 and #21, which went with the removed card code.
 - **Why here**: Every later spec is a refactor and runs against these guardrails. Removing dead code first keeps the new lint rules from flagging code about to be deleted.
-- **Open decisions**: Which lint rules land as errors vs. warnings; budget thresholds.
 
 ## 2. Storage & sync foundation
 
@@ -81,7 +74,8 @@ When a spec ships, set it to `done` and delete its items from pending-items.md.
 - **Items**:
   - #23 `setTimeout` audit
   - #28 `effect` audit
-- **Why here**: Specs 3 and 4 rewrite many of these effects and timers; auditing earlier would redo work.
+  - #37 Fix the recorded promise exceptions
+- **Why here**: Specs 3 and 4 rewrite many of these effects and timers; auditing earlier would redo work. Spec 010 left its promise exceptions for this spec.
 - **Open decisions**: None yet.
 
 ## 6. Mobile landscape
@@ -96,11 +90,9 @@ When a spec ships, set it to `done` and delete its items from pending-items.md.
 
 ---
 
-## Deferred: card redesign
+## Deferred: card features
 
-Not a scheduled spec yet. These items touch card code the redesign will replace, so they wait for it:
+Not scheduled yet. Spec 010 removed all card components, card reading (OCR), catalog lookup and CSV import, so the card features start fresh; [reference/card-features.md](reference/card-features.md) records their tuned configuration. Items waiting for them:
 
 - #13 Sync card artist data
-- #20 Retire `ThemeService` (its two users are card code)
-- #21 Retire `_modal.scss` / `_dropdown.scss` (two of the four users are card components)
-- #22's card files: `card-import.util.ts`, `card-color.util.ts`
+- #38 Card-reading guardrails (lint guard and bundle budget for `tesseract.js`)
