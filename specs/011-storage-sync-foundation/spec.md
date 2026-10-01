@@ -128,9 +128,9 @@ The maintainer needs to change how decks sync. They find the deck sync as its ow
 - **The two copies save at the same moment**: each save lands, and the copies converge on the last one written; no merge of the same record is attempted.
 - **Two copies start a sync at the same time**: the second waits, showing the syncing state, and runs after the first ends, so two syncs never overlap and write back each other's stale data (FR-014a).
 - **The browser doesn't support cross-copy messaging**: each copy still works on its own, as today.
-- **A cloud table has exactly a multiple of the page size**: reading stops at the first empty or short page, so no row is read twice or missed.
+- **A cloud table has exactly a multiple of the page size**: reading stops once the rows read match the cloud's total count, so no row is read twice or missed and no extra empty page is requested.
 - **A sync is cancelled between pages**: it stops as cancellation does today; nothing is uploaded based on a partial read.
-- **The cloud's page limit is configured lower than expected**: reading still continues until a short page, so a lower server limit doesn't drop rows.
+- **The cloud's page limit is configured lower than expected**: each page advances by the rows it actually returned, and reading continues until the total count is reached, so a lower server limit only adds requests and never drops rows.
 
 ## Requirements *(mandatory)*
 
@@ -163,7 +163,7 @@ The maintainer needs to change how decks sync. They find the deck sync as its ow
 
 **Complete sync reads (#30)**
 
-- **FR-016**: Sync MUST read the full cloud list of collections, decks and cards for the account, in pages, until a page comes back short or empty, and only then reconcile.
+- **FR-016**: Sync MUST read the full cloud list of collections, decks and cards for the account, in pages, until the rows read reach the cloud's total row count (or, when no count comes back, until a page comes back empty), and only then reconcile.
 - **FR-017**: How local and cloud rows are reconciled MUST NOT change: same last-write-wins rule, same handling of deletions made on this device.
 - **FR-018**: A sync cancelled while reading pages MUST stop without uploading or changing anything based on the partial read.
 
@@ -203,7 +203,7 @@ The maintainer needs to change how decks sync. They find the deck sync as its ow
 - **Persistent storage on existing devices**: the request also runs at startup (FR-006) because devices that already have profiles, including the maintainer's, would otherwise never reach the "first profile created" moment.
 - **Copies on one device only**: "copies of the app" means tabs or windows of the same browser profile on one device, including the installed PWA. Other devices stay the job of cloud sync.
 - **The reload prompt** after a version change (FR-009) reuses the existing locked `CompactModal` pattern, so it needs no new DESIGN.md entry.
-- **Page size**: the cloud's default response limit (1,000 rows); FR-016's "until a short page" rule keeps it correct if the server limit differs.
+- **Page size**: the cloud's default response limit (1,000 rows); FR-016's total-count rule keeps it correct if the server limit differs.
 - **The planar deck selection** is a single row per account, so paging doesn't apply to it; it is synced as today.
 - **Out of scope**: propagating deletions across devices (#39, a row deleted on one device is re-uploaded by another); reading only what changed since the last sync; rolling the screen back after a failed save; syncing which profile is active across copies.
 - Per the project's early-development policy, no compatibility code is kept for the old service shapes.
