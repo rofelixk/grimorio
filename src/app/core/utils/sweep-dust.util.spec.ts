@@ -9,7 +9,7 @@ import {
   settleSchedule,
   settledAlpha,
   stepSpeck,
-} from './deck-dust.util';
+} from './sweep-dust.util';
 import { IDENTITY_HEX } from './identity.util';
 
 /** A deterministic mulberry32. */
@@ -27,7 +27,7 @@ function speck(overrides: Partial<Speck> = {}): Speck {
   return { ...makeSpecks(1, 300, 300, ['#f2ede8'], seeded(1))[0], ...overrides };
 }
 
-describe('deck dust', () => {
+describe('sweep dust', () => {
   it('makes specks with the handoff radius range and cycling colors', () => {
     const specks = makeSpecks(6, 300, 400, ['a', 'b'], seeded(7));
     expect(specks.map((s) => s.color)).toEqual(['a', 'b', 'a', 'b', 'a', 'b']);

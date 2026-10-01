@@ -12,7 +12,7 @@ import {
   settleSchedule,
   settledAlpha,
   stepSpeck,
-} from '@utils/deck-dust.util';
+} from '@utils/sweep-dust.util';
 
 /** The front crosses the page in this time, linear; slower also stirs the dust more gently. */
 export const SWEEP_MS = 500;

@@ -1,6 +1,6 @@
 // The page sweep's dust (spec 009 FR-018, research R10; DESIGN.md Motion "Page sweep"). Pure and
 // seeded through an injected `random`, so the physics and the ≤ 1 s settle are unit-testable;
-// `PageSweep` owns the canvas and the rAF loop. Constants are verbatim from the design handoff.
+// `SweepLoop` owns the canvas and the rAF loop. Constants are verbatim from the design handoff.
 
 import type { Color } from '@models/profile.model';
 import { IDENTITY_HEX } from './identity.util';
@@ -66,14 +66,14 @@ export function dustColors(identity: readonly Color[]): string[] {
   return identity.map((color) => IDENTITY_HEX[color].base);
 }
 
-/** The dissolve band trailing the front, in px (`--band` on `.sweep` in styles/_page-sweep.scss). */
+/** The dissolve band trailing the front, in px (bound as `--band` on `PageSweep`'s `.sweep` layer). */
 export const FRONT_BAND = 160;
 
 /**
  * The front's x on the page at `progress` (0–1), flat and linear like the planeswalk's. The
  * outgoing page dissolves behind it, and close mirrors open: to open it sweeps right → left, from
- * the right side (the list whole) to one band past the left (the list gone); to close it sweeps
- * left → right, from the left side (the deck page whole) to one band past the right.
+ * the right side (the outgoing page whole) to one band past the left (the page gone); to close it
+ * sweeps left → right, from the left side to one band past the right.
  */
 export function frontX(progress: number, width: number, dir: 'open' | 'close'): number {
   const travel = progress * (width + FRONT_BAND);

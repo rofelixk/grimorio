@@ -6,7 +6,7 @@
 // frame and the page dissolves behind it over a `--band` wide, smoothstep-shaped fade. Open: the
 // page shows left of the front and fades to its right. Close (`.sweep--close`) mirrors it: the page
 // shows right of the front and fades to its left. Before the first frame the outgoing page is
-// whole. `--band` matches `FRONT_BAND` in deck-dust.util.ts.
+// whole. `--band` matches `FRONT_BAND` in sweep-dust.util.ts.
 @mixin layers {
   // Not inherited: the per-frame write restyles only `.sweep`, not the whole outgoing page.
   @property --front {
