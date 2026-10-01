@@ -89,6 +89,8 @@ function stalledQuery() {
     in: () => query,
     upsert: () => query,
     delete: () => query,
+    order: () => query,
+    range: () => query,
     abortSignal: () => query,
     then: result.then.bind(result),
   };
@@ -97,13 +99,15 @@ function stalledQuery() {
 
 /** A PostgREST-like query that resolves at once with `rows`, recording its upserts. */
 function settledQuery(rows: unknown[], upserts: unknown[][]) {
-  const result = Promise.resolve({ data: rows, error: null });
+  const result = Promise.resolve({ data: rows, error: null, count: rows.length });
   const query = {
     select: () => query,
     eq: () => query,
     in: () => query,
     upsert: (...args: unknown[]) => (upserts.push(args), query),
     delete: () => query,
+    order: () => query,
+    range: () => query,
     abortSignal: () => query,
     then: result.then.bind(result),
   };
@@ -420,13 +424,15 @@ describe('SyncService', () => {
     const answer = (remote: unknown[]) => {
       upserts = [];
       deletes = [];
-      const result = Promise.resolve({ data: remote, error: null });
+      const result = Promise.resolve({ data: remote, error: null, count: remote.length });
       const query = {
         select: () => query,
         eq: () => query,
         in: (...args: unknown[]) => (deletes.push(args[1] as unknown[]), query),
         upsert: (...args: unknown[]) => (upserts.push(args), query),
         delete: () => query,
+        order: () => query,
+        range: () => query,
         abortSignal: () => query,
         then: result.then.bind(result),
       };
@@ -471,13 +477,15 @@ describe('SyncService', () => {
         cardUpserts = [];
         cardDeletes = [];
         tables = [];
-        const result = Promise.resolve({ data: remoteCards, error: null });
+        const result = Promise.resolve({ data: remoteCards, error: null, count: remoteCards.length });
         const cardQuery = {
           select: () => cardQuery,
           eq: () => cardQuery,
           in: (...args: unknown[]) => (cardDeletes.push(args[1] as unknown[]), cardQuery),
           upsert: (...args: unknown[]) => (cardUpserts.push(args), cardQuery),
           delete: () => cardQuery,
+          order: () => cardQuery,
+          range: () => cardQuery,
           abortSignal: () => cardQuery,
           then: result.then.bind(result),
         };
@@ -634,7 +642,7 @@ describe('SyncService', () => {
       upserts = [];
       deletes = [];
       tables = [];
-      const result = Promise.resolve({ data: remote, error: null });
+      const result = Promise.resolve({ data: remote, error: null, count: remote.length });
       const failed = Promise.resolve({ data: null, error: upsertError });
       let failing = false;
       const query = {
@@ -643,6 +651,8 @@ describe('SyncService', () => {
         in: (...args: unknown[]) => (deletes.push(args[1] as unknown[]), query),
         upsert: (...args: unknown[]) => (upserts.push(args), (failing = !!upsertError), query),
         delete: () => query,
+        order: () => query,
+        range: () => query,
         abortSignal: () => query,
         then: (...args: Parameters<Promise<unknown>['then']>) => (failing ? failed : result).then(...args),
       };
@@ -731,6 +741,56 @@ describe('SyncService', () => {
       expect(decksService.flush).toHaveBeenCalled();
       expect(tables.indexOf('collections')).toBeLessThan(tables.indexOf('decks'));
       expect(tables.indexOf('decks')).toBeLessThan(tables.indexOf('card_entries'));
+    });
+  });
+
+  describe('large accounts', () => {
+    const OLD = '2026-06-01T00:00:00.000Z';
+    const NEW = '2026-06-02T00:00:00.000Z';
+    const owned = Array.from({ length: 1500 }, (_, i) =>
+      mockCardEntry({ id: `card-${String(i).padStart(4, '0')}`, updatedAt: OLD }),
+    );
+
+    /** card_entries honors `range` like PostgREST, recording its upserts; every other table is empty. */
+    const answerCards = (rows: unknown[]) => {
+      const cardUpserts: unknown[][] = [];
+      from = vi.fn((table: string) => {
+        if (table !== 'card_entries') {
+          return settledQuery([], []);
+        }
+        let page = rows;
+        const query = {
+          select: () => query,
+          eq: () => query,
+          in: () => query,
+          upsert: (...args: unknown[]) => (cardUpserts.push(args), query),
+          delete: () => query,
+          order: () => query,
+          range: (start: number, end: number) => ((page = rows.slice(start, end + 1)), query),
+          abortSignal: () => query,
+          then: (...args: Parameters<Promise<unknown>['then']>) =>
+            Promise.resolve({ data: page, error: null, count: rows.length }).then(...args),
+        };
+        return query;
+      });
+      return cardUpserts;
+    };
+
+    it('uploads nothing when 1,500 remote cards match the local ones (US3-2)', async () => {
+      localCards.set(owned);
+      const cardUpserts = answerCards(owned.map(cardRow));
+      await sync.syncNow();
+      expect(cardUpserts).toEqual([]);
+      expect(cardsService.applySyncResult.mock.calls[0][0]).toHaveLength(1500);
+    });
+
+    it('adopts a newer remote card past the first 1,000 rows (US3-3)', async () => {
+      localCards.set(owned);
+      const newer = { ...owned[1200], quantity: 4, updatedAt: NEW };
+      const cardUpserts = answerCards(owned.map((card, i) => cardRow(i === 1200 ? newer : card)));
+      await sync.syncNow();
+      expect(cardUpserts).toEqual([]);
+      expect(cardsService.applySyncResult.mock.calls[0][0]).toContainEqual(newer);
     });
   });
 

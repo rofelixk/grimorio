@@ -20,7 +20,8 @@ import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileSessionService } from './profile-session.service';
 import { ProfileStore } from './profile-store.service';
 import { SYNC_LOCK } from './sync/sync-lock';
-import { AuthExpired, Offline, type Run, Superseded } from './sync/sync-run';
+import { fetchAll } from './sync/sync-remote';
+import { AuthExpired, Offline, type Run, Superseded, type SyncStepContext } from './sync/sync-run';
 
 interface CardEntryRow {
   id: string;
@@ -374,6 +375,15 @@ export class SyncService {
     }
   }
 
+  private stepContext(client: SupabaseClient, run: Run): SyncStepContext {
+    return {
+      client,
+      userId: run.profile.cloud!.userId,
+      signal: run.abort.signal,
+      ensureCurrent: () => this.ensureCurrent(run),
+    };
+  }
+
   private setStateIfCurrent(run: Run, state: SyncState): void {
     if (this.isCurrent(run)) {
       this.stateSignal.set(state);
@@ -407,18 +417,16 @@ export class SyncService {
   private async syncCollections(client: SupabaseClient, run: Run): Promise<void> {
     const signal = run.abort.signal;
     const userId = run.profile.cloud!.userId;
-    const { data, error } = await client
-      .from('collections')
-      .select('id, user_id, name, color, parent_id, updated_at')
-      .eq('user_id', userId)
-      .abortSignal(signal);
-    if (error) {
-      throw error;
-    }
-    this.ensureCurrent(run);
+    const remoteRows = await fetchAll<CollectionRow>(
+      () =>
+        client
+          .from('collections')
+          .select('id, user_id, name, color, parent_id, updated_at', { count: 'exact' })
+          .eq('user_id', userId),
+      this.stepContext(client, run),
+    );
     const local = this.collections.collections();
     const tombstones = await this.collections.getTombstones();
-    const remoteRows = data as CollectionRow[];
     const result = reconcileEntities(local, remoteRows.map(collectionFromRow), tombstones);
 
     // The repair (research R6) drops orphans and renames duplicate siblings before anything is
@@ -475,17 +483,11 @@ export class SyncService {
   private async syncDecks(client: SupabaseClient, run: Run): Promise<void> {
     const signal = run.abort.signal;
     const userId = run.profile.cloud!.userId;
-    const { data, error } = await client
-      .from('decks')
-      .select('id, user_id, name, format, updated_at')
-      .eq('user_id', userId)
-      .abortSignal(signal);
-    if (error) {
-      throw error;
-    }
-    this.ensureCurrent(run);
+    const remoteRows = await fetchAll<DeckRow>(
+      () => client.from('decks').select('id, user_id, name, format, updated_at', { count: 'exact' }).eq('user_id', userId),
+      this.stepContext(client, run),
+    );
     const tombstones = await this.decks.getTombstones();
-    const remoteRows = data as DeckRow[];
     const result = reconcileEntities(this.decks.decks(), remoteRows.map(deckFromRow), tombstones);
     const repair = repairDeckNames(result.merged, new Set(remoteRows.map((row) => row.id)), new Date().toISOString());
 
@@ -531,18 +533,13 @@ export class SyncService {
   private async syncCards(client: SupabaseClient, run: Run): Promise<void> {
     const signal = run.abort.signal;
     const userId = run.profile.cloud!.userId;
-    const { data, error } = await client
-      .from('card_entries')
-      .select('*')
-      .eq('user_id', userId)
-      .abortSignal(signal);
-    if (error) {
-      throw error;
-    }
-    this.ensureCurrent(run);
+    const remoteRows = await fetchAll<CardEntryRow>(
+      () => client.from('card_entries').select('*', { count: 'exact' }).eq('user_id', userId),
+      this.stepContext(client, run),
+    );
     const local = this.cards.cards();
     const tombstones = await this.cards.getTombstones();
-    const result = reconcileEntities(local, (data as CardEntryRow[]).map(cardFromRow), tombstones);
+    const result = reconcileEntities(local, remoteRows.map(cardFromRow), tombstones);
 
     if (result.toUpsertRemote.length > 0) {
       const { error: upsertError } = await client
