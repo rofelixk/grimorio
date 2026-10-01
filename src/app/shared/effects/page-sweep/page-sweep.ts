@@ -1,7 +1,6 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { IdentityService } from '@services/identity.service';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
-import { DEFAULT_IDENTITY } from '@utils/identity.util';
 import {
   SETTLE_MAX_MS,
   SPECKS_DESKTOP,
@@ -136,7 +135,7 @@ export class PageSweep {
 
     // Parchment cores glowing in the profile's colors.
     const parchment = getComputedStyle(host).getPropertyValue('--color-text').trim() || PARCHMENT_FALLBACK;
-    const colors = dustColors(this.identity.activeColors() ?? DEFAULT_IDENTITY);
+    const colors = dustColors(this.identity.colors());
     const sprites = new Map(colors.map((color) => [color, this.sprite(parchment, color)]));
     const specks = makeSpecks(this.phone() ? SPECKS_PHONE : SPECKS_DESKTOP, width, canvasH, colors, Math.random);
     for (const s of specks) s.x += off;

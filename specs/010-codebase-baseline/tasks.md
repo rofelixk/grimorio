@@ -101,9 +101,9 @@ description: "Task list for 010 Codebase Baseline"
 
 **Independent Test**: `grep -rn "?? DEFAULT_IDENTITY\|?? \[...DEFAULT_IDENTITY\]" src/app --include=*.ts` finds only `identity.service.ts`, `entry-flow.store.ts` and `cloud-auth.service.ts`; the app's colors are unchanged with and without an active profile.
 
-- [ ] T030 [US2] In `src/app/core/services/identity.service.ts`, replace `activeColors: Color[] | null` with `readonly colors = computed<readonly Color[]>(() => this.session.active()?.colors ?? DEFAULT_IDENTITY)` (data-model.md "Effective colors") and make `roles` compute `rolesFor(this.colors())`. Remove `activeColors`; grep for any remaining reader first.
-- [ ] T031 [US2] In `src/app/shared/effects/page-sweep/page-sweep.ts`, read the dust colors from `identity.colors()` instead of repeating the fallback. Do not touch `src/app/shared/auth/entry-modal/entry-flow.store.ts` (draft identity, FR-007) or `src/app/core/services/cloud-auth.service.ts` (pending sign-up identity).
-- [ ] T032 [US2] Checkpoint: run the SC-005 grep above; full suite and lint through `test-runner`; run **`design-auditor`** (a component `.ts` changed) and fix what it reports; then commit Phase 4 ("Codebase baseline: single effective-colors source").
+- [X] T030 [US2] In `src/app/core/services/identity.service.ts`, replace `activeColors: Color[] | null` with `readonly colors = computed<readonly Color[]>(() => this.session.active()?.colors ?? DEFAULT_IDENTITY)` (data-model.md "Effective colors") and make `roles` compute `rolesFor(this.colors())`. Remove `activeColors`; grep for any remaining reader first.
+- [X] T031 [US2] In `src/app/shared/effects/page-sweep/page-sweep.ts`, read the dust colors from `identity.colors()` instead of repeating the fallback. Do not touch `src/app/shared/auth/entry-modal/entry-flow.store.ts` (draft identity, FR-007) or `src/app/core/services/cloud-auth.service.ts` (pending sign-up identity).
+- [X] T032 [US2] Checkpoint: run the SC-005 grep above; full suite and lint through `test-runner`; run **`design-auditor`** (a component `.ts` changed) and fix what it reports; then commit Phase 4 ("Codebase baseline: single effective-colors source").
 
 **Checkpoint**: US2 complete: smaller codebase, one colors source.
 
