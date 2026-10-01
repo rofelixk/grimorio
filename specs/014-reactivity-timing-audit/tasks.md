@@ -161,7 +161,7 @@ description: "Task list for the Reactivity & Timing Audit"
 **Purpose**: Final verification across all stories (SC-001, SC-006).
 
 - [ ] T035 Through `test-runner`, run `npm test` and `npm run lint`, and run `npm run build` (production build with budgets). All three must pass with zero errors, and `test ! -e eslint-suppressions.json` must hold (SC-001).
-- [ ] T036 Run `git diff --name-only main -- '*.html' '*.scss'`. If any template or stylesheet changed, run `design-auditor` and fix what it reports. Otherwise, record that no UI file changed.
+- [X] T036 Run `git diff --name-only main -- '*.html' '*.scss'`. If any template or stylesheet changed, run `design-auditor` and fix what it reports. Otherwise, record that no UI file changed.
 - [ ] T037 Hand the manual pass in `specs/014-reactivity-timing-audit/quickstart.md` §5 to the maintainer, who runs it on their own dev server, with motion on and with reduced motion (SC-006). Optionally pre-check the collection and deck page changes with the `run` skill against the maintainer's running server, without starting or stopping it. Fix any difference reported.
 - [ ] T038 Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit the polish phase ("Reactivity audit: polish") if anything changed.
 
