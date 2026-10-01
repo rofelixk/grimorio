@@ -26,6 +26,7 @@ This spec settles these before later features build on them. It is entry 3 on th
 - Q: Should the entry and profile modals adopt the compact modal's rule that height changes animate only after the first pointer or key press inside the modal? → A: Yes, one rule for all three modals: nothing animates while a modal opens.
 - Q: What should the compact modal do when its content is taller than the window allows? → A: Keep its current behavior: the whole face scrolls past the maximum height.
 - Q: Which radio groups move to the shared focus mechanism? → A: All four (delete dialog's choice, color picker, deck format picker, Interplanar Tunnel chooser); the delete dialog's choice gains Home/End.
+- Q: When a radio group has nothing selected yet, what should the first arrow key do? → A: Select the focused option, the same rule for all four groups. This matches the delete dialog today and is a change for the Interplanar Tunnel chooser, which today selects the next plane.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -64,7 +65,7 @@ A keyboard user opens the "Nova coleção" dialog and starts typing the name str
 2. **Given** the entry or profile modal shows a new screen, **When** the screen appears, **Then** focus moves to its first editable field, or else its action row, or else its first list option, or else its first enabled button, as today.
 3. **Given** the same screen re-renders without changing (a field error appears, say), **When** it updates, **Then** focus stays where the person left it.
 4. **Given** any modal or the navigation drawer closes, **When** it closes, **Then** focus returns to the control that opened it (the Menu button for the drawer).
-5. **Given** a radio group of options has focus (the delete dialog's choice, the color picker, the deck format picker, the Interplanar Tunnel chooser), **When** the person presses an arrow key, **Then** the selection and focus move to the next or previous option, wrapping around, as today.
+5. **Given** a radio group of options has focus (the delete dialog's choice, the color picker, the deck format picker, the Interplanar Tunnel chooser), **When** the person presses an arrow key, **Then** the selection and focus move to the next or previous option, wrapping around, as today. With nothing selected yet, an arrow key selects the focused option (new for the Interplanar Tunnel chooser).
 6. **Given** any of those four radio groups has focus, **When** the person presses Home or End, **Then** the selection and focus move to the first or last option (new for the delete dialog's choice).
 
 ---
@@ -141,7 +142,7 @@ The maintainer needs to change how the cloud sign-in form handles an e-mail that
 - **FR-014**: The compact modal MUST still focus the element its content marks as the first stop when it opens.
 - **FR-015**: The entry and profile modals MUST still focus, on each new screen, the first match in this order: an editable field, an action-row button, a list option's button, any enabled button; and MUST NOT move focus when the same screen re-renders.
 - **FR-016**: Every modal and the navigation drawer MUST still return focus to the control that opened it when they close.
-- **FR-017**: Keyboard movement in all four radio groups (the delete dialog's choice, the color picker, the deck format picker, the Interplanar Tunnel chooser) MUST go through the shared focus mechanism: the arrow keys move to the next or previous option, wrapping around; Home and End move to the first and last option; selection follows focus as today. The delete dialog's choice gains Home and End, which it lacks today.
+- **FR-017**: Keyboard movement in all four radio groups (the delete dialog's choice, the color picker, the deck format picker, the Interplanar Tunnel chooser) MUST go through the shared focus mechanism: the arrow keys move to the next or previous option, wrapping around; Home and End move to the first and last option; selection follows focus as today. The delete dialog's choice gains Home and End, which it lacks today. With nothing selected yet, an arrow key selects the focused option; for the Interplanar Tunnel chooser this replaces selecting the next plane.
 - **FR-018**: Focus moves elsewhere in the views (a page heading focused after a page change, Planechase controls) are out of scope and stay as they are.
 
 **Auth flow stores (#16)**

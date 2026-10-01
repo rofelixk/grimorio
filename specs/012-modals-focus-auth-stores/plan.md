@@ -78,7 +78,7 @@ The stores keep their public surface as aliases, so templates and the 56 store s
 
 **Post-design re-check (after Phase 1)**: still passes. One deliberate choice is recorded rather than silent, and was approved by the maintainer:
 
-- **Interplanar Tunnel**: with nothing chosen yet, its first arrow press now selects the focused plane instead of the next one (research R8). The spec says "as today" for all four groups. The shared no-selection rule follows the delete dialog, which the spec's edge case and its existing test pin.
+- **Interplanar Tunnel**: with nothing chosen yet, its first arrow press now selects the focused plane instead of the next one (research R8). Recorded in the spec (Clarifications, FR-017).
 
 `architecture.md` will need updating after implementation, under CLAUDE.md's "worth adding" test (a durable convention):
 - **Auth** paragraph: `CloudSteps` replaces `CloudFlowHost` (provided by factory), and `FlowForm` is the shared form core.
@@ -159,4 +159,4 @@ src/app/
 
 ## Complexity Tracking
 
-No constitution violations to justify. The one deliberate deviation from the spec's wording (the tunnel's no-selection key) is recorded in the post-design re-check above.
+No constitution violations to justify. The tunnel's no-selection key change is now a spec decision (Clarifications, FR-017).
