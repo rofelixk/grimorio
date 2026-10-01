@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto';
 import { beforeEach } from 'vitest';
+import { resetConnectionEventsForTests } from './app/core/db/connection-events';
 import { resetDeviceDbForTests } from './app/core/db/device-db';
 import { unbindProfileDbForTests } from './app/core/db/entity-store';
 import { resetAllGrimorioDbsForTests } from './app/core/db/profile-db';
@@ -16,6 +17,7 @@ if (!globalThis.crypto?.subtle) {
 // `grimorio-*` IndexedDB databases.
 beforeEach(async () => {
   unbindProfileDbForTests();
+  resetConnectionEventsForTests();
   await resetDeviceDbForTests();
   await resetAllGrimorioDbsForTests();
 });

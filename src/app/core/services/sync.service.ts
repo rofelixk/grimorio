@@ -4,7 +4,6 @@ import { CardEntry, CardFace } from '@models/card.model';
 import { Collection, CollectionColorHex } from '@models/collection.model';
 import { type Deck, formatOf } from '@models/deck.model';
 import type { PlanarSelection } from '@models/planar-selection.model';
-import { ProfileSummary } from '@models/profile.model';
 import { currentDbHandle, getMeta, setMeta } from '../db/entity-store';
 import { isAuthSessionError, isNetworkError } from '../utils/cloud-error.util';
 import { repairCollectionTree } from '../utils/collection-tree.util';
@@ -20,6 +19,7 @@ import { DeckService } from './deck.service';
 import { PlanarSelectionService } from './planar-selection.service';
 import { ProfileSessionService } from './profile-session.service';
 import { ProfileStore } from './profile-store.service';
+import { AuthExpired, Offline, type Run, Superseded } from './sync/sync-run';
 
 interface CardEntryRow {
   id: string;
@@ -178,18 +178,6 @@ function deckFromRow(row: DeckRow): Deck {
     updatedAt: new Date(row.updated_at).toISOString(),
   };
 }
-
-/** One sync attempt: its generation disowns it once it times out or another run starts. */
-interface Run {
-  profile: ProfileSummary;
-  generation: number;
-  abort: AbortController;
-}
-
-class AuthExpired extends Error {}
-class Offline extends Error {}
-/** The run no longer owns the outcome: the profile changed, or the run timed out. */
-class Superseded extends Error {}
 
 // Syncs the active profile's identity, collections, cards and planar deck selection with its linked account (R11), reusing
 // the per-item last-write-wins reconciler. Each run first asks GoTrue about the account (spec 005

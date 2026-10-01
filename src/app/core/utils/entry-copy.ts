@@ -373,6 +373,17 @@ export const SYNC_AREA = {
   areaLabel: (label: string, action: string) => `${label}. ${action}.`,
 } as const;
 
+// Saving on the device and other open copies (spec 011 ui.md §7).
+export const DATA = {
+  saveFailed: { label: 'Dados', text: 'Não foi possível salvar a alteração neste aparelho.' },
+  deletedElsewhere: { label: 'Perfil', text: 'Este perfil foi excluído em outra janela.' },
+  reload: {
+    title: 'O Grimorio foi atualizado',
+    body: 'Uma versão mais nova foi aberta em outra janela. Recarregue esta para continuar.',
+    action: 'Recarregar',
+  },
+} as const;
+
 /** A run of notice text: plain, or a link opened in a new tab. */
 export type NoticeRun = string | { text: string; href: string };
 
