@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Grimorio is a free, personal Magic: The Gathering collection/deck manager built for a Brazilian audience. It tracks the physical storage location of cards, per local profile with optional cloud sync, and can add cards by scanning them (OCR); deck analysis is a planned future feature.
+Grimorio is a free, personal Magic: The Gathering collection/deck manager built for a Brazilian audience. It tracks the physical storage location of cards, per local profile with optional cloud sync; adding cards (catalog search, scanning) and deck analysis are planned future features.
 
 Features are specified and built through spec-kit (`specs/NNN-*/`, `.specify/`): `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`, governed by `.specify/memory/constitution.md`. `.specify/templates/overrides/plan-template.md` adds a `ui.md` Phase 1 artifact for features with UI.
 

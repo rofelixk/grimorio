@@ -1,6 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import type { PlanarCard, PlanarCardData } from '../data/planechase/planar-card.model';
-import shippedCards from '../data/planechase/cards.json';
 import { DEFAULT_OFF_IDS } from '../data/planechase/default-off';
 import { buildCatalog } from '@services/planechase-catalog.service';
 import { PLANAR_CARDS } from '@testing/planechase-fixtures';
@@ -52,7 +51,12 @@ describe('initialDisabledIds', () => {
 });
 
 describe('the default-off list against the shipped catalog', () => {
-  const catalog = buildCatalog({ cards: shippedCards as PlanarCardData, translations: {} });
+  let catalog: PlanarCard[];
+
+  beforeAll(async () => {
+    const shippedCards = (await import('../data/planechase/cards.json')).default;
+    catalog = buildCatalog({ cards: shippedCards as PlanarCardData, translations: {} });
+  });
 
   it('names only cards that exist', () => {
     const ids = new Set(catalog.map((card) => card.id));

@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import type { PlanarCard } from '../../../core/data/planechase/planar-card.model';
+import type { PlanarCard } from '@data/planechase/planar-card.model';
 import { DECK } from '@utils/planechase-copy';
 import { PlanarPreviewContent } from '@shared/gameplay/planar-preview/planar-preview';
 

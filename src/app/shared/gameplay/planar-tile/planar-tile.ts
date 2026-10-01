@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
-import type { PlanarCard } from '../../../core/data/planechase/planar-card.model';
+import type { PlanarCard } from '@data/planechase/planar-card.model';
 import { DECK, PLANAR_CARD } from '@utils/planechase-copy';
 import { PlanarImage } from '@shared/gameplay/planar-image/planar-image';
 
 /** A touch hold opens the preview after this long (FR-008). */
-export const HOLD_MS = 500;
+const HOLD_MS = 500;
 /** Moving farther than this cancels a hold: the finger is scrolling. */
-export const HOLD_TOLERANCE_PX = 8;
+const HOLD_TOLERANCE_PX = 8;
 
 // A deck-settings tile (DESIGN.md "Card tile"): the card image as an on/off toggle, loaded only
 // near the viewport. Without an image, the frame shows the card name (006 FR-017). It also reports

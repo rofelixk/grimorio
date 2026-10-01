@@ -130,7 +130,7 @@ A future session reads the project's architecture guide to find the navigation c
 
 - **FR-005**: The identity service MUST expose one value for the active profile's effective colors: the profile's colors when a profile is active, the default identity otherwise.
 - **FR-006**: The identity service's own color roles and the page-change dust colors MUST read that one value instead of repeating the fallback. The legacy theme adapter, the third copy, is removed (FR-004).
-- **FR-007**: The entry flow's draft-identity colors (a profile being created or edited in the entry modal) MUST stay separate and MUST NOT read the effective-colors value.
+- **FR-007**: Draft-identity colors MUST stay separate and MUST NOT read the effective-colors value: the entry flow's (a profile being created or edited in the entry modal) and the cloud sign-up's pending identity (`cloud-auth.service.ts`).
 
 **Bundle budgets (#24)**
 
@@ -173,7 +173,7 @@ A future session reads the project's architecture guide to find the navigation c
 - **SC-002**: 3 out of 3 deliberate regressions are caught: a static Planechase data import, a new unhandled promise and a new relative import into core each fail lint.
 - **SC-003**: 0 errors come from grandfathered violations: lint on the unchanged code passes with every pre-existing unhandled promise recorded as a known exception.
 - **SC-004**: 0 relative `../` imports into `core/` or `shared/` from outside them remain in the codebase.
-- **SC-005**: The "active colors, or the default identity" fallback appears in exactly 1 place outside the entry flow, down from 3.
+- **SC-005**: The "active colors, or the default identity" fallback appears in exactly 1 place outside the draft identities (FR-007), down from 3.
 - **SC-006**: Each of the 3 listed units has a spec file, and for each, deliberately breaking one of its covered behaviors makes at least one spec fail.
 - **SC-007**: The codebase is smaller: the count of source files and lines under `src/` goes down, and none of the removed items is referenced anywhere.
 - **SC-008**: A manual pass over Home, the collection area, the deck area, Planechase, and the entry and profile modals, with and without an active profile, shows no visible difference from before.

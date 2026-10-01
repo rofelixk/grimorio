@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, input, viewChild } from '@angular/core';
-import type { PlanarCard as Card } from '../../../core/data/planechase/planar-card.model';
+import type { PlanarCard as Card } from '@data/planechase/planar-card.model';
 import { planarCardText } from '@utils/planar-card-text.util';
 import { PlanarImage } from '@shared/gameplay/planar-image/planar-image';
 

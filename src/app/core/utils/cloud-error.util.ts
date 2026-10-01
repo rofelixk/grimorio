@@ -9,7 +9,7 @@ export type Failure =
 export const OFFLINE_FAILURE: Failure = { kind: 'form', message: MSG.offline };
 export const GENERIC_FAILURE: Failure = { kind: 'form', message: MSG.generic };
 
-export function isFailure(value: unknown): value is Failure {
+function isFailure(value: unknown): value is Failure {
   if (!value || typeof value !== 'object') {
     return false;
   }

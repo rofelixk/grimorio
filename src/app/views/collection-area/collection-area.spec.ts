@@ -11,7 +11,7 @@ import { stubDialog } from '@testing/dialog';
 import { SWEEP_MS } from '@shared/effects/page-sweep/page-sweep';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { collectionMatcher } from '../../app.routes';
-import { openProfileDb } from '../../core/db/profile-db';
+import { openProfileDb } from '@db/profile-db';
 import { CollectionArea } from './collection-area';
 
 interface Media {

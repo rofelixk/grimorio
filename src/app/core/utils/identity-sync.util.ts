@@ -15,7 +15,7 @@ export interface RemoteIdentity {
   labelAt?: string;
 }
 
-export interface IdentityWrite {
+interface IdentityWrite {
   grm_colors?: Color[];
   grm_colors_at?: string;
   grm_label?: string;

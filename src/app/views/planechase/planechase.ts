@@ -28,7 +28,7 @@ import { PlanarConsole } from '@shared/gameplay/planar-console/planar-console';
 import { PlanarConfirm } from '@shared/gameplay/planar-controls';
 import { PlanarDock } from '@shared/gameplay/planar-dock/planar-dock';
 import { TunnelChoice } from '@shared/gameplay/tunnel-choice/tunnel-choice';
-import type { PlanarCard as PlanarCardData } from '../../core/data/planechase/planar-card.model';
+import type { PlanarCard as PlanarCardData } from '@data/planechase/planar-card.model';
 
 // Planechase (FR-001–FR-015): the no-game intro, or the game — the console above the card on wide
 // screens, the card above the sticky dock on phones. Nothing here shows how many cards are used or

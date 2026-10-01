@@ -5,7 +5,7 @@
 export type Place = { kind: 'list' } | { kind: 'holding' } | { kind: 'collection'; id: string };
 
 /** List is depth 0, the holding box is depth 1, a collection is its tree depth (1-based). */
-export function placeDepth(place: Place, depthOf: (id: string) => number): number {
+function placeDepth(place: Place, depthOf: (id: string) => number): number {
   switch (place.kind) {
     case 'list':
       return 0;

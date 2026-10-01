@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { PlanarCardRecord } from '../../core/data/planechase/planar-card.model';
-import { DEFAULT_OFF_IDS } from '../../core/data/planechase/default-off';
+import type { PlanarCardRecord } from '@data/planechase/planar-card.model';
+import { DEFAULT_OFF_IDS } from '@data/planechase/default-off';
 import { pointerEvent } from '@testing/pointer-events';
 import { PlanarImageService } from '@services/planar-image.service';
 import { PlanarSelectionService } from '@services/planar-selection.service';

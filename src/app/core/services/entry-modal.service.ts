@@ -4,8 +4,7 @@ import { ProfileSessionService } from './profile-session.service';
 import { ProfileModalService } from './profile-modal.service';
 import { ProfileStore } from './profile-store.service';
 
-export type { EntryContext };
-export type EntryStart = Extract<EntryPhase, 'list' | 'profile' | 'in'>;
+type EntryStart = Extract<EntryPhase, 'list' | 'profile' | 'in'>;
 
 export interface EntryRequest {
   /** Defaults to `device` when the device has no profiles, else `gate`. */

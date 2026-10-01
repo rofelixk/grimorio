@@ -5,7 +5,7 @@ import { MAX_NAME } from '@models/collection.model';
 import type { Deck, DeckNameError } from '@models/deck.model';
 import { suffixedName } from './collection-tree.util';
 
-export function normalizeDeckName(name: string): string {
+function normalizeDeckName(name: string): string {
   return name.trim().normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('pt-BR');
 }
 

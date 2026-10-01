@@ -9,8 +9,8 @@ import { ProfileSessionService } from './profile-session.service';
 export class IdentityService {
   private readonly session = inject(ProfileSessionService);
 
-  /** `null` = no active profile. */
-  readonly activeColors = computed<Color[] | null>(() => this.session.active()?.colors ?? null);
+  /** The effective colors: the active profile's, or the default identity. */
+  readonly colors = computed<readonly Color[]>(() => this.session.active()?.colors ?? DEFAULT_IDENTITY);
 
-  readonly roles = computed<Roles>(() => rolesFor(this.activeColors() ?? DEFAULT_IDENTITY));
+  readonly roles = computed<Roles>(() => rolesFor(this.colors()));
 }
