@@ -27,12 +27,12 @@ import { ToastOutlet } from '@shared/ds/toast/toast-outlet';
 })
 export class ThemedModal {
   readonly roles = input.required<Roles>();
-  /** Desktop face height in px (fluid height); null leaves it to the content. */
-  readonly faceHeight = input<number | null>(null);
   readonly labelledBy = input<string | null>(null);
   /** ✕, Esc or a backdrop click — the owner closes and resets. */
   readonly closed = output<void>();
 
+  /** The face, sized by the owner's `FluidFace` (fluid height). */
+  readonly face = viewChild.required<ElementRef<HTMLElement>>('face');
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private opener: HTMLElement | null = null;
 

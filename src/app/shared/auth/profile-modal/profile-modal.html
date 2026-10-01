@@ -1,6 +1,5 @@
 <app-themed-modal
   [roles]="identity.roles()"
-  [faceHeight]="desktopFaceHeight()"
   [labelledBy]="titleId"
   (closed)="store.close()"
 >
@@ -19,7 +18,7 @@
     </aside>
   }
 
-  <section class="form-pane" [class.capped]="capped()">
+  <section class="form-pane" #pane>
     @if (mobile()) {
       <header class="m-header">
         <span class="wordmark">{{ wordmark }}</span>

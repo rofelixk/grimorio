@@ -15,7 +15,7 @@
   <div class="ring">
     <div class="halo" aria-hidden="true"></div>
     <ng-content select="[modalSparks]" />
-    <div class="face" [style.height.px]="faceHeight()">
+    <div #face class="face">
       <ng-content select="[modalAside]" />
       <ng-content />
     </div>

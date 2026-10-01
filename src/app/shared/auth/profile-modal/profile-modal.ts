@@ -72,15 +72,17 @@ export class ProfileModal {
   protected readonly action = ACTION;
   protected readonly wordmark = MISC.wordmark;
 
+  private readonly themed = viewChild(ThemedModal);
+  private readonly pane = viewChild<ElementRef<HTMLElement>>('pane');
   private readonly content = viewChild<ElementRef<HTMLElement>>('content');
   private readonly promptEl = viewChild<ElementRef<HTMLElement>>('prompt');
-  private readonly fluid = new FluidFace({
+  protected readonly fluid = new FluidFace({
+    face: computed(() => this.themed()?.face()),
+    pane: this.pane,
     content: this.content,
     prompt: this.promptEl,
     screenKey: computed(() => `${this.store.phase()}|${this.store.done()}|${this.modal.request()?.id}`),
   });
-  protected readonly desktopFaceHeight = computed(() => (this.mobile() ? null : this.fluid.faceHeight()));
-  protected readonly capped = this.fluid.capped;
 
   protected readonly colors = computed<Color[]>(() => this.store.active()?.colors ?? []);
   protected readonly chipLabel = computed(() => `${this.store.active()?.name ?? ''} · ${tribeName(this.colors())}`);

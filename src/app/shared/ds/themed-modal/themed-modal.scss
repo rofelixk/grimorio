@@ -38,10 +38,15 @@
   background: var(--color-bg);
   box-shadow: var(--shadow-rest);
   overflow: hidden;
-  transition: height var(--duration-base) var(--ease-standard);
 
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
+  // Desktop height changes animate from the first pointer or key press on (never while opening;
+  // `FluidHeight` adds `is-sized`); instant under reduced motion.
+  &.is-sized {
+    transition: height var(--duration-base) var(--ease-standard);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 }
 

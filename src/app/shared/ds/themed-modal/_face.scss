@@ -38,6 +38,11 @@
   &.capped {
     overflow-y: auto;
   }
+
+  // While the face animates, even a capped pane shows no scrollbar.
+  &.is-resizing {
+    overflow: hidden;
+  }
 }
 
 .form-pane.capped,

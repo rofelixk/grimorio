@@ -14,7 +14,7 @@
 >
   <div class="ring">
     <div class="halo" aria-hidden="true"></div>
-    <div #face class="face" [class.is-sized]="sized()" (transitionend)="onTransitionEnd($event)">
+    <div #face class="face">
       <div #content class="content">
         @if (mobile()) {
           <header class="m-header">

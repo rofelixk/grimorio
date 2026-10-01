@@ -1,4 +1,5 @@
-import { DestroyRef, ElementRef, Signal, afterRenderEffect, inject, signal } from '@angular/core';
+import { ElementRef, Signal, afterRenderEffect } from '@angular/core';
+import { FluidHeight } from '@shared/ds/fluid-height';
 
 const MIN_FACE_HEIGHT = 460;
 // Form pane chrome around the measured content: 12px top padding + 44px close row + 24px
@@ -17,6 +18,10 @@ const FOCUS_ORDER = [
 ];
 
 export interface FluidFaceRefs {
+  /** `ThemedModal.face`: where the height is written. */
+  face: Signal<ElementRef<HTMLElement> | undefined>;
+  /** The form pane: scrolls only when capped, and hides its scrollbar while resizing. */
+  pane: Signal<ElementRef<HTMLElement> | undefined>;
   /** The form pane's content, measured for the face height and searched for the first field. */
   content: Signal<ElementRef<HTMLElement> | undefined>;
   /** The pinned bottom prompt, if one shows. */
@@ -29,31 +34,21 @@ export interface FluidFaceRefs {
 // (never below 460px, scrolling only when even the tallest face can't fit it), and the first
 // field or action row takes focus on every new screen. Create it in a component constructor.
 export class FluidFace {
-  private readonly height = signal(MIN_FACE_HEIGHT);
-  readonly faceHeight = this.height.asReadonly();
-  /** The content can't fit even at the tallest face: only then does the form pane scroll. */
-  readonly capped = signal(false);
-
-  private readonly observer = typeof ResizeObserver === 'function' ? new ResizeObserver(() => this.measure()) : null;
-
-  constructor(private readonly refs: FluidFaceRefs) {
-    afterRenderEffect(() => {
-      const content = refs.content()?.nativeElement;
-      const prompt = refs.prompt()?.nativeElement;
-      this.observer?.disconnect();
-      for (const element of [content, prompt]) {
-        if (element) {
-          this.observer?.observe(element);
+  constructor(refs: FluidFaceRefs) {
+    new FluidHeight({
+      face: () => refs.face()?.nativeElement,
+      scroller: () => refs.pane()?.nativeElement,
+      observe: () => [refs.content()?.nativeElement, refs.prompt()?.nativeElement],
+      measure: () => {
+        const content = refs.content()?.nativeElement;
+        if (!content) {
+          return null;
         }
-      }
-      this.measure();
-    });
-    void document.fonts?.ready.then(() => this.measure());
-    const onResize = () => this.measure();
-    window.addEventListener('resize', onResize);
-    inject(DestroyRef).onDestroy(() => {
-      this.observer?.disconnect();
-      window.removeEventListener('resize', onResize);
+        const prompt = refs.prompt()?.nativeElement;
+        return PANE_CHROME + content.offsetHeight + (prompt ? PROMPT_GAP + prompt.offsetHeight : 0);
+      },
+      min: MIN_FACE_HEIGHT,
+      cap: FACE_VIEWPORT_MARGIN,
     });
 
     let lastScreen = '';
@@ -71,16 +66,5 @@ export class FluidFace {
       }
       lastScreen = screen;
     });
-  }
-
-  private measure(): void {
-    const content = this.refs.content()?.nativeElement;
-    if (!content) {
-      return;
-    }
-    const prompt = this.refs.prompt()?.nativeElement;
-    const needed = PANE_CHROME + content.offsetHeight + (prompt ? PROMPT_GAP + prompt.offsetHeight : 0);
-    this.height.set(Math.max(MIN_FACE_HEIGHT, Math.ceil(needed)));
-    this.capped.set(needed > window.innerHeight - FACE_VIEWPORT_MARGIN);
   }
 }
