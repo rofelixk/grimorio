@@ -279,6 +279,8 @@ The stored value is the hex itself (`Collection.color`), in `COLLECTION_COLORS` 
   - A header row with the wordmark and the identity chip + ✕, with a hairline below.
   - A scrolling body; the prompt pins to the bottom.
 - **Fluid height:** the desktop surface animates its height to its content (minimum 460px) over `base` 0.24s. Content changes (mode switches, errors appearing, confirmation screens) resize the modal smoothly; it never jumps.
+  - Height changes animate only after the first pointer or key press inside the modal; while it opens and its content settles, it takes its height instantly. Instant under reduced motion.
+  - The face stops at the viewport height less `space-6` on each side; only then does the form pane scroll. No scrollbar shows while the height animates.
 - **Reserved space:** text that swaps under the wheel reserves two lines, so hover previews never shift the wheel.
 
 ## Elevation & depth
@@ -605,7 +607,7 @@ The collection area (spec 008): a list of collections, a per-collection page, an
 
 **Reserved placeholders** (must ship now, disabled or muted, so later specs drop in without a layout change): a disabled search `.field__input` and a disabled "Filtros" secondary button below 960px; a sticky 220px filters aside (kept even with only its placeholder) at ≥ 960px; a muted `.plate` in place of the card list inside a collection; a disabled "Adicionar cartas" button in the "Guardar cartas" choice. Search and filters are hidden in the empty state, and shown only on the list page, never inside a collection.
 
-**Compact modal** (`app-compact-modal`, the create/edit and delete dialogs). A narrow themed-modal ring: `width: min(480px, 100vw - 2rem)`, 2px padding, 10px radius, the same ring/halo recipe as the auth blueprint. Phone (≤ 640px): full-bleed, no ring or halo, a header with the "Grimorio" wordmark (Grenze 700 1.25rem, role-primary, title glow) and ✕, hairline below, `--wash-header`; buttons stack full-width in `column-reverse` order.
+**Compact modal** (`app-compact-modal`, the create/edit and delete dialogs). A narrow themed-modal ring: `width: min(480px, 100vw - 2rem)`, 2px padding, 10px radius, the same ring/halo recipe as the auth blueprint. Phone (≤ 640px): full-bleed, no ring or halo, a header with the "Grimorio" wordmark (Grenze 700 1.25rem, role-primary, title glow) and ✕, hairline below, `--wash-header`; buttons stack full-width in `column-reverse` order. Desktop: the face follows its content's height over `base` 0.24s, with the auth blueprint's fluid-height rule: animated only after the first pointer or key press inside it, instant under reduced motion, no scrollbar while it animates. It has no minimum; it stops at the viewport height less 4rem, and past that the whole face scrolls.
 
 **Color picker.** A centered `role="radiogroup"`, 16 swatches in a 5/6/5 honeycomb from `COLLECTION_COLORS` order; rows 1 and 3 indented 24px so they nest between row 2's swatches. Row gap 6px, swatch gap 12px. Each swatch is a 36px circular `button role="radio"`, named and titled with the color name. Selected: `box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 4px {hex}, 0 0 20px {hex}80` over `slow` 0.5s (Ônix's ring uses `#8a837e`).
 

@@ -20,8 +20,8 @@ import { Roles } from '@utils/identity.util';
 // wordmark header on phone. Like ThemedModal it opens on mount and closes on destroy, restoring
 // focus to the opener, so owners render it only while open. On open it focuses the content's
 // `[data-autofocus]` element, if any. `locked` ignores Esc, the backdrop
-// and ✕ while an operation runs (FR-031). On desktop the face follows its content's height,
-// animating each change like the themed modal (DESIGN.md Motion "Durations": 0.24s modal height).
+// and ✕ while an operation runs (FR-031). On desktop the face follows its content's height
+// (`FluidHeight`), animated from the first pointer or key press on (DESIGN.md "Compact modal").
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-compact-modal',
