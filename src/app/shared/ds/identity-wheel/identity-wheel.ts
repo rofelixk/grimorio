@@ -4,9 +4,9 @@ import {
   DestroyRef,
   afterNextRender,
   computed,
-  effect,
   inject,
   input,
+  linkedSignal,
   model,
   signal,
   untracked,
@@ -159,21 +159,18 @@ export class IdentityWheel {
     });
   });
 
-  protected readonly bursts = signal<Burst[]>([]);
+  /** A ripple and a burst of sparks on every newly lit color (pick, or a retint on link). */
+  protected readonly bursts = linkedSignal<Color[], Burst[]>({
+    source: this.lit,
+    computation: (lit, previous) => {
+      if (!previous) return [];
+      const added = lit.filter((c) => !previous.source.includes(c));
+      return added.length && !untracked(this.reducedMotion) ? [...previous.value, ...added.map(makeBurst)] : previous.value;
+    },
+  });
   protected readonly motes = signal<Mote[]>([]);
 
   constructor() {
-    // A ripple and a burst of sparks on every newly lit color (pick, or a retint on link).
-    let previous: Color[] | null = null;
-    effect(() => {
-      const lit = this.lit();
-      const added = previous ? lit.filter((c) => !previous!.includes(c)) : [];
-      previous = lit;
-      if (added.length && !untracked(this.reducedMotion)) {
-        this.bursts.update((list) => [...list, ...added.map(makeBurst)]);
-      }
-    });
-
     let timer: ReturnType<typeof setInterval> | null = null;
     afterNextRender(() => {
       timer = setInterval(() => this.emitMotes(), MOTE_EVERY_MS);

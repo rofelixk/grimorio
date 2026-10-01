@@ -111,13 +111,13 @@ description: "Task list for the Reactivity & Timing Audit"
 
 **Independent Test**: In `identity-wheel.spec.ts`, a newly lit color adds a burst on the next read of `bursts()`, with no effect flush (quickstart §3).
 
-- [ ] T019 [P] [US2] In `src/app/shared/ds/identity-wheel/identity-wheel.ts`, replace `signal<Burst[]>` plus the effect (E12) with `bursts = linkedSignal<Color[], Burst[]>({ source: this.lit, computation: (lit, prev) => ... })` (research R4, data-model "IdentityWheel.bursts"):
+- [X] T019 [P] [US2] In `src/app/shared/ds/identity-wheel/identity-wheel.ts`, replace `signal<Burst[]>` plus the effect (E12) with `bursts = linkedSignal<Color[], Burst[]>({ source: this.lit, computation: (lit, prev) => ... })` (research R4, data-model "IdentityWheel.bursts"):
   - With no previous value, return `[]`.
   - Otherwise return `prev.value` plus one `makeBurst(color)` for each color in `lit` that isn't in `prev.source`, unless reduced motion is on (read inside `untracked`).
   - Removing a burst when its animation ends stays a local `bursts.update(...)`.
   - Keep the mote interval (I3) and its destroy cleanup unchanged.
-- [ ] T020 [US2] In `src/app/shared/ds/identity-wheel/identity-wheel.spec.ts`, assert that lighting a new color adds exactly one burst on the next `bursts()` read, with no effect flush. The initial render has none, reduced motion adds none, and an animation end removes the burst. Remove effect-flush steps that only existed for the old effect (FR-013) (depends on T019).
-- [ ] T021 [US2] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 5 ("Reactivity audit: identity wheel").
+- [X] T020 [US2] In `src/app/shared/ds/identity-wheel/identity-wheel.spec.ts`, assert that lighting a new color adds exactly one burst on the next `bursts()` read, with no effect flush. The initial render has none, reduced motion adds none, and an animation end removes the burst. Remove effect-flush steps that only existed for the old effect (FR-013) (depends on T019).
+- [X] T021 [US2] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 5 ("Reactivity audit: identity wheel").
 
 ---
 

@@ -1,7 +1,9 @@
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Color } from '@models/profile.model';
+import { IDENTITY_HEX } from '@utils/identity.util';
 import { IdentityWheel } from './identity-wheel';
 
 @Component({
@@ -87,12 +89,49 @@ describe('IdentityWheel', () => {
     expect(el.querySelectorAll('.mote').length).toBe(2);
   });
 
-  it('bursts on a newly lit color', async () => {
-    const { fixture, el, swatch } = render(['U']);
-    await fixture.whenStable();
-    swatch('Vermelho').click();
-    fixture.detectChanges();
-    expect(el.querySelectorAll('.ripple').length).toBe(1);
+  describe('bursts', () => {
+    function wheelOf(fixture: ComponentFixture<Host>) {
+      return fixture.debugElement.query(By.directive(IdentityWheel)).componentInstance as unknown as {
+        bursts: () => { id: number; hex: string }[];
+      };
+    }
+
+    it('has none on the first render', () => {
+      const { fixture } = render(['U', 'R']);
+      expect(wheelOf(fixture).bursts()).toEqual([]);
+    });
+
+    it('adds one for a newly lit color on the next read, with no flush', () => {
+      const { fixture, swatch } = render(['U']);
+      const wheel = wheelOf(fixture);
+      expect(wheel.bursts()).toEqual([]);
+
+      swatch('Vermelho').click();
+      expect(wheel.bursts().map((b) => b.hex)).toEqual([IDENTITY_HEX.R.base]);
+
+      swatch('Verde').click();
+      expect(wheel.bursts().map((b) => b.hex)).toEqual([IDENTITY_HEX.R.base, IDENTITY_HEX.G.base]);
+    });
+
+    it('renders a ripple per burst and drops it when its animation ends', () => {
+      const { fixture, el, swatch } = render(['U']);
+      swatch('Vermelho').click();
+      fixture.detectChanges();
+      expect(el.querySelectorAll('.ripple').length).toBe(1);
+
+      el.querySelector('.ripple')!.dispatchEvent(new Event('animationend'));
+      fixture.detectChanges();
+      expect(el.querySelectorAll('.ripple').length).toBe(0);
+      expect(wheelOf(fixture).bursts()).toEqual([]);
+    });
+
+    it('adds none under reduced motion', () => {
+      vi.stubGlobal('matchMedia', matchMediaStub(true));
+      const { fixture, swatch } = render(['U']);
+      swatch('Vermelho').click();
+      expect(fixture.componentInstance.picks()).toEqual(['U', 'R']);
+      expect(wheelOf(fixture).bursts()).toEqual([]);
+    });
   });
 
   it('sheds no motes under reduced motion', async () => {
