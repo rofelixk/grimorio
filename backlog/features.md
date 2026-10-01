@@ -16,8 +16,8 @@ When a spec ships, set it to `done` and delete its items from pending-items.md.
 
 ## 1. Codebase baseline
 
-- **Status**: planned
-- **Spec**: —
+- **Status**: specifying
+- **Spec**: [010-codebase-baseline](../specs/010-codebase-baseline/spec.md)
 - **Goal**: A smaller, guarded codebase: dead code gone, one default-identity source, and lint rules, bundle budgets and tests that catch regressions in the refactors that follow.
 - **Items**:
   - #14 Remove unused code
