@@ -24,17 +24,18 @@ When a spec ships, set it to `done` and delete its items from pending-items.md.
 
 ## 2. Storage & sync foundation
 
-- **Status**: planned
-- **Spec**: —
+- **Status**: specifying
+- **Spec**: [011-storage-sync-foundation](../specs/011-storage-sync-foundation/spec.md)
 - **Goal**: A safe, shared data layer: writes that report failure, storage the browser won't evict, correct behavior with several tabs open, and a sync split into per-entity steps that scale past today's sizes.
 - **Items**:
   - #18 One shared write queue, surfacing failed saves
   - #27 Request persistent storage
   - #29 Multi-tab IndexedDB handling
-  - #30 Sync paging for collections and decks
+  - #30 Sync paging for every pull (collections, decks, cards)
   - #17 Split `SyncService` into sync steps
 - **Why here**: The data layer every feature writes through. The card redesign and future entities plug into the write queue and the sync-step pattern instead of copying the old shape. Independent of spec 3; the two can swap.
-- **Open decisions**: How a failed save is shown (toast, persistent state?); whether tabs resync through `BroadcastChannel` or just close on `versionchange`; paging vs. incremental pull (`updated_at > lastSyncedAt`).
+- **Decided**: a failed save shows a toast (`ToastService`); tabs close on `versionchange` and resync through `BroadcastChannel`; sync pages the full pull with `.range()` (no incremental pull, reconciler unchanged).
+- **Open decisions**: None yet.
 
 ## 3. Modals, focus & auth stores
 

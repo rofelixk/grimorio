@@ -1,6 +1,6 @@
 # Pending items
 
-Known work that isn't specced yet. [features.md](features.md) groups items into planned specs by number (`#N`), so **numbers are permanent**: never renumber, and give a new item the next free number (the next is **#39**; #12 was retired). When a spec ships, delete its items here. Check each item still applies before planning it.
+Known work that isn't specced yet. [features.md](features.md) groups items into planned specs by number (`#N`), so **numbers are permanent**: never renumber, and give a new item the next free number (the next is **#40**; #12 was retired). When a spec ships, delete its items here. Check each item still applies before planning it.
 
 **Size**: `S` a focused change, `M` several files or one design decision, `L` changes a model or spans the app. Every **L** is listed under "Big items" too.
 
@@ -42,7 +42,8 @@ Known work that isn't specced yet. [features.md](features.md) groups items into 
 | 18 | One shared write queue | M | 2 |
 | 27 | Request persistent storage | S | 2 |
 | 29 | Multi-tab IndexedDB handling | **L** | 2 |
-| 30 | Sync paging for collections and decks | S | 2 |
+| 30 | Sync paging for every pull | S | 2 |
+| 39 | Cross-device deletes | M | — |
 | **Codebase health** | | | |
 | 23 | `setTimeout` audit | M | 5 |
 | 28 | `effect` audit | M | 5 |
@@ -170,9 +171,13 @@ Call `navigator.storage.persist()` (e.g. after the first profile is created) so 
 
 With the installed PWA and a browser tab open on the same profile, each tab holds its own in-memory collections/decks and never sees the other's edits. `openProfileDb` (`core/db/profile-db.ts`) also passes no `blocked`/`blocking` callbacks, so an old tab never closes its connection on `versionchange` and a new tab's `DB_VERSION` upgrade stalls. Close on `blocking` (and reload or rehydrate), and decide whether tabs should resync via `BroadcastChannel`.
 
-### #30 · Sync paging for collections and decks — S
+### #30 · Sync paging for every pull — S
 
-`syncCollections`/`syncDecks` (`sync.service.ts`) pull each table with one unpaged `select`. The hosted Data API caps a response at 1,000 rows by default, so past that the rest are silently missing and look local-only to the reconciler. Unlikely at today's sizes; page with `.range()` (or pull only `updated_at > lastSyncedAt`, which also cuts egress) when sync is next touched.
+`syncCollections`, `syncDecks` and `syncCards` (`sync.service.ts`) pull each table with one unpaged `select`; `card_entries` is the one most likely to pass the cap. The hosted Data API caps a response at 1,000 rows by default, so past that the rest are silently missing and look local-only to the reconciler, which re-uploads them every sync. Page the full pull with `.range()`; an incremental pull (`updated_at > lastSyncedAt`) was rejected because it breaks the reconciler's "local-only = never synced" rule (see #39).
+
+### #39 · Cross-device deletes — M
+
+A row deleted on device A is deleted remotely, but device B still has it locally, finds no remote copy, and `reconcileEntities` (`core/utils/sync-reconcile.util.ts`) treats "local-only" as "never synced", so B uploads it again. Deletes don't reach other devices. A fix needs remote tombstones (a soft-delete column or tombstone table, with a migration per synced table) so absence can be told apart from deletion.
 
 ---
 
