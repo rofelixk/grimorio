@@ -7,7 +7,6 @@ Known work that isn't specced yet. [features.md](features.md) groups items into 
 ## Big items
 
 - **#31 Planechase: cards that need the planar deck** — five cards still can't be played as written; two of them need several face-up planes.
-- **#16 Split the auth flow stores** — the two largest files in the app.
 - **#15 Mobile-landscape layout** — the breakpoints only look at width.
 
 ## At a glance
@@ -30,11 +29,6 @@ Known work that isn't specced yet. [features.md](features.md) groups items into 
 | 8 | Memoize `pageOf` | S | 4 |
 | 9 | `--band` duplication | S | 4 |
 | 10 | Naming leftovers | S | 4 |
-| **Modals, focus & auth** | | | |
-| 6 | `CompactModal` height tracking vs `FluidFace` | M | 3 |
-| 7 | DESIGN.md: compact modal fluid height | S | 3 |
-| 16 | Split the auth flow stores | **L** | 3 |
-| 19 | Focus-management helper | M | 3 |
 | **Storage & sync** | | | |
 | 39 | Cross-device deletes | M | — |
 | 40 | Card refresh vs. a pending collection write | S | — |
@@ -124,26 +118,6 @@ Replace the mutable flag in `collection-area.ts` with `info: { instant: true }` 
 ### #10 · Naming leftovers — S
 
 `deck-dust.util.ts` is no longer deck-specific (the shared page sweep uses it); move or rename it next to `page-sweep`. `app.routes.ts` still says "page turn".
-
----
-
-## Modals, focus & auth
-
-### #6 · `CompactModal` height tracking vs `FluidFace` — M
-
-`compact-modal.ts` has its own `ResizeObserver` / `measure()` / `is-resizing`; `themed-modal/fluid-face.ts` does similar work (plus `document.fonts.ready`, window resize, the viewport cap). Unify into one helper, keeping the compact modal's direct style write (a binding lands a frame late and flashes the scrollbar) and its arm-on-first-interaction. The explicit first `measure()` next to `observer.observe()` also measures twice on open.
-
-### #7 · DESIGN.md: compact modal fluid height (undecided) — S
-
-Flagged by `design-auditor`: the compact modal's desktop fluid height (the face animates to its content's height over `--duration-base`, only after the first pointer or key press, never under reduced motion) isn't in DESIGN.md's "Compact modal" entry. DESIGN.md's "Fluid height" covers only the 880px auth/profile modal. Add it.
-
-### #16 · Split the auth flow stores — L
-
-`profile-flow.store.ts` (~720 lines) and `entry-flow.store.ts` (~580) are the largest files in the app. The cloud-form steps they share through `CloudFlowHost` (sign-in, reauth, reset code) likely repeat logic in both. Extract a shared cloud sub-store and leave each store with only its own screens.
-
-### #19 · Focus-management helper — M
-
-Focus moves by hand through `querySelector(...).focus()` in `collection-delete-dialog.ts` (roving choice), `nav-drawer.ts` (return focus to the toggle), `compact-modal.ts` (`[data-autofocus]`) and `fluid-face.ts` (first field). One roving-focus/autofocus helper or directive could cover them.
 
 ---
 

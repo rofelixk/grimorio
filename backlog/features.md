@@ -10,22 +10,9 @@ Each entry:
 - **Why here**: what it needs from earlier specs, or what later specs need from it.
 - **Open decisions**: questions to settle during `/speckit-clarify`.
 
-When a spec ships, delete its entry here and its items from pending-items.md; the spec folder is the record. Entry numbers are permanent (pending-items.md refers to them), so the rest keep theirs. Shipped so far: 1 (spec 010, codebase baseline) and 2 (spec 011, storage & sync foundation).
+When a spec ships, delete its entry here and its items from pending-items.md; the spec folder is the record. Entry numbers are permanent (pending-items.md refers to them), so the rest keep theirs. Shipped so far: 1 (spec 010, codebase baseline), 2 (spec 011, storage & sync foundation) and 3 (spec 012, modals, focus & auth stores).
 
 ---
-
-## 3. Modals, focus & auth stores
-
-- **Status**: planned
-- **Spec**: —
-- **Goal**: One settled modal foundation: shared height tracking, one focus helper, the compact modal's fluid height in DESIGN.md, and auth flow stores small enough to change safely.
-- **Items**:
-  - #6 Unify `CompactModal` height tracking with `FluidFace`
-  - #7 DESIGN.md: compact modal fluid height
-  - #19 Focus-management helper
-  - #16 Split the auth flow stores
-- **Why here**: Modals are the shell for most future UI; settling them now means later specs just use them. Spec 010's tests guard the store split.
-- **Open decisions**: Helper vs. directive for focus; how the shared cloud sub-store is provided to both modals.
 
 ## 4. Page transitions
 
