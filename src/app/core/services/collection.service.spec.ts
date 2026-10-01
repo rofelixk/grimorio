@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntryWithoutId } from '@testing/card.mocks';
-import { otherCopy, settleChannel } from '@testing/cross-tab';
+import { delivered, nextRefresh, otherCopy } from '@testing/cross-tab';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
 import { CardEntry } from '@models/card.model';
@@ -82,7 +82,7 @@ describe('CollectionService', () => {
 
     const landed = async () => {
       await service.flush();
-      await settleChannel();
+      await delivered();
     };
 
     function createRoot(name: string): Collection {
@@ -127,7 +127,7 @@ describe('CollectionService', () => {
       other.received.length = 0;
 
       await service.remove(root.id, 'delete');
-      await settleChannel();
+      await delivered();
       expect(other.received).toHaveLength(2);
       expect(other.received).toEqual(
         expect.arrayContaining([
@@ -150,10 +150,12 @@ describe('CollectionService', () => {
       const theirs = mockCollection({ id: 'theirs', name: 'Comuns' });
       await seed('p1', [theirs]);
 
-      const delivered = other.announce('collections', 'p1');
+      const refreshed = nextRefresh(service);
+      const arrived = other.announce('collections', 'p1');
       expect(service.collections()).toEqual([mine]);
-      await delivered;
-      await vi.waitFor(() => expect(service.collections()).toHaveLength(2));
+      await arrived;
+      await refreshed;
+      expect(service.collections()).toHaveLength(2);
       expect(service.changeCount()).toBe(count);
     });
 

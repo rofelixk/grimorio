@@ -1,7 +1,7 @@
 import type { Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { otherCopy, settleChannel } from '@testing/cross-tab';
+import { delivered, nextRefresh, otherCopy } from '@testing/cross-tab';
 import { ACTIVE_PROFILE_KEY, getDeviceDb } from '../db/device-db';
 import { setActiveProfileDb } from '../db/entity-store';
 import { PBKDF2_ITERATIONS, ProfileStore } from './profile-store.service';
@@ -159,7 +159,7 @@ describe('ProfileStore', () => {
       const rafa = await store.create({ name: 'rafa', password: 'grimorio123', colors: ['R'] });
       await store.rename(rafa.id, 'rafael');
       await store.remove(rafa.id);
-      await settleChannel();
+      await delivered();
       expect(other.received).toEqual([
         { kind: 'profiles', profileId: null },
         { kind: 'profiles', profileId: null },
@@ -173,8 +173,10 @@ describe('ProfileStore', () => {
       const record = (await db.get('profiles', rafa.id))!;
       await db.put('profiles', { ...record, id: 'theirs', name: 'bia', createdAt: '2030-01-01T00:00:00.000Z' });
 
+      const refreshed = nextRefresh(store);
       await other.announce('profiles', null);
-      await vi.waitFor(() => expect(store.profiles().map((p) => p.name)).toEqual(['rafa', 'bia']));
+      await refreshed;
+      expect(store.profiles().map((p) => p.name)).toEqual(['rafa', 'bia']);
     });
 
     it('keeps the open profile listed when another copy deleted it, until this copy leaves it', async () => {

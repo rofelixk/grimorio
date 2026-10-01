@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntry } from '@testing/card.mocks';
-import { otherCopy, settleChannel } from '@testing/cross-tab';
+import { delivered, nextRefresh, otherCopy } from '@testing/cross-tab';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
 import { CardEntry } from '@models/card.model';
@@ -83,14 +83,14 @@ describe('DeckService', () => {
 
     const landed = async () => {
       await service.flush();
-      await settleChannel();
+      await delivered();
     };
 
     it('announces creates, deletes and applied sync results with their profile', async () => {
       const deck = created(service.create({ name: 'Elfos', format: 'pauper' }));
       await landed();
       await service.remove(deck.id);
-      await settleChannel();
+      await delivered();
       service.applySyncResult([mockDeck()]);
       await landed();
       expect(other.received).toEqual([
@@ -106,10 +106,12 @@ describe('DeckService', () => {
       const count = service.changeCount();
       await seed('p1', [mockDeck({ id: 'theirs' })]);
 
-      const delivered = other.announce('decks', 'p1');
+      const refreshed = nextRefresh(service);
+      const arrived = other.announce('decks', 'p1');
       expect(service.decks()).toEqual([mine]);
-      await delivered;
-      await vi.waitFor(() => expect(service.decks()).toHaveLength(2));
+      await arrived;
+      await refreshed;
+      expect(service.decks()).toHaveLength(2);
       expect(service.changeCount()).toBe(count);
     });
 

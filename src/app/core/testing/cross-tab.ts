@@ -1,4 +1,5 @@
 import type { Provider } from '@angular/core';
+import { vi } from 'vitest';
 import { type ChangeKind, CROSS_TAB_CHANNEL, type CrossTabChannel } from '@services/cross-tab.service';
 
 class FakeChannel implements CrossTabChannel {
@@ -52,9 +53,28 @@ export interface Announcement {
   profileId: string | null;
 }
 
-/** Lets a fake channel's delivery, and anything it set off, run. */
-export function settleChannel(): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve));
+/**
+ * Resolves once the fake channel has delivered what was posted before this call: its delivery is
+ * one `queueMicrotask` hop, and this queues the next one.
+ */
+export function delivered(): Promise<void> {
+  return new Promise((resolve) => queueMicrotask(resolve));
+}
+
+/**
+ * Resolves when the service's next `refresh()` settles, rejecting if it rejects. Call it before
+ * the announcement that sets the refresh off.
+ */
+export function nextRefresh(service: { refresh(): Promise<void> }): Promise<void> {
+  const original = service.refresh.bind(service);
+  return new Promise((resolve, reject) => {
+    const spy = vi.spyOn(service, 'refresh').mockImplementation(() => {
+      spy.mockRestore();
+      const refreshed = original();
+      refreshed.then(resolve, reject);
+      return refreshed;
+    });
+  });
 }
 
 /**
@@ -77,7 +97,7 @@ export function otherCopy(): {
     received,
     announce: (kind, profileId) => {
       theirs.postMessage({ source: 'other-copy', kind, profileId });
-      return settleChannel();
+      return delivered();
     },
   };
 }

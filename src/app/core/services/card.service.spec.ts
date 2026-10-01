@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntry, mockCardEntryWithoutId } from '@testing/card.mocks';
-import { otherCopy, settleChannel } from '@testing/cross-tab';
+import { delivered, nextRefresh, otherCopy } from '@testing/cross-tab';
 import { getAllFromStore } from '../db/entity-store';
 import { openProfileDb } from '../db/profile-db';
 import { CardEntry } from '@models/card.model';
@@ -67,12 +67,12 @@ describe('CardService', () => {
     it('announces a landed save with its profile (FR-011)', async () => {
       service.add(baseCard);
       await service.flush();
-      await settleChannel();
+      await delivered();
       expect(other.received).toEqual([{ kind: 'cards', profileId: 'p1' }]);
 
       service.applySyncResult([]);
       await service.flush();
-      await settleChannel();
+      await delivered();
       expect(other.received).toHaveLength(2);
     });
 
@@ -83,10 +83,12 @@ describe('CardService', () => {
       const theirs = mockCardEntry({ id: 'theirs' });
       await writeElsewhere([theirs]);
 
-      const delivered = other.announce('cards', 'p1');
+      const refreshed = nextRefresh(service);
+      const arrived = other.announce('cards', 'p1');
       expect(service.cards()).toEqual([mine]);
-      await delivered;
-      await vi.waitFor(() => expect(service.cards()).toHaveLength(2));
+      await arrived;
+      await refreshed;
+      expect(service.cards()).toHaveLength(2);
       expect(service.cards()).toEqual(expect.arrayContaining([mine, theirs]));
       expect(service.changeCount()).toBe(count);
     });

@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PlanechaseGame } from '@models/planechase-game.model';
 import { setActiveProfileDb } from '@db/entity-store';
-import { otherCopy, settleChannel } from '@testing/cross-tab';
+import { delivered, nextRefresh, otherCopy } from '@testing/cross-tab';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
 import { PLANAR_DATA, PLANAR_RECORDS, PLANAR_TRANSLATIONS, scriptedRandom } from '@testing/planechase-fixtures';
@@ -135,7 +135,7 @@ describe('PlanechaseGameService', () => {
       service.start(IDS);
       service.planeswalk();
       await service.flush();
-      await settleChannel();
+      await delivered();
       expect(other.received).toEqual([
         { kind: 'planechaseGame', profileId: null },
         { kind: 'planechaseGame', profileId: null },
@@ -150,8 +150,10 @@ describe('PlanechaseGameService', () => {
       const db = await getDeviceDb();
       await db.put('meta', { key: 'planechaseGame', value: moved });
 
+      const refreshed = nextRefresh(service);
       await other.announce('planechaseGame', null);
-      await vi.waitFor(() => expect(service.game()).toEqual(moved));
+      await refreshed;
+      expect(service.game()).toEqual(moved);
     });
   });
 });

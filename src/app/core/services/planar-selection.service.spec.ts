@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { otherCopy, settleChannel } from '@testing/cross-tab';
+import { delivered, nextRefresh, otherCopy } from '@testing/cross-tab';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
 import { getDeviceDb } from '../db/device-db';
@@ -115,7 +115,7 @@ describe('PlanarSelectionService', () => {
       await service.load(null);
       service.applySyncResult({ disabledIds: ['b'], updatedAt: '2026-01-01T00:00:00.000Z' });
       await service.flush();
-      await settleChannel();
+      await delivered();
       expect(other.received).toEqual([
         { kind: 'planarSelection', profileId: 'p1' },
         { kind: 'planarSelection', profileId: null },
@@ -130,15 +130,19 @@ describe('PlanarSelectionService', () => {
       await service.flush();
       expect(service.selection()).toBeNull();
 
+      const refreshed = nextRefresh(service);
       await other.announce('planarSelection', 'p1');
-      await vi.waitFor(() => expect(service.selection()?.disabledIds).toEqual(['x']));
+      await refreshed;
+      expect(service.selection()?.disabledIds).toEqual(['x']);
     });
 
     it('refreshes the device selection with no profile open', async () => {
       await service.load(null);
       await writeElsewhere(null, ['y']);
+      const refreshed = nextRefresh(service);
       await other.announce('planarSelection', null);
-      await vi.waitFor(() => expect(service.selection()?.disabledIds).toEqual(['y']));
+      await refreshed;
+      expect(service.selection()?.disabledIds).toEqual(['y']);
     });
 
     it('loses a refresh to a newer load()', async () => {

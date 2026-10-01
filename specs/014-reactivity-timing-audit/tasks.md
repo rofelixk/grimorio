@@ -127,19 +127,19 @@ description: "Task list for the Reactivity & Timing Audit"
 
 **Independent Test**: No `setTimeout` remains in `src/app/core/testing/cross-tab.ts`, no service spec calls `settleChannel()`, and the six service specs pass (quickstart §3, FR-012).
 
-- [ ] T022 [US1] In `src/app/core/testing/cross-tab.ts` (research R5, contract `@testing/cross-tab`):
+- [X] T022 [US1] In `src/app/core/testing/cross-tab.ts` (research R5, contract `@testing/cross-tab`):
   - Replace `settleChannel()` with `delivered(): Promise<void>`, which resolves after one microtask, the fake channel's single `queueMicrotask` delivery hop.
   - Make `otherCopy().announce(kind, profileId)` return `delivered()`.
   - Add `nextRefresh(service: { refresh(): Promise<void> }): Promise<void>`. It spies on that instance's `refresh` with `vi.spyOn` and resolves when the next call's promise settles. It rejects if that call rejects, and restores the spy after the first call.
   - Remove the `setTimeout`. Production code stays unchanged.
-- [ ] T023 [P] [US1] In `src/app/core/services/card.service.spec.ts`, replace each `settleChannel()`. Where the spec checks outgoing announcements, await `delivered()`. Where it checks the refreshed state, call `const refreshed = nextRefresh(service)` before `announce`, then `await refreshed` (depends on T022).
-- [ ] T024 [P] [US1] Make the same replacement in `src/app/core/services/collection.service.spec.ts` (depends on T022).
-- [ ] T025 [P] [US1] Make the same replacement in `src/app/core/services/deck.service.spec.ts` (depends on T022).
-- [ ] T026 [P] [US1] Make the same replacement in `src/app/core/services/planar-selection.service.spec.ts` (depends on T022).
-- [ ] T027 [P] [US1] Make the same replacement in `src/app/core/services/planechase-game.service.spec.ts` (depends on T022).
-- [ ] T028 [P] [US1] Make the same replacement in `src/app/core/services/profile-store.service.spec.ts`. If `ProfileStore` has no `refresh()` and reacts another way, wait on the method its cross-tab handler calls, and record that in `research.md` under R5 (depends on T022).
-- [ ] T029 [US1] Run `grep -rn "settleChannel" src` and confirm there are no results. Through `test-runner`, run the six service specs.
-- [ ] T030 [US1] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 6 ("Reactivity audit: cross-tab waits").
+- [X] T023 [P] [US1] In `src/app/core/services/card.service.spec.ts`, replace each `settleChannel()`. Where the spec checks outgoing announcements, await `delivered()`. Where it checks the refreshed state, call `const refreshed = nextRefresh(service)` before `announce`, then `await refreshed` (depends on T022).
+- [X] T024 [P] [US1] Make the same replacement in `src/app/core/services/collection.service.spec.ts` (depends on T022).
+- [X] T025 [P] [US1] Make the same replacement in `src/app/core/services/deck.service.spec.ts` (depends on T022).
+- [X] T026 [P] [US1] Make the same replacement in `src/app/core/services/planar-selection.service.spec.ts` (depends on T022).
+- [X] T027 [P] [US1] Make the same replacement in `src/app/core/services/planechase-game.service.spec.ts` (depends on T022).
+- [X] T028 [P] [US1] Make the same replacement in `src/app/core/services/profile-store.service.spec.ts`. If `ProfileStore` has no `refresh()` and reacts another way, wait on the method its cross-tab handler calls, and record that in `research.md` under R5 (depends on T022).
+- [X] T029 [US1] Run `grep -rn "settleChannel" src` and confirm there are no results. Through `test-runner`, run the six service specs.
+- [X] T030 [US1] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 6 ("Reactivity audit: cross-tab waits").
 
 ---
 
