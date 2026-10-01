@@ -10,21 +10,9 @@ Each entry:
 - **Why here**: what it needs from earlier specs, or what later specs need from it.
 - **Open decisions**: questions to settle during `/speckit-clarify`.
 
-When a spec ships, delete its entry here and its items from pending-items.md; the spec folder is the record. Entry numbers are permanent (pending-items.md refers to them), so the rest keep theirs. Shipped so far: 1 (spec 010, codebase baseline), 2 (spec 011, storage & sync foundation), 3 (spec 012, modals, focus & auth stores) and 4 (spec 013, page transitions).
+When a spec ships, delete its entry here and its items from pending-items.md; the spec folder is the record. Entry numbers are permanent (pending-items.md refers to them), so the rest keep theirs. Shipped so far: 1 (spec 010, codebase baseline), 2 (spec 011, storage & sync foundation), 3 (spec 012, modals, focus & auth stores), 4 (spec 013, page transitions) and 5 (spec 014, reactivity & timing audit).
 
 ---
-
-## 5. Reactivity & timing audit
-
-- **Status**: specifying
-- **Spec**: `specs/014-reactivity-timing-audit/`
-- **Goal**: Timers and effects used only where they belong: sequencing tied to animation events or signals, derived state as `computed`/`linkedSignal`.
-- **Items**:
-  - #23 `setTimeout` audit
-  - #28 `effect` audit
-  - #37 Fix the recorded promise exceptions
-- **Why here**: Specs 3 and 4 rewrite many of these effects and timers; auditing earlier would redo work. Spec 010 left its promise exceptions for this spec.
-- **Open decisions**: None yet.
 
 ## 6. Mobile landscape
 

@@ -23,10 +23,6 @@ Known work that isn't specced yet. [features.md](features.md) groups items into 
 | **Storage & sync** | | | |
 | 39 | Cross-device deletes | M | — |
 | 40 | Card refresh vs. a pending collection write | S | — |
-| **Codebase health** | | | |
-| 23 | `setTimeout` audit | M | 5 |
-| 28 | `effect` audit | M | 5 |
-| 37 | Fix the recorded promise exceptions | S | 5 |
 | **Layout** | | | |
 | 15 | Mobile-landscape layout | **L** | 6 |
 | **Card features (deferred)** | | | |
@@ -85,22 +81,6 @@ A row deleted on device A is deleted remotely, but device B still has it locally
 ### #40 · Card refresh vs. a pending collection write — S
 
 Found in spec 011. `CardService.refresh()` (run when another copy announces `cards`) awaits only its own `flush()`. A `CollectionService` write that moves or deletes cards (create-with-move, delete with "Excluir as cartas", `resolveMixedCollections`) changes the card signal through `applyMoved`/`applyRemoved` but persists through the collection queue. If another copy's announcement arrives while that write is still queued, the refresh reads IndexedDB before it lands and the screen shows the old card locations until the next load; the stored data is correct. A fix: let the refresh also wait for writes queued elsewhere that touch cards (e.g. a flush hook `CollectionService` registers with `CardService`).
-
----
-
-## Codebase health
-
-### #23 · `setTimeout` audit — M
-
-13 `setTimeout` calls outside specs. Check which should instead be tied to `animationend`/`transitionend` or signals; timer-based sequencing is a flakiness source (see the SC-004 fix).
-
-### #28 · `effect` audit — M
-
-15 `effect(` calls outside specs. Check which are really derived state and should be `computed` or `linkedSignal` (the idiom in architecture.md), keeping `effect` for real side effects.
-
-### #37 · Fix the recorded promise exceptions — S
-
-Spec 010 recorded the existing promise violations in `eslint-suppressions.json` instead of fixing them (its FR-016): `no-floating-promises` in `views/collection-area/collection-area.ts` (2, the `openCollection`/`openHolding` `router.navigate` calls; spec 013 fixed the redirect and the deck area's one); `no-misused-promises` in `core/services/sync.service.spec.ts` (3) and `shared/auth/profile-modal/profile-flow.store.spec.ts` (1). Await, handle or `void` each one, then run `npx eslint src --prune-suppressions`. The file should end up empty and can be deleted.
 
 ---
 
