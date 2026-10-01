@@ -69,6 +69,8 @@ export const RESULT = {
   manual: (from: string) => ['Planeswalk', `${from} foi para os usados. O custo do dado não muda.`],
   cost: ['Custo zerado', `A próxima rolagem custa ${costText(0)}.`],
   phenomenon: ['Fenômeno encontrado', 'Resolva o efeito na mesa e conclua para seguir ao próximo plano.'],
+  // Interplanar Tunnel: the app holds the planar deck, so it reveals the cards and the table picks.
+  tunnel: ['Escolha o próximo plano', 'Escolha um dos planos revelados e conclua. Os outros vão para o fundo do baralho, em ordem aleatória.'],
   resolved: (from: string) => ['Encontro resolvido', `${from} foi para os usados.`],
   // review: not in the handoff (R17, approved 2026-09-27).
   reset: ['Planos reiniciados', 'Os planos usados voltaram ao baralho.'],
@@ -87,12 +89,14 @@ export interface PlanarDisplay {
 
 /**
  * The console/dock lines for a game. `nameOf` gives a card's English name; `noChaos` is true when
- * the face-up plane has no chaos ability (R2).
+ * the face-up plane has no chaos ability (R2); `tunnel` is true while Interplanar Tunnel waits for
+ * the table to pick a revealed plane.
  */
 export function planarDisplay(
   game: PlanechaseGame,
   nameOf: (id: string) => string,
   noChaos: boolean,
+  tunnel = false,
 ): PlanarDisplay {
   const lines = (): readonly string[] => {
     const result = game.result;
@@ -119,7 +123,8 @@ export function planarDisplay(
         return RESULT.allUsed;
     }
   };
-  const [title, detail] = game.pending === 'phenomenon' ? RESULT.phenomenon : lines();
+  const encounter = tunnel ? RESULT.tunnel : RESULT.phenomenon;
+  const [title, detail] = game.pending === 'phenomenon' ? encounter : lines();
   switch (game.pending) {
     case 'phenomenon':
       return { mode: 'phenomenon', eyebrow: PLANECHASE.phenomenonEyebrow, costShort: PLANECHASE.phenomenonEyebrow, title, detail };
@@ -136,6 +141,11 @@ export const PLANAR_CARD = {
   imageMissing: 'Imagem indisponível sem conexão',
   plane: 'plano',
   phenomenon: 'fenômeno',
+} as const;
+
+/** Interplanar Tunnel's choice of the next plane. */
+export const TUNNEL = {
+  label: (n: number) => (n === 1 ? 'Plano revelado' : `${n} planos revelados`),
 } as const;
 
 export const DECK = {

@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { PlanechaseGame, PlanechaseGameState } from '@models/planechase-game.model';
 import { PLANAR_RECORDS, planarKindOf as kindOf, scriptedRandom } from '@testing/planechase-fixtures';
-import { randomInt } from './crypto-random.util';
+import { randomInt, shuffle } from './crypto-random.util';
 import {
+  INTERPLANAR_TUNNEL,
   abilityLit,
   chaos,
   availableActions,
@@ -11,8 +12,10 @@ import {
   repairGame,
   reshuffle,
   resetCost,
+  resolveTunnel,
   roll,
   startGame,
+  tunnelReveal,
   undo,
 } from './planechase-game.util';
 
@@ -405,5 +408,82 @@ describe('repairGame', () => {
 
   it('ends the game when no card is left', () => {
     expect(repairGame(game(), known(['p99']), kindOf)).toBeNull();
+  });
+});
+
+describe('Interplanar Tunnel', () => {
+  const TUNNEL = INTERPLANAR_TUNNEL;
+  const tunnelKindOf = (id: string) => (id === TUNNEL ? 'phenomenon' : kindOf(id));
+
+  /** The tunnel face up and waiting, having just replaced p01. */
+  function tunnel(drawOrder: string[]): PlanechaseGame {
+    return game({
+      list: [TUNNEL, 'p01', ...drawOrder],
+      current: TUNNEL,
+      used: ['p01'],
+      drawOrder,
+      pending: 'phenomenon',
+      result: { kind: 'phenomenon' },
+    });
+  }
+
+  it('reveals down to the fifth plane, phenomena included, and no further', () => {
+    const g = tunnel(['p02', 'f01', 'p03', 'p04', 'p05', 'p06', 'p07']);
+    expect(tunnelReveal(g, tunnelKindOf)).toEqual(['p02', 'f01', 'p03', 'p04', 'p05', 'p06']);
+  });
+
+  it('reveals the whole draw order when it holds fewer than five planes', () => {
+    expect(tunnelReveal(tunnel(['f01', 'p02', 'p03']), tunnelKindOf)).toEqual(['f01', 'p02', 'p03']);
+  });
+
+  it('reveals nothing when no plane is left, or when the tunnel is not waiting', () => {
+    expect(tunnelReveal(tunnel(['f01']), tunnelKindOf)).toBeNull();
+    expect(tunnelReveal(tunnel([]), tunnelKindOf)).toBeNull();
+    expect(tunnelReveal({ ...tunnel(['p02']), pending: null }, tunnelKindOf)).toBeNull();
+    expect(tunnelReveal(game({ current: 'f01', pending: 'phenomenon' }), tunnelKindOf)).toBeNull();
+  });
+
+  it('puts the choice on top, the rest of the reveal on the bottom in a random order, and planeswalks to it', () => {
+    const before = tunnel(['p02', 'f01', 'p03', 'p04', 'p05', 'p06', 'p07']);
+    const g = resolveTunnel(before, 'p04', tunnelKindOf, scriptedRandom([2, 1, 0, 1]));
+
+    expect(g.current).toBe('p04');
+    expect(g.pending).toBeNull();
+    expect(g.result).toEqual({ kind: 'resolved', from: TUNNEL });
+    expect(g.used).toEqual(['p01', TUNNEL]);
+    // The unrevealed card stays where it was; the other revealed cards follow it, shuffled.
+    expect(g.drawOrder[0]).toBe('p07');
+    expect(g.drawOrder.slice(1)).toEqual(
+      shuffle(['p02', 'f01', 'p03', 'p05', 'p06'], scriptedRandom([2, 1, 0, 1])),
+    );
+    expect(g.cost).toBe(before.cost);
+    expectPartition(g);
+  });
+
+  it('can pick the only plane of a short reveal', () => {
+    const g = resolveTunnel(tunnel(['f01', 'p02']), 'p02', tunnelKindOf, randomInt);
+    expect(g.current).toBe('p02');
+    expect(g.drawOrder).toEqual(['f01']);
+  });
+
+  it('undoes back to the same reveal', () => {
+    const before = tunnel(['p02', 'p03', 'f01']);
+    const g = undo(resolveTunnel(before, 'p03', tunnelKindOf, randomInt));
+    expect(stateOf(g)).toEqual(stateOf(before));
+    expect(tunnelReveal(g, tunnelKindOf)).toEqual(['p02', 'p03', 'f01']);
+  });
+
+  it('refuses a plain confirmation while a choice is owed, and any card that is not a revealed plane', () => {
+    const g = tunnel(['p02', 'f01', 'p03', 'p04', 'p05', 'p06', 'p07']);
+    expect(() => confirmPhenomenon(g, tunnelKindOf)).toThrow();
+    expect(() => resolveTunnel(g, 'f01', tunnelKindOf, randomInt)).toThrow();
+    expect(() => resolveTunnel(g, 'p07', tunnelKindOf, randomInt)).toThrow();
+    expect(() => resolveTunnel({ ...g, current: 'f02' }, 'p02', tunnelKindOf, randomInt)).toThrow();
+  });
+
+  it('with no plane to reveal, is confirmed like any other phenomenon', () => {
+    const g = confirmPhenomenon(tunnel(['f01']), tunnelKindOf);
+    expect(g.current).toBe('f01');
+    expect(g.pending).toBe('phenomenon');
   });
 });

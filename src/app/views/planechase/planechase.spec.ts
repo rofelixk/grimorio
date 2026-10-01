@@ -9,6 +9,7 @@ import { PlanarSelectionService } from '@services/planar-selection.service';
 import { PLANECHASE_DATA, PlanechaseCatalogService } from '@services/planechase-catalog.service';
 import { PLANECHASE_RANDOM, PlanechaseGameService } from '@services/planechase-game.service';
 import { PLANAR_DATA, PLANAR_RECORDS, PLANAR_TRANSLATIONS, scriptedRandom } from '@testing/planechase-fixtures';
+import { INTERPLANAR_TUNNEL } from '@utils/planechase-game.util';
 import { getDeviceDb } from '../../core/db/device-db';
 import { Planechase } from './planechase';
 
@@ -230,5 +231,75 @@ describe('Planechase', () => {
     expect(service.game()!.pending).toBeNull();
     expect(service.game()!.current).not.toBe('p11');
     expect(service.game()!.used).toEqual(['p11']);
+  });
+
+  describe('Interplanar Tunnel', () => {
+    const tunnelRecord = { ...PLANAR_RECORDS[6], id: INTERPLANAR_TUNNEL, name: 'Interplanar Tunnel', hash: 'hash-tunnel' };
+    const drawOrder = ['p02', 'f01', 'p03', 'p04', 'p05', 'p06', 'p07'];
+    const game: PlanechaseGame = {
+      list: [INTERPLANAR_TUNNEL, 'p01', ...drawOrder],
+      current: INTERPLANAR_TUNNEL,
+      used: ['p01'],
+      drawOrder,
+      cost: 1,
+      pending: 'phenomenon',
+      result: { kind: 'phenomenon' },
+      undo: null,
+    };
+    const radios = (el: HTMLElement) => [...el.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
+    const tunnelSetUp = () => setUp({ data: { cards: [...PLANAR_RECORDS, tunnelRecord] }, game, random: [] });
+
+    it('shows the five revealed planes and holds "Concluir encontro" until one is picked', async () => {
+      const { el, control, fixture } = await tunnelSetUp();
+      expect(el.querySelector('[role="status"]')!.textContent).toContain('Escolha o próximo plano');
+      expect(el.querySelector('[role="radiogroup"]')!.getAttribute('aria-labelledby')).toBeTruthy();
+      expect(el.textContent).toContain('5 planos revelados');
+      // Phenomena revealed on the way aren't choices; the sixth plane isn't revealed.
+      expect(radios(el).map((radio) => radio.getAttribute('aria-label'))).toEqual([
+        'Card P02',
+        'Card P03',
+        'Card P04',
+        'Card P05',
+        'Card P06',
+      ]);
+      expect(radios(el).map((radio) => radio.tabIndex)).toEqual([0, -1, -1, -1, -1]);
+      expect(control('Concluir encontro').disabled).toBe(true);
+
+      radios(el)[2].click();
+      await fixture.whenStable();
+      expect(radios(el)[2].getAttribute('aria-checked')).toBe('true');
+      expect(radios(el).map((radio) => radio.tabIndex)).toEqual([-1, -1, 0, -1, -1]);
+      expect(control('Concluir encontro').disabled).toBe(false);
+    });
+
+    it('moves the pick with the arrow keys, wrapping at the ends', async () => {
+      const { el, fixture } = await tunnelSetUp();
+      radios(el)[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+      await fixture.whenStable();
+      expect(radios(el)[4].getAttribute('aria-checked')).toBe('true');
+      expect(document.activeElement).toBe(radios(el)[4]);
+
+      radios(el)[4].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      await fixture.whenStable();
+      expect(radios(el)[0].getAttribute('aria-checked')).toBe('true');
+    });
+
+    it('planeswalks to the picked plane, and Desfazer brings the same reveal back unpicked', async () => {
+      const { el, service, click, fixture } = await tunnelSetUp();
+      radios(el)[3].click();
+      await fixture.whenStable();
+      await click('Concluir encontro');
+
+      expect(service.game()!.current).toBe('p05');
+      expect(service.game()!.drawOrder[0]).toBe('p07');
+      expect(service.game()!.cost).toBe(1);
+      expect(el.querySelector('app-tunnel-choice')).toBeNull();
+      expect(el.querySelector('[role="status"]')!.textContent).toContain('Interplanar Tunnel foi para os usados.');
+
+      await click('Desfazer');
+      expect(service.game()!.current).toBe(INTERPLANAR_TUNNEL);
+      expect(radios(el)).toHaveLength(5);
+      expect(radios(el).some((radio) => radio.getAttribute('aria-checked') === 'true')).toBe(false);
+    });
   });
 });
