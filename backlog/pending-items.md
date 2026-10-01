@@ -20,15 +20,6 @@ Known work that isn't specced yet. [features.md](features.md) groups items into 
 | 34 | Effects that last until a planeswalk | S | — |
 | 35 | Default-off the unsupported cards | S | — |
 | 36 | DESIGN.md: Interplanar Tunnel chooser | S | — |
-| **Page transitions** | | | |
-| 1 | One page-change controller | M | 4 |
-| 2 | `DeckTurn`: `pendingClose` → `leaving` | M | 4 |
-| 3 | `PageSweep` as a component or directive | M | 4 |
-| 4 | Drop `PageSweep.start`'s `active` callback | S | 4 |
-| 5 | Collections: `redirecting` → navigation `info` | S | 4 |
-| 8 | Memoize `pageOf` | S | 4 |
-| 9 | `--band` duplication | S | 4 |
-| 10 | Naming leftovers | S | 4 |
 | **Storage & sync** | | | |
 | 39 | Cross-device deletes | M | — |
 | 40 | Card refresh vs. a pending collection write | S | — |
@@ -85,42 +76,6 @@ The app's roll result is wrong while these apply:
 
 ---
 
-## Page transitions
-
-### #1 · One page-change controller — M
-
-`DeckTurn` (`views/deck-area/deck-turn.ts`) and `CollectionTransition` (`views/collection-area/collection-transition.ts`) are near-identical state machines: `shown`, `turning`, `reducedMotion`, `initialized`, finish-then-start, the same `sweep.start` call. Extract a shared controller (e.g. `PageChange<P>`); each area supplies only its direction rule (`turnFor` vs `transitionDir`).
-
-### #2 · `DeckTurn`: `pendingClose` → `leaving` model — M
-
-Decks keep the deck page under during a close via `pendingClose`; collections use `shown = to` plus `leaving = from`. Blocker: `shownDeck` (linkedSignal in `deck-area.ts`) follows `turn.shown()`, so the outgoing deck page would go blank. It needs to derive from the leaving place too.
-
-### #3 · `PageSweep` as a component or directive — M
-
-E.g. `<app-page-sweep [dir]>` with content projection, owning the canvas, the `.sweep` wrapper (a `viewChild` instead of `querySelector('.sweep')` and the `--front` reset workaround), the host `inert`, and the canvas `attach` effect each view still copies.
-
-### #4 · Drop `PageSweep.start`'s `active` callback — S
-
-Both callers pass `() => turning() !== null`. Removing it changes behavior: when a change is finished without a new sweep (`DeckTurn`'s same-place early return), the dust currently settles at once instead of being pushed until `SWEEP_MS`. Decide the intended behavior first.
-
-### #5 · Collections: `redirecting` flag → navigation `info` — S
-
-Replace the mutable flag in `collection-area.ts` with `info: { instant: true }` on the redirect, read from `NavigationStart` extras the way `DeckTurn` uses `lastNav`.
-
-### #8 · Memoize `pageOf` — S
-
-`pageOf(id)` in `collection-area.ts` is a plain template method, run per change-detection pass for both the shown and the leaving place (path walk, depth, kind, a fresh object). Could be one `computed` per place. Low cost today (≤ 3 levels).
-
-### #9 · `--band` duplication — S
-
-`FRONT_BAND` (`deck-dust.util.ts`) and `--band: 160px` (`styles/_page-sweep.scss`) are kept in sync by a comment only. `PageSweep` could set `--band` inline from the constant.
-
-### #10 · Naming leftovers — S
-
-`deck-dust.util.ts` is no longer deck-specific (the shared page sweep uses it); move or rename it next to `page-sweep`. `app.routes.ts` still says "page turn".
-
----
-
 ## Storage & sync
 
 ### #39 · Cross-device deletes — M
@@ -145,7 +100,7 @@ Found in spec 011. `CardService.refresh()` (run when another copy announces `car
 
 ### #37 · Fix the recorded promise exceptions — S
 
-Spec 010 recorded the existing promise violations in `eslint-suppressions.json` instead of fixing them (its FR-016): `no-floating-promises` in `views/collection-area/collection-area.ts` (3, the `router.navigate` calls) and `views/deck-area/deck-area.ts` (1); `no-misused-promises` in `core/services/sync.service.spec.ts` (3) and `shared/auth/profile-modal/profile-flow.store.spec.ts` (1). Await, handle or `void` each one, then run `npx eslint src --prune-suppressions`. The file should end up empty and can be deleted.
+Spec 010 recorded the existing promise violations in `eslint-suppressions.json` instead of fixing them (its FR-016): `no-floating-promises` in `views/collection-area/collection-area.ts` (2, the `openCollection`/`openHolding` `router.navigate` calls; spec 013 fixed the redirect and the deck area's one); `no-misused-promises` in `core/services/sync.service.spec.ts` (3) and `shared/auth/profile-modal/profile-flow.store.spec.ts` (1). Await, handle or `void` each one, then run `npx eslint src --prune-suppressions`. The file should end up empty and can be deleted.
 
 ---
 

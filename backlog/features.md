@@ -10,26 +10,9 @@ Each entry:
 - **Why here**: what it needs from earlier specs, or what later specs need from it.
 - **Open decisions**: questions to settle during `/speckit-clarify`.
 
-When a spec ships, delete its entry here and its items from pending-items.md; the spec folder is the record. Entry numbers are permanent (pending-items.md refers to them), so the rest keep theirs. Shipped so far: 1 (spec 010, codebase baseline), 2 (spec 011, storage & sync foundation) and 3 (spec 012, modals, focus & auth stores).
+When a spec ships, delete its entry here and its items from pending-items.md; the spec folder is the record. Entry numbers are permanent (pending-items.md refers to them), so the rest keep theirs. Shipped so far: 1 (spec 010, codebase baseline), 2 (spec 011, storage & sync foundation), 3 (spec 012, modals, focus & auth stores) and 4 (spec 013, page transitions).
 
 ---
-
-## 4. Page transitions
-
-- **Status**: specifying
-- **Spec**: [013-page-transitions](../specs/013-page-transitions/spec.md)
-- **Goal**: One page-change system shared by decks and collections, with `PageSweep` as a reusable component, so any new area gets page transitions without copying code.
-- **Items**:
-  - #1 One page-change controller
-  - #2 `DeckTurn`: `pendingClose` → `leaving` model
-  - #3 `PageSweep` as a component or directive
-  - #4 Drop `PageSweep.start`'s `active` callback
-  - #5 Collections: `redirecting` flag → navigation `info`
-  - #8 Memoize `pageOf`
-  - #9 `--band` duplication
-  - #10 Naming leftovers
-- **Why here**: The largest group and pure refactoring, so it leans on spec 010's guardrails. The card redesign can then reuse it.
-- **Open decisions**: #4's intended dust behavior when a change finishes without a new sweep; component vs. directive for `PageSweep`.
 
 ## 5. Reactivity & timing audit
 
