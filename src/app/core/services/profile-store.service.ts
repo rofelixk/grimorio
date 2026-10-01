@@ -5,6 +5,7 @@ import { boundProfileId } from '../db/entity-store';
 import { WriteQueue } from '../db/write-queue';
 import { hashPassword, verifyPassword } from '../utils/password-hash.util';
 import { CrossTabService } from './cross-tab.service';
+import { StoragePersistenceService } from './storage-persistence.service';
 
 /** PBKDF2 iteration count for new password hashes (R3); tests provide a small value. */
 export const PBKDF2_ITERATIONS = new InjectionToken<number>('PBKDF2_ITERATIONS', {
@@ -38,6 +39,7 @@ export class ProfileStore {
   // reporter): a profile that silently fails to save would vanish on the next launch.
   private readonly queue = new WriteQueue();
   private readonly crossTab = inject(CrossTabService);
+  private readonly persistence = inject(StoragePersistenceService);
 
   constructor() {
     this.readyPromise = this.hydrate();
@@ -133,6 +135,7 @@ export class ProfileStore {
     };
     this.setRecords([...this.records(), record]);
     await this.persist(record);
+    void this.persistence.request('created');
     return toSummary(record);
   }
 

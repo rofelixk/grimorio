@@ -5,6 +5,7 @@ import { otherCopy, settleChannel } from '@testing/cross-tab';
 import { ACTIVE_PROFILE_KEY, getDeviceDb } from '../db/device-db';
 import { setActiveProfileDb } from '../db/entity-store';
 import { PBKDF2_ITERATIONS, ProfileStore } from './profile-store.service';
+import { StoragePersistenceService } from './storage-persistence.service';
 
 function freshStore(extra: Provider[] = []): ProfileStore {
   TestBed.resetTestingModule();
@@ -137,6 +138,12 @@ describe('ProfileStore', () => {
     expect(store.profiles().map((p) => p.id)).toEqual([bia.id]);
     expect(await db.get('profiles', rafa.id)).toBeUndefined();
     expect((await db.get('meta', ACTIVE_PROFILE_KEY))?.value).toBeNull();
+  });
+
+  it('asks for persistent storage once a created profile lands (FR-006)', async () => {
+    const request = vi.spyOn(TestBed.inject(StoragePersistenceService), 'request').mockResolvedValue();
+    await store.create({ name: 'rafa', password: 'grimorio123', colors: ['R'] });
+    expect(request).toHaveBeenCalledExactlyOnceWith('created');
   });
 
   describe('with another open copy', () => {
