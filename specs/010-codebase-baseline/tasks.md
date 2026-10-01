@@ -141,10 +141,10 @@ description: "Task list for 010 Codebase Baseline"
 
 **Purpose**: Whole-spec validation against the success criteria.
 
-- [ ] T041 Run quickstart.md steps 1 and 5: build with no budget warning; lint exit 0 with 0 warnings and full suite through `test-runner`; SC-004 and SC-005 greps; file and line counts under `src/` compared with `specs/010-codebase-baseline/baseline.md` (both lower, SC-007); zero references to every R7 removed item.
-- [ ] T042 Run quickstart.md step 6 (SC-008) with the user's running dev server via the `run` skill: Home, collection area, deck area, Planechase game and deck, entry modal, profile modal and the page-change dust, once with a non-default-colored profile and once with no profile (R/U/G). Report any visible difference.
-- [ ] T043 Run **`design-auditor`** over the whole feature diff and fix what it reports.
-- [ ] T044 Checkpoint: if T041–T043 changed anything, rerun the full suite and lint through `test-runner`, then commit the polish phase ("Codebase baseline: validation fixes"); if nothing changed, there is nothing to commit.
+- [X] T041 Run quickstart.md steps 1 and 5: build with no budget warning; lint exit 0 with 0 warnings and full suite through `test-runner`; SC-004 and SC-005 greps; file and line counts under `src/` compared with `specs/010-codebase-baseline/baseline.md` (both lower, SC-007); zero references to every R7 removed item.
+- [X] T042 Run quickstart.md step 6 (SC-008) with the user's running dev server via the `run` skill: Home, collection area, deck area, Planechase game and deck, entry modal, profile modal and the page-change dust, once with a non-default-colored profile and once with no profile (R/U/G). Report any visible difference.
+- [X] T043 Run **`design-auditor`** over the whole feature diff and fix what it reports.
+- [X] T044 Checkpoint: if T041–T043 changed anything, rerun the full suite and lint through `test-runner`, then commit the polish phase ("Codebase baseline: validation fixes"); if nothing changed, there is nothing to commit.
 
 ---
 
