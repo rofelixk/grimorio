@@ -29,8 +29,8 @@ description: "Task list for Modals, Focus & Auth Stores"
 
 **Purpose**: The test helper the height specs need (research R11: jsdom has no `ResizeObserver`)
 
-- [ ] T001 Create the fake `ResizeObserver` in `src/app/core/testing/resize-observer.ts`: `installResizeObserver()` replaces `globalThis.ResizeObserver` with a fake that records each instance's callback and observed elements, `restoreResizeObserver()` puts the original back (or deletes it when there was none), and `notifyResize(target?)` delivers one observation to every instance observing `target` (or every observed element when omitted); `disconnect()` and `unobserve()` stop delivery. Specs set `offsetHeight` with `Object.defineProperty` because jsdom has no layout. Follow the style of `src/app/core/testing/dialog.ts` (`stubDialog()`).
-- [ ] T002 Checkpoint: run `npm run lint` and the full suite through the `test-runner` agent, fix everything, then commit Phase 1 ("Modals, focus & auth stores: setup").
+- [X] T001 Create the fake `ResizeObserver` in `src/app/core/testing/resize-observer.ts`: `installResizeObserver()` replaces `globalThis.ResizeObserver` with a fake that records each instance's callback and observed elements, `restoreResizeObserver()` puts the original back (or deletes it when there was none), and `notifyResize(target?)` delivers one observation to every instance observing `target` (or every observed element when omitted); `disconnect()` and `unobserve()` stop delivery. Specs set `offsetHeight` with `Object.defineProperty` because jsdom has no layout. Follow the style of `src/app/core/testing/dialog.ts` (`stubDialog()`).
+- [X] T002 Checkpoint: run `npm run lint` and the full suite through the `test-runner` agent, fix everything, then commit Phase 1 ("Modals, focus & auth stores: setup").
 
 ---
 
