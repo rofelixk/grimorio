@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { PageSweep, SWEEP_MS } from '@shared/effects/page-sweep/page-sweep';
+import { PageSweep, SWEEP_MS } from '@shared/effects/page-sweep/page-sweep.service';
 import type { Place } from '@utils/collection-transition.util';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CollectionTransition } from './collection-transition';

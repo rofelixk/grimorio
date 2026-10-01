@@ -1,6 +1,6 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { PageSweep } from '@shared/effects/page-sweep/page-sweep';
+import { PageSweep } from '@shared/effects/page-sweep/page-sweep.service';
 import { REDUCED_MOTION_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { type DeckNav, type DeckPlace, samePlace, turnFor } from '@utils/deck-turn.util';
 

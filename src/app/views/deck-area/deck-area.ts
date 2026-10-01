@@ -23,7 +23,7 @@ import { CreateRow } from '@shared/collections/create-row/create-row';
 import { DeckDeleteDialog, type DeckDeleted } from '@shared/decks/deck-delete-dialog/deck-delete-dialog';
 import { DeckFormDialog } from '@shared/decks/deck-form-dialog/deck-form-dialog';
 import { DeckTile } from '@shared/decks/deck-tile/deck-tile';
-import { PageSweep } from '@shared/effects/page-sweep/page-sweep';
+import { PageSweep } from '@shared/effects/page-sweep/page-sweep.service';
 import { DECK } from '@utils/deck-copy';
 import { type DeckPlace, samePlace } from '@utils/deck-turn.util';
 import { DeckTurn } from './deck-turn';

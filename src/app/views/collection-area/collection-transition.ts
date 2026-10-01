@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { PageSweep, type SweepDir } from '@shared/effects/page-sweep/page-sweep';
+import { PageSweep, type SweepDir } from '@shared/effects/page-sweep/page-sweep.service';
 import { REDUCED_MOTION_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { transitionDir, type Place } from '@utils/collection-transition.util';
 

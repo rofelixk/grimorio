@@ -8,7 +8,7 @@ import { CollectionService } from '@services/collection.service';
 import { ToastService } from '@services/toast.service';
 import { mockCardEntry } from '@testing/card.mocks';
 import { stubDialog } from '@testing/dialog';
-import { SWEEP_MS } from '@shared/effects/page-sweep/page-sweep';
+import { SWEEP_MS } from '@shared/effects/page-sweep/page-sweep.service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { collectionMatcher } from '../../app.routes';
 import { openProfileDb } from '@db/profile-db';

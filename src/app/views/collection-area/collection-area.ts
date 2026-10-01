@@ -26,7 +26,7 @@ import {
 import { CollectionFormDialog } from '@shared/collections/collection-form-dialog/collection-form-dialog';
 import { CollectionRow } from '@shared/collections/collection-row/collection-row';
 import { CreateRow } from '@shared/collections/create-row/create-row';
-import { PageSweep } from '@shared/effects/page-sweep/page-sweep';
+import { PageSweep } from '@shared/effects/page-sweep/page-sweep.service';
 import { COLLECTION, formatCount } from '@utils/collection-copy';
 import { subtreeIds } from '@utils/collection-tree.util';
 import type { Place } from '@utils/collection-transition.util';

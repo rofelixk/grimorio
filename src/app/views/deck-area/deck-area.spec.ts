@@ -8,7 +8,7 @@ import { stubDialog } from '@testing/dialog';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { deckMatcher } from '../../app.routes';
 import { DeckArea } from './deck-area';
-import { SWEEP_MS } from '@shared/effects/page-sweep/page-sweep';
+import { SWEEP_MS } from '@shared/effects/page-sweep/page-sweep.service';
 
 interface Media {
   mobile?: boolean;

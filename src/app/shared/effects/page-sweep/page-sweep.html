@@ -1,0 +1,20 @@
+<!-- The incoming page underneath, kept across changes; the outgoing one dissolving over it behind the dust front. -->
+<ng-container
+  [ngTemplateOutlet]="place().template"
+  [ngTemplateOutletContext]="{ $implicit: change().shown(), leaving: false }"
+/>
+@if (change().leaving(); as outgoing) {
+  <div
+    #layer
+    class="sweep"
+    [class.sweep--close]="change().run()?.dir === 'close'"
+    [style.top.px]="-offset()"
+    [style.--band.px]="band"
+  >
+    <ng-container [ngTemplateOutlet]="place().template" [ngTemplateOutletContext]="{ $implicit: outgoing, leaving: true }" />
+  </div>
+}
+
+@if (!change().reducedMotion()) {
+  <canvas #dust class="dust" aria-hidden="true"></canvas>
+}

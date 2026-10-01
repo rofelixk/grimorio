@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { REDUCED_MOTION_QUERY } from '@shared/ds/media-query';
-import { PageSweep, SWEEP_MS } from '@shared/effects/page-sweep/page-sweep';
+import { PageSweep, SWEEP_MS } from '@shared/effects/page-sweep/page-sweep.service';
 import { SETTLE_MAX_MS } from '@utils/sweep-dust.util';
 import type { DeckNav } from '@utils/deck-turn.util';
 import { DeckTurn } from './deck-turn';
