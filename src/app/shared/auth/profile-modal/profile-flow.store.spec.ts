@@ -1,7 +1,7 @@
 import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { CloudLink } from '@models/profile.model';
 import { CardService } from '@services/card.service';
 import { CloudAuthService } from '@services/cloud-auth.service';
@@ -30,7 +30,7 @@ describe('ProfileFlowStore', () => {
   let profiles: ProfileStore;
   let store: ProfileFlowStore;
   let toasts: ToastService;
-  let cloudAuth: Record<string, ReturnType<typeof vi.fn>>;
+  let cloudAuth: Record<string, ReturnType<typeof vi.fn>> & { deleteAccount: Mock<CloudAuthService['deleteAccount']> };
   let cloudSession: { markNeedsReauth: ReturnType<typeof vi.fn> };
   let modal: { close: ReturnType<typeof vi.fn> };
   let entryModal: { open: ReturnType<typeof vi.fn> };

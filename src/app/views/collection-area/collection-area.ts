@@ -130,11 +130,11 @@ export class CollectionArea {
   }
 
   protected openCollection(id: string): void {
-    this.router.navigate(['/collection', id]);
+    void this.router.navigate(['/collection', id]);
   }
 
   protected openHolding(): void {
-    this.router.navigate(['/collection', HOLDING_REF]);
+    void this.router.navigate(['/collection', HOLDING_REF]);
   }
 
   protected openCreate(parentId: string | null): void {

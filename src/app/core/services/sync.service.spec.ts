@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Injector, signal } from '@angular/core';
 import { setActiveProfileDb } from '@db/entity-store';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { ProfileSummary } from '@models/profile.model';
 import type { CardEntry } from '@models/card.model';
 import type { Collection } from '@models/collection.model';
@@ -128,7 +128,7 @@ describe('SyncService', () => {
   let auth: { lookupAccount: ReturnType<typeof vi.fn>; forgetGoneAccount: ReturnType<typeof vi.fn> };
   let profiles: { byId: ReturnType<typeof vi.fn>; setColors: ReturnType<typeof vi.fn> };
   let updateUser: ReturnType<typeof vi.fn>;
-  let from: ReturnType<typeof vi.fn>;
+  let from: Mock<(table: string) => unknown>;
   let calls: string[];
   let sync: SyncService;
   const planarSelection = signal<PlanarSelection | null>(null);
@@ -181,7 +181,7 @@ describe('SyncService', () => {
     pending = stalledQuery();
     calls = [];
     updateUser = vi.fn(async () => (calls.push('updateUser'), { data: {}, error: null }));
-    from = vi.fn(() => (calls.push('from'), pending.query));
+    from = vi.fn<(table: string) => unknown>(() => (calls.push('from'), pending.query));
     cloud = {
       client: vi.fn(() => ({ auth: { updateUser }, from })),
       startAutoRefresh: vi.fn(),

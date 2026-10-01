@@ -21,7 +21,7 @@ description: "Task list for the Reactivity & Timing Audit"
 - **[Story]**: Which user story this task belongs to (US1–US4)
 - All paths are from the repo root; `src/app/` prefixes are spelled out.
 
-- [ ] T000 Before any other task, check out `feature/014-reactivity-timing-audit` and make its first commit: every file under `specs/014-reactivity-timing-audit/`, and nothing else. This feature has no design handoff folder.
+- [X] T000 Before any other task, check out `feature/014-reactivity-timing-audit` and make its first commit: every file under `specs/014-reactivity-timing-audit/`, and nothing else. This feature has no design handoff folder.
 
 ---
 
@@ -29,8 +29,8 @@ description: "Task list for the Reactivity & Timing Audit"
 
 **Purpose**: Confirm the verdict list still matches the code before anything changes (research R0, spec edge case "a call site that moved or changed count").
 
-- [ ] T001 Run `grep -rnE "\bsetTimeout\(|\bsetInterval\(|\beffect\(|afterRenderEffect\(|\.events\.subscribe" src --include=*.ts | grep -v "\.spec\.ts"` and match every line to a row of the verdict list in `specs/014-reactivity-timing-audit/research.md` (expected: 38 lines, as 12 T + 3 I + 15 E + 5 A + 3 R). For any unmatched line, add a row to the matching table in `research.md` with location, purpose, verdict and a one-line reason judged by FR-005/FR-009/FR-010, and update the counts in R0 and the "verdict counts" sentence. For a row whose call site is gone, remove it and update the counts.
-- [ ] T002 Checkpoint: there is no code change in this phase, so its commit goes with Phase 2 if `research.md` changed. If it didn't change, there is nothing to commit.
+- [X] T001 Run `grep -rnE "\bsetTimeout\(|\bsetInterval\(|\beffect\(|afterRenderEffect\(|\.events\.subscribe" src --include=*.ts | grep -v "\.spec\.ts"` and match every line to a row of the verdict list in `specs/014-reactivity-timing-audit/research.md` (expected: 38 lines, as 12 T + 3 I + 15 E + 5 A + 3 R). For any unmatched line, add a row to the matching table in `research.md` with location, purpose, verdict and a one-line reason judged by FR-005/FR-009/FR-010, and update the counts in R0 and the "verdict counts" sentence. For a row whose call site is gone, remove it and update the counts.
+- [X] T002 Checkpoint: there is no code change in this phase, so its commit goes with Phase 2 if `research.md` changed. If it didn't change, there is nothing to commit.
 
 ---
 
@@ -40,12 +40,12 @@ description: "Task list for the Reactivity & Timing Audit"
 
 **Independent Test**: `test ! -e eslint-suppressions.json && npm run lint` passes. Adding `Promise.resolve();` as a statement in any `src/` file makes lint fail with `no-floating-promises` (quickstart §1, SC-007).
 
-- [ ] T003 [P] [US3] In `src/app/views/collection-area/collection-area.ts`, change `openCollection` and `openHolding` to `void this.router.navigate(...)` (research R7): a failed or cancelled navigation leaves the person on the current page, and the Router reports errors itself, as in the existing `void this.router.navigate` redirects (E1, E2). Change nothing else in the file.
-- [ ] T004 [P] [US3] In `src/app/core/services/sync.service.spec.ts`, declare each of the three `from` mocks (around lines 439, 659 and 805) as `Mock<(table: string) => unknown>` (import `Mock` from `vitest`) instead of `ReturnType<typeof vi.fn>`. Returning the thenable query object then matches the declared signature (research R8). The assertions stay the same.
-- [ ] T005 [P] [US3] In `src/app/shared/auth/profile-modal/profile-flow.store.spec.ts` (around line 424), type the `cloudAuth` mock so `deleteAccount` has the signature of `CloudAuthService['deleteAccount']` (returns `Promise<void>`). The `async` implementation then matches its declared type (research R8). The assertions stay the same.
+- [X] T003 [P] [US3] In `src/app/views/collection-area/collection-area.ts`, change `openCollection` and `openHolding` to `void this.router.navigate(...)` (research R7): a failed or cancelled navigation leaves the person on the current page, and the Router reports errors itself, as in the existing `void this.router.navigate` redirects (E1, E2). Change nothing else in the file.
+- [X] T004 [P] [US3] In `src/app/core/services/sync.service.spec.ts`, declare each of the three `from` mocks (around lines 439, 659 and 805) as `Mock<(table: string) => unknown>` (import `Mock` from `vitest`) instead of `ReturnType<typeof vi.fn>`. Returning the thenable query object then matches the declared signature (research R8). The assertions stay the same.
+- [X] T005 [P] [US3] In `src/app/shared/auth/profile-modal/profile-flow.store.spec.ts` (around line 424), type the `cloudAuth` mock so `deleteAccount` has the signature of `CloudAuthService['deleteAccount']` (returns `Promise<void>`). The `async` implementation then matches its declared type (research R8). The assertions stay the same.
 - [ ] T006 [US3] Run `npx eslint src --prune-suppressions` (depends on T003–T005). Confirm `eslint-suppressions.json` is now empty of entries, then delete `eslint-suppressions.json`. Confirm `eslint.config.js` doesn't reference the file; if it does, remove that reference.
-- [ ] T007 [US3] Through `test-runner`, run `npm run lint`, which must pass with the file gone. Then add `Promise.resolve();` as a statement in `src/app/app.ts`, confirm through `test-runner` that `npx eslint src/app/app.ts` fails with `@typescript-eslint/no-floating-promises`, and revert that line (SC-007).
-- [ ] T008 [US3] Checkpoint: through `test-runner`, run the full suite (`npm test`) and lint, then fix everything. Commit Phase 2 ("Reactivity audit: promise exceptions"), including `research.md` if T001 changed it.
+- [X] T007 [US3] Through `test-runner`, run `npm run lint`, which must pass with the file gone. Then add `Promise.resolve();` as a statement in `src/app/app.ts`, confirm through `test-runner` that `npx eslint src/app/app.ts` fails with `@typescript-eslint/no-floating-promises`, and revert that line (SC-007).
+- [X] T008 [US3] Checkpoint: through `test-runner`, run the full suite (`npm test`) and lint, then fix everything. Commit Phase 2 ("Reactivity audit: promise exceptions"), including `research.md` if T001 changed it.
 
 **Checkpoint**: Lint is clean with no exceptions record. Every later phase now runs lint with no grandfathering.
 
