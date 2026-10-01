@@ -172,7 +172,7 @@ The maintainer needs to change how the cloud sign-in form handles an e-mail that
 - **SC-001**: Every existing test for the modals, the navigation drawer, the radio groups and the entry and profile flows passes, with changes only where this spec decides a behavior change.
 - **SC-002**: Walking every flow of the entry and profile modals (local and cloud) shows the same screens, copy and focus stops as before the change, with 0 differences outside the decisions in this spec.
 - **SC-003**: The measuring logic for modal height exists in exactly 1 place, used by 3 modals; the focus-on-open, focus-on-screen-change and return-focus logic exists in exactly 1 place.
-- **SC-004**: Each shared cloud step is implemented once instead of twice, and neither the entry nor the profile flow store exceeds 450 lines.
+- **SC-004**: Each shared cloud step is implemented once instead of twice.
 - **SC-005**: On desktop, across screen changes and error states in all three modals, no scrollbar is visible during a height animation and no content is clipped.
 - **SC-006**: The design audit reports no undocumented behavior for the compact modal's height, and DESIGN.md's "Fluid height" and "Compact modal" entries agree with what the modals do.
 
@@ -182,7 +182,7 @@ The maintainer needs to change how the cloud sign-in form handles an e-mail that
 - **The fonts-ready re-measure** is removed only if planning confirms the content-size tracking already catches the change when fonts finish loading; otherwise it stays in the shared mechanism.
 - **The themed modal's height binding** is replaced by the direct write (FR-002), since one mechanism serves all three modals; the entry and profile modals don't flash a scrollbar today because their form pane hides overflow, so this changes nothing visible for them.
 - **The 460px minimum and the 880px layout** stay specific to the entry and profile modals; the compact modal keeps no minimum.
-- **The 450-line target** (SC-004) is a guide for "small enough to change safely"; the plan may adjust it if a store's own screens need more, stating why.
+- **No line-count target**: the stores get smaller as a side effect of removing the duplicated cloud steps; their size is not a goal in itself.
 - **Early development, single user**: no backward-compatibility code for the old height or focus code paths.
 - **Spec 010's tests** guard the refactor; any missing coverage for a behavior this spec keeps (for example, return-focus on the drawer) is added before or with the change.
 - **Out of scope**: page transitions (roadmap entry 4), the `setTimeout`/`effect` audits (entry 5, which comes after this spec rewrites many of them), mobile landscape (entry 6), storage & sync items #39/#40, and the Planechase gameplay items.
