@@ -27,7 +27,6 @@ This spec fixes these before the card features and later entities build on top. 
 - Q: When an older open copy must stop using its data because a newer version took over, how should it tell the person to reload? → A: A locked `CompactModal` (Esc, backdrop and ✕ don't close it) with a short message and one "Recarregar" button.
 - Q: If a sync starts in two open copies at once, do both run or does one wait? → A: One at a time across copies; the second shows the syncing state and runs after the first finishes.
 - Q: When another copy deletes the profile this copy has open, what does this copy show? → A: A PT-BR toast ("Este perfil foi excluído em outra janela."), then the usual no-profile behavior (the entry modal opens on gated routes).
-- Q: Firefox shows its own popup for the persistent-storage request; should the app still ask there? → A: Ask at startup only on browsers that show no popup for it; on browsers that do (Firefox), ask only when a profile is created.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -96,10 +95,9 @@ A person on an Android phone that is running low on space keeps using Grimorio w
 **Acceptance Scenarios**:
 
 1. **Given** a device with no profiles, **When** the first profile is created, **Then** the app asks the browser to keep its storage persistently.
-2. **Given** a device that already has profiles but no persistent storage yet, on a browser that shows no popup for the request, **When** the app starts, **Then** it asks again.
-3. **Given** a browser that shows its own popup for the request (Firefox), **When** the app starts with profiles present, **Then** it does not ask; it asks only when a profile is created.
-4. **Given** the browser denies the request, ignores it or doesn't support it, **When** the app continues, **Then** nothing visible changes and no error is shown.
-5. **Given** storage is already persistent, **When** the app starts, **Then** it does not ask again.
+2. **Given** a device that already has profiles but no persistent storage yet, **When** the app starts, **Then** it asks again.
+3. **Given** the browser denies the request, ignores it or doesn't support it, **When** the app continues, **Then** nothing visible changes and no error is shown.
+4. **Given** storage is already persistent, **When** the app starts, **Then** it does not ask again.
 
 ---
 
@@ -148,8 +146,8 @@ The maintainer needs to change how decks sync. They find the deck sync as its ow
 
 **Persistent storage (#27)**
 
-- **FR-006**: The app MUST ask the browser to keep its storage persistently when a profile is created, and at startup whenever the device has at least one profile and storage isn't already persistent. On browsers that answer the request with their own permission popup (Firefox), the app MUST ask only when a profile is created, never at startup.
-- **FR-007**: A denied, ignored or unsupported request MUST have no visible effect from the app (a browser's own permission popup, FR-006, is the only visible part) and MUST NOT block or delay startup or profile creation.
+- **FR-006**: The app MUST ask the browser to keep its storage persistently when a profile is created, and at startup whenever the device has at least one profile and storage isn't already persistent.
+- **FR-007**: A denied, ignored or unsupported request MUST have no visible effect from the app and MUST NOT block or delay startup or profile creation.
 
 **Several open copies (#29)**
 
@@ -202,7 +200,7 @@ The maintainer needs to change how decks sync. They find the deck sync as its ow
 
 - **Toast copy**: label "Dados" (or the area's existing label), text along the lines of "Não foi possível salvar a alteração neste aparelho." The exact copy is settled in planning, with "aparelho" as the app's existing word for device.
 - **Profile registry**: `ProfileStore` already returns save failures to its callers, which report them in the entry and profile modals, so it is not moved onto the shared queue's toast path (FR-005). It may reuse the queueing part where that fits.
-- **Persistent storage on existing devices**: the request also runs at startup (FR-006) because devices that already have profiles, including the maintainer's, would otherwise never reach the "first profile created" moment. On Firefox those devices get no request until a profile is created there, which is accepted to avoid a popup on every startup.
+- **Persistent storage on existing devices**: the request also runs at startup (FR-006) because devices that already have profiles, including the maintainer's, would otherwise never reach the "first profile created" moment.
 - **Copies on one device only**: "copies of the app" means tabs or windows of the same browser profile on one device, including the installed PWA. Other devices stay the job of cloud sync.
 - **The reload prompt** after a version change (FR-009) reuses the existing locked `CompactModal` pattern, so it needs no new DESIGN.md entry.
 - **Page size**: the cloud's default response limit (1,000 rows); FR-016's "until a short page" rule keeps it correct if the server limit differs.
