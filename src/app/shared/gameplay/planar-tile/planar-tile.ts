@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
-import type { PlanarCard } from '../../../core/data/planechase/planar-card.model';
+import type { PlanarCard } from '@data/planechase/planar-card.model';
 import { DECK, PLANAR_CARD } from '@utils/planechase-copy';
 import { PlanarImage } from '@shared/gameplay/planar-image/planar-image';
 

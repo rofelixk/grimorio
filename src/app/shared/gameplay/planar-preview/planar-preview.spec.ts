@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { PlanarCard } from '../../../core/data/planechase/planar-card.model';
+import type { PlanarCard } from '@data/planechase/planar-card.model';
 import { PlanarImageService } from '@services/planar-image.service';
 import { planarCard } from '@testing/planechase-fixtures';
 import { PlanarPreviewContent } from './planar-preview';

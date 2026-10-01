@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { PlanarCardData } from '../../core/data/planechase/planar-card.model';
-import { DEFAULT_OFF_IDS } from '../../core/data/planechase/default-off';
+import type { PlanarCardData } from '@data/planechase/planar-card.model';
+import { DEFAULT_OFF_IDS } from '@data/planechase/default-off';
 import type { PlanechaseGame } from '@models/planechase-game.model';
 import { PlanarImageService } from '@services/planar-image.service';
 import { PlanarSelectionService } from '@services/planar-selection.service';
@@ -10,7 +10,7 @@ import { PLANECHASE_DATA, PlanechaseCatalogService } from '@services/planechase-
 import { PLANECHASE_RANDOM, PlanechaseGameService } from '@services/planechase-game.service';
 import { PLANAR_DATA, PLANAR_RECORDS, PLANAR_TRANSLATIONS, scriptedRandom } from '@testing/planechase-fixtures';
 import { INTERPLANAR_TUNNEL } from '@utils/planechase-game.util';
-import { getDeviceDb } from '../../core/db/device-db';
+import { getDeviceDb } from '@db/device-db';
 import { Planechase } from './planechase';
 
 const IDS = PLANAR_RECORDS.map((card) => card.id);

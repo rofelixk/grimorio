@@ -1,7 +1,7 @@
 import { Component, ElementRef, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { PlanarSet } from '../../core/data/planechase/planar-card.model';
+import type { PlanarSet } from '@data/planechase/planar-card.model';
 import { PLANAR_CARDS } from '@testing/planechase-fixtures';
 import { PlanarPreviewController } from './planar-preview.controller';
 

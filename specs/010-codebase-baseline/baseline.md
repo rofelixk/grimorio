@@ -21,3 +21,17 @@ Measured on 2026-09-30, before any removal (branch `feature/010-codebase-baselin
 | `chunk-TVTU22ZJ.js` (lazy) | cards-pt-br-json | 66.44 kB | 14.80 kB |
 
 No budgets were configured.
+
+## After the removals (T026)
+
+Measured with a temporary `anyComponentStyle` warning of `1kb`, so the build reports every compiled component stylesheet.
+
+| Measure | Value |
+|---------|-------|
+| Largest compiled component stylesheet | 4.54 kB (`views/collection-area/collection-area.scss`) |
+| Next largest | 3.62 kB (`identity-wheel`), 2.92 kB (`deck-area`), 2.90 kB (`profile-modal`), 2.77 kB (`entry-modal`) |
+| `cards-json` lazy chunk | 105.47 kB |
+| `cards-pt-br-json` lazy chunk | 66.44 kB |
+| Initial total | 861.58 kB (`main` 852.37 kB) |
+
+Budgets derived from these (T027): component style 9 kB warning / 18 kB error; each named lazy chunk 210 kB / 420 kB.

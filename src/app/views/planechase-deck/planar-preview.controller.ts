@@ -10,7 +10,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import type { PlanarCard, PlanarSet } from '../../core/data/planechase/planar-card.model';
+import type { PlanarCard, PlanarSet } from '@data/planechase/planar-card.model';
 import { visibleOrder } from '@utils/planar-preview.util';
 import { MOBILE_QUERY } from '@shared/ds/media-query';
 

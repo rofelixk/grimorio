@@ -8,7 +8,7 @@
     "serve:pwa": "npm run build && npx http-server dist/grimorio/browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint",
+    "lint": "eslint src",
     "sync:scryfall": "tsx --env-file=.env scripts/sync-scryfall.ts",
     "sync:planechase": "tsx --env-file=.env scripts/sync-planechase.ts",
     "cap:sync": "cap sync android",

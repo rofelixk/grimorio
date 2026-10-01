@@ -12,7 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import type { PlanarCard, PlanarSet } from '../../core/data/planechase/planar-card.model';
+import type { PlanarCard, PlanarSet } from '@data/planechase/planar-card.model';
 import { PlanarSelectionService } from '@services/planar-selection.service';
 import { PlanechaseCatalogService } from '@services/planechase-catalog.service';
 import { PlanechaseGameService } from '@services/planechase-game.service';

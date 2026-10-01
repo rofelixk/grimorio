@@ -38,6 +38,12 @@
           },
           "configurations": {
             "production": {
+              "budgets": [
+                { "type": "initial", "maximumWarning": "1.25mb", "maximumError": "1.5mb" },
+                { "type": "anyComponentStyle", "maximumWarning": "9kb", "maximumError": "18kb" },
+                { "type": "bundle", "name": "cards-json", "maximumWarning": "210kb", "maximumError": "420kb" },
+                { "type": "bundle", "name": "cards-pt-br-json", "maximumWarning": "210kb", "maximumError": "420kb" }
+              ],
               "outputHashing": "all",
               "serviceWorker": "ngsw-config.json"
             },
@@ -65,12 +71,6 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "setupFiles": ["src/test-setup.ts"]
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
