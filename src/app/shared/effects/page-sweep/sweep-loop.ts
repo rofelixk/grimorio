@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, inject } from '@angular/core';
+import { DestroyRef, ElementRef, Injectable, inject } from '@angular/core';
 import { IdentityService } from '@services/identity.service';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import type { SweepDir } from '@utils/page-change.util';
@@ -23,6 +23,8 @@ interface Run {
   dir: SweepDir;
   /** Set by `settle()`: the dust settles on the next frame, before the front has crossed. */
   settling: boolean;
+  /** Called once, on the frame the front completes, unless the run settled or stopped first. */
+  onCrossed: () => void;
   /** The outgoing page's layer (`.sweep`), whose dissolve front this loop drives. */
   page: HTMLElement | null;
   /** Absent when there's no canvas (or no 2D context): the front still runs, without dust. */
@@ -52,11 +54,10 @@ interface Run {
 export class SweepLoop {
   private readonly identity = inject(IdentityService);
   private readonly phone = mediaQuerySignal(MOBILE_QUERY);
+  /** The sweep host, which the dust canvas covers. */
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   private frame: number | null = null;
-  private endTimer: ReturnType<typeof setTimeout> | null = null;
-  private canvas: HTMLCanvasElement | null = null;
-  private host: HTMLElement | null = null;
   private run: Run | null = null;
   /** Speck sprites by `parchment|color`, kept across sweeps. */
   private readonly sprites = new Map<string, HTMLCanvasElement>();
@@ -65,40 +66,34 @@ export class SweepLoop {
     inject(DestroyRef).onDestroy(() => this.stop());
   }
 
-  /** The dust canvas, if any, and the element it covers (the sweep host). */
-  attach(canvas: HTMLCanvasElement | null, host: HTMLElement): void {
-    this.canvas = canvas;
-    this.host = host;
-  }
-
   /**
-   * Starts a sweep, stopping any running one and clearing its dust. `layer` is the outgoing page,
-   * read now to drop the last front and again on the first frame, once it's rendered. `onCrossed`
-   * fires once the front has crossed — `SWEEP_MS` from the sweep's first frame, so the outgoing
-   * layer isn't removed while its band is still fading.
+   * Starts a sweep, stopping any running one and clearing its dust. `page.layer` is the outgoing
+   * page, read now to drop the last front and again on the first frame, once it's rendered;
+   * `page.dust` is the canvas, if any, read on the first frame. `onCrossed` fires on the frame the
+   * front completes, so the outgoing layer isn't removed while its band is still fading.
    */
-  start(dir: SweepDir, layer: () => HTMLElement | null, onCrossed: () => void): void {
+  start(
+    dir: SweepDir,
+    page: { layer: () => HTMLElement | null; dust: () => HTMLCanvasElement | null },
+    onCrossed: () => void,
+  ): void {
     this.stop();
     const host = this.host;
-    if (!host) {
-      this.endTimer = setTimeout(onCrossed, SWEEP_MS);
-      return;
-    }
     // A quick second change can reuse the `.sweep` element: drop the last front so the new
     // outgoing page starts whole instead of showing the old one's position for a frame.
-    layer()?.style.removeProperty('--front');
+    page.layer()?.style.removeProperty('--front');
 
     // Measured on the first frame, once the outgoing layer is rendered.
     this.frame = requestAnimationFrame((now) => {
-      this.endTimer = setTimeout(onCrossed, SWEEP_MS);
-      const page = layer();
-      const width = page?.offsetWidth || host.clientWidth;
-      const off = page?.offsetLeft ?? 0;
+      const layer = page.layer();
+      const width = layer?.offsetWidth || host.clientWidth;
+      const off = layer?.offsetLeft ?? 0;
       const run: Run = {
         dir,
         settling: false,
-        page,
-        dust: this.makeDust(host, width, off),
+        onCrossed,
+        page: layer,
+        dust: this.makeDust(page.dust(), host, width, off),
         start: now,
         settleAt: null,
         width,
@@ -115,10 +110,6 @@ export class SweepLoop {
    * once. A no-op with no sweep running, or once the dust is already settling.
    */
   settle(): void {
-    if (this.endTimer !== null) {
-      clearTimeout(this.endTimer);
-      this.endTimer = null;
-    }
     if (this.run) {
       this.run.settling = true;
     } else if (this.frame !== null) {
@@ -128,21 +119,16 @@ export class SweepLoop {
   }
 
   stop(): void {
-    if (this.endTimer !== null) {
-      clearTimeout(this.endTimer);
-      this.endTimer = null;
-    }
     if (this.frame !== null) {
       cancelAnimationFrame(this.frame);
       this.frame = null;
     }
+    const dust = this.run?.dust;
+    dust?.ctx.clearRect(0, 0, dust.canvasW, dust.canvasH);
     this.run = null;
-    const canvas = this.canvas;
-    canvas?.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  private makeDust(host: HTMLElement, width: number, off: number): Run['dust'] {
-    const canvas = this.canvas;
+  private makeDust(canvas: HTMLCanvasElement | null, host: HTMLElement, width: number, off: number): Run['dust'] {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return null;
     const canvasW = host.clientWidth;
@@ -173,8 +159,11 @@ export class SweepLoop {
   private step(run: Run, now: number): void {
     const elapsed = now - run.start;
     const turning = !run.settling && elapsed < SWEEP_MS;
+    // The front completes on this frame, unless the page settled first.
+    let crossed = false;
     if (!turning && run.settleAt === null) {
       run.settleAt = now;
+      crossed = !run.settling;
       if (run.dust) settleSchedule(run.dust.specks, Math.random);
     }
 
@@ -197,9 +186,10 @@ export class SweepLoop {
       run.dust?.ctx.clearRect(0, 0, run.dust.canvasW, run.dust.canvasH);
       this.frame = null;
       this.run = null;
-      return;
+    } else {
+      this.frame = requestAnimationFrame((next) => this.step(run, next));
     }
-    this.frame = requestAnimationFrame((next) => this.step(run, next));
+    if (crossed) run.onCrossed();
   }
 
   private drawDust(run: Run, dust: NonNullable<Run['dust']>, now: number, ex: number, vex: number, turning: boolean): boolean {

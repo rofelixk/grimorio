@@ -17,6 +17,13 @@ const RULE: PageRule<string> = {
 
 const reduced = signal(false);
 
+/** Fake rAF runs a frame every 16 ms. */
+const FRAME = 16;
+/** Elapsed time on the frame the front completes: the first frame at or past `SWEEP_MS`. */
+const CROSSING = Math.ceil(SWEEP_MS / FRAME) * FRAME;
+/** From a change to its end, at most: the first frame, then the crossing one. */
+const FULL_SWEEP = FRAME + CROSSING;
+
 @Component({
   imports: [PageSweep, PagePlace],
   template: `
@@ -75,7 +82,7 @@ describe('PageSweep', () => {
   const front = () => parseFloat(layer()!.style.getPropertyValue('--front'));
 
   beforeEach(() => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame'] });
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] });
     ctx = fakeContext();
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as never);
     vi.spyOn(Element.prototype, 'clientWidth', 'get').mockReturnValue(1200);
@@ -105,7 +112,7 @@ describe('PageSweep', () => {
     expect(layer()!.querySelector('h1')!.dataset['leaving']).toBe('true');
     expect(sweepEl.querySelector('h1')!.textContent).toBe('b');
 
-    advance(SWEEP_MS + 20);
+    advance(FULL_SWEEP);
     expect(layer()).toBeNull();
   });
 
@@ -123,7 +130,7 @@ describe('PageSweep', () => {
     expect(sweepEl.hasAttribute('inert')).toBe(false);
     go('b');
     expect(sweepEl.hasAttribute('inert')).toBe(true);
-    advance(SWEEP_MS + 20);
+    advance(FULL_SWEEP);
     expect(sweepEl.hasAttribute('inert')).toBe(false);
   });
 
@@ -161,16 +168,39 @@ describe('PageSweep', () => {
     expect(front()).toBeGreaterThan(closing);
   });
 
-  it('ends the change a full sweep after its first frame, not after it started', () => {
+  it('ends the change on the frame the front completes, not before', () => {
     mount();
     const end = vi.spyOn(pages, 'end');
     go('b');
 
-    advance(SWEEP_MS);
+    // The first frame, then every frame up to the last one short of SWEEP_MS.
+    advance(FRAME);
+    advance(CROSSING - FRAME);
     expect(end).not.toHaveBeenCalled();
-    advance(20);
+    expect(pages.leaving()).toBe('a');
+    expect(sweepEl.hasAttribute('inert')).toBe(true);
+
+    advance(FRAME);
     expect(end).toHaveBeenCalledTimes(1);
+    expect(pages.leaving()).toBeNull();
     expect(pages.run()).toBeNull();
+    expect(sweepEl.hasAttribute('inert')).toBe(false);
+  });
+
+  it('ends a change superseded mid-sweep once, for the second sweep only', () => {
+    mount();
+    const end = vi.spyOn(pages, 'end');
+    go('b');
+    advance(200);
+
+    go('c');
+    const second = pages.run();
+    advance(FULL_SWEEP);
+    expect(end).toHaveBeenCalledTimes(1);
+    expect(end).toHaveBeenCalledWith(second);
+
+    advance(FULL_SWEEP);
+    expect(end).toHaveBeenCalledTimes(1);
   });
 
   it('starts a quick second change with the reused layer whole, not at the last front', () => {
@@ -207,7 +237,7 @@ describe('PageSweep', () => {
     (document.activeElement as HTMLElement).blur();
     go('y');
     expect(document.activeElement).not.toBe(sweepEl.querySelector('h1'));
-    advance(SWEEP_MS + 20);
+    advance(FULL_SWEEP);
     expect(document.activeElement).toBe(sweepEl.querySelector('h1'));
     expect(sweepEl.querySelector('h1')!.textContent).toBe('y');
   });
@@ -225,7 +255,7 @@ describe('PageSweep', () => {
     expect(sweepEl.querySelector('canvas.dust')!.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('cancels timers and the dust loop on destroy', () => {
+  it('cancels the dust loop on destroy', () => {
     mount();
     const end = vi.spyOn(pages, 'end');
     go('b');
@@ -294,7 +324,7 @@ describe('PageSweep', () => {
       vi.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue(null);
       mount();
       go('b');
-      advance(SWEEP_MS + 20);
+      advance(FULL_SWEEP);
 
       expect(pages.run()).toBeNull();
       expect(layer()).toBeNull();

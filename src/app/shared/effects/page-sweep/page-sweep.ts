@@ -55,9 +55,6 @@ export class PageSweep {
   protected readonly offset = signal(0);
 
   constructor() {
-    // The canvas comes and goes with reduced motion; the loop draws on whichever is present.
-    effect(() => this.loop.attach(this.dust()?.nativeElement ?? null, this.host));
-
     let current: SweepRun | null = null;
     effect(() => {
       const run = this.change().run();
@@ -88,9 +85,10 @@ export class PageSweep {
       this.offset.set(main.scrollTop);
       main.scrollTop = 0;
     }
+    // The canvas comes and goes with reduced motion; the loop draws on whichever is present.
     this.loop.start(
       run.dir,
-      () => this.layer()?.nativeElement ?? null,
+      { layer: () => this.layer()?.nativeElement ?? null, dust: () => this.dust()?.nativeElement ?? null },
       () => this.change().end(run),
     );
   }

@@ -57,7 +57,7 @@ description: "Task list for the Reactivity & Timing Audit"
 
 **Independent Test**: `page-sweep.spec.ts` fakes only `requestAnimationFrame`/`cancelAnimationFrame`, and the change ends on the frame where the front completes. With `SWEEP_MS` set temporarily to `1500`, the spec still passes (quickstart §4, SC-005).
 
-- [ ] T009 [US1] In `src/app/shared/effects/page-sweep/sweep-loop.ts` (research R1, R2, data-model "SweepLoop run", contract `SweepLoop`):
+- [X] T009 [US1] In `src/app/shared/effects/page-sweep/sweep-loop.ts` (research R1, R2, data-model "SweepLoop run", contract `SweepLoop`):
   - Inject the host with `inject(ElementRef<HTMLElement>).nativeElement` (the loop is provided by `PageSweep`, so this is the `PageSweep` host).
   - Remove `attach()` and the stored `canvas`/`host` fields.
   - Change `start` to `start(dir, page: { layer: () => HTMLElement | null; dust: () => HTMLCanvasElement | null }, onCrossed)`. The run reads `page.dust()` on its first frame, as it already reads `layer`.
@@ -67,10 +67,10 @@ description: "Task list for the Reactivity & Timing Audit"
   - `stop()` clears the canvas of the run it stops (`run.dust.ctx`).
   - Guarantee: `onCrossed` never runs after `settle()`, `stop()`, another `start()` or destroy (FR-011).
   - Keep `SWEEP_MS` exported.
-- [ ] T010 [US1] In `src/app/shared/effects/page-sweep/page-sweep.ts`, remove the `effect(() => this.loop.attach(...))` (E3). The run watcher (E4) passes `dust: () => this.dust()?.nativeElement ?? null` next to `layer` in its `this.loop.start(...)` call. Keep E4 and E5 as they are, and remove any unused imports (depends on T009).
-- [ ] T011 [US1] In `src/app/shared/effects/page-sweep/page-sweep.spec.ts`, fake only `requestAnimationFrame`/`cancelAnimationFrame`: drop `setTimeout`/`clearTimeout` from `toFake` (research R1). Assert that the change ends, with `leaving()` cleared and the page no longer inert, on the frame whose elapsed time reaches `SWEEP_MS`, and not before. Add a case where a second change mid-sweep supersedes the first and `onCrossed` (`end`) runs once only. Keep the existing "cancels timers and the dust loop on destroy" case passing under rAF-only faking (rename it "cancels the dust loop on destroy"), so a destroyed owner never ends the change (FR-011). Express any time advance in terms of the imported `SWEEP_MS`, never a literal 500 (FR-012, SC-005). Keep its existing `pages.go(...)` calls for now; Phase 4 replaces them (depends on T010).
-- [ ] T012 [US1] Temporarily set `SWEEP_MS` to `1500` in `src/app/shared/effects/page-sweep/sweep-loop.ts`. Through `test-runner`, run `npx ng test --include='**/page-sweep.spec.ts'` and confirm it passes, then revert (quickstart §4, SC-005).
-- [ ] T013 [US1] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 3 ("Reactivity audit: sweep loop").
+- [X] T010 [US1] In `src/app/shared/effects/page-sweep/page-sweep.ts`, remove the `effect(() => this.loop.attach(...))` (E3). The run watcher (E4) passes `dust: () => this.dust()?.nativeElement ?? null` next to `layer` in its `this.loop.start(...)` call. Keep E4 and E5 as they are, and remove any unused imports (depends on T009).
+- [X] T011 [US1] In `src/app/shared/effects/page-sweep/page-sweep.spec.ts`, fake only `requestAnimationFrame`/`cancelAnimationFrame`: drop `setTimeout`/`clearTimeout` from `toFake` (research R1). Assert that the change ends, with `leaving()` cleared and the page no longer inert, on the frame whose elapsed time reaches `SWEEP_MS`, and not before. Add a case where a second change mid-sweep supersedes the first and `onCrossed` (`end`) runs once only. Keep the existing "cancels timers and the dust loop on destroy" case passing under rAF-only faking (rename it "cancels the dust loop on destroy"), so a destroyed owner never ends the change (FR-011). Express any time advance in terms of the imported `SWEEP_MS`, never a literal 500 (FR-012, SC-005). Keep its existing `pages.go(...)` calls for now; Phase 4 replaces them (depends on T010).
+- [X] T012 [US1] Temporarily set `SWEEP_MS` to `1500` in `src/app/shared/effects/page-sweep/sweep-loop.ts`. Through `test-runner`, run `npx ng test --include='**/page-sweep.spec.ts'` and confirm it passes, then revert (quickstart §4, SC-005).
+- [X] T013 [US1] Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit Phase 3 ("Reactivity audit: sweep loop").
 
 **Checkpoint**: No timer remains in `sweep-loop.ts`, and the sweep ends with the drawn front.
 
