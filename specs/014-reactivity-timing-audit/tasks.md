@@ -43,7 +43,7 @@ description: "Task list for the Reactivity & Timing Audit"
 - [X] T003 [P] [US3] In `src/app/views/collection-area/collection-area.ts`, change `openCollection` and `openHolding` to `void this.router.navigate(...)` (research R7): a failed or cancelled navigation leaves the person on the current page, and the Router reports errors itself, as in the existing `void this.router.navigate` redirects (E1, E2). Change nothing else in the file.
 - [X] T004 [P] [US3] In `src/app/core/services/sync.service.spec.ts`, declare each of the three `from` mocks (around lines 439, 659 and 805) as `Mock<(table: string) => unknown>` (import `Mock` from `vitest`) instead of `ReturnType<typeof vi.fn>`. Returning the thenable query object then matches the declared signature (research R8). The assertions stay the same.
 - [X] T005 [P] [US3] In `src/app/shared/auth/profile-modal/profile-flow.store.spec.ts` (around line 424), type the `cloudAuth` mock so `deleteAccount` has the signature of `CloudAuthService['deleteAccount']` (returns `Promise<void>`). The `async` implementation then matches its declared type (research R8). The assertions stay the same.
-- [ ] T006 [US3] Run `npx eslint src --prune-suppressions` (depends on T003–T005). Confirm `eslint-suppressions.json` is now empty of entries, then delete `eslint-suppressions.json`. Confirm `eslint.config.js` doesn't reference the file; if it does, remove that reference.
+- [X] T006 [US3] Run `npx eslint src --prune-suppressions` (depends on T003–T005). Confirm `eslint-suppressions.json` is now empty of entries, then delete `eslint-suppressions.json`. Confirm `eslint.config.js` doesn't reference the file; if it does, remove that reference.
 - [X] T007 [US3] Through `test-runner`, run `npm run lint`, which must pass with the file gone. Then add `Promise.resolve();` as a statement in `src/app/app.ts`, confirm through `test-runner` that `npx eslint src/app/app.ts` fails with `@typescript-eslint/no-floating-promises`, and revert that line (SC-007).
 - [X] T008 [US3] Checkpoint: through `test-runner`, run the full suite (`npm test`) and lint, then fix everything. Commit Phase 2 ("Reactivity audit: promise exceptions"), including `research.md` if T001 changed it.
 
@@ -160,7 +160,7 @@ description: "Task list for the Reactivity & Timing Audit"
 
 **Purpose**: Final verification across all stories (SC-001, SC-006).
 
-- [ ] T035 Through `test-runner`, run `npm test` and `npm run lint`, and run `npm run build` (production build with budgets). All three must pass with zero errors, and `test ! -e eslint-suppressions.json` must hold (SC-001).
+- [X] T035 Through `test-runner`, run `npm test` and `npm run lint`, and run `npm run build` (production build with budgets). All three must pass with zero errors, and `test ! -e eslint-suppressions.json` must hold (SC-001).
 - [X] T036 Run `git diff --name-only main -- '*.html' '*.scss'`. If any template or stylesheet changed, run `design-auditor` and fix what it reports. Otherwise, record that no UI file changed.
 - [ ] T037 Hand the manual pass in `specs/014-reactivity-timing-audit/quickstart.md` §5 to the maintainer, who runs it on their own dev server, with motion on and with reduced motion (SC-006). Optionally pre-check the collection and deck page changes with the `run` skill against the maintainer's running server, without starting or stopping it. Fix any difference reported.
 - [ ] T038 Checkpoint: through `test-runner`, run the full suite and lint, then fix everything. Commit the polish phase ("Reactivity audit: polish") if anything changed.
