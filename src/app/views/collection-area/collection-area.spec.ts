@@ -481,7 +481,7 @@ describe('CollectionArea', () => {
     });
   });
 
-  describe('transition', () => {
+  describe('page change', () => {
     it('swaps instantly under reduced motion, with no sweep layer and no canvas', async () => {
       await seed('p1', tree);
       const { el, harness } = await setUp('/collection');
