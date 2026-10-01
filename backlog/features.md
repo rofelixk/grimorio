@@ -16,8 +16,8 @@ When a spec ships, delete its entry here and its items from pending-items.md; th
 
 ## 4. Page transitions
 
-- **Status**: planned
-- **Spec**: —
+- **Status**: specifying
+- **Spec**: [013-page-transitions](../specs/013-page-transitions/spec.md)
 - **Goal**: One page-change system shared by decks and collections, with `PageSweep` as a reusable component, so any new area gets page transitions without copying code.
 - **Items**:
   - #1 One page-change controller
