@@ -14,7 +14,7 @@ import { IdentityChip } from '@shared/ds/identity-chip/identity-chip';
 import { IdentityWheel } from '@shared/ds/identity-wheel/identity-wheel';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { SparkField } from '@shared/ds/spark-field/spark-field';
-import { CloudFlowHost } from '@shared/auth/cloud-flow-host';
+import { CloudSteps } from '@shared/auth/cloud-steps';
 import { FluidFace } from '@shared/ds/themed-modal/fluid-face';
 import { ThemedModal } from '@shared/ds/themed-modal/themed-modal';
 import { CloudForm } from './cloud-form/cloud-form';
@@ -33,7 +33,7 @@ type Body = 'list' | 'local' | 'cloud' | 'reset';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-entry-modal',
   imports: [ThemedModal, SparkField, IdentityWheel, IdentityChip, ProfileList, ProfileForm, CloudForm, ResetForm, DonePanel],
-  providers: [EntryFlowStore, { provide: CloudFlowHost, useExisting: EntryFlowStore }],
+  providers: [EntryFlowStore, { provide: CloudSteps, useFactory: () => inject(EntryFlowStore).cloud }],
   templateUrl: './entry-modal.html',
   styleUrl: './entry-modal.scss',
 })

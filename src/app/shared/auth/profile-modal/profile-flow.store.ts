@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Color } from '@models/profile.model';
 import { CardService } from '@services/card.service';
@@ -16,17 +16,9 @@ import { ProfileStore } from '@services/profile-store.service';
 import { SyncStatusService } from '@services/sync-status.service';
 import { SyncService } from '@services/sync.service';
 import { ToastService } from '@services/toast.service';
-import { FieldKey, mapCloudError } from '@utils/cloud-error.util';
-import { ACTION, MSG, SYNC_AREA, TOAST } from '@utils/entry-copy';
-import {
-  FieldErrors,
-  PhaseFields,
-  fieldsFor,
-  pwAutocomplete,
-  pwHelper,
-  pwLabel,
-  validateName,
-} from '@utils/entry-flow.util';
+import { FieldKey } from '@utils/cloud-error.util';
+import { MSG, SYNC_AREA, TOAST } from '@utils/entry-copy';
+import { validateName } from '@utils/entry-flow.util';
 import { sameColors, tribeName } from '@utils/identity.util';
 import {
   ProfileCopyVars,
@@ -49,7 +41,8 @@ import {
   validateStep,
 } from '@utils/profile-flow.util';
 import { hasUnsyncedChanges } from '@utils/sync-status.util';
-import { CloudFlowHost } from '@shared/auth/cloud-flow-host';
+import { CloudSteps } from '@shared/auth/cloud-steps';
+import { FlowForm } from '@shared/auth/flow-form';
 
 /** The id of whichever title (phase or done) labels the modal. */
 export const PROFILE_TITLE_ID = 'grm-profile-title';
@@ -58,8 +51,6 @@ export const PROFILE_TITLE_ID = 'grm-profile-title';
 export type BlockSync = 'idle' | 'syncing' | 'done' | 'offline' | 'reauth' | 'error';
 
 const BLANK_FIELDS: ProfileFields = { name: '', email: '', pw: '', pwNew: '', pwConfirm: '', code: '' };
-const NO_FIELDS: PhaseFields = { name: false, email: false, pw: false, code: false, plate: false, forgot: false };
-const RESEND_COOLDOWN_S = 30;
 
 const FIELD_ERROR_KEY: Record<keyof ProfileFields, FieldKey> = {
   name: 'user',
@@ -78,10 +69,11 @@ const BLOCK_FAILURE_LABEL: Partial<Record<BlockSync, string>> = {
 
 // The profile modal's state machine (spec 005 data-model §6). Provided on the ProfileModal
 // component. Pure rules (copy, validation, prompts) live in profile-flow.util; this store holds
-// the state and runs the flows against the services. It is also the modal's CloudFlowHost, so
-// the entry modal's CloudForm/ResetForm render its `in`, `up`, `reauth` and reset steps.
+// the state and runs the flows against the services. Its CloudSteps is what the entry modal's
+// CloudForm/ResetForm read here, so they render its `in`, `up`, `reauth` and reset steps; the
+// local steps use its FlowForm alone.
 @Injectable()
-export class ProfileFlowStore extends CloudFlowHost {
+export class ProfileFlowStore {
   private readonly profileStore = inject(ProfileStore);
   private readonly session = inject(ProfileSessionService);
   private readonly cloudAuth = inject(CloudAuthService);
@@ -103,42 +95,46 @@ export class ProfileFlowStore extends CloudFlowHost {
   readonly phase = signal<ProfilePhase>('hub');
   /** Where Cancelar / Concluir return (R18). */
   readonly origin = signal<ProfileOrigin>('hub');
-  /** Where the reset flow returns ("Voltar") and continues after the code. */
-  readonly backTarget = signal<'in' | 'up' | 'reauth' | null>(null);
-  readonly fields = signal<ProfileFields>(BLANK_FIELDS);
-  readonly fieldErrors = signal<FieldErrors>({});
-  readonly formError = signal('');
   /** FR-019c: the line under a failed "Entrar de novo". */
   readonly formHint = signal('');
-  readonly emailInUse = signal(false);
-  readonly emailLocked = signal(false);
-  readonly loading = signal(false);
   readonly done = signal<ProfileDoneKind | null>(null);
   readonly replacedTribe = signal<string | null>(null);
   /** The account e-mail named by a done screen reached after the link ended (Conta excluída). */
   private readonly doneEmail = signal<string | null>(null);
   readonly unsynced = signal(false);
   readonly blockSync = signal<BlockSync>('idle');
-  readonly cooldown = signal(0);
-  readonly resending = signal(false);
 
-  // Bumped on navigation and close, so a request that resolves after the person moved on never
-  // writes into the new state.
-  private generation = 0;
-  private cooldownTimer: ReturnType<typeof setInterval> | null = null;
+  readonly active = this.session.active;
+  readonly linkedEmail = computed(() => this.active()?.cloud?.email ?? '');
 
-  constructor() {
-    super();
-    inject(DestroyRef).onDestroy(() => this.stopCooldown());
-  }
+  readonly form = new FlowForm<ProfileFields>({ blank: BLANK_FIELDS, errorKeys: FIELD_ERROR_KEY });
+  readonly cloud = new CloudSteps<ProfileFields, ProfilePhase>({
+    form: this.form,
+    phase: this.phase,
+    isCloudPhase: isSharedCloudPhase,
+    plateEmail: this.linkedEmail,
+    // A reset from "Entrar de novo" is for the linked account.
+    lockedEmail: computed(() => (this.phase() === 'reauth' ? this.linkedEmail() : null)),
+    go: (phase) => this.go(phase),
+    toPhase: (phase) => this.toPhase(phase),
+  });
+
+  readonly fields = this.form.fields;
+  readonly fieldErrors = this.form.fieldErrors;
+  readonly formError = this.form.formError;
+  readonly emailInUse = this.form.emailInUse;
+  readonly loading = this.form.loading;
+  /** Where the reset flow returns ("Voltar") and continues after the code. */
+  readonly backTarget = this.cloud.backTarget;
+  readonly emailLocked = this.cloud.emailLocked;
+  readonly cooldown = this.cloud.cooldown;
+  readonly resending = this.cloud.resending;
 
   // ── Derived ──────────────────────────────────────────────────────────────
-  readonly active = this.session.active;
   readonly linkState = computed(() => {
     const active = this.active();
     return active ? linkState(active) : 'local';
   });
-  readonly linkedEmail = computed(() => this.active()?.cloud?.email ?? '');
   readonly syncBusy = this.status.busy;
 
   private readonly copyVars = computed<ProfileCopyVars>(() => ({
@@ -157,27 +153,13 @@ export class ProfileFlowStore extends CloudFlowHost {
   readonly primary = computed(() => (this.loading() ? busyLabel(this.phase()) : primaryLabel(this.phase())));
   readonly danger = computed(() => isDangerStep(this.phase()));
 
-  readonly shown = computed(() => {
-    const phase = this.phase();
-    return isSharedCloudPhase(phase) ? fieldsFor(phase) : NO_FIELDS;
-  });
-  readonly pwLabel = computed(() => {
-    const phase = this.phase();
-    return isSharedCloudPhase(phase) ? pwLabel(phase) : '';
-  });
-  readonly pwAutocomplete = computed(() => {
-    const phase = this.phase();
-    return isSharedCloudPhase(phase) ? pwAutocomplete(phase) : 'current-password';
-  });
-  readonly pwHelper = computed(() => {
-    const phase = this.phase();
-    return isSharedCloudPhase(phase) ? pwHelper(phase) : '';
-  });
+  readonly shown = this.cloud.shown;
+  readonly pwLabel = this.cloud.pwLabel;
+  readonly pwAutocomplete = this.cloud.pwAutocomplete;
+  readonly pwHelper = this.cloud.pwHelper;
   readonly plateEmail = this.linkedEmail;
-  readonly isCloudBusy = computed(() => this.loading() || this.resending());
-  readonly resendLabel = computed(() =>
-    this.cooldown() > 0 ? ACTION.resendIn(this.cooldown()) : ACTION.resendCode,
-  );
+  readonly isCloudBusy = this.cloud.isCloudBusy;
+  readonly resendLabel = this.cloud.resendLabel;
 
   /** FR-009a: only a changed name enables Salvar; color taps never do. */
   readonly salvarEnabled = computed(
@@ -212,25 +194,16 @@ export class ProfileFlowStore extends CloudFlowHost {
 
   /** Clears every field, error and flow state. Colors already tapped stay (FR-008). */
   reset(): void {
-    this.generation++;
-    this.stopCooldown();
+    this.form.reset();
     this.phase.set('hub');
     this.origin.set('hub');
-    this.backTarget.set(null);
-    this.fields.set(BLANK_FIELDS);
-    this.fieldErrors.set({});
-    this.formError.set('');
     this.formHint.set('');
-    this.emailInUse.set(false);
-    this.emailLocked.set(false);
-    this.loading.set(false);
     this.done.set(null);
     this.replacedTribe.set(null);
     this.doneEmail.set(null);
     this.unsynced.set(false);
     this.blockSync.set('idle');
-    this.resending.set(false);
-    void this.cloudAuth.discardPending();
+    this.cloud.reset();
   }
 
   /** ✕, Esc, backdrop. */
@@ -242,7 +215,7 @@ export class ProfileFlowStore extends CloudFlowHost {
   // ── Navigation ───────────────────────────────────────────────────────────
   /** Switching screens or steps: clears passwords, code, errors, hint and done; keeps the e-mail. */
   go(phase: ProfilePhase): void {
-    this.generation++;
+    this.form.bump();
     this.loading.set(false);
     this.toPhase(phase);
   }
@@ -251,11 +224,8 @@ export class ProfileFlowStore extends CloudFlowHost {
     this.phase.set(phase);
     this.done.set(null);
     this.doneEmail.set(null);
-    this.fields.update((f) => ({ ...f, pw: '', pwNew: '', pwConfirm: '', code: '' }));
-    this.fieldErrors.set({});
-    this.formError.set('');
+    this.form.clearForPhase(['pw', 'pwNew', 'pwConfirm', 'code']);
     this.formHint.set('');
-    this.emailInUse.set(false);
     if (phase === 'local') {
       this.fields.update((f) => ({ ...f, name: this.active()?.name ?? '' }));
     }
@@ -285,7 +255,7 @@ export class ProfileFlowStore extends CloudFlowHost {
       void this.checkOnOpen();
     } else if (step === 'delprofile') {
       this.blockSync.set('idle');
-      void this.evaluateUnsynced(this.generation);
+      void this.evaluateUnsynced(this.form.token());
     }
   }
 
@@ -319,10 +289,7 @@ export class ProfileFlowStore extends CloudFlowHost {
       return;
     }
     if (target === 'back') {
-      const back = this.backTarget() ?? 'in';
-      this.backTarget.set(null);
-      this.emailLocked.set(false);
-      this.go(back);
+      this.cloud.back();
       return;
     }
     this.go(target);
@@ -331,42 +298,21 @@ export class ProfileFlowStore extends CloudFlowHost {
   /** "Esqueci minha senha" on `in` or `reauth`. */
   forgot(): void {
     const phase = this.phase();
-    if (phase !== 'in' && phase !== 'reauth') {
-      return;
+    if (phase === 'in' || phase === 'reauth') {
+      this.cloud.forgot();
     }
-    this.backTarget.set(phase);
-    if (phase === 'reauth') {
-      this.fields.update((f) => ({ ...f, email: this.linkedEmail() }));
-      this.emailLocked.set(true);
-    }
-    this.go('reset-email');
   }
 
-  /** "É seu? Recupere o acesso" under an e-mail already in use. */
   recoverAccess(): void {
-    this.backTarget.set('up');
-    this.go('reset-email');
+    this.cloud.recoverAccess();
   }
 
-  /** "Usar outro e-mail" — back to the e-mail step, keeping the flow's origin. */
   otherEmail(): void {
-    this.go('reset-email');
+    this.cloud.otherEmail();
   }
 
   editField(key: keyof ProfileFields, value: string): void {
-    const next = key === 'code' ? value.replace(/\D/g, '').slice(0, 6) : value;
-    this.fields.update((f) => ({ ...f, [key]: next }));
-    const errorKey = FIELD_ERROR_KEY[key];
-    if (this.fieldErrors()[errorKey]) {
-      this.fieldErrors.update((errors) => {
-        const rest = { ...errors };
-        delete rest[errorKey];
-        return rest;
-      });
-    }
-    if (key === 'email') {
-      this.emailInUse.set(false);
-    }
+    this.form.edit(key, value);
   }
 
   /** A wheel tap (FR-008): saved at once, retinting everything; nothing reverts it. */
@@ -384,47 +330,24 @@ export class ProfileFlowStore extends CloudFlowHost {
     if (this.loading() || (phase === 'local' && !this.salvarEnabled()) || (phase === 'delprofile' && this.deleteLocked())) {
       return;
     }
-    const errors = validateStep(phase, this.fields());
-    if (Object.keys(errors).length) {
-      this.fieldErrors.set(errors);
-      this.formError.set('');
-      this.formHint.set('');
-      return;
-    }
-    this.fieldErrors.set({});
-    this.formError.set('');
     this.formHint.set('');
-    this.emailInUse.set(false);
-    this.loading.set(true);
-    const generation = this.generation;
-    try {
-      await this.run(phase, generation);
-    } catch (error) {
-      if (!this.stale(generation)) {
-        this.fail(phase, error);
-      }
-    } finally {
-      if (!this.stale(generation)) {
-        this.loading.set(false);
-      }
-    }
+    await this.form.submit(
+      () => validateStep(phase, this.fields()),
+      (generation) => this.run(phase, generation),
+      (error) => this.fail(phase, error),
+    );
   }
 
   private stale(generation: number): boolean {
-    return generation !== this.generation;
+    return this.form.stale(generation);
   }
 
   private fail(phase: ProfilePhase, error: unknown): void {
-    const failure = mapCloudError(error);
-    if (failure.kind === 'field') {
-      // The account's new password is `pwNew` here; the shared mapping says `pw`.
-      const field = phase === 'cloudpw' && failure.field === 'pw' && failure.message === MSG.pwMin ? 'pwNew' : failure.field;
-      this.fieldErrors.set({ [field]: failure.message });
-      this.emailInUse.set(!!failure.emailInUse);
-      return;
-    }
-    this.formError.set(failure.message);
-    if (phase === 'reauth' && failure.message === MSG.wrongCloud) {
+    // The account's new password is `pwNew` here; the shared mapping says `pw`.
+    const failure = this.form.fail(error, ({ field, message }) =>
+      phase === 'cloudpw' && field === 'pw' && message === MSG.pwMin ? 'pwNew' : field,
+    );
+    if (failure.kind === 'form' && phase === 'reauth' && failure.message === MSG.wrongCloud) {
       this.formHint.set(MSG.goneHint(this.active()?.name ?? ''));
     }
   }
@@ -491,14 +414,8 @@ export class ProfileFlowStore extends CloudFlowHost {
         }
         return;
       }
-      case 'reset-email': {
-        await this.cloudAuth.requestResetCode(email);
-        if (!this.stale(generation)) {
-          this.toPhase('reset-code');
-          this.startCooldown();
-        }
-        return;
-      }
+      case 'reset-email':
+        return this.cloud.requestCode(generation);
       case 'reset-code': {
         const identity = await this.cloudAuth.verifyResetCode(email, code, pw);
         if (this.stale(generation)) {
@@ -587,7 +504,7 @@ export class ProfileFlowStore extends CloudFlowHost {
     if (!active || !this.connectivity.online()) {
       return;
     }
-    const generation = this.generation;
+    const generation = this.form.token();
     this.loading.set(true);
     const status = await this.cloudAuth.checkAccount(active.id);
     if (this.stale(generation)) {
@@ -650,7 +567,7 @@ export class ProfileFlowStore extends CloudFlowHost {
     if (this.blockSync() === 'syncing' || this.syncBusy()) {
       return;
     }
-    const generation = this.generation;
+    const generation = this.form.token();
     this.blockSync.set('syncing');
     const outcome = await this.sync.syncNow();
     if (this.stale(generation)) {
@@ -676,48 +593,7 @@ export class ProfileFlowStore extends CloudFlowHost {
   }
 
   // ── Reset code ───────────────────────────────────────────────────────────
-  /** "Enviar novo código": blocked for 30 s after each send. */
-  async resend(): Promise<void> {
-    if (this.cooldown() > 0 || this.resending() || this.loading()) {
-      return;
-    }
-    this.resending.set(true);
-    this.formError.set('');
-    const generation = this.generation;
-    try {
-      await this.cloudAuth.requestResetCode(this.fields().email);
-      if (!this.stale(generation)) {
-        this.fields.update((f) => ({ ...f, code: '' }));
-        this.fieldErrors.set({});
-        this.startCooldown();
-      }
-    } catch (error) {
-      if (!this.stale(generation)) {
-        this.fail('reset-code', error);
-      }
-    } finally {
-      if (!this.stale(generation)) {
-        this.resending.set(false);
-      }
-    }
-  }
-
-  private startCooldown(): void {
-    this.stopCooldown();
-    this.cooldown.set(RESEND_COOLDOWN_S);
-    this.cooldownTimer = setInterval(() => {
-      this.cooldown.update((n) => Math.max(0, n - 1));
-      if (this.cooldown() === 0) {
-        this.stopCooldown();
-      }
-    }, 1000);
-  }
-
-  private stopCooldown(): void {
-    if (this.cooldownTimer) {
-      clearInterval(this.cooldownTimer);
-      this.cooldownTimer = null;
-    }
-    this.cooldown.set(0);
+  resend(): Promise<void> {
+    return this.cloud.resend();
   }
 }

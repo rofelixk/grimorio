@@ -13,7 +13,7 @@ import { IdentityService } from '@services/identity.service';
 import { ProfileModalService } from '@services/profile-modal.service';
 import { ACTION, MISC } from '@utils/entry-copy';
 import { tribeName } from '@utils/identity.util';
-import { CloudFlowHost } from '@shared/auth/cloud-flow-host';
+import { CloudSteps } from '@shared/auth/cloud-steps';
 import { CloudForm } from '@shared/auth/entry-modal/cloud-form/cloud-form';
 import { ResetForm } from '@shared/auth/entry-modal/reset-form/reset-form';
 import { IdentityChip } from '@shared/ds/identity-chip/identity-chip';
@@ -58,7 +58,7 @@ const STEP_ACTIONS = new Set(['pw', 'cloudpw', 'unlink', 'delprofile', 'delcloud
     DeleteCloudStep,
     ProfileDonePanel,
   ],
-  providers: [ProfileFlowStore, { provide: CloudFlowHost, useExisting: ProfileFlowStore }],
+  providers: [ProfileFlowStore, { provide: CloudSteps, useFactory: () => inject(ProfileFlowStore).cloud }],
   templateUrl: './profile-modal.html',
   styleUrl: './profile-modal.scss',
 })
