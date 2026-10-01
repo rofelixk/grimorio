@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntryWithoutId } from '@testing/card.mocks';
+import { failNextPut } from '@testing/idb-failure';
+import { DATA } from '@utils/entry-copy';
 import { CardEntry } from '@models/card.model';
 import { Collection } from '@models/collection.model';
 import { getAllFromStore } from '../db/entity-store';
@@ -8,6 +10,7 @@ import { openProfileDb } from '../db/profile-db';
 import { CardService } from './card.service';
 import { CollectionService } from './collection.service';
 import { DeckService } from './deck.service';
+import { ToastService } from './toast.service';
 
 function mockCollection(overrides: Partial<Collection> = {}): Collection {
   return {
@@ -45,6 +48,31 @@ describe('CollectionService', () => {
 
   it('starts empty when nothing is persisted', () => {
     expect(service.collections()).toEqual([]);
+  });
+
+  it('toasts a failed save and still lands the next one (SC-001)', async () => {
+    const show = vi.spyOn(TestBed.inject(ToastService), 'show');
+    const restore = failNextPut();
+    service.create({ parentId: null, name: 'Raras', color: '#d8cdb0' });
+    await service.flush();
+    expect(show).toHaveBeenCalledExactlyOnceWith(DATA.saveFailed.label, DATA.saveFailed.text);
+
+    service.create({ parentId: null, name: 'Comuns', color: '#d8cdb0' });
+    await service.flush();
+    restore();
+    expect(show).toHaveBeenCalledOnce();
+    expect((await getAllFromStore<Collection>('collections')).map((c) => c.name)).toEqual(['Comuns']);
+  });
+
+  it('rejects a failed remove() to its caller with no toast (FR-005)', async () => {
+    const show = vi.spyOn(TestBed.inject(ToastService), 'show');
+    const result = service.create({ parentId: null, name: 'Raras', color: '#d8cdb0' });
+    if (!result.ok) throw new Error(result.error);
+    await service.flush();
+    const restore = failNextPut();
+    await expect(service.remove(result.collection.id, 'move')).rejects.toThrow('The disk is full.');
+    restore();
+    expect(show).not.toHaveBeenCalled();
   });
 
   it('hydrates from seeded rows', async () => {

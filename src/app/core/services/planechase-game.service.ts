@@ -17,6 +17,7 @@ import {
 } from '@utils/planechase-game.util';
 import { getDeviceDb } from '../db/device-db';
 import { PlanechaseCatalogService } from './planechase-catalog.service';
+import { SaveQueueService } from './save-queue.service';
 
 /** The game's randomness (FR-008a); specs script it. */
 export const PLANECHASE_RANDOM = new InjectionToken<RandomInt>('PLANECHASE_RANDOM', {
@@ -44,7 +45,7 @@ export class PlanechaseGameService {
   });
 
   private readyPromise: Promise<void> | null = null;
-  private writeQueue: Promise<unknown> = Promise.resolve();
+  private readonly queue = inject(SaveQueueService).create('the Planechase game');
   private repaired = false;
   private readonly kindOf = (id: string) => this.catalog.kindOf(id);
 
@@ -60,7 +61,7 @@ export class PlanechaseGameService {
 
   /** Resolves once every write enqueued so far has landed. */
   flush(): Promise<void> {
-    return this.writeQueue.then(() => undefined);
+    return this.queue.flush();
   }
 
   /** Starts a new game with these cards, replacing any game in progress (FR-007, FR-022). */
@@ -132,11 +133,9 @@ export class PlanechaseGameService {
 
   private commit(game: PlanechaseGame | null): void {
     this.gameSignal.set(game);
-    this.writeQueue = this.writeQueue
-      .then(async () => {
-        const db = await getDeviceDb();
-        await (game ? db.put('meta', { key: GAME_KEY, value: game }) : db.delete('meta', GAME_KEY));
-      })
-      .catch((e) => console.error('Grimorio: failed to persist the Planechase game.', e));
+    this.queue.enqueue(async () => {
+      const db = await getDeviceDb();
+      await (game ? db.put('meta', { key: GAME_KEY, value: game }) : db.delete('meta', GAME_KEY));
+    });
   }
 }

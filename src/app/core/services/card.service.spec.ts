@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockCardEntryWithoutId } from '@testing/card.mocks';
 import { getAllFromStore } from '../db/entity-store';
 import { CardEntry } from '@models/card.model';
+import { failNextPut } from '@testing/idb-failure';
+import { DATA } from '@utils/entry-copy';
 import { CardService } from './card.service';
+import { ToastService } from './toast.service';
 
 const baseCard = mockCardEntryWithoutId();
 
@@ -25,6 +28,20 @@ describe('CardService', () => {
 
   it('starts empty when nothing is persisted', () => {
     expect(service.cards()).toEqual([]);
+  });
+
+  it('toasts a failed save and still lands the next one (SC-001)', async () => {
+    const show = vi.spyOn(TestBed.inject(ToastService), 'show');
+    const restore = failNextPut();
+    service.add(baseCard);
+    await service.flush();
+    expect(show).toHaveBeenCalledExactlyOnceWith(DATA.saveFailed.label, DATA.saveFailed.text);
+
+    service.add(baseCard);
+    await service.flush();
+    restore();
+    expect(show).toHaveBeenCalledOnce();
+    expect(await getAllFromStore<CardEntry>('cards')).toHaveLength(2);
   });
 
   it('adds a card and persists it to IndexedDB', async () => {

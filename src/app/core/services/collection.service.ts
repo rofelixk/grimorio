@@ -28,6 +28,7 @@ import {
 } from '../db/entity-store';
 import { CardService } from './card.service';
 import { DeckService } from './deck.service';
+import { SaveQueueService } from './save-queue.service';
 
 @Injectable({ providedIn: 'root' })
 export class CollectionService {
@@ -57,7 +58,9 @@ export class CollectionService {
 
   private readyPromise: Promise<void> = Promise.resolve();
   private loadGeneration = 0;
-  private writeQueue: Promise<unknown> = Promise.resolve();
+  // Awaits CardService.flush() first (research R2): a card write CollectionService just made
+  // through applyRemoved/applyMoved must never race CardService's own persist queue.
+  private readonly queue = inject(SaveQueueService).create('collections', () => this.cards.flush());
 
   // Points this service at a profile's database (or none) and rehydrates (R1). The signal
   // is cleared synchronously, before anything awaits, so no other profile's rows are ever
@@ -83,16 +86,7 @@ export class CollectionService {
 
   // Resolves once every write enqueued so far has landed in IndexedDB.
   flush(): Promise<void> {
-    return this.writeQueue.then(() => undefined);
-  }
-
-  // Awaits CardService.flush() first (research R2): a card write CollectionService just made
-  // through applyRemoved/applyMoved must never race CardService's own persist queue.
-  private enqueueWrite(fn: () => Promise<unknown>): void {
-    this.writeQueue = this.writeQueue
-      .then(() => this.cards.flush())
-      .then(fn)
-      .catch((e) => console.error('Grimorio: failed to persist collections.', e));
+    return this.queue.flush();
   }
 
   depth(id: string): number {
@@ -161,7 +155,7 @@ export class CollectionService {
     this.collectionsSignal.update((collections) => [...collections, collection]);
     this.changeCountSignal.update((n) => n + 1);
     const handle = currentDbHandle();
-    this.enqueueWrite(() => writeRows(ops, handle));
+    this.queue.enqueue(() => writeRows(ops, handle));
     return { ok: true, collection, moved };
   }
 
@@ -184,7 +178,7 @@ export class CollectionService {
     this.collectionsSignal.update((collections) => collections.map((c) => (c.id === id ? updated : c)));
     this.changeCountSignal.update((n) => n + 1);
     const handle = currentDbHandle();
-    this.enqueueWrite(() => writeRows([{ store: 'collections', put: updated }], handle));
+    this.queue.enqueue(() => writeRows([{ store: 'collections', put: updated }], handle));
     return { ok: true };
   }
 
@@ -219,17 +213,7 @@ export class CollectionService {
     this.collectionsSignal.update((collections) => collections.filter((c) => !ids.has(c.id)));
     this.changeCountSignal.update((n) => n + 1);
     const handle = currentDbHandle();
-    return new Promise((resolve, reject) => {
-      this.enqueueWrite(() =>
-        writeRows(ops, handle).then(
-          () => resolve(result),
-          (e: unknown) => {
-            reject(e);
-            throw e;
-          },
-        ),
-      );
-    });
+    return this.queue.run(() => writeRows(ops, handle)).then(() => result);
   }
 
   // Sync-only: tombstones let SyncService tell a locally-deleted id apart
@@ -279,7 +263,7 @@ export class CollectionService {
 
     if (ops.length > 0) {
       const handle = currentDbHandle();
-      this.enqueueWrite(() => writeRows(ops, handle));
+      this.queue.enqueue(() => writeRows(ops, handle));
     }
   }
 
@@ -303,7 +287,7 @@ export class CollectionService {
     this.collectionsSignal.set(merged);
     if (ops.length > 0) {
       const handle = currentDbHandle();
-      this.enqueueWrite(() => writeRows(ops, handle));
+      this.queue.enqueue(() => writeRows(ops, handle));
     }
   }
 }

@@ -1,8 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { failNextPut } from '@testing/idb-failure';
+import { DATA } from '@utils/entry-copy';
 import { getDeviceDb } from '../db/device-db';
 import { openProfileDb } from '../db/profile-db';
 import { PlanarSelectionService } from './planar-selection.service';
+import { ToastService } from './toast.service';
 
 async function profileSelection(profileId: string) {
   const db = await openProfileDb(profileId);
@@ -44,6 +47,21 @@ describe('PlanarSelectionService', () => {
     expect(service.selection()?.disabledIds).toEqual(['a']);
     await service.load('p1');
     expect(service.selection()?.disabledIds).toEqual(['b']);
+  });
+
+  it('toasts a failed save and still lands the next one (SC-001)', async () => {
+    await service.load('p1');
+    const show = vi.spyOn(TestBed.inject(ToastService), 'show');
+    const restore = failNextPut();
+    service.save(['a']);
+    await service.flush();
+    expect(show).toHaveBeenCalledExactlyOnceWith(DATA.saveFailed.label, DATA.saveFailed.text);
+
+    service.save(['b']);
+    await service.flush();
+    restore();
+    expect(show).toHaveBeenCalledOnce();
+    expect(await profileSelection('p1')).toEqual(service.selection());
   });
 
   it('stamps updatedAt on save', async () => {

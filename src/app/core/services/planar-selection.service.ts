@@ -1,7 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import type { PlanarSelection } from '@models/planar-selection.model';
 import { getDeviceDb } from '../db/device-db';
 import { DbHandle, currentDbHandle, getMeta, setActiveProfileDb, setMeta } from '../db/entity-store';
+import { SaveQueueService } from './save-queue.service';
 
 /** The `meta` key holding a selection, in a profile DB or (with no profile) the device DB (R5). */
 const SELECTION_KEY = 'planarSelection';
@@ -37,7 +38,7 @@ export class PlanarSelectionService {
   private target: Target = { kind: 'device' };
   private readyPromise: Promise<void> = Promise.resolve();
   private loadGeneration = 0;
-  private writeQueue: Promise<unknown> = Promise.resolve();
+  private readonly queue = inject(SaveQueueService).create('the planar deck selection');
 
   // Clears the signal synchronously, so another profile's selection is never visible; pending
   // writes still land where they were queued.
@@ -62,7 +63,7 @@ export class PlanarSelectionService {
   }
 
   flush(): Promise<void> {
-    return this.writeQueue.then(() => undefined);
+    return this.queue.flush();
   }
 
   /** Saves a new selection, stamped now (FR-020). */
@@ -78,8 +79,6 @@ export class PlanarSelectionService {
   private store(selection: PlanarSelection): void {
     this.selectionSignal.set(selection);
     const target = this.target;
-    this.writeQueue = this.writeQueue
-      .then(() => write(target, selection))
-      .catch((e) => console.error('Grimorio: failed to persist the planar deck selection.', e));
+    this.queue.enqueue(() => write(target, selection));
   }
 }

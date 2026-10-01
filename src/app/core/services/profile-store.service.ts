@@ -1,6 +1,7 @@
 import { Injectable, InjectionToken, inject, signal } from '@angular/core';
 import { CloudLink, Color, ProfileRecord, ProfileSummary } from '@models/profile.model';
 import { ACTIVE_PROFILE_KEY, getDeviceDb } from '../db/device-db';
+import { WriteQueue } from '../db/write-queue';
 import { hashPassword, verifyPassword } from '../utils/password-hash.util';
 
 /** PBKDF2 iteration count for new password hashes (R3); tests provide a small value. */
@@ -31,7 +32,9 @@ export class ProfileStore {
   readonly profiles = this.profilesSignal.asReadonly();
 
   private readonly readyPromise: Promise<void>;
-  private writeQueue: Promise<unknown> = Promise.resolve();
+  // Unlike the entity services, a failed registry write is surfaced to the caller (run(), no
+  // reporter): a profile that silently fails to save would vanish on the next launch.
+  private readonly queue = new WriteQueue();
 
   constructor() {
     this.readyPromise = this.hydrate();
@@ -47,7 +50,7 @@ export class ProfileStore {
   }
 
   flush(): Promise<void> {
-    return this.writeQueue.then(() => undefined);
+    return this.queue.flush();
   }
 
   private setRecords(records: ProfileRecord[]): void {
@@ -56,16 +59,8 @@ export class ProfileStore {
     this.profilesSignal.set(sorted.map(toSummary));
   }
 
-  // Unlike the entity services, a failed registry write is surfaced to the caller: a profile
-  // that silently fails to save would vanish on the next launch.
-  private enqueueWrite<T>(fn: () => Promise<T>): Promise<T> {
-    const run = this.writeQueue.then(fn);
-    this.writeQueue = run.catch(() => undefined);
-    return run;
-  }
-
   private persist(record: ProfileRecord): Promise<void> {
-    return this.enqueueWrite(async () => {
+    return this.queue.run(async () => {
       const db = await getDeviceDb();
       await db.put('profiles', record);
     });
@@ -142,7 +137,7 @@ export class ProfileStore {
   /** Drops the registry record (FR-017). If it was the active profile, none is active afterwards. */
   async remove(id: string): Promise<void> {
     this.setRecords(this.records().filter((r) => r.id !== id));
-    await this.enqueueWrite(async () => {
+    await this.queue.run(async () => {
       const db = await getDeviceDb();
       const tx = db.transaction(['profiles', 'meta'], 'readwrite');
       await tx.objectStore('profiles').delete(id);

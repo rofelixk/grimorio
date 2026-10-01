@@ -12,6 +12,7 @@ import {
   writeRows,
 } from '../db/entity-store';
 import { CardService } from './card.service';
+import { SaveQueueService } from './save-queue.service';
 
 // Decks (spec 009): a card location next to collections. Every write is a per-row `writeRows`
 // with the profile handle captured when it's enqueued (research R3), like CollectionService.
@@ -35,7 +36,7 @@ export class DeckService {
 
   private readyPromise: Promise<void> = Promise.resolve();
   private loadGeneration = 0;
-  private writeQueue: Promise<unknown> = Promise.resolve();
+  private readonly queue = inject(SaveQueueService).create('decks');
 
   // Points this service at a profile's database (or none) and rehydrates (R1). The signal
   // is cleared synchronously, before anything awaits, so no other profile's rows are ever
@@ -61,11 +62,7 @@ export class DeckService {
 
   // Resolves once every write enqueued so far has landed in IndexedDB.
   flush(): Promise<void> {
-    return this.writeQueue.then(() => undefined);
-  }
-
-  private enqueueWrite(fn: () => Promise<unknown>): void {
-    this.writeQueue = this.writeQueue.then(fn).catch((e) => console.error('Grimorio: failed to persist decks.', e));
+    return this.queue.flush();
   }
 
   /** Copies (Σ quantity) of the cards whose `locationId` is this deck. */
@@ -86,7 +83,7 @@ export class DeckService {
     this.decksSignal.update((decks) => [...decks, deck]);
     this.changeCountSignal.update((n) => n + 1);
     const handle = currentDbHandle();
-    this.enqueueWrite(() => writeRows([{ store: 'decks', put: deck }], handle));
+    this.queue.enqueue(() => writeRows([{ store: 'decks', put: deck }], handle));
     return { ok: true, deck };
   }
 
@@ -109,7 +106,7 @@ export class DeckService {
     this.decksSignal.update((decks) => decks.map((deck) => (deck.id === id ? updated : deck)));
     this.changeCountSignal.update((n) => n + 1);
     const handle = currentDbHandle();
-    this.enqueueWrite(() => writeRows([{ store: 'decks', put: updated }], handle));
+    this.queue.enqueue(() => writeRows([{ store: 'decks', put: updated }], handle));
     return { ok: true };
   }
 
@@ -132,17 +129,7 @@ export class DeckService {
     this.decksSignal.update((decks) => decks.filter((deck) => deck.id !== id));
     this.changeCountSignal.update((n) => n + 1);
     const handle = currentDbHandle();
-    return new Promise((resolve, reject) => {
-      this.enqueueWrite(() =>
-        writeRows(ops, handle).then(
-          () => resolve(result),
-          (e: unknown) => {
-            reject(e);
-            throw e;
-          },
-        ),
-      );
-    });
+    return this.queue.run(() => writeRows(ops, handle)).then(() => result);
   }
 
   // Sync-only: tombstones let SyncService tell a locally-deleted id apart from one that never
@@ -174,7 +161,7 @@ export class DeckService {
     this.decksSignal.set(merged);
     if (ops.length > 0) {
       const handle = currentDbHandle();
-      this.enqueueWrite(() => writeRows(ops, handle));
+      this.queue.enqueue(() => writeRows(ops, handle));
     }
   }
 }

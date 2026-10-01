@@ -1,10 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PlanechaseGame } from '@models/planechase-game.model';
+import { failNextPut } from '@testing/idb-failure';
+import { DATA } from '@utils/entry-copy';
 import { PLANAR_DATA, PLANAR_RECORDS, PLANAR_TRANSLATIONS, scriptedRandom } from '@testing/planechase-fixtures';
 import { getDeviceDb } from '../db/device-db';
 import { PLANECHASE_DATA, PlanechaseCatalogService } from './planechase-catalog.service';
 import { PLANECHASE_RANDOM, PlanechaseGameService } from './planechase-game.service';
+import { ToastService } from './toast.service';
 
 const IDS = PLANAR_RECORDS.map((card) => card.id);
 /** Fisher–Yates with j = i at every step keeps the input order. */
@@ -38,6 +41,21 @@ describe('PlanechaseGameService', () => {
     expect(service.game()).toBeNull();
     expect(service.inProgress()).toBe(false);
     expect(service.actions()).toBeNull();
+  });
+
+  it('toasts a failed save and still lands the next one (SC-001)', async () => {
+    const show = vi.spyOn(TestBed.inject(ToastService), 'show');
+    const restore = failNextPut();
+    service.start(IDS);
+    await service.flush();
+    expect(show).toHaveBeenCalledExactlyOnceWith(DATA.saveFailed.label, DATA.saveFailed.text);
+
+    service.planeswalk();
+    await service.flush();
+    restore();
+    expect(show).toHaveBeenCalledOnce();
+    const db = await getDeviceDb();
+    expect((await db.get('meta', 'planechaseGame'))?.value).toEqual(service.game());
   });
 
   it('starts, plays and persists the whole game, a pending phenomenon and its undo included', async () => {

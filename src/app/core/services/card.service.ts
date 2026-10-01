@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { CardEntry } from '@models/card.model';
 import { Tombstone } from '@models/tombstone.model';
 import {
@@ -10,6 +10,7 @@ import {
   replaceStore,
   setActiveProfileDb,
 } from '../db/entity-store';
+import { SaveQueueService } from './save-queue.service';
 
 @Injectable({ providedIn: 'root' })
 export class CardService {
@@ -25,7 +26,7 @@ export class CardService {
   private loadGeneration = 0;
   // Serializes IndexedDB writes so out-of-order async completions can never
   // leave stale data, and gives tests/callers a durability checkpoint.
-  private writeQueue: Promise<unknown> = Promise.resolve();
+  private readonly queue = inject(SaveQueueService).create('cards');
 
   // Points this service at a profile's database (or none) and rehydrates (R1). The signal
   // is cleared synchronously, before anything awaits, so no other profile's rows are ever
@@ -51,16 +52,12 @@ export class CardService {
 
   // Resolves once every write enqueued so far has landed in IndexedDB.
   flush(): Promise<void> {
-    return this.writeQueue.then(() => undefined);
-  }
-
-  private enqueueWrite(fn: () => Promise<unknown>): void {
-    this.writeQueue = this.writeQueue.then(fn).catch((e) => console.error('Grimorio: failed to persist cards.', e));
+    return this.queue.flush();
   }
 
   private persist(cards: CardEntry[]): void {
     const handle = currentDbHandle();
-    this.enqueueWrite(() => replaceStore('cards', cards, handle));
+    this.queue.enqueue(() => replaceStore('cards', cards, handle));
   }
 
   add(card: Omit<CardEntry, 'id' | 'updatedAt'>): CardEntry {
@@ -145,6 +142,6 @@ export class CardService {
 
   private addTombstone(id: string): void {
     const handle = currentDbHandle();
-    this.enqueueWrite(() => putTombstone('cards', { id, deletedAt: new Date().toISOString() }, handle));
+    this.queue.enqueue(() => putTombstone('cards', { id, deletedAt: new Date().toISOString() }, handle));
   }
 }
