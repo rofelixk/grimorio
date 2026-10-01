@@ -92,11 +92,11 @@ Found in spec 011. `CardService.refresh()` (run when another copy announces `car
 
 ### #23 · `setTimeout` audit — M
 
-19 `setTimeout` calls outside specs. Check which should instead be tied to `animationend`/`transitionend` or signals; timer-based sequencing is a flakiness source (see the SC-004 fix).
+13 `setTimeout` calls outside specs. Check which should instead be tied to `animationend`/`transitionend` or signals; timer-based sequencing is a flakiness source (see the SC-004 fix).
 
 ### #28 · `effect` audit — M
 
-16 `effect(` calls outside specs. Check which are really derived state and should be `computed` or `linkedSignal` (the idiom in architecture.md), keeping `effect` for real side effects.
+15 `effect(` calls outside specs. Check which are really derived state and should be `computed` or `linkedSignal` (the idiom in architecture.md), keeping `effect` for real side effects.
 
 ### #37 · Fix the recorded promise exceptions — S
 

@@ -16,8 +16,8 @@ When a spec ships, delete its entry here and its items from pending-items.md; th
 
 ## 5. Reactivity & timing audit
 
-- **Status**: planned
-- **Spec**: —
+- **Status**: specifying
+- **Spec**: `specs/014-reactivity-timing-audit/`
 - **Goal**: Timers and effects used only where they belong: sequencing tied to animation events or signals, derived state as `computed`/`linkedSignal`.
 - **Items**:
   - #23 `setTimeout` audit
