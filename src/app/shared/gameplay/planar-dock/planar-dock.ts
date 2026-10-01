@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, afterNextRe
 import { PlanarControls } from '@shared/gameplay/planar-controls';
 
 /** The height a fixed bottom bar covers; the view area pads its end by it (app.scss). */
-export const BOTTOM_BAR_VAR = '--bottom-bar-height';
+const BOTTOM_BAR_VAR = '--bottom-bar-height';
 
 // The phone dock (DESIGN.md "Phone dock", R16): the console's controls, fixed to the bottom of the
 // screen, outside the page flow, so the result and the actions stay on screen without scrolling

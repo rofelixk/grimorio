@@ -3,7 +3,7 @@ import { SupabaseClient, SupportedStorage, createClient } from '@supabase/supaba
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from '../supabase-client';
 import { ProfileStore } from './profile-store.service';
 
-export function cloudStorageKey(profileId: string): string {
+function cloudStorageKey(profileId: string): string {
   return `grm-cloud:${profileId}`;
 }
 

@@ -64,7 +64,7 @@ const NAME_PHASES: readonly FormPhase[] = ['profile', 'setup'];
 const PLATE_PHASES: readonly FormPhase[] = ['setup', 'reauth', 'recover-form'];
 const FORGOT_PHASES: readonly FormPhase[] = ['in', 'reauth', 'recover-form', 'unlock'];
 
-export const NAME_PATTERN = /^[A-Za-z0-9_.-]+$/;
+const NAME_PATTERN = /^[A-Za-z0-9_.-]+$/;
 const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
 const CODE_PATTERN = /^\d{6}$/;
 

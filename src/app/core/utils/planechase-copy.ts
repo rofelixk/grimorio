@@ -5,7 +5,7 @@
 import type { PlanechaseGame } from '@models/planechase-game.model';
 
 /** A cost as the table reads it: `{0}`, `{1}`, … */
-export const costText = (cost: number) => `{${cost}}`;
+const costText = (cost: number) => `{${cost}}`;
 
 export const MODES = {
   title: 'Modos de jogo',
@@ -57,7 +57,7 @@ export const PLANECHASE = {
 } as const;
 
 /** Result title and detail per result kind (ui.md §3); names are the cards' English names. */
-export const RESULT = {
+const RESULT = {
   start: (name: string) => ['Plano inicial', `${name} abre a partida. Role o dado na fase principal do seu turno.`],
   blank: ['Nada acontece', 'O plano continua o mesmo.'],
   chaos: ['Caos', 'Resolva a habilidade de caos destacada abaixo.'],

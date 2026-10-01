@@ -2,7 +2,7 @@ import type { SyncState } from '../services/sync.service';
 import { SYNC_AREA } from './entry-copy';
 
 export type SyncDisplayKind = 'syncing' | 'synced' | 'last' | 'never' | 'local' | 'offline' | 'expired' | 'error';
-export type SyncAction = 'sync' | 'retry' | 'reauth' | 'link' | null;
+type SyncAction = 'sync' | 'retry' | 'reauth' | 'link' | null;
 
 /** What the shell shows for the active profile's sync status (FR-007). */
 export interface SyncDisplay {
@@ -18,7 +18,7 @@ export interface SyncDisplay {
 }
 
 /** "Sincronizado" lasts this long after a successful sync, then turns into "há N min". */
-export const SYNCED_WINDOW_MS = 5 * 60_000;
+const SYNCED_WINDOW_MS = 5 * 60_000;
 
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;

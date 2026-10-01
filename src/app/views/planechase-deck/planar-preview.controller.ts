@@ -15,9 +15,9 @@ import { visibleOrder } from '@utils/planar-preview.util';
 import { MOBILE_QUERY } from '@shared/ds/media-query';
 
 /** How long a resting pointer waits before the popover opens (FR-005). */
-export const HOVER_OPEN_MS = 300;
+const HOVER_OPEN_MS = 300;
 /** How long the popover stays after the pointer leaves the tile and the popover (FR-006). */
-export const HOVER_CLOSE_MS = 150;
+const HOVER_CLOSE_MS = 150;
 
 export interface PreviewContext {
   sets: Signal<readonly PlanarSet[]>;

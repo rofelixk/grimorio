@@ -1,7 +1,7 @@
-export type CardFinish = 'nonfoil' | 'foil' | 'etched';
-export type CardCondition = 'NM' | 'LP' | 'MP' | 'HP' | 'DMG';
-export type CardRarity = 'common' | 'uncommon' | 'rare' | 'special' | 'mythic' | 'bonus';
-export type CommanderLegality = 'legal' | 'not_legal' | 'banned' | 'restricted';
+type CardFinish = 'nonfoil' | 'foil' | 'etched';
+type CardCondition = 'NM' | 'LP' | 'MP' | 'HP' | 'DMG';
+type CardRarity = 'common' | 'uncommon' | 'rare' | 'special' | 'mythic' | 'bonus';
+type CommanderLegality = 'legal' | 'not_legal' | 'banned' | 'restricted';
 export type Color = 'W' | 'U' | 'B' | 'R' | 'G';
 
 export interface CardFace {

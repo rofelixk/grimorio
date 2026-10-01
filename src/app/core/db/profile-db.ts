@@ -13,12 +13,12 @@ export interface TombstoneRecord {
   deletedAt: string;
 }
 
-export interface MetaRecord {
+interface MetaRecord {
   key: string;
   value: unknown;
 }
 
-export interface ProfileDbSchema extends DBSchema {
+interface ProfileDbSchema extends DBSchema {
   cards: { key: string; value: CardEntry };
   collections: { key: string; value: Collection };
   decks: { key: string; value: Deck };

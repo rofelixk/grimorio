@@ -26,7 +26,7 @@ export interface PlanarCardRecord {
 /** `cards.pt-br.json`, written by `/planechase-translate`. Keyed by card id. */
 export type PlanarTranslations = Record<string, PlanarTranslation>;
 
-export interface PlanarTranslation {
+interface PlanarTranslation {
   /** The card's `hash` when it was translated. */
   sourceHash: string;
   typeLine: string;

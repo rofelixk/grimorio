@@ -1,7 +1,7 @@
 import { DBSchema, IDBPDatabase, openDB } from 'idb';
 import { ProfileRecord } from '@models/profile.model';
 
-export interface DeviceMetaRecord {
+interface DeviceMetaRecord {
   key: string;
   value: unknown;
 }
