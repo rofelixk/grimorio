@@ -146,10 +146,10 @@ None. Each story's shared unit (`FluidHeight`, `focus.ts`/`RovingRadios`, `FlowF
 
 **Purpose**: Docs, budgets, end-to-end validation
 
-- [ ] T045 Draft the `.claude/docs/architecture.md` updates listed in plan.md's post-design re-check and show them to the maintainer for review before writing them: in **Auth**, `CloudSteps` (provided by factory per modal) replaces `CloudFlowHost` in the "Shared cloud forms" bullet, `FlowForm` is the shared form core, and `fluid-face.ts` composes `FluidHeight` (`shared/ds/fluid-height.ts`); in **Modals**, `focus.ts` (`focusFirst`/`captureFocus`/`focusOnChange`/`focusElement`) and `RovingRadios` are the focus conventions for future modals and radio groups. Also add `@testing/resize-observer` next to the `stubDialog()` note under **Testing**. Apply only what the maintainer accepts.
-- [ ] T046 Run `npm run build` and confirm the `angular.json` budgets (`initial`, `anyComponentStyle`, the named lazy-chunk budgets) still pass unchanged.
-- [ ] T047 Walk `specs/012-modals-focus-auth-stores/quickstart.md` "Manual" 1–8 against the maintainer's running dev server (never start or stop port 4200 yourself), using the `run` skill where a headless check fits; report any difference from before outside FR-009, FR-017's Home/End and the tunnel's no-selection key.
-- [ ] T048 Final checkpoint: run `npm run lint` and the full suite through `test-runner` and `design-auditor` over every UI file this feature touched, fix everything, then commit the polish phase ("Modals, focus & auth stores: docs and polish").
+- [X] T045 Draft the `.claude/docs/architecture.md` updates listed in plan.md's post-design re-check and show them to the maintainer for review before writing them: in **Auth**, `CloudSteps` (provided by factory per modal) replaces `CloudFlowHost` in the "Shared cloud forms" bullet, `FlowForm` is the shared form core, and `fluid-face.ts` composes `FluidHeight` (`shared/ds/fluid-height.ts`); in **Modals**, `focus.ts` (`focusFirst`/`captureFocus`/`focusOnChange`/`focusElement`) and `RovingRadios` are the focus conventions for future modals and radio groups. Also add `@testing/resize-observer` next to the `stubDialog()` note under **Testing**. Apply only what the maintainer accepts.
+- [X] T046 Run `npm run build` and confirm the `angular.json` budgets (`initial`, `anyComponentStyle`, the named lazy-chunk budgets) still pass unchanged.
+- [X] T047 Walk `specs/012-modals-focus-auth-stores/quickstart.md` "Manual" 1–8 against the maintainer's running dev server (never start or stop port 4200 yourself), using the `run` skill where a headless check fits; report any difference from before outside FR-009, FR-017's Home/End and the tunnel's no-selection key.
+- [X] T048 Final checkpoint: run `npm run lint` and the full suite through `test-runner` and `design-auditor` over every UI file this feature touched, fix everything, then commit the polish phase ("Modals, focus & auth stores: docs and polish").
 
 ---
 
