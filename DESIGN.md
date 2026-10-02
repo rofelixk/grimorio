@@ -247,6 +247,19 @@ The stored value is the hex itself (`Collection.color`), in `COLLECTION_COLORS` 
 
 **Swatches only, never UI chrome — the Identity Rule still holds.** Always name the color in text, never rely on it alone.
 
+### Card colors
+A named exception to the Identity Rule (spec 015). A card's own color identity colors its hover border and halo, the dust, and the card modal and duplicate notice's roles. It never colors the app chrome outside those surfaces.
+
+| Card colors | Roles / stops |
+|---|---|
+| 1 color | that color's identity base (hover: its hover value) |
+| 2–3 colors | their identity bases in turn, WUBRG order |
+| 4 colors | silver — main `#b6b8c2`, light `#e8e9ee`, dark `#8d8f9b` |
+| 5 colors | gold — main `#c49a3c`, light `#f0d98a`, dark `#9a7424` |
+| Colorless | neutral — main `#a89e96`, dark `#6b635c`, hover `#c2b9b1` |
+
+The hover role for silver and gold is their light variant. A modal colored this way sets `--theme-*` and redeclares the `--role-*` chain, like any themed root.
+
 ## Typography
 
 **Display:** Grenze 600 (wordmark: Grenze 700). **Text:** Karla 400–700.
@@ -339,6 +352,9 @@ These are deliberate exceptions to two rules: the flowing line and the thread ar
 - **Drawer:** slides in from the right over 0.36s (`--duration-drawer`), and the backdrop fades over the same time.
 - **Side nav:** width, border and glow change over `base` 0.24s. It collapses 120ms after the pointer leaves.
 - **`prefers-reduced-motion`:** all ring, halo, spark, ripple and band animation stops, as do the wheel's spin, breathing, motes and bursts. Rings and bands freeze, the drawer opens and closes instantly (0s), modal height changes are instant, and the toast appears without a transition.
+- **Card hover** (list, holding box, search results): over 0.24s a layer behind the tile fades in — a 1px conic-gradient border (`inset: -1px`, 7px radius, stops from the card's colors, spinning `--spin-angle` over 6s linear) and a halo (`inset: -5px`, `blur(7px)`, 12px radius, opacity .45). The tile scales to 1.08 with a deeper shadow, above its neighbors. One dust burst per pointer entry (none on focus): 10 specks leaving the perimeter, `spark` 3.6s, 70ms stagger, 30px × jitter 0.7–1.5, in the border's colors in turn. Keyboard focus-visible shows the border, halo and scale only.
+- **Card details toggle:** the details plate opens as `grid-template-rows: 0fr → 1fr` with opacity over 0.32s, and the image's bottom radius follows. In "Só imagens" the plate is an overlay fading in over 0.24s on hover.
+- **Cards under `prefers-reduced-motion`:** a static colored border, no spin, no halo animation, no dust; the details toggle is instant; the scale stays as an instant transform.
 - **Collections page change** (list ↔ collection ↔ holding box): the page sweep — open going deeper or sideways, close going up. Every navigation sweeps except the first load and the missing-place redirect (including landing on the parent after a delete), which swap instantly.
 - **Decks page change** (list ↔ deck): the page sweep — open into a deck, close back to the list.
   - **Triggers:** opening a deck from its tile; returning from a deck page by its back link, side-nav "Decks", or browser/Android back. A direct load, the wordmark (Home), landing on the list after a delete, and the missing-deck redirect never animate.
@@ -601,17 +617,57 @@ The collection area (spec 008): a list of collections, a per-collection page, an
 
 **Stats.** A 3-column grid of `.plate`s, each a Grenze 600 1.5rem number over a `.micro-label` ("Cartas" / "À venda" / "Subcoleções").
 
-**Empty-collection choice plates.** Two `.plate`s side by side (stacked ≤ 640px), padding `space-4`: "Guardar cartas" with a disabled secondary "Adicionar cartas — em breve", and "Dividir" with a primary "Nova subcoleção" (hidden at level 3).
+**Empty-collection choice plates.** Two `.plate`s side by side (stacked ≤ 640px), padding `space-4`: "Guardar cartas aqui" with a primary "Adicionar cartas", and "Dividir em subcoleções" with a secondary "Nova subcoleção" (hidden at level 3).
 
 **Empty state.** No collections and no holding box: only the `h1`, then a centered 360px section (margin `space-6 auto`, gap `space-4`, centered text) — `.eyebrow`, an `h2` (Grenze 600 1.5rem, title glow), muted 0.875rem copy, and a primary CTA.
 
-**Reserved placeholders** (must ship now, disabled or muted, so later specs drop in without a layout change): a disabled search `.field__input` and a disabled "Filtros" secondary button below 960px; a sticky 220px filters aside (kept even with only its placeholder) at ≥ 960px; a muted `.plate` in place of the card list inside a collection; a disabled "Adicionar cartas" button in the "Guardar cartas" choice. Search and filters are hidden in the empty state, and shown only on the list page, never inside a collection.
+**Reserved placeholders** (must ship now, disabled or muted, so later specs drop in without a layout change): a disabled search `.field__input` and a disabled "Filtros" secondary button below 960px; a sticky 220px filters aside (kept even with only its placeholder) at ≥ 960px. Search and filters are hidden in the empty state; inside a collection page the placeholder search and "Filtros em breve." live in the side column (see "Cards"). The card-list plate and the disabled "Adicionar cartas" are gone: the card list and a live "Adicionar cartas" ship with spec 015.
 
 **Compact modal** (`app-compact-modal`, the create/edit and delete dialogs). A narrow themed-modal ring: `width: min(480px, 100vw - 2rem)`, 2px padding, 10px radius, the same ring/halo recipe as the auth blueprint. Phone (≤ 640px): full-bleed, no ring or halo, a header with the "Grimorio" wordmark (Grenze 700 1.25rem, role-primary, title glow) and ✕, hairline below, `--wash-header`; buttons stack full-width in `column-reverse` order. Desktop: the face follows its content's height over `base` 0.24s, with the auth blueprint's fluid-height rule: animated only after the first pointer or key press inside it, instant under reduced motion, no scrollbar while it animates. It has no minimum; it stops at the viewport height less 4rem, and past that the whole face scrolls.
+
+**Compact modal sizes** (`size` input). `compact` is the 480px ring above. `wide` is 720px with a fixed 640px face (fluid height off; only the content's own scroll area scrolls). `split` is 880px, fluid, with two panes (the card modal: a 300px left pane on `--wash-header` with a right border, a content pane). The phone full-bleed with the wordmark header applies to every size. The modal hosts a toast outlet, so a toast shows inside the top `<dialog>`.
 
 **Color picker.** A centered `role="radiogroup"`, 16 swatches in a 5/6/5 honeycomb from `COLLECTION_COLORS` order; rows 1 and 3 indented 24px so they nest between row 2's swatches. Row gap 6px, swatch gap 12px. Each swatch is a 36px circular `button role="radio"`, named and titled with the color name. Selected: `box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 4px {hex}, 0 0 20px {hex}80` over `slow` 0.5s (Ônix's ring uses `#8a837e`).
 
 **Delete radios.** Two full-width radio rows (padding `space-3`, 8px radius, the row gradient), each with an 18px indicator (1px border, an inset 4px `--color-bg` ring, filled when selected). "Mover para a caixa temporária" selected: border and fill role-primary plus `--glow-plate-hover`. "Excluir as cartas" selected: border and fill danger, its sub-text in danger. Nothing is selected by default.
+
+### Cards
+Spec 015: the card list inside collection pages, the holding grid, and the add/edit flow. Visual source: `design_handoff_cards/`.
+
+**Page layout v2** (every collection page and the holding box). A 1080px column, grid `minmax(0,1fr) 220px`, gap `space-6`, padding `space-5`.
+- **Sticky header** (`position: sticky; top: 0`, `bg`, z-index 2): the path row with "Editar" (secondary) and "Excluir" (danger) at its right end (none on the holding box), the title, then the list bar. A 32px `linear-gradient(bg, transparent)` fade sits beneath it, `pointer-events: none`, so tiles dissolve under the header instead of meeting a hard line. Only the grid scrolls.
+- **List bar** (cards kind): the "Exibição" toggle at the start, a primary "Adicionar cartas" at the end. Absent on the holding box and on pages with subcollections.
+- **Side column** (sticky, 1px left border, `space-5` left padding): the summary "{n} cartas · {s} à venda" (sm, muted, numbers in `text`, one line, 1px rule below), the "Buscar e filtrar" eyebrow, the disabled search field, "Filtros em breve.", and for a leaf collection holding cards the dashed "Dividir em subcoleções" row (replaced by the "Último nível" meta at level 3), separated by `space-5`. It counts the subtree's cards, never subcollections.
+- **Phone and mid (< 960px):** one column, header not sticky, no side column. Editar/Excluir take their own 50/50 row on phone; order: path, title, summary line, list bar ("Adicionar cartas" full width on phone), split row, disabled search + "Filtros", grid.
+- **Holding box:** a hollow 24px square, the title, the toggle, the note, the same grid, read-only.
+
+**Display toggle** (`app-card-view-toggle`). A `role="radiogroup"` "Exibição" with two radios, "Só imagens" and "Com detalhes" (sm, 44px targets), roving tabindex. Kept per profile.
+
+**Card grid.** "Só imagens": 3 columns on phone, 5 at 640–959px, 6 at ≥ 960px, gap `space-3`. "Com detalhes": 2, 3 and 4, gap `space-4` (row) × `space-3` (column). Tiles use `content-visibility: auto` with an intrinsic size matching 5:7.
+
+**Card tile** (`app-card-tile`, "5b"). Image and details plate glued, no outer frame.
+- **Image:** 5:7, 1px `border`, 6px radius (6 6 0 0 while the plate shows); `alt=""` (the name is on the tile). No image: a `surface-raised → surface` gradient of the same shape holding the name as muted text.
+- **Plate:** `margin-top: -1px`, `space-2` padding, 1px border, `0 0 6px 6px`, `surface`. Line 1: `SET · nº` (xs, text) at the start, `Acabamento · Idioma · Condição` (xs, muted) at the end. Line 2: the `.micro-label` "À venda" only when for sale, `×{qtd}` (700) at the end. No name, no artist.
+- **Hover/focus-visible:** the card hover recipe (see Motion), colors from "Card colors". An interactive tile is a `<button>`; on the holding box it is a non-focusable `role="img"`.
+
+**Search modal.** `CompactModal` `wide`, profile roles: title (Grenze 600 xl, glow), the "Nome da carta" field, then the results area, the only scroller (thin scrollbar, padding `space-3` so a hovered tile can grow): 5 columns of image-only tiles (3 on phone), gap `space-4` × `space-3`. Loading shows 10 `surface` 5:7 rectangles at .6 opacity plus a `.micro-label`; "Carregando mais…" and the error plates follow the grid.
+
+**Card modal.** `CompactModal` `split`, roles from the card's color identity. Left pane (padding `space-6 space-5`, gap `space-3`): the printing image (5:7, 6px radius, full width), "Buscar set" and the "Impressão" select list. Right pane: a 44px ✕ row, then (padding `0 space-6 space-6`) the eyebrow, the name (Grenze 600 xl, glow), the type line at the start and the artist at the end (sm, muted), a single 1px `border-top` rule (not `.divider`, which draws two lines), a two-column field grid (gap `space-4`), notes, and a footer pinned to the bottom (`margin-top: auto`, 1px top border, `space-4` padding) with the "À venda" check at the start and Cancelar, Salvar e adicionar outra (add only) and Salvar at the end.
+
+**Duplicate notice.** `CompactModal` `compact`, card roles, body padding `0 space-6 space-6`, gap `space-4`: a `.plate` for the existing row (36px thumbnail, name 700, the details line, `×qtd`, the collection `.micro-label`), or the "Onde ela está" select list when there are two or more matches, then two radio rows in the "Delete radios" recipe with role-primary selection, then Cancelar (ghost) and Continuar (primary).
+
+**Moved notice.** `CompactModal` locked, in the destination collection's color: title, one sentence, the card row with the subcollection `.micro-label`, a single primary "Ok".
+
+**Toasts** keep their host's roles (the profile's at the app root and in the search modal), not the collection's color as the handoff draws them.
+
+### Select list
+`app-select-list`: a dropdown that can hold thumbnails, which a native `<select>` can't render.
+- **Trigger:** a `<button class="field__input">` showing the selection, with a chevron drawn as a 7px square with two borders rotated 45° (no glyph); it flips when open.
+- **Listbox:** `role="listbox"`, surface face, 1px border role-primary, `--glow-plate-hover`, 8px radius, max-height with its own scroll; options `role="option"`, `space-2 space-3` padding, `fast` hover. The selected option sits on `surface-raised`; the active option gets the hover treatment.
+- **Open:** the trigger's border turns role-primary. Esc closes the list only; a click outside closes it.
+
+### Check
+`.check`: a label wrapping a visually restyled native checkbox. An 18px box, 1px `border`, 4px radius; checked adds a 10px inner square in role-primary. No ✓ glyph. A 44px target, focus ring from the base styles.
 
 ### Decks
 The deck area (spec 009): a list of deck fans, a header-only deck page, and the page change between them (Motion, "Decks page change").

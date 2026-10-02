@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createGunzip } from 'node:zlib';
 import { Readable } from 'node:stream';
 import { createInterface } from 'node:readline';
+import { searchKey } from '../src/app/core/utils/card-search.util';
 
 const SUPABASE_URL = process.env['SUPABASE_URL'];
 const SUPABASE_SERVICE_ROLE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY'];
@@ -47,6 +48,7 @@ interface ScryfallCardFace {
   toughness?: string | null;
   type_line?: string;
   oracle_text?: string;
+  artist?: string;
   image_uris?: ScryfallImageUris;
 }
 
@@ -70,6 +72,7 @@ interface ScryfallCard {
   toughness?: string | null;
   loyalty?: string | null;
   layout: string;
+  artist?: string;
   legalities: { commander: string };
   image_uris?: ScryfallImageUris;
   card_faces?: ScryfallCardFace[];
@@ -110,6 +113,7 @@ function toCardRow(card: ScryfallCard) {
   return {
     oracle_id: card.oracle_id,
     name: card.name,
+    search_name: searchKey(card.name),
     mana_cost: card.mana_cost ?? null,
     mana_value: card.cmc,
     type_line: card.type_line,
@@ -150,6 +154,11 @@ function toPrintingRow(card: ScryfallCard) {
     released_at: card.released_at,
     image_small: imageSizeOf(card, 'small'),
     image_large: imageSizeOf(card, 'large'),
+    artist: card.artist ?? card.card_faces?.[0]?.artist ?? null,
+    faces:
+      card.card_faces && card.card_faces.length > 1 && card.card_faces.some((f) => f.image_uris?.normal)
+        ? card.card_faces.map((f) => ({ name: f.name, image_url: f.image_uris?.normal ?? null }))
+        : null,
   };
 }
 
