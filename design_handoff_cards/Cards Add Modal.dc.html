@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/components.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+<style>body{margin:0;background:#0d0b0a;color:#f2ede8;font-family:Karla,sans-serif}a{color:#a89e96}a:hover{color:#f2ede8}select.field__input option{background:#1e1a17;color:#f2ede8}</style>
+</helmet>
+<section id="t2" style="padding:40px 44px;display:flex;flex-direction:column;gap:28px;border-bottom:1px solid #3a332e">
+<div style="display:flex;align-items:baseline;gap:10px"><a href="#t2" style="font:600 10px monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none">2</a><span style="font:600 13px Karla,sans-serif;color:#f2ede8">Posição do “À venda” (edição, marcado)</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:56px 40px;align-items:flex-start">
+<sc-for list="{{ variants2 }}" as="v" hint-placeholder-count="3">
+<div id="{{ v.id }}" style="width:960px;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px">
+<div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#{{ v.id }}" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">{{ v.id }}</a>{{ v.label }}</div>
+<div style="padding:40px;background:rgba(0,0,0,.75);border-radius:8px">
+<div class="grm-modal" data-theme-scope style="{{ v.theme }}position:relative;margin:0 auto;width:880px">
+<div style="position:relative;padding:2px;border-radius:var(--radius-ring);background:var(--ring-gradient)">
+<div class="m-halo"></div>
+<div style="position:relative;z-index:1;display:grid;grid-template-columns:300px minmax(0,1fr);border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-rest)">
+
+<div style="display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-6) var(--space-5);border-right:1px solid var(--color-border);background:var(--wash-header)">
+<div style="width:100%;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:var(--space-3)"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ v.imgText }}</span></div>
+<div class="field"><label class="field__label">Buscar set</label><input class="field__input" value="{{ v.setQuery }}" placeholder="Nome ou código do set" disabled="{{ v.printDisabled }}" style="{{ v.printStyle }}"></div>
+<div class="field" style="position:relative"><label class="field__label">Impressão</label>
+<select class="field__input" disabled="{{ v.printDisabled }}" style="{{ v.printStyle }}"><option>{{ v.printText }}</option></select>
+<sc-if value="{{ v.openList }}" hint-placeholder-val="{{ false }}"><div role="listbox" style="position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:5;border:1px solid var(--role-primary);border-radius:var(--radius-sm);background:var(--color-surface);box-shadow:var(--glow-plate-hover);overflow:hidden">
+<sc-for list="{{ v.prints }}" as="p" hint-placeholder-count="2"><div role="option" style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);{{ p.style }}"><div style="flex:none;width:28px;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:3px;background:var(--color-surface-raised)"></div><div style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:var(--font-size-sm)">{{ p.title }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ p.artist }}</span></div></div></sc-for></div></sc-if></div>
+<sc-if value="{{ v.catalogError }}" hint-placeholder-val="{{ false }}"><div class="plate" style="gap:var(--space-2);color:var(--color-danger);border-color:var(--color-danger);background:var(--color-danger-bg)"><span>Sem conexão. O catálogo precisa de internet — o resto do app continua funcionando.</span><button class="btn btn--secondary" type="button" style="align-self:flex-start">Tentar de novo</button></div></sc-if>
+</div>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="display:flex;justify-content:{{ v.closeJustify }};align-items:center;padding-left:var(--space-6)"><sc-if value="{{ v.saleHeader }}" hint-placeholder-val="{{ false }}"><label style="display:inline-flex;align-items:center;gap:var(--space-3);min-height:var(--touch-target);"><span style="width:18px;height:18px;border:1px solid {{ v.saleBorder }};border-radius:4px;display:inline-flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:2px;background:{{ v.saleFill }}"></span></span>À venda</label></sc-if><button type="button" style="min-width:44px;min-height:44px;border:none;background:transparent;color:var(--color-text-muted);font:inherit;cursor:pointer" aria-label="Fechar">✕</button></div>
+<div style="display:flex;flex-direction:column;flex:1;gap:var(--space-4);padding:0 var(--space-6) var(--space-6)">
+<div style="display:flex;flex-direction:column;gap:2px"><span class="eyebrow">{{ v.eyebrow }}</span><h2 style="margin:0;font:600 var(--font-size-xl)/1.2 var(--font-display);text-shadow:var(--glow-title)">{{ v.name }}</h2><div style="display:flex;justify-content:space-between;gap:var(--space-3);font-size:var(--font-size-sm);color:var(--color-text-muted)"><span>{{ v.type }}</span><span style="text-align:right">{{ v.artist }}</span></div></div>
+<div style="height:1px;background:var(--color-border)"></div>
+
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-4)">
+<div class="field" style="grid-column:span 3"><label class="field__label">Acabamento</label><select class="field__input"><option>{{ v.finish }}</option></select></div>
+<div class="field" style="grid-column:span 3"><label class="field__label">Idioma</label><select class="field__input"><option>Inglês</option></select></div>
+<div class="field" style="grid-column:{{ v.span }}"><label class="field__label">Condição</label><select class="field__input"><option>{{ v.cond }}</option></select></div>
+<div class="field" style="grid-column:{{ v.span }}"><label class="field__label">Quantidade</label><input class="field__input" value="{{ v.qty }}" aria-invalid="{{ v.qtyInvalid }}" inputmode="numeric"><sc-if value="{{ v.qtyInvalid }}" hint-placeholder-val="{{ false }}"><span class="field__error">Use um número inteiro de 1 ou mais.</span></sc-if></div><sc-if value="{{ v.saleGrid }}" hint-placeholder-val="{{ false }}"><div style="grid-column:span 2;align-self:end;display:flex;flex-direction:column;gap:var(--space-1)"><span class="field__label">Venda</span><div class="field__input" style="display:flex;align-items:center"><label style="display:inline-flex;align-items:center;gap:var(--space-3);min-height:var(--touch-target);"><span style="width:18px;height:18px;border:1px solid {{ v.saleBorder }};border-radius:4px;display:inline-flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:2px;background:{{ v.saleFill }}"></span></span>À venda</label></div></div></sc-if></div>
+
+
+<div class="field"><label class="field__label">Notas</label><textarea class="field__input" rows="2" placeholder="Opcional" value="{{ v.notes }}" readonly style="resize:none"></textarea></div>
+
+<div style="display:flex;gap:var(--space-2);justify-content:flex-end;flex-wrap:wrap;margin-top:auto;padding-top:var(--space-4);border-top:1px solid var(--color-border)">
+<sc-if value="{{ v.saleFooter }}" hint-placeholder-val="{{ false }}"><div style="margin-right:auto;display:flex;align-items:center"><label style="display:inline-flex;align-items:center;gap:var(--space-3);min-height:var(--touch-target);"><span style="width:18px;height:18px;border:1px solid {{ v.saleBorder }};border-radius:4px;display:inline-flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:2px;background:{{ v.saleFill }}"></span></span>À venda</label></div></sc-if><button class="btn btn--ghost" type="button">Cancelar</button>
+<sc-if value="{{ v.another }}" hint-placeholder-val="{{ true }}"><button class="btn btn--secondary" type="button" disabled="{{ v.saveDisabled }}">Salvar e adicionar outra</button></sc-if>
+<button class="btn btn--primary" type="button" disabled="{{ v.saveDisabled }}">Salvar</button></div>
+</div></div>
+</div></div></div></div></div>
+</sc-for>
+</div>
+<p style="margin:0;font:12px/1.5 Karla,sans-serif;color:#a89e96">Tente: "2b sem o rótulo Venda" · "2c com o preço quando existir" · "2a, mas à direita dos botões"</p>
+</section>
+<section id="t1" style="padding:40px 44px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;align-items:baseline;gap:10px"><a href="#t1" style="font:600 10px monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none">1</a><span style="font:600 13px Karla,sans-serif;color:#f2ede8">Seção C — modal de adicionar / editar carta, na cor de identidade da carta (desktop)</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:56px 40px;align-items:flex-start">
+<sc-for list="{{ frames }}" as="v" hint-placeholder-count="3">
+<div id="{{ v.id }}" style="width:960px;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px">
+<div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#{{ v.id }}" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">{{ v.id }}</a>{{ v.label }}</div>
+<div style="padding:40px;background:rgba(0,0,0,.75);border-radius:8px">
+<div class="grm-modal" data-theme-scope style="{{ v.theme }}position:relative;margin:0 auto;width:880px">
+<div style="position:relative;padding:2px;border-radius:var(--radius-ring);background:var(--ring-gradient)">
+<div class="m-halo"></div>
+<div style="position:relative;z-index:1;display:grid;grid-template-columns:300px minmax(0,1fr);border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-rest)">
+
+<div style="display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-6) var(--space-5);border-right:1px solid var(--color-border);background:var(--wash-header)">
+<div style="width:100%;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:var(--space-3)"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ v.imgText }}</span></div>
+<div class="field"><label class="field__label">Buscar set</label><input class="field__input" value="{{ v.setQuery }}" placeholder="Nome ou código do set" disabled="{{ v.printDisabled }}" style="{{ v.printStyle }}"></div>
+<div class="field" style="position:relative"><label class="field__label">Impressão</label>
+<select class="field__input" disabled="{{ v.printDisabled }}" style="{{ v.printStyle }}"><option>{{ v.printText }}</option></select>
+<sc-if value="{{ v.openList }}" hint-placeholder-val="{{ false }}"><div role="listbox" style="position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:5;border:1px solid var(--role-primary);border-radius:var(--radius-sm);background:var(--color-surface);box-shadow:var(--glow-plate-hover);overflow:hidden">
+<sc-for list="{{ v.prints }}" as="p" hint-placeholder-count="2"><div role="option" style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);{{ p.style }}"><div style="flex:none;width:28px;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:3px;background:var(--color-surface-raised)"></div><div style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:var(--font-size-sm)">{{ p.title }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ p.artist }}</span></div></div></sc-for></div></sc-if></div>
+<sc-if value="{{ v.catalogError }}" hint-placeholder-val="{{ false }}"><div class="plate" style="gap:var(--space-2);color:var(--color-danger);border-color:var(--color-danger);background:var(--color-danger-bg)"><span>Sem conexão. O catálogo precisa de internet — o resto do app continua funcionando.</span><button class="btn btn--secondary" type="button" style="align-self:flex-start">Tentar de novo</button></div></sc-if>
+</div>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="display:flex;justify-content:flex-end"><button type="button" style="min-width:44px;min-height:44px;border:none;background:transparent;color:var(--color-text-muted);font:inherit;cursor:pointer" aria-label="Fechar">✕</button></div>
+<div style="display:flex;flex-direction:column;flex:1;gap:var(--space-4);padding:0 var(--space-6) var(--space-6)">
+<div style="display:flex;flex-direction:column;gap:2px"><span class="eyebrow">{{ v.eyebrow }}</span><h2 style="margin:0;font:600 var(--font-size-xl)/1.2 var(--font-display);text-shadow:var(--glow-title)">{{ v.name }}</h2><div style="display:flex;justify-content:space-between;gap:var(--space-3);font-size:var(--font-size-sm);color:var(--color-text-muted)"><span>{{ v.type }}</span><span style="text-align:right">{{ v.artist }}</span></div></div>
+<div style="height:1px;background:var(--color-border)"></div>
+
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)">
+<div class="field"><label class="field__label">Acabamento</label><select class="field__input"><option>{{ v.finish }}</option></select></div>
+<div class="field"><label class="field__label">Idioma</label><select class="field__input"><option>Inglês</option></select></div>
+<div class="field"><label class="field__label">Condição</label><select class="field__input"><option>{{ v.cond }}</option></select></div>
+<div class="field"><label class="field__label">Quantidade</label><input class="field__input" value="{{ v.qty }}" aria-invalid="{{ v.qtyInvalid }}" inputmode="numeric"><sc-if value="{{ v.qtyInvalid }}" hint-placeholder-val="{{ false }}"><span class="field__error">Use um número inteiro de 1 ou mais.</span></sc-if></div></div>
+
+
+<div class="field"><label class="field__label">Notas</label><textarea class="field__input" rows="2" placeholder="Opcional" value="{{ v.notes }}" readonly style="resize:none"></textarea></div>
+
+<div style="display:flex;gap:var(--space-2);justify-content:flex-end;flex-wrap:wrap;margin-top:auto;padding-top:var(--space-4);border-top:1px solid var(--color-border)">
+<div style="margin-right:auto;display:flex;align-items:center"><label style="display:inline-flex;align-items:center;gap:var(--space-3);min-height:var(--touch-target);"><span style="width:18px;height:18px;border:1px solid {{ v.saleBorder }};border-radius:4px;display:inline-flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:2px;background:{{ v.saleFill }}"></span></span>À venda</label></div><button class="btn btn--ghost" type="button">Cancelar</button>
+<sc-if value="{{ v.another }}" hint-placeholder-val="{{ true }}"><button class="btn btn--secondary" type="button" disabled="{{ v.saveDisabled }}">Salvar e adicionar outra</button></sc-if>
+<button class="btn btn--primary" type="button" disabled="{{ v.saveDisabled }}">Salvar</button></div>
+</div></div>
+</div></div></div></div></div>
+</sc-for>
+</div>
+<p style="margin:0;font:12px/1.5 Karla,sans-serif;color:#a89e96">Cor do modal = identidade da carta: 1 cor = a cor · 2–3 = mistura · 4 = prata · 5 = ouro · incolor = neutra. Tente: "busca de set também filtra por idioma" · "imagem maior" · "listar impressões em grade de imagens".</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const C = { W:['#d8cdb0','#e6dcc2'], U:['#3d6b85','#4c7f9c'], B:['#7c5aa6','#8f6bb8'], R:['#a8402c','#bf4f39'], G:['#4c7a43','#5c8f52'] };
+    const NAMES = { W:'Branco', U:'Azul', B:'Preto', R:'Vermelho', G:'Verde' };
+    const theme = (id) => {
+      let r;
+      if (id.length === 0) r = [['#a89e96','#c4bbb4']];
+      else if (id.length === 4) r = [['#b6b8c2','#d0d2da']];
+      else if (id.length === 5) r = [['#c49a3c','#e0b955']];
+      else r = id.split('').map(x => C[x]);
+      const p = r[0], a = r[1] || p, t = r[2] || a;
+      return '--theme-primary:'+p[0]+';--theme-primary-hover:'+p[1]+';--theme-accent:'+a[0]+';--theme-accent-hover:'+a[1]+';--theme-tertiary:'+t[0]+';--theme-tertiary-hover:'+t[1]+';';
+    };
+    const idName = (id) => id ? id.split('').map(x => NAMES[x]).join(' · ') : 'Incolor';
+    const mk = (title, artist) => ({ title, artist });
+    const cards = {
+      sol:  { name:'Sol Ring', type:'Artifact', id:'', prints:[mk('Commander Legends · CMR · 472','Mark Tedin'), mk('Commander 2021 · C21 · 263','Mark Tedin'), mk('Limited Edition Alpha · LEA · 269','Mark Tedin')] },
+      bolt: { name:'Lightning Bolt', type:'Instant', id:'R', prints:[mk('Magic 2011 · M11 · 149','Christopher Moeller'), mk('Magic 2010 · M10 · 146','Christopher Moeller'), mk('Limited Edition Alpha · LEA · 161','Christopher Rush')] },
+      counter: { name:'Counterspell', type:'Instant', id:'U', prints:[mk('Modern Horizons 2 · MH2 · 267','Zack Stella'), mk('Dominaria Remastered · DMR · 47','Zack Stella'), mk('Seventh Edition · 7ED · 67','Jason Chan')] },
+      izzet: { name:'Izzet Charm', type:'Instant', id:'UR', prints:[mk('Ravnica Allegiance · RNA · 183','Wayne Reynolds'), mk('Guilds of Ravnica · GRN · 183','Wayne Reynolds')] },
+      saskia: { name:'Saskia the Unyielding', type:'Legendary Creature — Human Soldier', id:'WBRG', prints:[mk('Commander Legends · CMR · 511','Winona Nelson'), mk('Commander Legends · CMR · 661','Winona Nelson')] },
+      sliver: { name:'Sliver Overlord', type:'Legendary Creature — Sliver Mutant', id:'WUBRG', prints:[mk('Scourge · SCG · 143','Jim Nelson'), mk('Commander Legends · CMR · 512','Jim Nelson')] }
+    };
+    const base = { eyebrow:'Adicionar carta', printDisabled:false, printStyle:'', openList:false, catalogError:false, setQuery:'',
+      finish:'Normal', cond:'NM', qty:'1', qtyInvalid:false, saleBorder:'var(--color-text-muted)', saleFill:'transparent', notes:'', another:true, saveDisabled:false, prints:[] };
+    const f = (id, label, key, o) => { const c = cards[key]; const p = c.prints[0];
+      return Object.assign({ id, label, name:c.name, type:c.type, idName:idName(c.id), theme:theme(c.id),
+        imgText:c.name, artist:p.artist, printText:p.title,
+        prints:c.prints.map((x, i) => Object.assign({ style: i===0 ? 'background:var(--color-surface-raised)' : '' }, x)) }, base, o); };
+    const sale = { eyebrow:'Editar carta', finish:'Foil', cond:'LP', qty:'2', saleBorder:'var(--role-primary)', saleFill:'var(--role-primary)', notes:'Trocada no torneio de sábado.', another:false, span:'span 3', closeJustify:'flex-end' };
+    const g = (id, label, o) => f(id, label, 'bolt', Object.assign({}, sale, o));
+    return {
+      variants2: [
+        g('2a','2a · No rodapé, à esquerda dos botões (decisão junto ao salvar)',{ saleFooter:true }),
+        g('2b','2b · Na grade, ao lado de Quantidade (campo como os demais)',{ saleGrid:true, span:'span 2' }),
+        g('2c','2c · No topo do painel, à esquerda do fechar (estado da carta, antes dos campos)',{ saleHeader:true, closeJustify:'space-between' })],
+      frames: [
+        f('1a','C1 · Abre com a impressão inicial; busca de set filtrando a lista aberta (“commander” mostra 2 de 3) · Lightning Bolt (vermelho)','bolt',{ openList:true, setQuery:'magic', prints:[ { style:'background:var(--color-surface-raised)', title:'Magic 2011 · M11 · 149', artist:'Christopher Moeller' }, { style:'', title:'Magic 2010 · M10 · 146', artist:'Christopher Moeller' } ] }),
+        f('1b','C2 · Adicionar — valores padrão · Counterspell (azul)','counter',{}),
+        f('1c','C2 · Quantidade inválida · Izzet Charm (azul + vermelho, mistura)','izzet',{ qty:'0', qtyInvalid:true, saveDisabled:true }),
+        f('1d','C3 · Editar carta — sem “salvar e adicionar outra” · Saskia (4 cores → prata)','saskia',{ eyebrow:'Editar carta', finish:'Foil', cond:'LP', qty:'2', saleBorder:'var(--role-primary)', saleFill:'var(--role-primary)', notes:'Trocada no torneio de sábado.', another:false })]
+    };
+  }
+}
+</script>
+</body>
+</html>

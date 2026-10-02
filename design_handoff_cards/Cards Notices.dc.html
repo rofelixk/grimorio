@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/components.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+<style>body{margin:0;background:#0d0b0a;color:#f2ede8;font-family:Karla,sans-serif}a{color:#a89e96}a:hover{color:#f2ede8}</style>
+</helmet>
+<section id="t1" style="padding:40px 44px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;align-items:baseline;gap:10px"><a href="#t1" style="font:600 10px monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none">1</a><span style="font:600 13px Karla,sans-serif;color:#f2ede8">Seção D — avisos e confirmações (desktop)</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:56px 40px;align-items:flex-start">
+
+<sc-for list="{{ modals }}" as="v" hint-placeholder-count="3">
+<div id="{{ v.id }}" style="width:600px;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px">
+<div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#{{ v.id }}" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">{{ v.id }}</a>{{ v.label }}</div>
+<div style="padding:40px;background:rgba(0,0,0,.75);border-radius:8px">
+<div class="grm-modal" data-theme-scope style="{{ v.theme }}position:relative;margin:0 auto;width:480px">
+<div style="position:relative;padding:2px;border-radius:var(--radius-ring);background:var(--ring-gradient)">
+<div class="m-halo"></div>
+<div style="position:relative;z-index:1;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-rest)">
+<div style="display:flex;justify-content:flex-end"><button type="button" style="min-width:44px;min-height:44px;border:none;background:transparent;color:var(--color-text-muted);font:inherit;cursor:pointer" aria-label="Fechar">✕</button></div>
+<div style="display:flex;flex-direction:column;gap:var(--space-4);padding:0 var(--space-6) var(--space-6)">
+<div style="display:flex;flex-direction:column;gap:var(--space-1)"><h2 style="margin:0;font:600 var(--font-size-xl)/1.2 var(--font-display);text-shadow:var(--glow-title)">{{ v.title }}</h2><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)">{{ v.subtitle }}</p></div>
+
+<sc-if value="{{ v.hasRow }}" hint-placeholder-val="{{ false }}"><div class="plate" style="flex-direction:row;align-items:center;gap:var(--space-3)"><div style="flex:none;width:36px;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:3px;background:linear-gradient(var(--color-surface-raised),var(--color-surface))"></div><div style="display:flex;flex-direction:column;gap:1px;min-width:0;flex:1"><span style="font-weight:700">{{ v.cardName }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ v.cardMeta }}</span></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px"><span style="font-weight:700">{{ v.qty }}</span><span class="micro-label">{{ v.where }}</span></div></div></sc-if>
+
+<sc-if value="{{ v.hasChoices }}" hint-placeholder-val="{{ false }}"><div role="radiogroup" style="display:flex;flex-direction:column;gap:var(--space-2)">
+<sc-for list="{{ v.choices }}" as="c" hint-placeholder-count="2"><div role="radio" style="display:flex;align-items:flex-start;gap:var(--space-3);padding:var(--space-3);border:1px solid {{ c.border }};border-radius:var(--radius-md);background:linear-gradient(var(--color-surface-raised),var(--color-surface));box-shadow:{{ c.shadow }}"><span style="flex:none;width:18px;height:18px;margin-top:2px;border:1px solid {{ c.border }};border-radius:50%;box-shadow:inset 0 0 0 4px var(--color-bg);background:{{ c.fill }}"></span><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:700">{{ c.title }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.sub }}</span></span></div></sc-for></div></sc-if>
+
+<div style="display:flex;gap:var(--space-2);justify-content:flex-end">
+<sc-if value="{{ v.hasCancel }}" hint-placeholder-val="{{ false }}"><button class="btn btn--ghost" type="button">Cancelar</button></sc-if>
+<button class="btn btn--primary" type="button">{{ v.verb }}</button></div>
+</div></div></div></div></div></div>
+</sc-for>
+
+<div id="1d" style="width:600px;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px">
+<div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#1d" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">1d</a>D3 · Confirmações (aviso no canto, mesmo padrão do app)</div>
+<div style="position:relative;background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden;min-height:360px"><header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div style="padding:var(--space-4);display:flex;flex-direction:column;align-items:flex-end;gap:var(--space-3)">
+<sc-for list="{{ toasts }}" as="t" hint-placeholder-count="3"><div data-theme-scope style="{{ t.theme }}display:flex;align-items:flex-start;gap:var(--space-3);width:380px;box-sizing:border-box;padding:var(--space-3) var(--space-4);border:1px solid var(--role-primary);border-radius:var(--radius-md);background:var(--color-surface-raised);box-shadow:0 0 18px -4px rgb(from var(--role-primary) r g b / 55%);font-size:var(--font-size-sm);line-height:1.5"><span style="flex:none;width:8px;height:8px;margin-top:6px;border-radius:50%;background:var(--role-accent);box-shadow:0 0 8px var(--role-accent)"></span><span style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1"><span class="micro-label">{{ t.label }}</span><span>{{ t.text }}</span></span><button type="button" aria-label="Fechar" style="flex:none;width:44px;height:44px;margin:calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) auto;padding:0;border:none;background:transparent;color:var(--color-text-muted);font:inherit">✕</button></div></sc-for>
+</div></div></div>
+
+</div>
+<p style="margin:0;font:12px/1.5 Karla,sans-serif;color:#a89e96">Cor dos avisos: duplicata = identidade da carta · subcoleção e confirmações = cor da coleção. Tente: "duplicata sem a linha da carta existente" · "toast com ação Desfazer" · "outras posições do toast".</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const C = { W:['#d8cdb0','#e6dcc2'], U:['#3d6b85','#4c7f9c'], B:['#7c5aa6','#8f6bb8'], R:['#a8402c','#bf4f39'], G:['#4c7a43','#5c8f52'] };
+    const theme = (id) => {
+      const r = id.split('').map(x => C[x]); const p = r[0], a = r[1] || p, t = r[2] || a;
+      return '--theme-primary:'+p[0]+';--theme-primary-hover:'+p[1]+';--theme-accent:'+a[0]+';--theme-accent-hover:'+a[1]+';--theme-tertiary:'+t[0]+';--theme-tertiary-hover:'+t[1]+';';
+    };
+    const ch = (title, sub, sel) => ({ title, sub, border: sel ? 'var(--role-primary)' : 'var(--color-border)', fill: sel ? 'var(--role-primary)' : 'transparent', shadow: sel ? 'var(--glow-plate-hover)' : 'none' });
+    const dup = (id, label, o) => Object.assign({ id, label, theme: theme('R'), hasRow: true, hasChoices: true, hasCancel: true, verb: 'Continuar', title: 'Você já tem esta carta',
+      cardName: 'Lightning Bolt', cardMeta: 'M11 · 149 · Normal · EN · NM', qty: '×2', where: 'Fichário azul' }, o);
+    return {
+      modals: [
+        dup('1a', 'D1 · Duplicata em uma coleção (ao adicionar)', { subtitle: 'Mesma impressão, acabamento, idioma e condição. Está em “Fichário azul”.',
+          choices: [ ch('Somar à quantidade existente', 'A linha existente passa de 2 para 3 cópias e fica onde está.', true), ch('Adicionar como linha separada', 'Cria uma nova linha em “Gaveta 1”, a coleção que você está usando.', false) ] }),
+        dup('1b', 'D1 · Duplicata ao editar (somar remove a linha editada)', { subtitle: 'Com essa mudança, a carta fica igual a outra que você já tem em “Fichário azul”.',
+          choices: [ ch('Somar à quantidade existente', 'A quantidade desta carta é somada à outra linha, e esta linha deixa de existir.', true), ch('Manter as duas linhas', 'Salva a edição e as duas linhas continuam.', false) ] }),
+        { id:'1c', label:'D2 · Coleção ganhou subcoleções durante a adição (sincronização)', theme: theme('U'), hasRow:true, hasChoices:false, hasCancel:false, verb:'Ok',
+          title:'Carta adicionada em outra coleção', subtitle:'Enquanto você adicionava, “Fichário azul” ganhou subcoleções. A carta foi para “Gaveta 1”, a primeira em ordem alfabética.',
+          cardName:'Sol Ring', cardMeta:'CMR · 472 · Foil · EN · NM', qty:'×2', where:'Gaveta 1', choices:[] } ],
+      toasts: [
+        { theme: theme('U'), label: 'Carta adicionada', text: 'Sol Ring ×2 em “Fichário azul”.' },
+        { theme: theme('U'), label: 'Carta atualizada', text: 'Lightning Bolt foi atualizada.' },
+        { theme: '', label: 'Nada foi salvo', text: 'A coleção “Fichário azul” não existe mais. Você voltou para as coleções.' } ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+<style>body{margin:0;background:#14110f;color:#f2ede8;font-family:Karla,sans-serif;font-size:13px}a{color:#a89e96}a:hover{color:#f2ede8}</style>
+</helmet>
+<div style="padding:40px 44px;display:flex;flex-direction:column;gap:36px">
+<div><div style="font:700 24px Grenze,serif">Cartas — wireframes (spec 015)</div><div style="color:#a89e96;margin-top:4px">Baixa fidelidade. Caixas tracejadas = imagem; barras = texto. Layout e estado vazio ainda são decisões abertas (FR-003).</div></div>
+
+<div>
+<div style="font:600 11px monospace;color:#a89e96;margin-bottom:12px">A · PÁGINA DA COLEÇÃO</div>
+<div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+
+<div style="width:440px"><div style="font:600 11px monospace;margin-bottom:6px">A1 · Lista de cartas — rádio "Só imagens / Com detalhes"</div><div style="border:1px solid #3a332e;background:#1e1a17;padding:12px;display:flex;flex-direction:column;gap:10px"><div style="font:600 16px Grenze,serif">Fichário azul</div><div style="color:#a89e96">[ Resumo: 128 cartas · 6 à venda ]</div><div style="display:flex;gap:16px"><span style="display:inline-flex;gap:6px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;border:1px solid #f2ede8;display:inline-block;background:#f2ede8"></span>Só imagens</span><span style="display:inline-flex;gap:6px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;border:1px solid #f2ede8;display:inline-block;background:transparent"></span>Com detalhes</span></div><div style="display:flex;gap:8px"><div style="flex:1;border:1px dashed #3a332e;padding:8px;color:#a89e96;opacity:.5">Buscar (desativado)</div><div style="border:1px dashed #3a332e;padding:8px;color:#a89e96;opacity:.5">Filtros</div><div style="border:1px solid #f2ede8;padding:8px;font-weight:700">Adicionar cartas</div></div><div style="display:flex;flex-wrap:wrap;gap:10px"><div style="width:calc(25% - 8px);display:flex;flex-direction:column;gap:4px"><div style="aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;color:#a89e96;font-size:11px">imagem</div></div><div style="width:calc(25% - 8px);display:flex;flex-direction:column;gap:4px"><div style="aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;color:#a89e96;font-size:11px">imagem</div></div><div style="width:calc(25% - 8px);display:flex;flex-direction:column;gap:4px"><div style="aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;color:#a89e96;font-size:11px">imagem</div></div><div style="width:calc(25% - 8px);display:flex;flex-direction:column;gap:4px"><div style="aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;color:#a89e96;font-size:11px">imagem</div></div></div></div></div>
+
+<div style="width:340px"><div style="font:600 11px monospace;margin-bottom:6px">A2 · Vazia, sem subcoleções</div>
+<div style="border:1px solid #3a332e;background:#1e1a17;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:250px">
+<div style="font:600 16px Grenze,serif">Fichário azul</div><div style="color:#a89e96">[ Resumo: 0 cartas ]</div>
+<div style="flex:1;border:1px dashed #3a332e;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;padding:16px"><div style="color:#a89e96">[ ícone? ] Texto do estado vazio</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><div style="border:1px solid #f2ede8;padding:8px 12px;font-weight:700">Adicionar carta</div><div style="border:1px solid #3a332e;padding:8px 12px;font-weight:700">Criar subcoleção</div></div></div>
+</div></div>
+
+<div style="width:340px"><div style="font:600 11px monospace;margin-bottom:6px">A3 · Com subcoleções (sem lista, sem ação)</div>
+<div style="border:1px solid #3a332e;background:#1e1a17;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:250px">
+<div style="font:600 16px Grenze,serif">Coleção pai</div><div style="color:#a89e96">[ Resumo ]</div>
+<div style="border:1px dashed #3a332e;padding:8px;color:#a89e96;opacity:.5">Adicionar cartas — não oferecido</div>
+<div style="border:1px solid #3a332e;border-radius:8px;padding:10px">Subcoleção 1</div><div style="border:1px solid #3a332e;border-radius:8px;padding:10px">Subcoleção 2</div>
+</div></div>
+
+<div style="width:400px"><div style="font:600 11px monospace;margin-bottom:6px">A4 · Caixa de espera (somente leitura)</div>
+<div style="border:1px solid #3a332e;background:#1e1a17;padding:12px;display:flex;flex-direction:column;gap:10px">
+<div style="font:600 16px Grenze,serif">Caixa de espera</div><div style="color:#a89e96">[ Resumo de contagem ]</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px"><div style="width:calc(25% - 8px);aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;color:#a89e96;font-size:11px">imagem</div><div style="width:calc(25% - 8px);aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;color:#a89e96;font-size:11px">imagem</div><div style="width:calc(25% - 8px);aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;color:#a89e96;font-size:11px">imagem</div><div style="width:calc(25% - 8px);aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;color:#a89e96;font-size:11px">imagem</div></div>
+<div style="color:#a89e96">sem botões de adicionar/editar</div>
+</div></div>
+
+</div></div>
+
+<div>
+<div style="font:600 11px monospace;color:#a89e96;margin-bottom:12px">B · MODAL DE BUSCA</div>
+<div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+<sc-for list="{{ searchStates }}" as="s" hint-placeholder-count="5">
+<div style="width:320px"><div style="font:600 11px monospace;margin-bottom:6px">{{ s.id }} · {{ s.title }}</div>
+<div style="border:1px solid #3a332e;border-radius:8px;background:#14110f;padding:12px;display:flex;flex-direction:column;gap:10px;height:300px;box-sizing:border-box">
+<div style="display:flex;justify-content:space-between"><b>Adicionar cartas</b><span>✕</span></div>
+<div style="border:1px solid #a89e96;padding:8px;color:#a89e96">{{ s.input }}</div>
+<div style="flex:1;border:1px dashed #3a332e;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;padding:8px;color:#a89e96;overflow:auto">
+<sc-for list="{{ s.items }}" as="i" hint-placeholder-count="1"><div style="{{ i.style }}">{{ i.t }}</div></sc-for>
+</div></div></div>
+</sc-for>
+</div></div>
+
+<div>
+<div style="font:600 11px monospace;color:#a89e96;margin-bottom:12px">C · MODAL ADICIONAR / EDITAR CARTA</div>
+<div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+<sc-for list="{{ forms }}" as="f" hint-placeholder-count="2">
+<div style="width:720px"><div style="font:600 11px monospace;margin-bottom:6px">{{ f.id }} · {{ f.title }}</div>
+<div style="border:1px solid #3a332e;border-radius:8px;background:#14110f;display:flex;min-height:420px">
+<div style="width:260px;flex:none;padding:16px;border-right:1px solid #3a332e;display:flex;flex-direction:column;gap:8px;align-items:center">
+<div style="width:100%;aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;color:#a89e96">imagem da impressão</div>
+<div style="color:#a89e96;font-size:11px;align-self:flex-start">Artista: [artista]</div></div>
+<div style="flex:1;padding:16px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between"><b>{{ f.head }}</b><span>✕</span></div>
+<div style="border:1px solid #3a332e;padding:8px">Impressão ▾ <span style="color:#a89e96">{{ f.printNote }}</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div style="border:1px solid #3a332e;padding:8px">Acabamento ▾<br><span style="color:#a89e96">Normal / Foil / Etched</span></div>
+<div style="border:1px solid #3a332e;padding:8px">Idioma ▾<br><span style="color:#a89e96">Inglês primeiro</span></div>
+<div style="border:1px solid #3a332e;padding:8px">Condição ▾<br><span style="color:#a89e96">NM LP MP HP DMG</span></div>
+<div style="{{ f.qty }}">Quantidade<br><span style="color:#a89e96">1</span></div></div>
+<div style="color:#f2a090">{{ f.err }}</div>
+<div style="border:1px solid #3a332e;padding:8px">☐ À venda</div>
+<div style="border:1px solid #3a332e;padding:8px;height:36px;color:#a89e96">Notas</div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><span style="padding:8px">Cancelar</span><span style="{{ f.b1 }}">Salvar e adicionar outra</span><span style="border:1px solid #f2ede8;padding:8px;font-weight:700">Salvar</span></div>
+<div style="color:#a89e96;font-size:11px">{{ f.note }}</div>
+</div></div></div>
+</sc-for>
+</div></div>
+
+<div>
+<div style="font:600 11px monospace;color:#a89e96;margin-bottom:12px">D · AVISOS E FEEDBACK</div>
+<div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+
+<div style="width:340px"><div style="font:600 11px monospace;margin-bottom:6px">D1 · Aviso de carta duplicada (FR-015 / FR-019)</div>
+<div style="border:1px solid #3a332e;border-radius:8px;background:#14110f;padding:14px;display:flex;flex-direction:column;gap:10px">
+<b>Você já tem esta carta</b><div style="color:#a89e96">Mesma impressão, acabamento, idioma e condição em [Coleção X] ou [deck Y]. Quantidade atual: [n].</div>
+<div style="border:1px solid #f2ede8;padding:10px;text-align:center;font-weight:700">Somar à quantidade existente</div>
+<div style="border:1px solid #3a332e;padding:10px;text-align:center">Adicionar como linha separada</div>
+<div style="text-align:center;padding:6px">Cancelar</div>
+<div style="color:#a89e96;font-size:11px">Na edição: "somar" remove a linha editada.</div></div></div>
+
+<div style="width:340px"><div style="font:600 11px monospace;margin-bottom:6px">D2 · Aviso: adicionada à subcoleção (FR-017)</div>
+<div style="border:1px solid #3a332e;border-radius:8px;background:#14110f;padding:14px;display:flex;flex-direction:column;gap:10px">
+<b>Carta adicionada em outro lugar</b><div style="color:#a89e96">A coleção ganhou subcoleções. A carta foi para [Subcoleção 1].</div>
+<div style="border:1px solid #f2ede8;padding:10px;text-align:center;font-weight:700">Ok</div></div></div>
+
+<div style="width:340px"><div style="font:600 11px monospace;margin-bottom:6px">D3 · Confirmação (toast)</div>
+<div style="border:1px solid #3a332e;border-radius:4px;background:#292320;padding:10px 12px;display:flex;justify-content:space-between"><span>[Nome da carta] adicionada.</span><span>✕</span></div>
+<div style="font:600 11px monospace;margin:18px 0 6px">D4 · Coleção excluída (FR-017)</div>
+<div style="border:1px solid #3a332e;border-radius:4px;background:#292320;padding:10px 12px">Esta coleção não existe mais. Nada foi salvo.</div></div>
+
+</div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const dash = 'width:100%;box-sizing:border-box;padding:6px;border:1px dashed #3a332e';const txt='width:100%';
+    const card = 'width:calc(33.3% - 4px);aspect-ratio:5/7;border:1px dashed #a89e96;border-radius:8px;background:#292320;display:flex;align-items:center;justify-content:center;font-size:11px';
+    const results = [
+      {t:'imagem',style:card},{t:'imagem',style:card},{t:'imagem',style:card},
+      {t:'… rolar carrega mais 100',style:dash}];
+    return {
+      rows:[1,2,3,4,5,6,7,8],
+      searchStates:[
+        {id:'B1',title:'Inicial (campo em foco)',input:'Nome da carta|',items:[{t:'Sem resultados ainda',style:txt}]},
+        {id:'B2',title:'Menos de 3 caracteres',input:'so',items:[{t:'Digite ao menos 3 caracteres.',style:txt}]},
+        {id:'B3',title:'Carregando',input:'sol ring',items:[{t:'Buscando…',style:dash},{t:'',style:dash}]},
+        {id:'B4',title:'Resultados (1 por carta, rolagem)',input:'sol ring',items:results},
+        {id:'B5',title:'Carregando mais (fim da lista)',input:'sol ring',items:[results[0],results[1],{t:'Carregando mais…',style:dash}]},
+        {id:'B6',title:'Falha ao carregar página (tentar de novo)',input:'sol ring',items:[results[0],results[1],{t:'Não foi possível carregar mais. [Tentar de novo]',style:dash}]},
+        {id:'B7',title:'Nenhum resultado',input:'xyzzy',items:[{t:'Nenhuma carta encontrada.',style:txt}]},
+        {id:'B8',title:'Sem conexão',input:'sol ring',items:[{t:'Não foi possível acessar o catálogo. [Tentar de novo]',style:txt}]}],
+      prints:[{set:'CMR',n:472,sel:'outline:2px solid #f2ede8'},{set:'C21',n:263,sel:''},{set:'LEA',n:269,sel:''}],
+      forms:[
+        {id:'C1',title:'Adicionar — nenhuma impressão escolhida',head:'Nome da carta',printNote:'— escolha (obrigatória; salvar bloqueado)',qty:'border:1px solid #3a332e;padding:8px',err:'',b1:'padding:8px;border:1px solid #3a332e;opacity:.5',note:'Salvar desativado até escolher impressão.'},
+        {id:'C2',title:'Adicionar — pronto, erro de quantidade',head:'Nome da carta',printNote:'— CMR · nº 472',qty:'border:1px solid #f2a090;padding:8px',err:'Use um número inteiro de 1 ou mais.',b1:'padding:8px;border:1px solid #3a332e',note:'Salvar e adicionar outra → volta à busca. Salvar → fecha tudo.'},
+        {id:'C3',title:'Editar carta (coleção fixa)',head:'Editar carta',printNote:'(outras impressões da mesma carta; precisa de internet)',qty:'border:1px solid #3a332e;padding:8px',err:'',b1:'display:none',note:'Sem "Salvar e adicionar outra". Coleção não editável.'},
+        {id:'C4',title:'Impressões — catálogo indisponível',head:'Nome da carta',printNote:'',qty:'border:1px solid #3a332e;padding:8px',err:'Não foi possível acessar o catálogo. [Tentar de novo]',b1:'padding:8px;border:1px solid #3a332e;opacity:.5',note:'Também em edição: demais campos seguem editáveis offline.'}]
+    };
+  }
+}
+</script>
+</body>
+</html>

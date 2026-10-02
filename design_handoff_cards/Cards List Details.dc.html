@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/colors.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/light.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/typography.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/motion.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/tokens/base.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/controls.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/css/components.css">
+<link rel="stylesheet" href="_ds/grimorio-design-system-1934c9aa-11ed-4c63-9e7a-707abfa160f8/styles.css">
+<style>body{margin:0;background:#0d0b0a;color:#f2ede8;font-family:Karla,sans-serif}a{color:#a89e96}a:hover{color:#f2ede8}@keyframes cardspin{to{--spin-angle:360deg}}@keyframes cardhalo{0%,100%{opacity:.25}50%{opacity:.6}}@media (prefers-reduced-motion:reduce){[data-fx]{animation:none !important}}</style>
+</helmet>
+<section id="t4" style="padding:40px 44px;display:flex;flex-direction:column;gap:28px;border-bottom:1px solid #3a332e">
+<div style="display:flex;align-items:baseline;gap:10px"><a href="#t4" style="font:600 10px monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none">4</a><span style="font:600 13px Karla,sans-serif;color:#f2ede8">Rolagem — cabeçalho fixo, coluna lateral fixa, só a grade rola (role dentro do quadro)</span></div>
+<div id="4a" style="width:1080px;display:flex;flex-direction:column;gap:9px"><div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#4a" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">4a</a>Cartas passam por trás do cabeçalho (fundo opaco), nunca da coluna lateral, que ocupa a altura toda</div>
+<div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden">
+<header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div id="scrollDemo" style="height:560px;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr) 220px;align-items:start">
+<div style="min-width:0;padding:0 var(--space-5) var(--space-5);display:flex;flex-direction:column;gap:var(--space-4)">
+<div style="position:sticky;top:0;z-index:2;background:var(--color-bg);padding:var(--space-5) 0 var(--space-3);display:flex;flex-direction:column;gap:var(--space-3)">
+<div style="position:absolute;left:0;right:0;top:100%;height:32px;background:linear-gradient(var(--color-bg),transparent);pointer-events:none"></div>
+<nav style="display:flex;gap:var(--space-2);align-items:center;font-size:var(--font-size-sm)"><a class="link-btn" href="#4a">Coleção</a><span style="color:var(--color-text-muted)">·</span><span style="color:var(--color-text-muted)">Fichário azul</span><span style="margin-left:auto;display:flex;gap:var(--space-2)"><button class="btn btn--secondary" type="button">Editar</button><button class="btn btn--danger" type="button">Excluir</button></span></nav>
+<div style="display:flex;align-items:center;gap:var(--space-3)"><span style="width:24px;height:24px;border-radius:50%;background:#3d6b85;box-shadow:0 0 16px #3d6b8566"></span><h1 style="flex:1;margin:0;font:600 var(--font-size-2xl)/1.1 var(--font-display);text-shadow:var(--glow-title)">Fichário azul</h1></div>
+<div style="display:flex;align-items:center;gap:var(--space-3)"><div style="display:flex;gap:var(--space-4);margin-right:auto"><label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--role-primary)"></span></span>Só imagens</label><label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted)"></span>Com detalhes</label></div><button class="btn btn--primary" type="button">Adicionar cartas</button></div></div>
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-3)"><sc-for list="{{ manyCards }}" as="c" hint-placeholder-count="12"><div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div></sc-for></div></div>
+<aside style="position:sticky;top:0;height:560px;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-5) var(--space-5);border-left:1px solid var(--color-border)"><p style="margin:0;padding-bottom:var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--font-size-sm);color:var(--color-text-muted);white-space:nowrap"><b style="color:var(--color-text)">128</b> cartas · <b style="color:var(--color-text)">6</b> à venda</p><span class="eyebrow">Buscar e filtrar</span><input class="field__input" disabled placeholder="Buscar cartas" style="opacity:.5;cursor:not-allowed"><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)">Filtros em breve.</p></aside>
+</div></div></div>
+<p style="margin:0;font:12px/1.5 Karla,sans-serif;color:#a89e96">Tente: "cabeçalho fixo só até a barra de ferramentas" · "coluna lateral rola junto se for mais alta que a tela" · "versão mobile"</p>
+</section>
+<section id="t3" style="padding:40px 44px;display:flex;flex-direction:column;gap:28px;border-bottom:1px solid #3a332e">
+<div style="display:flex;align-items:baseline;gap:10px"><a href="#t3" style="font:600 10px monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none">3</a><span style="font:600 13px Karla,sans-serif;color:#f2ede8">Resumo da coleção mais discreto — partindo de <a href="#2b">2b</a></span></div>
+<div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start">
+<sc-for list="{{ variants3 }}" as="v" hint-placeholder-count="4">
+<div id="{{ v.id }}" style="width:1080px;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px">
+<div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#{{ v.id }}" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">{{ v.id }}</a>{{ v.label }}</div>
+<div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden">
+<header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:var(--space-6);padding:var(--space-5);align-items:start">
+<div style="display:flex;flex-direction:column;gap:var(--space-4);min-width:0">
+<nav style="display:flex;gap:var(--space-2);align-items:center;font-size:var(--font-size-sm);margin-bottom:calc(-1 * var(--space-2))"><a class="link-btn" href="#{{ v.id }}">Coleção</a><span style="color:var(--color-text-muted)">·</span><span style="color:var(--color-text-muted)">Fichário azul</span><span style="margin-left:auto;display:flex;gap:var(--space-2)"><button class="btn btn--secondary" type="button">Editar</button><button class="btn btn--danger" type="button">Excluir</button></span></nav>
+<div style="display:flex;align-items:center;gap:var(--space-3)">
+<span style="width:24px;height:24px;border-radius:50%;background:#3d6b85;box-shadow:0 0 16px #3d6b8566"></span>
+<h1 style="flex:1;margin:0;font:600 var(--font-size-2xl)/1.1 var(--font-display);text-shadow:var(--glow-title)">Fichário azul</h1>
+<sc-if value="{{ v.btnHeader }}" hint-placeholder-val="{{ false }}"><button class="btn btn--primary" type="button">Adicionar cartas</button></sc-if></div>
+<sc-if value="{{ v.s3a }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)"><b style="color:var(--color-text)">128</b> cartas · <b style="color:var(--color-text)">6</b> à venda · <b style="color:var(--color-text)">0</b> subcoleções</p></sc-if>
+<sc-if value="{{ v.s3b }}" hint-placeholder-val="{{ false }}"><div class="plate" style="flex-direction:row;align-self:flex-start;padding:var(--space-1) 0"><div style="display:flex;align-items:baseline;gap:var(--space-2);padding:0 var(--space-4);"><span style="font:600 var(--font-size-lg)/1.1 var(--font-display)">128</span><span class="micro-label">Cartas</span></div><div style="display:flex;align-items:baseline;gap:var(--space-2);padding:0 var(--space-4);border-left:1px solid var(--color-border)"><span style="font:600 var(--font-size-lg)/1.1 var(--font-display)">6</span><span class="micro-label">À venda</span></div><div style="display:flex;align-items:baseline;gap:var(--space-2);padding:0 var(--space-4);border-left:1px solid var(--color-border)"><span style="font:600 var(--font-size-lg)/1.1 var(--font-display)">0</span><span class="micro-label">Subcoleções</span></div></div></sc-if>
+<div style="display:flex;align-items:center;gap:var(--space-3)">
+
+<div role="radiogroup" aria-label="Exibição" style="display:flex;gap:var(--space-4);margin-right:auto">
+<label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ v.dotA }}"></span></span>Só imagens</label>
+<label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ v.dotB }}"></span></span>Com detalhes</label></div><sc-if value="{{ v.btnRow }}" hint-placeholder-val="{{ false }}"><button class="btn btn--primary" type="button">Adicionar cartas</button></sc-if></div>
+<sc-if value="{{ v.btnBar }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:flex-end"><button class="btn btn--primary" type="button">Adicionar cartas</button></div></sc-if>
+
+<sc-if value="{{ v.isNone }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-3)">
+<sc-if value="{{ v.btnTile }}" hint-placeholder-val="{{ false }}"><div style="aspect-ratio:5/7;border:1px dashed var(--color-border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-2);color:var(--color-text-muted);text-align:center;padding:6px"><span style="font-size:var(--font-size-xl)">+</span><span style="font-size:var(--font-size-sm)">Adicionar cartas</span></div></sc-if><sc-for list="{{ cards }}" as="c" hint-placeholder-count="6"><div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ v.isCaption }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4) var(--space-3)">
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div>
+<div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ v.isOverlay }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-3)">
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="5"><div style="position:relative;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));overflow:hidden;display:flex;align-items:center;justify-content:center"><span class="micro-label">imagem</span>
+<span style="position:absolute;top:6px;right:6px;min-width:24px;padding:2px 6px;border-radius:4px;background:var(--color-bg);border:1px solid var(--color-border);font-size:var(--font-size-sm);font-weight:700;text-align:center">{{ c.qtyText }}</span>
+<span style="position:absolute;top:6px;left:6px;font-size:var(--font-size-xs);padding:2px 6px;border-radius:4px;background:var(--color-bg);border:1px solid var(--role-primary);color:var(--role-primary);{{ c.saleStyle }}">À venda</span>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:var(--space-2);background:linear-gradient(transparent,rgba(20,17,15,.95) 40%);display:flex;flex-direction:column;gap:1px"><span style="font-weight:700;font-size:var(--font-size-sm)">{{ c.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.shortLine }}</span></div></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ v.isRows }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:var(--space-3);min-height:var(--list-row-min);padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:linear-gradient(var(--color-surface-raised),var(--color-surface))">
+<div style="flex:none;width:48px;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:4px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><span class="micro-label" style="font-size:9px">img</span></div>
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:700">{{ c.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.setLine }} · {{ c.featLine }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.artist }}</span></div>
+<span class="micro-label" style="margin-left:auto">{{ c.sale }}</span><span style="font:600 var(--font-size-xl)/1.1 var(--font-display);min-width:40px;text-align:right">{{ c.qtyText }}</span></div></sc-for></div>
+</sc-if>
+
+</div>
+<aside style="display:flex;flex-direction:column;gap:var(--space-2);min-height:240px;padding-left:var(--space-5);border-left:1px solid var(--color-border)"><sc-if value="{{ v.s3c }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding-bottom:var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--font-size-sm);color:var(--color-text-muted);white-space:nowrap"><b style="color:var(--color-text)">128</b> cartas · <b style="color:var(--color-text)">6</b> à venda</p></sc-if><span class="eyebrow">Buscar e filtrar</span><input class="field__input" disabled placeholder="Buscar cartas" style="opacity:.5;cursor:not-allowed"><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)">Filtros em breve.</p></aside>
+</div></div></div>
+</sc-for>
+</div>
+<p style="margin:0;font:12px/1.5 Karla,sans-serif;color:#a89e96">Tente: "3a com a contagem de assinatura do app" · "3c, mas só cartas e à venda" · "mesmo resumo na caixa de espera"</p>
+</section>
+<section id="t2" style="padding:40px 44px;display:flex;flex-direction:column;gap:28px;border-bottom:1px solid #3a332e">
+<div style="display:flex;align-items:baseline;gap:10px"><a href="#t2" style="font:600 10px monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none">2</a><span style="font:600 13px Karla,sans-serif;color:#f2ede8">Posição do botão "Adicionar cartas"</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start">
+<sc-for list="{{ variants2 }}" as="v" hint-placeholder-count="4">
+<div id="{{ v.id }}" style="width:1080px;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px">
+<div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#{{ v.id }}" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">{{ v.id }}</a>{{ v.label }}</div>
+<div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden">
+<header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:var(--space-6);padding:var(--space-5);align-items:start">
+<div style="display:flex;flex-direction:column;gap:var(--space-4);min-width:0">
+<nav style="display:flex;gap:var(--space-2);align-items:center;font-size:var(--font-size-sm);margin-bottom:calc(-1 * var(--space-2))"><a class="link-btn" href="#{{ v.id }}">Coleção</a><span style="color:var(--color-text-muted)">·</span><span style="color:var(--color-text-muted)">Fichário azul</span><span style="margin-left:auto;display:flex;gap:var(--space-2)"><button class="btn btn--secondary" type="button">Editar</button><button class="btn btn--danger" type="button">Excluir</button></span></nav>
+<div style="display:flex;align-items:center;gap:var(--space-3)">
+<span style="width:24px;height:24px;border-radius:50%;background:#3d6b85;box-shadow:0 0 16px #3d6b8566"></span>
+<h1 style="flex:1;margin:0;font:600 var(--font-size-2xl)/1.1 var(--font-display);text-shadow:var(--glow-title)">Fichário azul</h1>
+<sc-if value="{{ v.btnHeader }}" hint-placeholder-val="{{ false }}"><button class="btn btn--primary" type="button">Adicionar cartas</button></sc-if></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-3)">
+<div class="plate"><span style="font:600 var(--font-size-xl)/1.1 var(--font-display)">128</span><span class="micro-label">Cartas</span></div>
+<div class="plate"><span style="font:600 var(--font-size-xl)/1.1 var(--font-display)">6</span><span class="micro-label">À venda</span></div>
+<div class="plate"><span style="font:600 var(--font-size-xl)/1.1 var(--font-display)">0</span><span class="micro-label">Subcoleções</span></div></div>
+<div style="display:flex;align-items:center;gap:var(--space-3)">
+
+<div role="radiogroup" aria-label="Exibição" style="display:flex;gap:var(--space-4);margin-right:auto">
+<label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ v.dotA }}"></span></span>Só imagens</label>
+<label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ v.dotB }}"></span></span>Com detalhes</label></div><sc-if value="{{ v.btnRow }}" hint-placeholder-val="{{ false }}"><button class="btn btn--primary" type="button">Adicionar cartas</button></sc-if></div>
+<sc-if value="{{ v.btnBar }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:flex-end"><button class="btn btn--primary" type="button">Adicionar cartas</button></div></sc-if>
+
+<sc-if value="{{ v.isNone }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-3)">
+<sc-if value="{{ v.btnTile }}" hint-placeholder-val="{{ false }}"><div style="aspect-ratio:5/7;border:1px dashed var(--color-border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-2);color:var(--color-text-muted);text-align:center;padding:6px"><span style="font-size:var(--font-size-xl)">+</span><span style="font-size:var(--font-size-sm)">Adicionar cartas</span></div></sc-if><sc-for list="{{ cards }}" as="c" hint-placeholder-count="6"><div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ v.isCaption }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4) var(--space-3)">
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div>
+<div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ v.isOverlay }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-3)">
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="5"><div style="position:relative;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));overflow:hidden;display:flex;align-items:center;justify-content:center"><span class="micro-label">imagem</span>
+<span style="position:absolute;top:6px;right:6px;min-width:24px;padding:2px 6px;border-radius:4px;background:var(--color-bg);border:1px solid var(--color-border);font-size:var(--font-size-sm);font-weight:700;text-align:center">{{ c.qtyText }}</span>
+<span style="position:absolute;top:6px;left:6px;font-size:var(--font-size-xs);padding:2px 6px;border-radius:4px;background:var(--color-bg);border:1px solid var(--role-primary);color:var(--role-primary);{{ c.saleStyle }}">À venda</span>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:var(--space-2);background:linear-gradient(transparent,rgba(20,17,15,.95) 40%);display:flex;flex-direction:column;gap:1px"><span style="font-weight:700;font-size:var(--font-size-sm)">{{ c.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.shortLine }}</span></div></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ v.isRows }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:var(--space-3);min-height:var(--list-row-min);padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:linear-gradient(var(--color-surface-raised),var(--color-surface))">
+<div style="flex:none;width:48px;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:4px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><span class="micro-label" style="font-size:9px">img</span></div>
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:700">{{ c.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.setLine }} · {{ c.featLine }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.artist }}</span></div>
+<span class="micro-label" style="margin-left:auto">{{ c.sale }}</span><span style="font:600 var(--font-size-xl)/1.1 var(--font-display);min-width:40px;text-align:right">{{ c.qtyText }}</span></div></sc-for></div>
+</sc-if>
+
+</div>
+<aside style="display:flex;flex-direction:column;gap:var(--space-2);min-height:240px;padding-left:var(--space-5);border-left:1px solid var(--color-border)"><span class="eyebrow">Buscar e filtrar</span><input class="field__input" disabled placeholder="Buscar cartas" style="opacity:.5;cursor:not-allowed"><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)">Filtros em breve.</p></aside>
+</div></div></div>
+</sc-for>
+</div>
+<p style="margin:0;font:12px/1.5 Karla,sans-serif;color:#a89e96">Tente: "2a com a busca ao lado" · "2c também na caixa vazia" · "combinar 2a e 2c"</p>
+</section>
+<section id="t6" style="padding:40px 44px;display:flex;flex-direction:column;gap:28px;border-bottom:1px solid #3a332e">
+<div style="display:flex;align-items:baseline;gap:10px"><a href="#t6" style="font:600 10px monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none">6</a><span style="font:600 13px Karla,sans-serif;color:#f2ede8">Teste de hover em <a href="#5b">5b</a> — passe o mouse nas cartas (só neste quadro)</span></div>
+<div id="6a" style="width:1080px;display:flex;flex-direction:column;gap:9px"><div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#6a" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">6a</a>Borda giratória na identidade (1 cor = a cor · 2–3 = mistura · 4 = prata · 5 = ouro · incolor = neutra) + halo + poeira (10 partículas, 2s, uma vez)</div>
+<div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden">
+<header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div style="padding:var(--space-6) var(--space-5);display:flex;flex-direction:column;gap:var(--space-5)">
+<div role="radiogroup" aria-label="Exibição" style="display:flex;gap:var(--space-4)">
+<label onClick="{{ showImages }}" style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm);cursor:pointer"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ dotA }}"></span></span>Só imagens (detalhes aparecem no hover)</label>
+<label onClick="{{ showDetails }}" style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm);cursor:pointer"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ dotB }}"></span></span>Com detalhes</label></div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-5) var(--space-4);padding:var(--space-3)">
+<sc-for list="{{ testCards }}" as="c" hint-placeholder-count="8">
+<div onMouseEnter="{{ c.enter }}" onMouseLeave="{{ c.leave }}" style="{{ c.wrapStyle }}">
+<div data-fx="1" style="position:absolute;inset:-5px;border-radius:12px;filter:blur(7px);background:{{ c.ring }};opacity:{{ c.haloOp }};transition:opacity .24s cubic-bezier(.4,0,.2,1);pointer-events:none;animation:cardspin 6s linear infinite"></div>
+<div data-fx="1" style="position:absolute;inset:-1px;border-radius:7px;background:{{ c.ring }};opacity:{{ c.ringOp }};transition:opacity .24s cubic-bezier(.4,0,.2,1);pointer-events:none;animation:cardspin 6s linear infinite"></div>
+<div style="position:relative;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:{{ c.imgRadius }};border-bottom:{{ c.imgBorderB }};background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px;transition:border-radius .32s cubic-bezier(.4,0,.2,1)"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.idName }}</span></div>
+<div style="{{ c.plateStyle }}"><div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div>
+<div style="{{ c.flowStyle }}"><div style="min-height:0;overflow:hidden"><div style="padding:var(--space-2);border:1px solid var(--color-border);border-top:none;border-radius:0 0 6px 6px;background:var(--color-surface)"><div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div></div></div>
+<sc-if value="{{ c.dust }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;pointer-events:none;z-index:5"><sc-for list="{{ c.specks }}" as="k" hint-placeholder-count="10"><span data-fx="1" style="{{ k.style }}"></span></sc-for></div></sc-if>
+</div></sc-for></div></div></div></div>
+<p style="margin:0;font:12px/1.5 Karla,sans-serif;color:#a89e96">Tente: "poeira mais lenta" · "sem halo" · "detalhes do hover empurram a linha de baixo em vez de sobrepor" · "aplicar no resto dos quadros"</p>
+</section>
+<section id="t5" style="padding:40px 44px;display:flex;flex-direction:column;gap:28px;border-bottom:1px solid #3a332e">
+<div style="display:flex;align-items:baseline;gap:10px"><a href="#t5" style="font:600 10px monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none">5</a><span style="font:600 13px Karla,sans-serif;color:#f2ede8">Como ligar os detalhes à imagem — partindo de <a href="#1b">1b</a> (imagem sempre livre)</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start">
+<sc-for list="{{ variants5 }}" as="v" hint-placeholder-count="4">
+<div id="{{ v.id }}" style="width:1080px;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px">
+<div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#{{ v.id }}" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">{{ v.id }}</a>{{ v.label }}</div>
+<div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden">
+<header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:var(--space-6);padding:var(--space-5);align-items:start">
+<div style="display:flex;flex-direction:column;gap:var(--space-4);min-width:0">
+<nav style="display:flex;gap:var(--space-2);align-items:center;font-size:var(--font-size-sm);margin-bottom:calc(-1 * var(--space-2))"><a class="link-btn" href="#{{ v.id }}">Coleção</a><span style="color:var(--color-text-muted)">·</span><span style="color:var(--color-text-muted)">Fichário azul</span><span style="margin-left:auto;display:flex;gap:var(--space-2)"><button class="btn btn--secondary" type="button">Editar</button><button class="btn btn--danger" type="button">Excluir</button></span></nav>
+<div style="display:flex;align-items:center;gap:var(--space-3)">
+<span style="width:24px;height:24px;border-radius:50%;background:#3d6b85;box-shadow:0 0 16px #3d6b8566"></span>
+<h1 style="flex:1;margin:0;font:600 var(--font-size-2xl)/1.1 var(--font-display);text-shadow:var(--glow-title)">Fichário azul</h1>
+<sc-if value="{{ v.btnHeader }}" hint-placeholder-val="{{ false }}"><button class="btn btn--primary" type="button">Adicionar cartas</button></sc-if></div>
+<div style="display:flex;align-items:center;gap:var(--space-3)">
+
+<div role="radiogroup" aria-label="Exibição" style="display:flex;gap:var(--space-4);margin-right:auto">
+<label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ v.dotA }}"></span></span>Só imagens</label>
+<label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ v.dotB }}"></span></span>Com detalhes</label></div><sc-if value="{{ v.btnRow }}" hint-placeholder-val="{{ false }}"><button class="btn btn--primary" type="button">Adicionar cartas</button></sc-if></div>
+<sc-if value="{{ v.btnBar }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:flex-end"><button class="btn btn--primary" type="button">Adicionar cartas</button></div></sc-if>
+
+
+
+<sc-if value="{{ v.k5a }}" hint-placeholder-val="{{ false }}"><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4) var(--space-3)"><sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-2);border:1px solid var(--color-border);border-radius:var(--radius-md);background:linear-gradient(var(--color-surface-raised),var(--color-surface))"><div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div><div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div></sc-for></div></sc-if><sc-if value="{{ v.k5b }}" hint-placeholder-val="{{ false }}"><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4) var(--space-3)"><sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;flex-direction:column"><div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-bottom:none;border-radius:6px 6px 0 0;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div><div style="padding:var(--space-2);border:1px solid var(--color-border);border-radius:0 0 6px 6px;background:var(--color-surface)"><div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div></div></sc-for></div></sc-if><sc-if value="{{ v.k5c }}" hint-placeholder-val="{{ false }}"><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4) var(--space-3)"><sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;flex-direction:column"><div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div><div style="height:1px;margin:var(--space-2) 0;background:var(--role-primary);opacity:.5"></div><div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div></sc-for></div></sc-if><sc-if value="{{ v.k5d }}" hint-placeholder-val="{{ false }}"><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4) var(--space-3)"><sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;flex-direction:column"><div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div><div style="margin:-1px var(--space-3) 0;padding:var(--space-2);border:1px solid var(--color-border);border-top:none;border-radius:0 0 6px 6px;background:var(--color-surface)"><div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div></div></sc-for></div></sc-if>
+
+
+
+
+
+</div>
+<aside style="display:flex;flex-direction:column;gap:var(--space-2);min-height:240px;padding-left:var(--space-5);border-left:1px solid var(--color-border)"><p style="margin:0;padding-bottom:var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--font-size-sm);color:var(--color-text-muted);white-space:nowrap"><b style="color:var(--color-text)">128</b> cartas · <b style="color:var(--color-text)">6</b> à venda</p><span class="eyebrow">Buscar e filtrar</span><input class="field__input" disabled placeholder="Buscar cartas" style="opacity:.5;cursor:not-allowed"><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)">Filtros em breve.</p></aside>
+</div></div></div>
+</sc-for>
+</div>
+<p style="margin:0;font:12px/1.5 Karla,sans-serif;color:#a89e96">Tente: "5a, mas sem fundo degradê" · "5d com a aba do mesmo tamanho da imagem" · "mostrar o nome da carta nos detalhes"</p>
+</section>
+<section id="t1" style="padding:40px 44px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;align-items:baseline;gap:10px"><a href="#t1" style="font:600 10px monospace;padding:3px 7px;background:#f2ede8;color:#14110f;border-radius:4px;text-decoration:none">1</a><span style="font:600 13px Karla,sans-serif;color:#f2ede8">Seção A — lista de cartas na página da coleção (desktop)</span></div>
+
+<div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start">
+<sc-for list="{{ variants }}" as="v" hint-placeholder-count="4">
+<div id="{{ v.id }}" style="width:1080px;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px">
+<div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#{{ v.id }}" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">{{ v.id }}</a>{{ v.label }}</div>
+<div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden">
+<header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:var(--space-6);padding:var(--space-5);align-items:start">
+<div style="display:flex;flex-direction:column;gap:var(--space-4);min-width:0">
+<nav style="display:flex;gap:var(--space-2);align-items:center;font-size:var(--font-size-sm);margin-bottom:calc(-1 * var(--space-2))"><a class="link-btn" href="#{{ v.id }}">Coleção</a><span style="color:var(--color-text-muted)">·</span><span style="color:var(--color-text-muted)">Fichário azul</span><span style="margin-left:auto;display:flex;gap:var(--space-2)"><button class="btn btn--secondary" type="button">Editar</button><button class="btn btn--danger" type="button">Excluir</button></span></nav>
+<div style="display:flex;align-items:center;gap:var(--space-3)">
+<span style="width:24px;height:24px;border-radius:50%;background:#3d6b85;box-shadow:0 0 16px #3d6b8566"></span>
+<h1 style="flex:1;margin:0;font:600 var(--font-size-2xl)/1.1 var(--font-display);text-shadow:var(--glow-title)">Fichário azul</h1>
+<sc-if value="{{ v.btnHeader }}" hint-placeholder-val="{{ false }}"><button class="btn btn--primary" type="button">Adicionar cartas</button></sc-if></div>
+<div style="display:flex;align-items:center;gap:var(--space-3)">
+
+<div role="radiogroup" aria-label="Exibição" style="display:flex;gap:var(--space-4);margin-right:auto">
+<label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ v.dotA }}"></span></span>Só imagens</label>
+<label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;{{ v.dotB }}"></span></span>Com detalhes</label></div><sc-if value="{{ v.btnRow }}" hint-placeholder-val="{{ false }}"><button class="btn btn--primary" type="button">Adicionar cartas</button></sc-if></div>
+<sc-if value="{{ v.btnBar }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:flex-end"><button class="btn btn--primary" type="button">Adicionar cartas</button></div></sc-if>
+
+<sc-if value="{{ v.isNone }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-3)">
+<sc-if value="{{ v.btnTile }}" hint-placeholder-val="{{ false }}"><div style="aspect-ratio:5/7;border:1px dashed var(--color-border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-2);color:var(--color-text-muted);text-align:center;padding:6px"><span style="font-size:var(--font-size-xl)">+</span><span style="font-size:var(--font-size-sm)">Adicionar cartas</span></div></sc-if><sc-for list="{{ cards }}" as="c" hint-placeholder-count="6"><div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ v.isCaption }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4) var(--space-3)">
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div>
+<div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ v.isOverlay }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-3)">
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="5"><div style="position:relative;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px;background:linear-gradient(var(--color-surface-raised),var(--color-surface));overflow:hidden;display:flex;align-items:center;justify-content:center"><span class="micro-label">imagem</span>
+<span style="position:absolute;top:6px;right:6px;min-width:24px;padding:2px 6px;border-radius:4px;background:var(--color-bg);border:1px solid var(--color-border);font-size:var(--font-size-sm);font-weight:700;text-align:center">{{ c.qtyText }}</span>
+<span style="position:absolute;top:6px;left:6px;font-size:var(--font-size-xs);padding:2px 6px;border-radius:4px;background:var(--color-bg);border:1px solid var(--role-primary);color:var(--role-primary);{{ c.saleStyle }}">À venda</span>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:var(--space-2);background:linear-gradient(transparent,rgba(20,17,15,.95) 40%);display:flex;flex-direction:column;gap:1px"><span style="font-weight:700;font-size:var(--font-size-sm)">{{ c.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.shortLine }}</span></div></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ v.isRows }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<sc-for list="{{ cards }}" as="c" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:var(--space-3);min-height:var(--list-row-min);padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:linear-gradient(var(--color-surface-raised),var(--color-surface))">
+<div style="flex:none;width:48px;aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:4px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><span class="micro-label" style="font-size:9px">img</span></div>
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:700">{{ c.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.setLine }} · {{ c.featLine }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.artist }}</span></div>
+<span class="micro-label" style="margin-left:auto">{{ c.sale }}</span><span style="font:600 var(--font-size-xl)/1.1 var(--font-display);min-width:40px;text-align:right">{{ c.qtyText }}</span></div></sc-for></div>
+</sc-if>
+
+</div>
+<aside style="display:flex;flex-direction:column;gap:var(--space-2);min-height:240px;padding-left:var(--space-5);border-left:1px solid var(--color-border)"><p style="margin:0;padding-bottom:var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--font-size-sm);color:var(--color-text-muted);white-space:nowrap"><b style="color:var(--color-text)">128</b> cartas · <b style="color:var(--color-text)">6</b> à venda</p><span class="eyebrow">Buscar e filtrar</span><input class="field__input" disabled placeholder="Buscar cartas" style="opacity:.5;cursor:not-allowed"><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)">Filtros em breve.</p></aside>
+</div></div></div>
+</sc-for>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start">
+
+<div id="1e" style="width:1080px;display:flex;flex-direction:column;gap:9px"><div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#1e" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">1e</a>A2 · Coleção vazia, sem subcoleções</div>
+<div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden"><header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div style="padding:var(--space-5);display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:var(--space-6);align-items:start"><div style="display:flex;flex-direction:column;gap:var(--space-4);min-width:0">
+<nav style="display:flex;gap:var(--space-2);align-items:center;font-size:var(--font-size-sm);margin-bottom:calc(-1 * var(--space-2))"><a class="link-btn" href="#1e">Coleção</a><span style="color:var(--color-text-muted)">·</span><span style="color:var(--color-text-muted)">Fichário azul</span><span style="margin-left:auto;display:flex;gap:var(--space-2)"><button class="btn btn--secondary" type="button">Editar</button><button class="btn btn--danger" type="button">Excluir</button></span></nav>
+<div style="display:flex;align-items:center;gap:var(--space-3)"><span style="width:24px;height:24px;border-radius:50%;background:#3d6b85;box-shadow:0 0 16px #3d6b8566"></span><h1 style="flex:1;margin:0;font:600 var(--font-size-2xl)/1.1 var(--font-display);text-shadow:var(--glow-title)">Fichário azul</h1></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3)">
+<div class="plate" style="gap:var(--space-2);padding:var(--space-4)"><span style="font-weight:700">Guardar cartas aqui</span><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)">Adicione as cartas que estão fisicamente nesta coleção.</p><button class="btn btn--primary" type="button" style="align-self:flex-start">Adicionar cartas</button></div>
+<div class="plate" style="gap:var(--space-2);padding:var(--space-4)"><span style="font-weight:700">Dividir em subcoleções</span><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)">Organize por gaveta, fichário ou pasta. Depois disso, as cartas ficam nas subcoleções.</p><button class="btn btn--secondary" type="button" style="align-self:flex-start">Nova subcoleção</button></div></div>
+<p style="margin:0;font-size:var(--font-size-xs);color:var(--color-text-muted)">Uma coleção guarda cartas ou subcoleções — nunca os dois.</p>
+</div><aside style="display:flex;flex-direction:column;gap:var(--space-3);min-height:160px;padding-left:var(--space-5);border-left:1px solid var(--color-border)"><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted);white-space:nowrap"><b style="color:var(--color-text)">0</b> cartas · <b style="color:var(--color-text)">0</b> à venda</p></aside></div></div></div>
+
+<div id="1f" style="width:1080px;display:flex;flex-direction:column;gap:9px"><div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#1f" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">1f</a>A3 · Com subcoleções (sem lista, sem adicionar cartas)</div>
+<div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden"><header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div style="padding:var(--space-5);display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:var(--space-6);align-items:start"><div style="display:flex;flex-direction:column;gap:var(--space-4);min-width:0">
+<nav style="display:flex;gap:var(--space-2);align-items:center;font-size:var(--font-size-sm);margin-bottom:calc(-1 * var(--space-2))"><a class="link-btn" href="#1f">Coleção</a><span style="color:var(--color-text-muted)">·</span><span style="color:var(--color-text-muted)">Estante</span><span style="margin-left:auto;display:flex;gap:var(--space-2)"><button class="btn btn--secondary" type="button">Editar</button><button class="btn btn--danger" type="button">Excluir</button></span></nav>
+<div style="display:flex;align-items:center;gap:var(--space-3)"><span style="width:24px;height:24px;border-radius:50%;background:#a8402c;box-shadow:0 0 16px #a8402c66"></span><h1 style="flex:1;margin:0;font:600 var(--font-size-2xl)/1.1 var(--font-display);text-shadow:var(--glow-title)">Estante</h1></div>
+<span class="eyebrow">Subcoleções</span>
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<sc-for list="{{ subs }}" as="s" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:var(--space-3);min-height:var(--list-row-min);padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:linear-gradient(var(--color-surface-raised),var(--color-surface))"><span style="width:20px;height:20px;border-radius:50%;background:{{ s.hex }}"></span><div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:700">{{ s.name }}</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ s.meta }}</span></div></div></sc-for>
+<div style="display:flex;align-items:center;gap:var(--space-3);min-height:var(--list-row-min);padding:var(--space-2) var(--space-3);border:1px dashed var(--color-border);border-radius:var(--radius-md);color:var(--color-text-muted)"><span style="width:36px;text-align:center">+</span>Nova subcoleção</div></div>
+</div><aside style="display:flex;flex-direction:column;gap:var(--space-3);min-height:160px;padding-left:var(--space-5);border-left:1px solid var(--color-border)"><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted);white-space:nowrap"><b style="color:var(--color-text)">412</b> cartas · <b style="color:var(--color-text)">14</b> à venda</p></aside></div></div></div>
+
+<div id="1g" style="width:1080px;display:flex;flex-direction:column;gap:9px"><div style="display:flex;gap:8px;align-items:baseline;font:400 11px Karla,sans-serif;color:#a89e96"><a href="#1g" style="font:600 10.5px monospace;padding:3px 7px;background:rgba(255,255,255,.1);color:#f2ede8;border-radius:5px;text-decoration:none">1g</a>A4 · Caixa de espera (somente leitura, mesmo estilo da lista: 5b, 4 por linha)</div>
+<div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:8px;overflow:hidden"><header class="grm-topbar"><span class="grm-wordmark">Grimorio</span></header>
+<div style="padding:var(--space-5);display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:var(--space-6);align-items:start"><div style="display:flex;flex-direction:column;gap:var(--space-4);min-width:0">
+<nav style="display:flex;gap:var(--space-2);align-items:center;font-size:var(--font-size-sm);margin-bottom:calc(-1 * var(--space-2))"><a class="link-btn" href="#1g">Coleção</a><span style="color:var(--color-text-muted)">·</span><span style="color:var(--color-text-muted)">Caixa de espera</span></nav>
+<div style="display:flex;align-items:center;gap:var(--space-3)"><span style="width:24px;height:24px;border-radius:var(--radius-sm);border:1px solid var(--color-text-muted)"></span><h1 style="flex:1;margin:0;font:600 var(--font-size-2xl)/1.1 var(--font-display);text-shadow:var(--glow-title)">Caixa de espera</h1></div>
+<div role="radiogroup" aria-label="Exibição" style="display:flex;gap:var(--space-4)"><label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:transparent"></span></span>Só imagens</label><label style="display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);font-size:var(--font-size-sm)"><span style="width:16px;height:16px;border-radius:50%;border:1px solid var(--color-text-muted);display:inline-flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--role-primary)"></span></span>Com detalhes</label></div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4) var(--space-3)"><sc-for list="{{ holding }}" as="c" hint-placeholder-count="4"><div style="display:flex;flex-direction:column"><div style="aspect-ratio:5/7;border:1px solid var(--color-border);border-radius:6px 6px 0 0;background:linear-gradient(var(--color-surface-raised),var(--color-surface));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px"><span class="micro-label">imagem</span><span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">{{ c.name }}</span></div><div style="margin-top:-1px;padding:var(--space-2);border:1px solid var(--color-border);border-radius:0 0 6px 6px;background:var(--color-surface)"><div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;gap:var(--space-2);font-size:var(--font-size-xs)"><span>{{ c.setLine }}</span><span style="color:var(--color-text-muted)">{{ c.featLine }}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)"><span class="micro-label">{{ c.sale }}</span><span style="font-weight:700">{{ c.qtyText }}</span></div></div></div></div></sc-for></div>
+<p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted)">Cartas sem lugar definido. Aqui só dá para ver — sem adicionar nem editar.</p>
+</div><aside style="display:flex;flex-direction:column;gap:var(--space-3);min-height:160px;padding-left:var(--space-5);border-left:1px solid var(--color-border)"><p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text-muted);white-space:nowrap"><b style="color:var(--color-text)">9</b> cartas · <b style="color:var(--color-text)">1</b> à venda</p></aside></div></div></div>
+
+</div>
+<p style="margin:0;font:12px/1.5 Karla,sans-serif;color:#a89e96">Decidir: 1a×1b×1c×1d (o que "Com detalhes" mostra) · onde fica o rádio · densidade da grade (6/5/4 colunas). Imagens são marcadores — o sistema não usa arte de cartas.</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { details: false, hov: -1, dust: null };
+  enter(i) { clearTimeout(this._t); this.setState({ hov: i, dust: null }, () => { setTimeout(() => { if (this.state.hov === i) this.setState({ dust: { i, id: Date.now() } }); this._t = setTimeout(() => this.setState({ dust: null }), 4000); }, 0); }); }
+  leave(i) { if (this.state.hov === i) this.setState({ hov: -1 }); }
+  componentDidMount() { setTimeout(() => { const e = document.getElementById("scrollDemo"); if (e) e.scrollTop = 260; }, 300); }
+  renderVals() {
+    const on = 'background:var(--role-primary)', off = 'background:transparent';
+    const raw = [
+      ['Sol Ring','CMR','472','foil','EN','NM',2,true],
+      ['Lightning Bolt','M11','149','nonfoil','PT','LP',1,false],
+      ['Counterspell','MH2','267','etched','EN','NM',1,false],
+      ['Command Tower','C21','263','nonfoil','EN','NM',4,false],
+      ['Rhystic Study','PCY','45','nonfoil','EN','MP',1,true],
+      ['Arcane Signet','ELD','331','foil','EN','NM',3,false]];
+    const art = {'Sol Ring':'Mark Tedin','Lightning Bolt':'Christopher Moeller','Counterspell':'Volkan Baga','Command Tower':'Magali Villeneuve','Rhystic Study':'Terese Nielsen','Arcane Signet':'Rebecca Guay'};
+    const F = {nonfoil:'Normal', foil:'Foil', etched:'Etched'};
+    const cards = raw.map(([name,set,n,fin,lang,cond,q,sale]) => ({
+      name, setLine: set+' · '+n, featLine: F[fin]+' · '+lang+' · '+cond, shortLine: set+' '+n+' · '+F[fin],
+      artist: art[name], qtyText: '×'+q, sale: sale ? 'À venda' : '', saleStyle: sale ? '' : 'display:none'}));
+    const v = (id,label,mode,pos='row') => ({id,label,btnBar:!pos,btnHeader:pos==='header',btnRow:pos==='row',btnTile:pos==='tile',dotA: mode==='none'?on:off, dotB: mode==='none'?off:on,
+      isNone: mode==='none', isCaption: mode==='caption', isOverlay: mode==='overlay', isRows: mode==='rows'});
+    const manyCards = Array.from({length:24},(_,i)=>({name:raw[i%6][0]}));
+    const v5 = (id,label,k) => ({id,label,btnRow:true,btnBar:false,dotA:off,dotB:on,['k'+k]:true});
+    const HEX = {W:'#d8cdb0',U:'#3d6b85',B:'#7c5aa6',R:'#a8402c',G:'#4c7a43'};
+    const NAMES = {W:'Branco',U:'Azul',B:'Preto',R:'Vermelho',G:'Verde'};
+    const tc = [['Lightning Bolt','R'],['Counterspell','U'],['Cultivate','G'],['Izzet Charm','UR'],['Esper Charm','WUB'],['Saskia the Unyielding','WBRG'],['Sliver Overlord','WUBRG'],['Sol Ring','']];
+    const JIT = [0.9,1.3,0.7,1.1,1.5,0.8,1.2,1,0.75,1.4], SZ = [3,2,4,3,2,3,4,2,3,2];
+    const testCards = tc.map(([name,id],i) => {
+      const cols = id.length===0 ? ['#a89e96','#6b635c'] : id.length===4 ? ['#b6b8c2','#e8e9ee','#8d8f9b'] : id.length===5 ? ['#c49a3c','#f0d98a','#9a7424'] : id.split('').map(x=>HEX[x]);
+      const stops = cols.concat([cols[0]]).join(',');
+      const ring = 'conic-gradient(from var(--spin-angle),'+stops+')';
+      const dustCol = cols[0];
+      const hov = this.state.hov===i, det = this.state.details;
+      const dust = !!(this.state.dust && this.state.dust.i===i);
+      const specks = Array.from({length:10},(_,k)=>{
+        const a = (k/10)*Math.PI*2 + 0.3, ca = Math.cos(a), sa = Math.sin(a), w=165, hh=231;
+        const s = Math.min(w/2/Math.max(Math.abs(ca),1e-3), hh/2/Math.max(Math.abs(sa),1e-3));
+        const x = 50 + s*ca/w*100, y = 50 + s*sa/hh*100, d = 34*JIT[k];
+        return { style: 'position:absolute;left:'+x+'%;top:'+y+'%;width:'+(SZ[k]*0.7).toFixed(1)+'px;height:'+(SZ[k]*0.7).toFixed(1)+'px;translate:-50% -50%;border-radius:50%;background:'+cols[k%cols.length]+';box-shadow:0 0 4px 1px '+cols[k%cols.length]+';opacity:0;--dx:'+(ca*d).toFixed(1)+'px;--dy:'+(sa*d).toFixed(1)+'px;animation:spark 3.6s cubic-bezier(.4,0,.2,1) '+(k*0.07).toFixed(2)+'s 1 both' };
+      });
+      const idName = id ? id.split('').map(x=>NAMES[x]).join(' · ') : 'Incolor';
+      const plateBase = 'padding:var(--space-2);border:1px solid var(--color-border);background:var(--color-surface);';
+      return { name, idName, ring, specks, dust,
+        wrapStyle: 'position:relative;display:flex;flex-direction:column;border-radius:6px;z-index:'+(hov?10:1)+';transform:scale('+(hov?1.08:1)+');box-shadow:'+(hov?'0 14px 30px rgba(0,0,0,.65), 0 4px 10px rgba(0,0,0,.5)':'0 1px 3px rgba(0,0,0,.4)')+';transition:transform .24s cubic-bezier(.4,0,.2,1), box-shadow .24s cubic-bezier(.4,0,.2,1)',
+        ringOp: hov ? 1 : 0, haloOp: hov ? 0.45 : 0,
+imgRadius: det ? '6px 6px 0 0' : '6px', imgBorderB: '1px solid var(--color-border)',
+        flowStyle: 'position:relative;display:grid;grid-template-rows:'+(det?'1fr':'0fr')+';opacity:'+(det?1:0)+';margin-top:-1px;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1), opacity .32s cubic-bezier(.4,0,.2,1)',
+        plateStyle: det ? 'display:none' : plateBase+'position:absolute;left:0;right:0;top:100%;margin-top:-1px;border-radius:0 0 6px 6px;z-index:4;pointer-events:none;transition:opacity .24s cubic-bezier(.4,0,.2,1);opacity:'+(hov?1:0),
+        setLine: raw[i%6][1]+' · '+raw[i%6][2], featLine: 'Normal · EN · NM', qtyText: '×'+(i%3+1), sale: i%4===0 ? 'À venda' : '',
+        enter: () => this.enter(i), leave: () => this.leave(i) };
+    });
+    return {
+      testCards, dotA: this.state.details ? off : on, dotB: this.state.details ? on : off,
+      showImages: () => this.setState({ details: false }), showDetails: () => this.setState({ details: true }),
+      cards, manyCards,
+      variants5: [
+        v5('5a','5a · Base: um cartão envolve imagem e detalhes (moldura, fundo e raio das linhas do app)','5a'),
+        v5('5b','5b · Placa colada: os detalhes formam uma placa unida à borda de baixo da imagem','5b'),
+        v5('5c','5c · Fio: sem moldura; uma linha fina na cor do perfil separa e liga imagem e detalhes','5c'),
+        v5('5d','5d · Aba: os detalhes pendem da imagem numa aba mais estreita, como uma etiqueta','5d')],
+      holding: cards.slice(0,3).concat(cards.slice(3,6)),
+      subs: [{name:'Gaveta 1',hex:'#4c7a43',meta:'260 cartas · 9 à venda'},{name:'Gaveta 2',hex:'#7c5aa6',meta:'152 cartas · 5 à venda'}],
+      variants3: [
+        {id:'3a',label:'3a · Uma linha de texto sob o título (sem placas)',s3a:true,btnRow:true,dotA:on,dotB:off,isNone:true},
+        {id:'3b',label:'3b · Faixa compacta única, valor e rótulo lado a lado',s3b:true,btnRow:true,dotA:on,dotB:off,isNone:true},
+        {id:'3c',label:'3c · Resumo em uma linha na coluna lateral (cartas · à venda)',s3c:true,btnRow:true,dotA:on,dotB:off,isNone:true}],
+      variants2: [
+        v('2a','2a · No cabeçalho, ao lado de Editar e Excluir (ação da página)','none','header'),
+        v('2b','2b · Na barra da lista, à direita do rádio (ação da lista)','none','row'),
+        v('2c','2c · Primeiro item da grade — espaço tracejado "+" (padrão da linha "criar")','none','tile')],
+      variants: [
+        v('1a','A1a · Rádio em "Só imagens" — grade só de imagens, 6 por linha','none'),
+        v('1b','A1b · "Com detalhes": legenda abaixo da imagem, 4 por linha','caption'),
+        v('1c','A1c · "Com detalhes": sobreposto à imagem (quantidade e à venda no canto, nome embaixo), 5 por linha','overlay'),
+        v('1d','A1d · "Com detalhes": linhas com miniatura (padrão das linhas de coleção)','rows')]
+    };
+  }
+}
+</script>
+</body>
+</html>
