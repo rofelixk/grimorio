@@ -38,6 +38,8 @@ export const CARD = {
   viewDetails: 'Com detalhes',
   /** The side summary as plain text: "128 cartas · 6 à venda". */
   summary: (n: number, s: number) => `${plural(n, 'carta', 'cartas')} · ${formatCount(s)} à venda`,
+  cardWord: (n: number) => (n === 1 ? 'carta' : 'cartas'),
+  saleWord: 'à venda',
   searchLabel: 'Buscar cartas',
   searchPlaceholder: 'Buscar cartas',
   searchFilters: 'Buscar e filtrar',

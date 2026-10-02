@@ -4,6 +4,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import type { CardEntry } from '@models/card.model';
 import type { Collection, CollectionColorHex } from '@models/collection.model';
 import { CardService } from '@services/card.service';
+import { CardViewModeService } from '@services/card-view-mode.service';
 import { CollectionService } from '@services/collection.service';
 import { ToastService } from '@services/toast.service';
 import { mockCardEntry } from '@testing/card.mocks';
@@ -110,6 +111,19 @@ describe('CollectionArea', () => {
       expect(metas).toEqual(['Vazia', '240 cartas · 239 à venda', '1.003 cartas · 3 à venda · 3 subcoleções']);
     });
 
+    it('shows only the active profile’s cards on a collection page', async () => {
+      await seed('p1', tree, [mockCardEntry({ id: 'mine', name: 'Minha', locationId: 'trocas' })]);
+      await seed('p2', tree, [mockCardEntry({ id: 'theirs', name: 'Dela', locationId: 'trocas' })]);
+      const { el, harness, collections, cards } = await setUp('/collection/trocas');
+      const names = () => [...el.querySelectorAll('app-card-grid .tile')].map((t) => t.getAttribute('aria-label')!.split(',')[0]);
+      expect(names()).toEqual(['Minha']);
+
+      await cards.load('p2');
+      await collections.load('p2');
+      await settle(harness);
+      expect(names()).toEqual(['Dela']);
+    });
+
     it('shows only the active profile’s collections', async () => {
       await seed('p1', tree, treeCards);
       await seed('p2', [col('outra', 'Outra')]);
@@ -184,30 +198,38 @@ describe('CollectionArea', () => {
       expect(router.url).toBe('/collection');
     });
 
-    it('shows the stats and the subcollections of a parent', async () => {
+    it('shows the subtree summary and the subcollections of a parent, with no grid', async () => {
       await seed('p1', tree, treeCards);
       const { el } = await setUp('/collection/fich');
-      expect([...el.querySelectorAll('.stat-value')].map(text)).toEqual(['1.003', '3', '3']);
-      expect(text(el.querySelector('.content > .eyebrow'))).toBe('Subcoleções');
+      expect(text(el.querySelector('.summary'))).toBe('1.003 cartas · 3 à venda');
+      expect(text(el.querySelector('.main > .eyebrow'))).toBe('Subcoleções');
       expect(rowNames(el)).toEqual(['Azuis', 'vermelhas']);
       expect(text(el.querySelector('.rows app-create-row'))).toContain('Nova subcoleção');
       expect(el.querySelector('.choices')).toBeNull();
+      expect(el.querySelector('app-card-grid')).toBeNull();
+      expect(text(el)).not.toContain('Adicionar cartas');
     });
 
-    it('shows the card placeholder and the split row for a level-2 collection with cards', async () => {
-      await seed('p1', tree, treeCards);
+    it('lists the direct cards newest first, with the summary and the split row', async () => {
+      const cardsHere = [
+        mockCardEntry({ id: 'old', name: 'Antiga', locationId: 'verm', quantity: 4, addedAt: '2026-01-01T00:00:00.000Z' }),
+        mockCardEntry({ id: 'new', name: 'Recente', locationId: 'verm', quantity: 6, forSale: true, addedAt: '2026-01-05T00:00:00.000Z' }),
+        mockCardEntry({ id: 'other', name: 'De outra', locationId: 'trocas' }),
+      ];
+      await seed('p1', tree, cardsHere);
       const { el } = await setUp('/collection/verm');
-      expect(text(el.querySelector('.content > .eyebrow'))).toBe('Cartas');
-      expect(text(el.querySelector('.plate--muted'))).toContain('A lista das cartas desta coleção chega em breve.');
+      const names = [...el.querySelectorAll('app-card-grid .tile')].map((t) => t.getAttribute('aria-label')!.split(',')[0]);
+      expect(names).toEqual(['Recente', 'Antiga']);
+      expect(text(el.querySelector('.summary'))).toBe('10 cartas · 6 à venda');
       expect(text(el.querySelector('app-create-row'))).toContain('Dividir em subcoleções');
-      expect(text(el.querySelector('app-create-row .sub'))).toBe('As 1.000 cartas vão para a primeira subcoleção.');
+      expect(text(el.querySelector('app-create-row .sub'))).toBe('As 10 cartas vão para a primeira subcoleção.');
     });
 
     it('shows "Último nível" and no split row for a level-3 collection with cards', async () => {
       await seed('p1', tree, treeCards);
       const { el } = await setUp('/collection/lote');
       expect(el.querySelector('app-create-row')).toBeNull();
-      expect([...el.querySelectorAll('.meta')].map(text)).toContain('Último nível — guarda só cartas.');
+      expect([...el.querySelectorAll('.meta')].map(text)).toContain('Último nível: esta coleção só guarda cartas.');
     });
 
     it('offers both choices for an empty level-1 collection', async () => {
@@ -215,18 +237,44 @@ describe('CollectionArea', () => {
       const { el } = await setUp('/collection/album');
       const choices = el.querySelectorAll('.choice');
       expect(choices).toHaveLength(2);
-      expect(choices[0].querySelector<HTMLButtonElement>('button')!.disabled).toBe(true);
-      expect(text(choices[1].querySelector('.btn--primary'))).toBe('Nova subcoleção');
+      expect(text(choices[0].querySelector('.btn--primary'))).toBe('Adicionar cartas');
+      expect(text(choices[1].querySelector('.btn--secondary'))).toBe('Nova subcoleção');
       expect([...el.querySelectorAll('.meta')].map(text)).toContain(
-        'Uma coleção guarda cartas ou subcoleções — o que entrar primeiro define qual.',
+        'Uma coleção guarda cartas ou subcoleções — nunca os dois.',
       );
+      expect(el.querySelector('app-card-grid')).toBeNull();
     });
 
     it('hides "Dividir" for an empty level-3 collection', async () => {
       await seed('p1', [...tree, col('vazio', 'Vazio', 'azuis')], treeCards);
       const { el } = await setUp('/collection/vazio');
       expect(el.querySelectorAll('.choice')).toHaveLength(1);
-      expect([...el.querySelectorAll('.meta')].map(text)).toContain('Último nível — guarda só cartas.');
+      expect([...el.querySelectorAll('.meta')].map(text)).toContain('Último nível: esta coleção só guarda cartas.');
+    });
+
+    describe('display toggle', () => {
+      afterEach(() => localStorage.clear());
+
+      it('switches the grid between details and images and keeps the choice', async () => {
+        await seed('p1', tree, treeCards);
+        const { el, harness } = await setUp('/collection/trocas');
+        const toggle = () => [...el.querySelectorAll<HTMLButtonElement>('app-card-view-toggle [role="radio"]')];
+        expect(el.querySelector('.grid')!.classList.contains('is-details')).toBe(true);
+        expect(toggle().map((r) => r.getAttribute('aria-checked'))).toEqual(['false', 'true']);
+
+        toggle()[0].click();
+        await settle(harness);
+        expect(el.querySelector('.grid')!.classList.contains('is-images')).toBe(true);
+        expect(TestBed.inject(CardViewModeService).mode()).toBe('images');
+        expect(localStorage.getItem('grm-card-view:')).toBe('images');
+      });
+
+      it('reads the stored choice again after a reload', async () => {
+        localStorage.setItem('grm-card-view:', 'images');
+        await seed('p1', tree, treeCards);
+        const { el } = await setUp('/collection/trocas');
+        expect(el.querySelector('.grid')!.classList.contains('is-images')).toBe(true);
+      });
     });
 
     it('redirects an unknown id to the list, with no sweep', async () => {
@@ -308,7 +356,7 @@ describe('CollectionArea', () => {
       const cases: [url: string, selector: string][] = [
         ['/collection/fich', '.rows > app-create-row button'],
         ['/collection/verm', 'app-create-row button'],
-        ['/collection/album', '.choice .btn--primary'],
+        ['/collection/album', '.choice .btn--secondary'],
       ];
       for (const [url, selector] of cases) {
         const { el, harness } = await setUp(url);
@@ -324,7 +372,7 @@ describe('CollectionArea', () => {
       for (const url of ['/collection/lote', '/collection/vazio']) {
         const { el } = await setUp(url);
         expect(el.querySelector('app-create-row')).toBeNull();
-        expect(el.querySelector('.choice .btn--primary')).toBeNull();
+        expect(el.querySelector('.choice .btn--secondary')).toBeNull();
         TestBed.resetTestingModule();
       }
       const { el } = await setUp('/collection/fich');
@@ -342,10 +390,10 @@ describe('CollectionArea', () => {
 
       await fillAndSubmit(harness, el, 'Para troca');
       expect(router.url).toBe('/collection/trocas');
-      expect(text(el.querySelector('.content > .eyebrow'))).toBe('Subcoleções');
+      expect(text(el.querySelector('.main > .eyebrow'))).toBe('Subcoleções');
       expect(rowNames(el)).toEqual(['Para troca']);
       expect(text(el.querySelector('app-collection-row .meta'))).toBe('240 cartas · 239 à venda');
-      expect([...el.querySelectorAll('.stat-value')].map(text)).toEqual(['240', '239', '1']);
+      expect(text(el.querySelector('.summary'))).toBe('240 cartas · 239 à venda');
     });
 
     it('edits from the collection page and updates the header and path', async () => {
@@ -453,8 +501,26 @@ describe('CollectionArea', () => {
       const path = el.querySelector('nav[aria-label="Caminho"]')!;
       expect(text(path.querySelector('a'))).toBe('Coleção');
       expect(path.querySelector('[aria-current="page"]')?.textContent).toBe('Caixa temporária');
-      expect([...el.querySelectorAll('.stat-value')].map(text)).toEqual(['37', '30']);
+      expect(text(el.querySelector('.summary'))).toBe('37 cartas · 30 à venda');
       expect(el.querySelector('.header-actions')).toBeNull();
+    });
+
+    it('shows a read-only grid of the holding cards, newest first, with no add action', async () => {
+      const held = [
+        mockCardEntry({ id: 'h1', name: 'Velha', locationId: 'gone', addedAt: '2026-01-01T00:00:00.000Z' }),
+        mockCardEntry({ id: 'h2', name: 'Nova', locationId: 'gone2', addedAt: '2026-01-09T00:00:00.000Z' }),
+      ];
+      await seed('p1', tree, [...treeCards, ...held]);
+      const { el } = await setUp('/collection/caixa');
+      const tiles = [...el.querySelectorAll('app-card-grid .tile')];
+      expect(tiles.map((t) => t.getAttribute('aria-label')!.split(',')[0])).toEqual(['Nova', 'Velha']);
+      expect(el.querySelectorAll('app-card-grid button.tile')).toHaveLength(0);
+      expect(tiles[0].getAttribute('role')).toBe('img');
+      expect(text(el.querySelector('.holding-copy'))).toBe(
+        'Cartas sem lugar definido. Aqui só dá para ver — sem adicionar nem editar.',
+      );
+      expect(text(el)).not.toContain('Adicionar cartas');
+      expect(el.querySelector('app-card-view-toggle')).not.toBeNull();
     });
 
     it('lists (not the empty state) when only the holding box has cards', async () => {
@@ -519,7 +585,8 @@ describe('CollectionArea', () => {
       collections.applySyncResult(collections.collections().filter((c) => c.id !== 'trocas'));
       await settle(harness);
       expect(text(el.querySelector('.sweep h1'))).toBe('Caixa de trocas');
-      expect(el.querySelectorAll('.sweep .stat')).toHaveLength(3);
+      expect(text(el.querySelector('.sweep .summary'))).toBe('240 cartas · 239 à venda');
+      expect(el.querySelectorAll('.sweep app-card-tile')).toHaveLength(2);
     });
 
     it('finishes a sweep cut short by a redirect at once, settling its dust', async () => {

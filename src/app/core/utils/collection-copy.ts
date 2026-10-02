@@ -25,8 +25,6 @@ export const COLLECTION = {
   cardCount: (n: number) => plural(n, 'carta', 'cartas'),
   holdingLabel: (n: number, s: number) =>
     `Caixa temporária. ${formatCount(n)} cartas sem coleção, ${formatCount(s)} à venda.`,
-  holdingCopy:
-    'Cartas que ficaram sem coleção quando uma coleção foi excluída. Elas guardam todos os dados. Quando a última sair daqui, esta caixa some sozinha.',
   searchPlaceholder: 'Buscar coleções — em breve',
   searchLabel: 'Buscar coleções (em breve)',
   filters: 'Filtros',
@@ -52,25 +50,10 @@ export const COLLECTION = {
   edit: 'Editar',
   delete: 'Excluir',
 
-  statCards: 'Cartas',
-  statSale: 'À venda',
-  statSubs: 'Subcoleções',
   colorLevel: (cor: string, n: number) => `Cor: ${cor} · Nível ${n} de 3`,
 
   subsEyebrow: 'Subcoleções',
-  cardsEyebrow: 'Cartas',
-  cardsSoon:
-    'A lista das cartas desta coleção chega em breve. Por enquanto, os números acima mostram o que está guardado aqui.',
-  split: 'Dividir em subcoleções',
   splitSub: (n: number) => `As ${formatCount(n)} cartas vão para a primeira subcoleção.`,
-  lastLevel: 'Último nível — guarda só cartas.',
-
-  keepCards: 'Guardar cartas',
-  keepCardsCopy: 'As cartas ficam direto nesta coleção.',
-  addCardsSoon: 'Adicionar cartas — em breve',
-  divide: 'Dividir',
-  divideCopy: 'Crie subcoleções — divisórias, páginas, seções.',
-  eitherOr: 'Uma coleção guarda cartas ou subcoleções — o que entrar primeiro define qual.',
 
   formTitles: {
     newCollection: 'Nova coleção',

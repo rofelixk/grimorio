@@ -7,6 +7,7 @@ import {
   MAX_DEPTH,
   NameError,
 } from '@models/collection.model';
+import { CardEntry } from '@models/card.model';
 import { Tombstone } from '@models/tombstone.model';
 import {
   buildChildrenOf,
@@ -52,6 +53,17 @@ export class CollectionService {
   readonly stats: Signal<CollectionStats> = computed(() =>
     computeStats(this.collections(), this.cards.cards(), this.decks.ids()),
   );
+
+  // The holding box's cards, newest added first: every card whose location matches no collection
+  // and no deck, the same membership `stats().holding` counts.
+  readonly holdingCards: Signal<readonly CardEntry[]> = computed(() => {
+    const collections = this.byId();
+    const decks = this.decks.ids();
+    return this.cards
+      .cards()
+      .filter((card) => !collections.has(card.locationId) && !decks.has(card.locationId))
+      .sort((a, b) => b.addedAt.localeCompare(a.addedAt) || a.id.localeCompare(b.id));
+  });
 
   private readonly changeCountSignal = signal(0);
   // Bumped by user mutations (create/update/remove), never by applySyncResult — feeds

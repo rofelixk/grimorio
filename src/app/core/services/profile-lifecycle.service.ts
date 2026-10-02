@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { deleteProfileDb } from '../db/profile-db';
 import { Failure } from '../utils/cloud-error.util';
+import { CardViewModeService } from './card-view-mode.service';
 import { MSG } from '../utils/entry-copy';
 import { CloudSessionService } from './cloud-session.service';
 import { ConnectivityService } from './connectivity.service';
@@ -16,6 +17,7 @@ export class ProfileLifecycleService {
   private readonly session = inject(ProfileSessionService);
   private readonly cloud = inject(CloudSessionService);
   private readonly connectivity = inject(ConnectivityService);
+  private readonly viewMode = inject(CardViewModeService);
 
   /**
    * Verify → sign out → cloud cleanup → delete the database → drop the record. Throws the
@@ -40,6 +42,7 @@ export class ProfileLifecycleService {
       });
     }
     await deleteProfileDb(id);
+    this.viewMode.forget(id);
     await this.profiles.remove(id);
     return this.profiles.profiles().length;
   }

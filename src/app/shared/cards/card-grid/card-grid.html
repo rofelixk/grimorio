@@ -1,0 +1,12 @@
+<div class="grid" [class.is-details]="mode() === 'details'" [class.is-images]="mode() === 'images'">
+  @for (tile of tiles(); track tile.card.id) {
+    <app-card-tile
+      [card]="tile.card"
+      [details]="tile.details"
+      [detailsMode]="mode() === 'details' ? 'shown' : 'hover'"
+      [interactive]="editable()"
+      [label]="tile.label"
+      (activate)="edit.emit(tile.card)"
+    />
+  }
+</div>

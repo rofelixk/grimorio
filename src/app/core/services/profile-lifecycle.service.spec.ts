@@ -88,6 +88,17 @@ describe('ProfileLifecycleService', () => {
     expect(cloud.removeSession).not.toHaveBeenCalled();
   });
 
+  it('forgets the deleted profile’s card view mode only', async () => {
+    const { rafa, bia } = await seed();
+    localStorage.setItem(`grm-card-view:${rafa.id}`, 'images');
+    localStorage.setItem(`grm-card-view:${bia.id}`, 'images');
+
+    await lifecycle.deleteProfile(rafa.id, 'grimorio123');
+
+    expect(localStorage.getItem(`grm-card-view:${rafa.id}`)).toBeNull();
+    expect(localStorage.getItem(`grm-card-view:${bia.id}`)).toBe('images');
+  });
+
   it('clears a linked profile’s cloud session, leaving the account alone', async () => {
     const { rafa } = await seed();
     await store.setCloud(rafa.id, { userId: 'u1', email: 'rafa@exemplo.com', needsReauth: false });

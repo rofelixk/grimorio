@@ -73,81 +73,111 @@
       }
 
       @case ('holding') {
-        <div class="page">
-          <div class="content">
-            <nav class="path" [attr.aria-label]="copy.path">
-              <a class="link-btn" routerLink="/collection">{{ copy.title }}</a>
-              <span class="path-sep" aria-hidden="true">·</span>
-              <span class="path-current" aria-current="page">{{ copy.holdingName }}</span>
-            </nav>
+        @let holding = stats().holding;
+        <div class="page page--v2" [class.page--wide]="wide()">
+          <div class="main">
+            <div class="sticky-head">
+              <div class="path-row">
+                <nav class="path" [attr.aria-label]="copy.path">
+                  <a class="link-btn" routerLink="/collection">{{ copy.title }}</a>
+                  <span class="path-sep" aria-hidden="true">·</span>
+                  <span class="path-current" aria-current="page">{{ copy.holdingName }}</span>
+                </nav>
+              </div>
 
-            <div class="header">
-              <span class="hollow hollow--header" aria-hidden="true"></span>
-              <h1 class="title" tabindex="-1">{{ copy.holdingName }}</h1>
+              <div class="header">
+                <span class="hollow hollow--header" aria-hidden="true"></span>
+                <h1 class="title" tabindex="-1">{{ copy.holdingName }}</h1>
+              </div>
+
+              @if (!wide()) {
+                <p class="summary" [attr.aria-label]="card.summary(holding.cards, holding.sale)">
+                  <ng-container *ngTemplateOutlet="summaryParts; context: { $implicit: holding.cards, sale: holding.sale }" />
+                </p>
+              }
+
+              <div class="list-bar">
+                <app-card-view-toggle [mode]="viewMode.mode()" (modeChange)="viewMode.set($event)" />
+              </div>
             </div>
 
-            <div class="stats stats--holding">
-              <div class="plate stat">
-                <span class="stat-value">{{ formatCount(stats().holding.cards) }}</span>
-                <span class="micro-label">{{ copy.statCards }}</span>
-              </div>
-              <div class="plate stat">
-                <span class="stat-value">{{ formatCount(stats().holding.sale) }}</span>
-                <span class="micro-label">{{ copy.statSale }}</span>
-              </div>
-            </div>
+            <p class="muted-copy holding-copy">{{ card.holdingCopy }}</p>
 
-            <p class="muted-copy holding-copy">{{ copy.holdingCopy }}</p>
+            @if (!wide()) {
+              <div class="search-row">
+                <input
+                  class="field__input search"
+                  type="search"
+                  disabled
+                  [placeholder]="card.searchPlaceholder"
+                  [attr.aria-label]="card.searchLabel"
+                />
+                <button type="button" class="btn btn--secondary filters-btn" disabled>{{ copy.filters }}</button>
+              </div>
+            }
+
+            <app-card-grid [cards]="collections.holdingCards()" [mode]="viewMode.mode()" [editable]="false" />
           </div>
+
+          @if (wide()) {
+            <aside class="side">
+              <p class="summary" [attr.aria-label]="card.summary(holding.cards, holding.sale)">
+                <ng-container *ngTemplateOutlet="summaryParts; context: { $implicit: holding.cards, sale: holding.sale }" />
+              </p>
+              <ng-container *ngTemplateOutlet="searchBlock" />
+            </aside>
+          }
         </div>
       }
 
       @case ('collection') {
         @if (leaving ? leavingPage() : shownPage(); as p) {
           @let collection = p.collection;
-          <div class="page">
-            <div class="content">
-              <nav class="path" [attr.aria-label]="copy.path">
-                <a class="link-btn" routerLink="/collection">{{ copy.title }}</a>
-                @for (ancestor of p.ancestors; track ancestor.id) {
-                  <span class="path-sep" aria-hidden="true">·</span>
-                  <a class="link-btn" [routerLink]="['/collection', ancestor.id]">{{ ancestor.name }}</a>
+          <div class="page page--v2" [class.page--wide]="wide()">
+            <div class="main">
+              <div class="sticky-head">
+                <div class="path-row">
+                  <nav class="path" [attr.aria-label]="copy.path">
+                    <a class="link-btn" routerLink="/collection">{{ copy.title }}</a>
+                    @for (ancestor of p.ancestors; track ancestor.id) {
+                      <span class="path-sep" aria-hidden="true">·</span>
+                      <a class="link-btn" [routerLink]="['/collection', ancestor.id]">{{ ancestor.name }}</a>
+                    }
+                    <span class="path-sep" aria-hidden="true">·</span>
+                    <span class="path-current" aria-current="page">{{ collection.name }}</span>
+                  </nav>
+                  <div class="header-actions">
+                    <button type="button" class="btn btn--secondary" (click)="openEdit(collection.id)">
+                      {{ copy.edit }}
+                    </button>
+                    <button type="button" class="btn btn--danger" (click)="openDelete(collection)">
+                      {{ copy.delete }}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="header">
+                  <span
+                    class="header-swatch"
+                    aria-hidden="true"
+                    [style.background]="p.color.hex"
+                    [style.box-shadow]="'0 0 16px ' + p.color.hex + '66'"
+                  ></span>
+                  <h1 class="title title--name" tabindex="-1">{{ collection.name }}</h1>
+                </div>
+
+                @if (!wide()) {
+                  <p class="summary" [attr.aria-label]="card.summary(p.totals.cards, p.totals.sale)">
+                    <ng-container *ngTemplateOutlet="summaryParts; context: { $implicit: p.totals.cards, sale: p.totals.sale }" />
+                  </p>
                 }
-                <span class="path-sep" aria-hidden="true">·</span>
-                <span class="path-current" aria-current="page">{{ collection.name }}</span>
-              </nav>
 
-              <div class="header">
-                <span
-                  class="header-swatch"
-                  aria-hidden="true"
-                  [style.background]="p.color.hex"
-                  [style.box-shadow]="'0 0 16px ' + p.color.hex + '66'"
-                ></span>
-                <h1 class="title title--name" tabindex="-1">{{ collection.name }}</h1>
-                <div class="header-actions">
-                  <button type="button" class="btn btn--secondary" (click)="openEdit(collection.id)">
-                    {{ copy.edit }}
-                  </button>
-                  <button type="button" class="btn btn--danger" (click)="openDelete(collection)">
-                    {{ copy.delete }}
-                  </button>
-                </div>
-              </div>
-
-              <div class="stats">
-                <div class="plate stat">
-                  <span class="stat-value">{{ formatCount(p.totals.cards) }}</span>
-                  <span class="micro-label">{{ copy.statCards }}</span>
-                </div>
-                <div class="plate stat">
-                  <span class="stat-value">{{ formatCount(p.totals.sale) }}</span>
-                  <span class="micro-label">{{ copy.statSale }}</span>
-                </div>
-                <div class="plate stat">
-                  <span class="stat-value">{{ formatCount(p.totals.subs) }}</span>
-                  <span class="micro-label">{{ copy.statSubs }}</span>
-                </div>
+                @if (p.kind === 'cards') {
+                  <div class="list-bar">
+                    <app-card-view-toggle [mode]="viewMode.mode()" (modeChange)="viewMode.set($event)" />
+                    <button type="button" class="btn btn--primary add-btn" disabled>{{ card.add }}</button>
+                  </div>
+                }
               </div>
 
               @switch (p.kind) {
@@ -167,45 +197,97 @@
                   </div>
                 }
                 @case ('cards') {
-                  <span class="eyebrow">{{ copy.cardsEyebrow }}</span>
-                  <p class="plate plate--muted">{{ copy.cardsSoon }}</p>
-                  @if (p.depth < maxDepth) {
-                    <app-create-row
-                      [label]="copy.split"
-                      [sub]="copy.splitSub(p.totals.cards)"
-                      (activate)="openCreate(collection.id)"
-                    />
-                  } @else {
-                    <p class="meta">{{ copy.lastLevel }}</p>
+                  @if (!wide()) {
+                    <ng-container *ngTemplateOutlet="splitRow; context: { $implicit: p }" />
+                    <ng-container *ngTemplateOutlet="searchRow" />
                   }
+                  <app-card-grid [cards]="p.cards" [mode]="viewMode.mode()" [editable]="false" />
                 }
                 @case ('empty') {
                   <div class="choices">
                     <div class="plate choice">
-                      <span class="choice-title">{{ copy.keepCards }}</span>
-                      <p class="muted-copy">{{ copy.keepCardsCopy }}</p>
-                      <button type="button" class="btn btn--secondary choice-btn" disabled>{{ copy.addCardsSoon }}</button>
+                      <span class="choice-title">{{ card.keepCards }}</span>
+                      <p class="muted-copy">{{ card.keepCardsCopy }}</p>
+                      <button type="button" class="btn btn--primary choice-btn" disabled>{{ card.add }}</button>
                     </div>
                     @if (p.depth < maxDepth) {
                       <div class="plate choice">
-                        <span class="choice-title">{{ copy.divide }}</span>
-                        <p class="muted-copy">{{ copy.divideCopy }}</p>
-                        <button type="button" class="btn btn--primary choice-btn" (click)="openCreate(collection.id)">
+                        <span class="choice-title">{{ card.divide }}</span>
+                        <p class="muted-copy">{{ card.divideCopy }}</p>
+                        <button type="button" class="btn btn--secondary choice-btn" (click)="openCreate(collection.id)">
                           {{ copy.newSubcollection }}
                         </button>
                       </div>
                     }
                   </div>
-                  <p class="meta">{{ p.depth < maxDepth ? copy.eitherOr : copy.lastLevel }}</p>
+                  <p class="meta">{{ p.depth < maxDepth ? card.eitherOr : card.lastLevelNote }}</p>
                 }
               }
             </div>
+
+            @if (wide()) {
+              <aside class="side">
+                <p class="summary" [attr.aria-label]="card.summary(p.totals.cards, p.totals.sale)">
+                  <ng-container *ngTemplateOutlet="summaryParts; context: { $implicit: p.totals.cards, sale: p.totals.sale }" />
+                </p>
+                @if (p.kind === 'cards') {
+                  <ng-container *ngTemplateOutlet="searchBlock" />
+                  <ng-container *ngTemplateOutlet="splitRow; context: { $implicit: p }" />
+                }
+              </aside>
+            }
           </div>
         }
       }
     }
   </ng-template>
 </app-page-sweep>
+
+<!-- "{n} cartas · {s} à venda", the numbers in text color. -->
+<ng-template #summaryParts let-cards let-sale="sale">
+  <b>{{ formatCount(cards) }}</b> {{ card.cardWord(cards) }} · <b>{{ formatCount(sale) }}</b> {{ card.saleWord }}
+</ng-template>
+
+<!-- The reserved search and filters placeholder (side column, wide). -->
+<ng-template #searchBlock>
+  <span class="eyebrow">{{ card.searchFilters }}</span>
+  <input
+    class="field__input search"
+    type="search"
+    disabled
+    [placeholder]="card.searchPlaceholder"
+    [attr.aria-label]="card.searchLabel"
+  />
+  <p class="muted-copy">{{ card.filtersSoon }}</p>
+</ng-template>
+
+<!-- The same placeholder in one row (phone and mid). -->
+<ng-template #searchRow>
+  <div class="search-row">
+    <input
+      class="field__input search"
+      type="search"
+      disabled
+      [placeholder]="card.searchPlaceholder"
+      [attr.aria-label]="card.searchLabel"
+    />
+    <button type="button" class="btn btn--secondary filters-btn" disabled>{{ copy.filters }}</button>
+  </div>
+</ng-template>
+
+<!-- A collection holding cards can only be split from here (008); at the last level it only says so. -->
+<ng-template #splitRow let-p>
+  @if (p.depth < maxDepth) {
+    <app-create-row
+      class="split-row"
+      [label]="card.divide"
+      [sub]="copy.splitSub(p.totals.cards)"
+      (activate)="openCreate(p.collection.id)"
+    />
+  } @else {
+    <p class="meta split-row">{{ card.lastLevelNote }}</p>
+  }
+</ng-template>
 
 @if (form(); as f) {
   <app-collection-form-dialog

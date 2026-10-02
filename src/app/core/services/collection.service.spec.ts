@@ -254,6 +254,24 @@ describe('CollectionService', () => {
       cards.add(mockCardEntryWithoutId({ locationId: 'deck-1', quantity: 2 }));
 
       expect(service.stats().holding.cards).toBe(0);
+      expect(service.holdingCards()).toEqual([]);
+    });
+
+    it('lists the holding box cards newest added first, leaving out collections and decks', async () => {
+      await seed('p1', [mockCollection({ id: 'root', name: 'Raras' })]);
+      await service.load('p1');
+      const db = await openProfileDb('p1');
+      await db.put('decks', { id: 'deck-1', name: 'Elfos', format: 'pauper', updatedAt: '2026-01-01T00:00:00.000Z' });
+      await TestBed.inject(DeckService).load('p1');
+
+      cards.applySyncResult([
+        mockCardEntry({ id: 'old', locationId: 'gone', addedAt: '2026-01-01T00:00:00.000Z' }),
+        mockCardEntry({ id: 'new', locationId: 'gone', addedAt: '2026-01-03T00:00:00.000Z' }),
+        mockCardEntry({ id: 'in-root', locationId: 'root' }),
+        mockCardEntry({ id: 'in-deck', locationId: 'deck-1' }),
+      ]);
+
+      expect(service.holdingCards().map((c) => c.id)).toEqual(['new', 'old']);
     });
   });
 

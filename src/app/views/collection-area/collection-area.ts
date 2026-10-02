@@ -1,10 +1,15 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { HOLDING_REF, MAX_DEPTH, colorOf, type Collection } from '@models/collection.model';
+import { CardService } from '@services/card.service';
+import { CardViewModeService } from '@services/card-view-mode.service';
 import { CollectionService } from '@services/collection.service';
 import { ShellState } from '@services/shell-state.service';
 import { ToastService } from '@services/toast.service';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
+import { CardGrid } from '@shared/cards/card-grid/card-grid';
+import { CardViewToggle } from '@shared/cards/card-view-toggle/card-view-toggle';
 import {
   CollectionDeleteDialog,
   type CollectionDeleted,
@@ -15,6 +20,7 @@ import { CreateRow } from '@shared/collections/create-row/create-row';
 import { injectPageChange, retained } from '@shared/effects/page-sweep/page-change';
 import { PagePlace } from '@shared/effects/page-sweep/page-place';
 import { PageSweep } from '@shared/effects/page-sweep/page-sweep';
+import { CARD } from '@utils/card-copy';
 import { COLLECTION, formatCount } from '@utils/collection-copy';
 import { type CollectionPlace, COLLECTION_PAGES } from '@utils/collection-pages.util';
 import { subtreeIds } from '@utils/collection-tree.util';
@@ -30,7 +36,18 @@ const collectionId = (place: CollectionPlace | null) => (place?.kind === 'collec
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-collection-area',
-  imports: [CollectionDeleteDialog, CollectionFormDialog, CollectionRow, CreateRow, PagePlace, PageSweep, RouterLink],
+  imports: [
+    CardGrid,
+    CardViewToggle,
+    CollectionDeleteDialog,
+    CollectionFormDialog,
+    CollectionRow,
+    CreateRow,
+    NgTemplateOutlet,
+    PagePlace,
+    PageSweep,
+    RouterLink,
+  ],
   styleUrl: './collection-area.scss',
   templateUrl: './collection-area.html',
 })
@@ -43,7 +60,11 @@ export class CollectionArea {
   protected readonly wide = inject(ShellState).wide;
   protected readonly mobile = mediaQuerySignal(MOBILE_QUERY);
 
+  private readonly cardService = inject(CardService);
+  protected readonly viewMode = inject(CardViewModeService);
+
   protected readonly copy = COLLECTION;
+  protected readonly card = CARD;
   protected readonly formatCount = formatCount;
   protected readonly maxDepth = MAX_DEPTH;
 
@@ -103,6 +124,7 @@ export class CollectionArea {
       ancestors: this.collections.path(id).slice(0, -1),
       depth: this.collections.depth(id),
       kind: this.collections.kind(id),
+      cards: this.cardService.byLocation().get(id) ?? [],
       totals: stats.byId.get(id) || { cards: 0, sale: 0, subs: 0, directEntries: 0 },
       children: (this.collections.childrenOf().get(id) ?? []).map((child) => ({
         collection: child,

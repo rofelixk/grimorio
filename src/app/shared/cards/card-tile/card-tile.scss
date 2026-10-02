@@ -4,7 +4,7 @@
   // Off-screen tiles skip layout and paint (research R16). Paint containment would clip the hover
   // growth, halo, overlay and dust, so it is lifted while any of them can show.
   content-visibility: auto;
-  contain-intrinsic-size: auto 10rem auto 14.5rem;
+  contain-intrinsic-size: auto 10rem auto 14rem;
 }
 
 :host(.live),
@@ -47,7 +47,6 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--duration-base) var(--ease-standard);
-  animation: spin-angle 6s linear infinite;
   z-index: -1;
 }
 
@@ -179,6 +178,12 @@
 .tile:hover,
 .tile:focus-visible {
   transform: scale(1.08);
+
+  // The spin runs only while the tile is hovered or focused, so thousands of tiles animate nothing at rest.
+  .border,
+  .halo {
+    animation: spin-angle 6s linear infinite;
+  }
 
   .border {
     opacity: 1;

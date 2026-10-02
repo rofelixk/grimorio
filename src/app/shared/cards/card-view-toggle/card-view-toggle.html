@@ -1,0 +1,20 @@
+<div
+  class="group"
+  role="radiogroup"
+  [attr.aria-label]="copy.viewLabel"
+  [appRovingRadios]="selectedIndex()"
+  (radioMove)="mode.set(options[$event].mode)"
+>
+  @for (option of options; track option.mode) {
+    <button
+      type="button"
+      class="radio"
+      role="radio"
+      [attr.aria-checked]="option.mode === mode()"
+      [attr.tabindex]="option.mode === mode() ? 0 : -1"
+      (click)="mode.set(option.mode)"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>

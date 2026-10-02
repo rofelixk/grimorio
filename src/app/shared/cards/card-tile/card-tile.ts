@@ -84,7 +84,6 @@ let nextSpeck = 0;
   host: {
     '[class.live]': 'specks().length > 0',
     '[style.--tile-border]': 'border()',
-    '[style.--tile-glow]': 'glow()',
     '(pointerenter)': 'burst($event)',
   },
 })
@@ -108,7 +107,6 @@ export class CardTile {
     const ring = stops.length === 1 ? [stops[0], stops[0]] : [...stops, stops[0]];
     return `conic-gradient(from var(--spin-angle), ${ring.join(', ')})`;
   });
-  protected readonly glow = computed(() => this.palette().stops[0]);
 
   /** One burst per pointer entry; none for touch, under reduced motion, or on keyboard focus. */
   protected burst(event: PointerEvent): void {
@@ -123,6 +121,4 @@ export class CardTile {
   protected speckEnded(id: number): void {
     this.specks.update((list) => list.filter((speck) => speck.id !== id));
   }
-
-  protected readonly hasImage = computed(() => !!this.card().imageUrl);
 }
