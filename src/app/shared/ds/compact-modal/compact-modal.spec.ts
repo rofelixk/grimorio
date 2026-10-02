@@ -23,6 +23,27 @@ class Host {
   closes = 0;
 }
 
+@Component({
+  imports: [CompactModal],
+  template: `
+    <app-compact-modal [roles]="roles" [size]="size()" (closed)="closes.set(closes() + 1)">
+      <input />
+      @if (inner()) {
+        <app-compact-modal [roles]="roles" (closed)="innerCloses.set(innerCloses() + 1)">
+          <input />
+        </app-compact-modal>
+      }
+    </app-compact-modal>
+  `,
+})
+class SizedHost {
+  readonly roles = rolesFor(['R']);
+  readonly size = signal<'compact' | 'wide' | 'split'>('compact');
+  readonly inner = signal(false);
+  readonly closes = signal(0);
+  readonly innerCloses = signal(0);
+}
+
 describe('CompactModal', () => {
   let restore: () => void;
   let opener: HTMLButtonElement;
@@ -82,6 +103,56 @@ describe('CompactModal', () => {
     close.click();
     expect(host.closes).toBe(0);
     expect(close.getAttribute('aria-disabled')).toBe('true');
+  });
+
+  describe('size', () => {
+    async function sized() {
+      const fixture = TestBed.createComponent(SizedHost);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const dialog = (fixture.nativeElement as HTMLElement).querySelector('dialog')!;
+      return { fixture, dialog, host: fixture.componentInstance };
+    }
+
+    it('sets the size class per input', async () => {
+      const { fixture, dialog, host } = await sized();
+      expect(dialog.classList.contains('size-wide') || dialog.classList.contains('size-split')).toBe(false);
+
+      host.size.set('wide');
+      fixture.detectChanges();
+      expect(dialog.classList.contains('size-wide')).toBe(true);
+
+      host.size.set('split');
+      fixture.detectChanges();
+      expect(dialog.classList.contains('size-split')).toBe(true);
+      expect(dialog.classList.contains('size-wide')).toBe(false);
+    });
+
+    it('never sets a fluid height on the wide size', async () => {
+      const { fixture, dialog, host } = await sized();
+      host.size.set('wide');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(dialog.querySelector<HTMLElement>('.face')!.style.height).toBe('');
+    });
+
+    it('hosts a toast outlet', async () => {
+      const { dialog } = await sized();
+      expect(dialog.querySelector('app-toast-outlet')).not.toBeNull();
+    });
+
+    it('closes only itself when Esc reaches a modal stacked on top', async () => {
+      const { fixture, host } = await sized();
+      host.inner.set(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const dialogs = (fixture.nativeElement as HTMLElement).querySelectorAll('dialog');
+      expect(dialogs).toHaveLength(2);
+
+      dialogs[1].dispatchEvent(new Event('cancel', { cancelable: true }));
+      expect(host.innerCloses()).toBe(1);
+      expect(host.closes()).toBe(0);
+    });
   });
 
   it('closes and restores focus to the opener on destroy', async () => {

@@ -12,6 +12,7 @@ import {
 import { FluidHeight } from '@shared/ds/fluid-height';
 import { MARKED_STOP, captureFocus, focusFirst } from '@shared/ds/focus';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
+import { ToastOutlet } from '@shared/ds/toast/toast-outlet';
 import { ACTION, MISC } from '@utils/entry-copy';
 import { Roles } from '@utils/identity.util';
 
@@ -22,14 +23,19 @@ import { Roles } from '@utils/identity.util';
 // `[data-autofocus]` element, if any. `locked` ignores Esc, the backdrop
 // and ✕ while an operation runs (FR-031). On desktop the face follows its content's height
 // (`FluidHeight`), animated from the first pointer or key press on (DESIGN.md "Compact modal").
+// `size` picks the ring: `compact` 480px, `wide` 720px with a fixed 640px face (no fluid height; only
+// the content's own scroll area scrolls), `split` 880px, fluid, for two-pane content that places its
+// own ✕ row. It hosts a toast outlet, so a toast shows inside this top `<dialog>`.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-compact-modal',
+  imports: [ToastOutlet],
   templateUrl: './compact-modal.html',
   styleUrl: './compact-modal.scss',
 })
 export class CompactModal {
   readonly roles = input.required<Roles>();
+  readonly size = input<'compact' | 'wide' | 'split'>('compact');
   readonly labelledBy = input<string | null>(null);
   readonly locked = input(false);
   /** ✕, Esc or a backdrop click, unless locked. */
@@ -47,7 +53,7 @@ export class CompactModal {
   protected readonly fluid = new FluidHeight({
     face: () => this.face()?.nativeElement,
     observe: () => [this.content()?.nativeElement],
-    measure: () => this.content()?.nativeElement.offsetHeight ?? null,
+    measure: () => (this.size() === 'wide' ? null : (this.content()?.nativeElement.offsetHeight ?? null)),
   });
 
   constructor() {

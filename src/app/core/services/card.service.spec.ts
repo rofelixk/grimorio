@@ -43,7 +43,8 @@ describe('CardService', () => {
     await service.flush();
     restore();
     expect(show).toHaveBeenCalledOnce();
-    expect(await getAllFromStore<CardEntry>('cards')).toHaveLength(2);
+    // Writes are per row: the failed one is lost, the next one lands on its own.
+    expect(await getAllFromStore<CardEntry>('cards')).toHaveLength(1);
   });
 
   describe('with another open copy', () => {
@@ -138,58 +139,107 @@ describe('CardService', () => {
     });
   });
 
-  it('removes a card', async () => {
-    const added = service.add(baseCard);
-
-    service.remove(added.id);
-
-    expect(service.cards()).toEqual([]);
-    await service.flush();
-    expect(await getAllFromStore<CardEntry>('cards')).toEqual([]);
-  });
-
-  it('stamps updatedAt on add and bumps it on update', () => {
+  it('stamps id, updatedAt and addedAt with one instant on add', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
     const added = service.add(baseCard);
+    vi.useRealTimers();
     expect(added.updatedAt).toBe('2026-01-01T00:00:00.000Z');
+    expect(added.addedAt).toBe('2026-01-01T00:00:00.000Z');
+    expect(added.id).toBeTruthy();
+  });
+
+  it('bumps updatedAt on update but keeps addedAt and locationId', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+    const added = service.add(mockCardEntryWithoutId({ locationId: 'loc-1' }));
 
     vi.setSystemTime(new Date('2026-01-02T00:00:00.000Z'));
     service.update(added.id, { quantity: 2 });
-
-    expect(service.byId(added.id)()!.updatedAt).toBe('2026-01-02T00:00:00.000Z');
     vi.useRealTimers();
+
+    expect(service.cards()[0]).toEqual({
+      ...added,
+      quantity: 2,
+      updatedAt: '2026-01-02T00:00:00.000Z',
+    });
+    await service.flush();
+    expect(await getAllFromStore<CardEntry>('cards')).toEqual(service.cards());
   });
 
-  it('records a tombstone on remove and lets it be cleared', async () => {
-    const added = service.add(baseCard);
+  describe('mergeInto', () => {
+    it('grows the target without a new row and keeps addedAt', async () => {
+      const target = service.add(mockCardEntryWithoutId({ quantity: 2 }));
+      service.mergeInto(target.id, 3);
 
-    service.remove(added.id);
-    await service.flush();
+      expect(service.cards()).toHaveLength(1);
+      expect(service.cards()[0]).toMatchObject({ id: target.id, quantity: 5, addedAt: target.addedAt });
+      await service.flush();
+      expect((await getAllFromStore<CardEntry>('cards'))[0].quantity).toBe(5);
+      expect(await service.getTombstones()).toEqual([]);
+    });
 
-    expect((await service.getTombstones()).map((t) => t.id)).toEqual([added.id]);
+    it('with removeId deletes that row and writes its tombstone in one transaction', async () => {
+      const target = service.add(mockCardEntryWithoutId({ quantity: 2 }));
+      const edited = service.add(mockCardEntryWithoutId({ quantity: 4 }));
+      await service.flush();
 
-    await service.clearTombstones([added.id]);
+      service.mergeInto(target.id, 4, edited.id);
+      await service.flush();
 
-    expect(await service.getTombstones()).toEqual([]);
+      expect(service.cards().map((c) => [c.id, c.quantity])).toEqual([[target.id, 6]]);
+      expect((await getAllFromStore<CardEntry>('cards')).map((c) => c.id)).toEqual([target.id]);
+      expect((await service.getTombstones()).map((t) => t.id)).toEqual([edited.id]);
+    });
+
+    it('lets a tombstone be cleared', async () => {
+      const target = service.add(mockCardEntryWithoutId());
+      const edited = service.add(mockCardEntryWithoutId());
+      service.mergeInto(target.id, 1, edited.id);
+      await service.flush();
+
+      await service.clearTombstones([edited.id]);
+
+      expect(await service.getTombstones()).toEqual([]);
+    });
+
+    it('counts as a user change', () => {
+      const target = service.add(mockCardEntryWithoutId());
+      const before = service.changeCount();
+      service.mergeInto(target.id, 1);
+      expect(service.changeCount()).toBe(before + 1);
+    });
   });
 
   it('applySyncResult replaces state verbatim without touching tombstones', async () => {
-    const added = service.add(baseCard);
-    service.remove(added.id);
+    const target = service.add(baseCard);
+    const edited = service.add(baseCard);
+    service.mergeInto(target.id, 1, edited.id);
     await service.flush();
 
-    service.applySyncResult([added]);
+    service.applySyncResult([target]);
 
-    expect(service.cards()).toEqual([added]);
-    expect((await service.getTombstones()).map((t) => t.id)).toEqual([added.id]);
+    expect(service.cards()).toEqual([target]);
+    expect((await service.getTombstones()).map((t) => t.id)).toEqual([edited.id]);
   });
 
-  it('finds a card by id', () => {
-    const added = service.add(baseCard);
+  describe('byLocation', () => {
+    it('groups by location, newest added first, then by id', () => {
+      const mk = (id: string, locationId: string, addedAt: string) =>
+        mockCardEntry({ id, locationId, addedAt });
+      service.applySyncResult([
+        mk('a', 'x', '2026-01-01T00:00:00.000Z'),
+        mk('b', 'x', '2026-01-03T00:00:00.000Z'),
+        mk('d', 'x', '2026-01-02T00:00:00.000Z'),
+        mk('c', 'x', '2026-01-02T00:00:00.000Z'),
+        mk('e', 'y', '2026-01-01T00:00:00.000Z'),
+      ]);
 
-    expect(service.byId(added.id)()).toEqual(added);
-    expect(service.byId('missing')()).toBeUndefined();
+      const map = service.byLocation();
+      expect(map.get('x')!.map((c) => c.id)).toEqual(['b', 'c', 'd', 'a']);
+      expect(map.get('y')!.map((c) => c.id)).toEqual(['e']);
+      expect(map.get('none')).toBeUndefined();
+    });
   });
 
   it('reloads persisted cards on a fresh service instance', async () => {

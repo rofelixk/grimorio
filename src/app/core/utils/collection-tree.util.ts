@@ -76,6 +76,15 @@ export function subtreeIds(id: string, childrenOf: Map<string | null, Collection
   return ids;
 }
 
+/** Descends through each first child (alphabetical) until a collection with none; `id` itself when it has none. */
+export function firstLeaf(id: string, childrenOf: Map<string | null, Collection[]>): string {
+  let current = id;
+  for (let first = childrenOf.get(current)?.[0]; first; first = childrenOf.get(current)?.[0]) {
+    current = first.id;
+  }
+  return current;
+}
+
 /** 1 + the number of ancestors of `id`, or 0 when `id` isn't in `byId`. */
 export function depthOf(id: string, byId: Map<string, Collection>): number {
   let current = byId.get(id);

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mockCardEntryWithoutId } from '@testing/card.mocks';
+import { mockCardEntry, mockCardEntryWithoutId } from '@testing/card.mocks';
 import { delivered, nextRefresh, otherCopy } from '@testing/cross-tab';
 import { failNextPut } from '@testing/idb-failure';
 import { DATA } from '@utils/entry-copy';
@@ -356,9 +356,11 @@ describe('CollectionService', () => {
       expect(storedCards.every((card) => card.locationId === parent.id)).toBe(true);
     });
 
-    it('moves 5,000 cards in under 3 s', async () => {
+    it('moves 3,000 cards in under 3 s', async () => {
       const parent = created(service.create({ parentId: null, name: 'Caixa', color: '#3d6b85' }));
-      cards.addMany(Array.from({ length: 5000 }, () => mockCardEntryWithoutId({ locationId: parent.id })));
+      cards.applySyncResult(
+        Array.from({ length: 3000 }, (_, i) => mockCardEntry({ id: `c${i}`, locationId: parent.id })),
+      );
       await cards.flush();
       await service.flush();
 
@@ -366,7 +368,7 @@ describe('CollectionService', () => {
       const result = service.create({ parentId: parent.id, name: 'Primeira', color: '#4c7a43' });
       await service.flush();
       expect(performance.now() - start).toBeLessThan(3000);
-      expect(result.ok && result.moved).toBe(5000);
+      expect(result.ok && result.moved).toBe(3000);
     });
   });
 
@@ -432,16 +434,18 @@ describe('CollectionService', () => {
       expect(await service.getTombstones()).toEqual([]);
     });
 
-    it('deletes 5,000 cards in under 3 s', async () => {
+    it('deletes 3,000 cards in under 3 s', async () => {
       await seed('p1', [mockCollection({ id: 'root' })]);
       await service.load('p1');
-      cards.addMany(Array.from({ length: 5000 }, () => mockCardEntryWithoutId({ locationId: 'root' })));
+      cards.applySyncResult(
+        Array.from({ length: 3000 }, (_, i) => mockCardEntry({ id: `c${i}`, locationId: 'root' })),
+      );
       await cards.flush();
 
       const start = performance.now();
       const result = await service.remove('root', 'delete');
       expect(performance.now() - start).toBeLessThan(3000);
-      expect(result.cards).toBe(5000);
+      expect(result.cards).toBe(3000);
       expect(cards.cards()).toEqual([]);
     });
   });

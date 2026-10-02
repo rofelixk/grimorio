@@ -353,6 +353,7 @@ These are deliberate exceptions to two rules: the flowing line and the thread ar
 - **Side nav:** width, border and glow change over `base` 0.24s. It collapses 120ms after the pointer leaves.
 - **`prefers-reduced-motion`:** all ring, halo, spark, ripple and band animation stops, as do the wheel's spin, breathing, motes and bursts. Rings and bands freeze, the drawer opens and closes instantly (0s), modal height changes are instant, and the toast appears without a transition.
 - **Card hover** (list, holding box, search results): over 0.24s a layer behind the tile fades in — a 1px conic-gradient border (`inset: -1px`, 7px radius, stops from the card's colors, spinning `--spin-angle` over 6s linear) and a halo (`inset: -5px`, `blur(7px)`, 12px radius, opacity .45). The tile scales to 1.08 with a deeper shadow, above its neighbors. One dust burst per pointer entry (none on focus): 10 specks leaving the perimeter, `spark` 3.6s, 70ms stagger, 30px × jitter 0.7–1.5, in the border's colors in turn. Keyboard focus-visible shows the border, halo and scale only.
+- **Card hover shadow and dust:** the hovered tile's neutral shadow is `0 14px 30px rgba(0,0,0,.65), 0 4px 10px rgba(0,0,0,.5)` (at rest `--shadow-rest`) — the only neutral shadow besides rest, since the tile grows over its neighbors and needs depth beside its colored glow. Each speck is `(2–4px) × 0.7` with `box-shadow: 0 0 4px 1px` in its color.
 - **Card details toggle:** the details plate opens as `grid-template-rows: 0fr → 1fr` with opacity over 0.32s, and the image's bottom radius follows. In "Só imagens" the plate is an overlay fading in over 0.24s on hover.
 - **Cards under `prefers-reduced-motion`:** a static colored border, no spin, no halo animation, no dust; the details toggle is instant; the scale stays as an instant transform.
 - **Collections page change** (list ↔ collection ↔ holding box): the page sweep — open going deeper or sideways, close going up. Every navigation sweeps except the first load and the missing-place redirect (including landing on the parent after a delete), which swap instantly.
@@ -667,7 +668,7 @@ Spec 015: the card list inside collection pages, the holding grid, and the add/e
 - **Open:** the trigger's border turns role-primary. Esc closes the list only; a click outside closes it.
 
 ### Check
-`.check`: a label wrapping a visually restyled native checkbox. An 18px box, 1px `border`, 4px radius; checked adds a 10px inner square in role-primary. No ✓ glyph. A 44px target, focus ring from the base styles.
+`.check`: a label wrapping a visually restyled native checkbox. An 18px box, 1px `border`, 4px radius; checked adds a 10px inner square in role-primary. No ✓ glyph. A 44px target, focus ring from the base styles. Disabled is opacity .5 with `not-allowed`, like buttons.
 
 ### Decks
 The deck area (spec 009): a list of deck fans, a header-only deck page, and the page change between them (Motion, "Decks page change").

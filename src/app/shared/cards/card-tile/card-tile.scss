@@ -1,0 +1,217 @@
+:host {
+  position: relative;
+  display: block;
+  // Off-screen tiles skip layout and paint (research R16). Paint containment would clip the hover
+  // growth, halo, overlay and dust, so it is lifted while any of them can show.
+  content-visibility: auto;
+  contain-intrinsic-size: auto 10rem auto 14.5rem;
+}
+
+:host(.live),
+:host(:hover),
+:host(:focus-within) {
+  content-visibility: visible;
+}
+
+:host(:hover),
+:host(:focus-within) {
+  z-index: 10;
+}
+
+.tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  isolation: isolate;
+  transition: transform var(--duration-base) var(--ease-standard);
+
+  &:is(button) {
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.halo,
+.border {
+  position: absolute;
+  background: var(--tile-border);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--ease-standard);
+  animation: spin-angle 6s linear infinite;
+  z-index: -1;
+}
+
+.border {
+  inset: -1px;
+  border-radius: 7px;
+}
+
+.halo {
+  inset: -5px;
+  border-radius: 12px;
+  filter: blur(7px);
+}
+
+.art {
+  position: relative;
+  display: block;
+  border-radius: 6px;
+  box-shadow: var(--shadow-rest);
+  transition:
+    box-shadow var(--duration-base) var(--ease-standard),
+    border-radius 0.32s var(--ease-standard);
+
+  &.has-plate {
+    border-radius: 6px 6px 0 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  border: 1px solid var(--color-border);
+  border-radius: inherit;
+  background: var(--color-surface);
+  object-fit: contain;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  background: linear-gradient(var(--color-surface-raised), var(--color-surface));
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  text-align: center;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+}
+
+// "Com detalhes": the plate is in flow and opens as a row, pushing the rows below it.
+.plate-wrap {
+  position: relative;
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.32s var(--ease-standard),
+    opacity 0.32s var(--ease-standard),
+    margin-top 0.32s var(--ease-standard);
+
+  &.is-open {
+    grid-template-rows: 1fr;
+    margin-top: -1px;
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.plate-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.details-plate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: 0 0 6px 6px;
+  background: var(--color-surface);
+}
+
+// "Só imagens": the plate fades in below the card without moving the grid.
+.overlay {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  margin-top: -1px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--ease-standard);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+}
+
+.meta {
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+.qty {
+  margin-left: auto;
+  font-weight: 700;
+}
+
+.tile:hover,
+.tile:focus-visible {
+  transform: scale(1.08);
+
+  .border {
+    opacity: 1;
+  }
+
+  .halo {
+    opacity: 0.45;
+  }
+
+  .art {
+    box-shadow:
+      0 14px 30px rgba(0, 0, 0, 0.65),
+      0 4px 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .overlay {
+    opacity: 1;
+  }
+}
+
+.dust {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.speck {
+  position: absolute;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 4px 1px var(--c);
+  opacity: 0;
+  animation: spark 3.6s var(--ease-standard) var(--delay) 1 both;
+}

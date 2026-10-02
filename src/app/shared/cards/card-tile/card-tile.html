@@ -1,0 +1,66 @@
+@if (interactive()) {
+  <button type="button" class="tile" [attr.aria-label]="label()" (click)="activate.emit()">
+    <ng-container *ngTemplateOutlet="body" />
+  </button>
+} @else {
+  <div class="tile" role="img" [attr.aria-label]="label()">
+    <ng-container *ngTemplateOutlet="body" />
+  </div>
+}
+
+<ng-template #body>
+  <span class="halo" aria-hidden="true"></span>
+  <span class="border" aria-hidden="true"></span>
+  <span class="art" [class.has-plate]="details() && detailsMode() === 'shown'">
+    @if (card().imageUrl; as src) {
+      <img class="image" [src]="src" alt="" loading="lazy" decoding="async" />
+    } @else {
+      <span class="image placeholder" aria-hidden="true">{{ card().name }}</span>
+    }
+  </span>
+  @if (details(); as d) {
+    <span class="plate-wrap" [class.is-open]="detailsMode() === 'shown'" aria-hidden="true">
+      <span class="plate-clip">
+        <span class="details-plate">
+          <ng-container *ngTemplateOutlet="plateBody; context: { $implicit: d }" />
+        </span>
+      </span>
+    </span>
+    @if (detailsMode() === 'hover') {
+      <span class="details-plate overlay" aria-hidden="true">
+        <ng-container *ngTemplateOutlet="plateBody; context: { $implicit: d }" />
+      </span>
+    }
+  }
+  <span class="dust" aria-hidden="true">
+    @for (speck of specks(); track speck.id) {
+      <span
+        class="speck"
+        [style.left.%]="speck.x"
+        [style.top.%]="speck.y"
+        [style.--dx.px]="speck.dx"
+        [style.--dy.px]="speck.dy"
+        [style.--c]="speck.color"
+        [style.--delay.s]="speck.delay"
+        [style.width.px]="speck.size"
+        [style.height.px]="speck.size"
+        (animationend)="speckEnded(speck.id)"
+      ></span>
+    }
+  </span>
+</ng-template>
+
+<ng-template #plateBody let-d>
+  <span class="line">
+    <span class="set">{{ d.set }} · {{ d.number }}</span>
+    <span class="meta">{{ d.finish }} · {{ d.language }} · {{ d.condition }}</span>
+  </span>
+  <span class="line">
+    @if (d.forSale) {
+      <span class="micro-label">{{ copy.forSale }}</span>
+    } @else {
+      <span></span>
+    }
+    <span class="qty">{{ copy.quantity(d.quantity) }}</span>
+  </span>
+</ng-template>

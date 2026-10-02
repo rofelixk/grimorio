@@ -98,7 +98,7 @@ describe('entity services load() isolation', () => {
     const before = cards.changeCount();
     const added = cards.add(mockCardEntryWithoutId());
     cards.update(added.id, { quantity: 2 });
-    cards.remove(added.id);
+    cards.mergeInto(added.id, 1);
     expect(cards.changeCount()).toBe(before + 3);
 
     cards.applySyncResult([added]);

@@ -55,7 +55,9 @@ function cardRow(card: CardEntry) {
     for_sale: card.forSale,
     image_url: card.imageUrl,
     faces: card.faces ?? null,
+    artist: card.artist ?? null,
     notes: card.notes ?? null,
+    added_at: card.addedAt,
     updated_at: card.updatedAt,
   };
 }

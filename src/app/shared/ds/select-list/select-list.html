@@ -1,0 +1,55 @@
+<button
+  #trigger
+  type="button"
+  class="field__input trigger"
+  aria-haspopup="listbox"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="open() ? id + '-popup' : null"
+  [attr.aria-label]="label()"
+  [disabled]="disabled()"
+  (click)="toggle()"
+  (keydown)="onTriggerKeydown($event)"
+>
+  <span class="trigger-face">
+    @if (triggerTemplate(); as tpl) {
+      <ng-container *ngTemplateOutlet="tpl.template; context: { $implicit: selected() }" />
+    }
+  </span>
+  <span class="chevron" aria-hidden="true"></span>
+</button>
+@if (open()) {
+  <div
+    #popup
+    class="popup"
+    tabindex="-1"
+    [id]="id + '-popup'"
+    [attr.role]="emptyTemplate() ? null : 'listbox'"
+    [attr.aria-label]="emptyTemplate() ? null : label()"
+    [attr.aria-activedescendant]="emptyTemplate() ? null : activeId()"
+    (keydown)="onPopupKeydown($event)"
+    (click)="onPopupClick($event)"
+    (pointermove)="onPopupPointerMove($event)"
+  >
+    @if (emptyTemplate(); as empty) {
+      <ng-container *ngTemplateOutlet="empty.template" />
+    } @else {
+      @for (option of options(); track key()(option); let i = $index) {
+        <div
+          class="option"
+          role="option"
+          [id]="id + '-opt-' + i"
+          [class.is-selected]="i === selectedIndex()"
+          [class.is-active]="i === activeIndex()"
+          [attr.aria-selected]="i === selectedIndex()"
+          [attr.data-index]="i"
+        >
+          @if (optionTemplate(); as tpl) {
+            <ng-container
+              *ngTemplateOutlet="tpl.template; context: { $implicit: option, active: i === activeIndex() }"
+            />
+          }
+        </div>
+      }
+    }
+  </div>
+}

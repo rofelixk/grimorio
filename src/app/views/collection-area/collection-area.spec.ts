@@ -474,7 +474,7 @@ describe('CollectionArea', () => {
       await seed('p1', tree, [card('h1', 'gone')]);
       const { harness, router, cards } = await setUp('/collection/caixa');
       expect(router.url).toBe('/collection/caixa');
-      cards.remove('h1');
+      cards.applySyncResult([]);
       await settle(harness);
       expect(router.url).toBe('/collection');
       expect(harness.routeNativeElement!.querySelector('.holding-tag')).toBeNull();

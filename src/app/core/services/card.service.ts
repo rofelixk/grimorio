@@ -7,9 +7,10 @@ import {
   currentDbHandle,
   getAllFromStore,
   getTombstonesFor,
-  putTombstone,
   replaceStore,
   setActiveProfileDb,
+  writeRows,
+  type RowOp,
 } from '../db/entity-store';
 import { CrossTabService } from './cross-tab.service';
 import { SaveQueueService } from './save-queue.service';
@@ -20,9 +21,27 @@ export class CardService {
   readonly cards = this.cardsSignal.asReadonly();
 
   private readonly changeCountSignal = signal(0);
-  // Bumped by user mutations (add/addMany/update/remove), never by applySyncResult — feeds
+  // Bumped by user mutations (add/update/mergeInto), never by applySyncResult — feeds
   // the automatic-sync debounce (R11).
   readonly changeCount = this.changeCountSignal.asReadonly();
+
+  // Every card by its location (a collection or deck id), each list newest-added first (R8).
+  // One pass, so a page reads its cards without scanning the whole profile.
+  readonly byLocation = computed<ReadonlyMap<string, readonly CardEntry[]>>(() => {
+    const map = new Map<string, CardEntry[]>();
+    for (const card of this.cardsSignal()) {
+      const list = map.get(card.locationId);
+      if (list) {
+        list.push(card);
+      } else {
+        map.set(card.locationId, [card]);
+      }
+    }
+    for (const list of map.values()) {
+      list.sort((a, b) => b.addedAt.localeCompare(a.addedAt) || a.id.localeCompare(b.id));
+    }
+    return map;
+  });
 
   private readyPromise: Promise<void> = Promise.resolve();
   private loadGeneration = 0;
@@ -89,52 +108,59 @@ export class CardService {
     );
   }
 
-  add(card: Omit<CardEntry, 'id' | 'updatedAt'>): CardEntry {
-    const entry: CardEntry = { ...card, id: crypto.randomUUID(), updatedAt: new Date().toISOString() };
-    this.cardsSignal.update((cards) => {
-      const next = [...cards, entry];
-      this.persist(next);
-      return next;
-    });
+  // Queues one per-row transaction with the profile it targets, announcing 'cards' once it lands.
+  private save(ops: RowOp[]): void {
+    const handle = currentDbHandle();
+    const profileId = boundProfileId();
+    this.queue.enqueue(
+      () => writeRows(ops, handle),
+      () => this.crossTab.announce('cards', profileId),
+    );
+  }
+
+  // Stamps id, updatedAt and addedAt (one instant): callers never pass them (FR-020/FR-021).
+  add(card: Omit<CardEntry, 'id' | 'updatedAt' | 'addedAt'>): CardEntry {
+    const now = new Date().toISOString();
+    const entry: CardEntry = { ...card, id: crypto.randomUUID(), addedAt: now, updatedAt: now };
+    this.cardsSignal.update((cards) => [...cards, entry]);
+    this.save([{ store: 'cards', put: entry }]);
     this.changeCountSignal.update((n) => n + 1);
     return entry;
   }
 
-  addMany(cards: Omit<CardEntry, 'id' | 'updatedAt'>[]): CardEntry[] {
+  // Edits a row in place: restamps updatedAt, never addedAt, and never moves it.
+  update(id: string, patch: Partial<Omit<CardEntry, 'id' | 'addedAt' | 'updatedAt' | 'locationId'>>): void {
+    const current = this.cardsSignal().find((card) => card.id === id);
+    if (!current) {
+      return;
+    }
+    const updated: CardEntry = { ...current, ...patch, updatedAt: new Date().toISOString() };
+    this.cardsSignal.update((cards) => cards.map((card) => (card.id === id ? updated : card)));
+    this.save([{ store: 'cards', put: updated }]);
+    this.changeCountSignal.update((n) => n + 1);
+  }
+
+  // Adds `addQuantity` to the target row (FR-015). With `removeId`, that row is deleted in the same
+  // transaction and tombstoned (the edit merge, FR-019). `addedAt` is never touched.
+  mergeInto(targetId: string, addQuantity: number, removeId?: string): void {
+    const target = this.cardsSignal().find((card) => card.id === targetId);
+    if (!target) {
+      return;
+    }
     const now = new Date().toISOString();
-    const entries = cards.map((card) => ({ ...card, id: crypto.randomUUID(), updatedAt: now }));
-    this.cardsSignal.update((existing) => {
-      const next = [...existing, ...entries];
-      this.persist(next);
-      return next;
-    });
-    this.changeCountSignal.update((n) => n + 1);
-    return entries;
-  }
-
-  update(id: string, patch: Partial<CardEntry>): void {
-    this.cardsSignal.update((cards) => {
-      const next = cards.map((card) =>
-        card.id === id ? { ...card, ...patch, updatedAt: new Date().toISOString() } : card,
+    const merged: CardEntry = { ...target, quantity: target.quantity + addQuantity, updatedAt: now };
+    const ops: RowOp[] = [{ store: 'cards', put: merged }];
+    if (removeId !== undefined) {
+      ops.push(
+        { store: 'cards', delete: removeId },
+        { store: 'tombstones', put: { key: `cards:${removeId}`, entity: 'cards', id: removeId, deletedAt: now } },
       );
-      this.persist(next);
-      return next;
-    });
+    }
+    this.cardsSignal.update((cards) =>
+      cards.filter((card) => card.id !== removeId).map((card) => (card.id === targetId ? merged : card)),
+    );
+    this.save(ops);
     this.changeCountSignal.update((n) => n + 1);
-  }
-
-  remove(id: string): void {
-    this.cardsSignal.update((cards) => {
-      const next = cards.filter((card) => card.id !== id);
-      this.persist(next);
-      return next;
-    });
-    this.addTombstone(id);
-    this.changeCountSignal.update((n) => n + 1);
-  }
-
-  byId(id: string) {
-    return computed(() => this.cards().find((card) => card.id === id));
   }
 
   // Signal-only, no persist, no changeCount bump: CollectionService calls these together
@@ -167,10 +193,5 @@ export class CardService {
   applySyncResult(merged: CardEntry[]): void {
     this.cardsSignal.set(merged);
     this.persist(merged);
-  }
-
-  private addTombstone(id: string): void {
-    const handle = currentDbHandle();
-    this.queue.enqueue(() => putTombstone('cards', { id, deletedAt: new Date().toISOString() }, handle));
   }
 }

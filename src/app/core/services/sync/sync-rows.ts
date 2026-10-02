@@ -24,7 +24,9 @@ export interface CardEntryRow {
   for_sale: boolean;
   image_url: string;
   faces: CardFace[] | null;
+  artist: string | null;
   notes: string | null;
+  added_at: string;
   updated_at: string;
 }
 
@@ -68,7 +70,9 @@ export function cardToRow(card: CardEntry, userId: string): CardEntryRow {
     for_sale: card.forSale,
     image_url: card.imageUrl,
     faces: card.faces ?? null,
+    artist: card.artist ?? null,
     notes: card.notes ?? null,
+    added_at: card.addedAt,
     updated_at: card.updatedAt,
   };
 }
@@ -95,7 +99,9 @@ export function cardFromRow(row: CardEntryRow): CardEntry {
     forSale: row.for_sale,
     imageUrl: row.image_url,
     faces: row.faces ?? undefined,
+    artist: row.artist ?? undefined,
     notes: row.notes ?? undefined,
+    addedAt: new Date(row.added_at).toISOString(),
     updatedAt: row.updated_at,
   };
 }

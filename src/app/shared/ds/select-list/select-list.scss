@@ -1,0 +1,80 @@
+:host {
+  position: relative;
+  display: block;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: left;
+  cursor: pointer;
+
+  &[aria-expanded='true'] {
+    border-color: var(--role-primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.trigger-face {
+  flex: 1;
+  min-width: 0;
+}
+
+// A 7px square with two borders, rotated: no glyph (DESIGN.md "Select list").
+.chevron {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-right: var(--space-1);
+  border-right: 1px solid var(--color-text-muted);
+  border-bottom: 1px solid var(--color-text-muted);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--duration-fast) var(--ease-standard);
+
+  .trigger[aria-expanded='true'] & {
+    transform: translateY(2px) rotate(-135deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.popup {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-raised) var(--color-surface);
+  border: 1px solid var(--role-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--glow-plate-hover);
+  outline: none;
+}
+
+.option {
+  display: block;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard);
+
+  &.is-selected {
+    background: var(--color-surface-raised);
+  }
+
+  &.is-active {
+    outline: 1px solid var(--role-primary);
+    outline-offset: -1px;
+  }
+}

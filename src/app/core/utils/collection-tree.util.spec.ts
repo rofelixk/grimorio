@@ -7,6 +7,7 @@ import {
   computeStats,
   defaultColor,
   depthOf,
+  firstLeaf,
   normalizeName,
   repairCollectionTree,
   subtreeIds,
@@ -113,6 +114,38 @@ describe('subtreeIds', () => {
       ['root', 'child1', 'child2', 'grandchild'].sort(),
     );
     expect(subtreeIds('child2', childrenOf)).toEqual(['child2']);
+  });
+});
+
+describe('firstLeaf', () => {
+  const tree = buildChildrenOf([
+    makeCollection({ id: 'root', name: 'Raiz' }),
+    makeCollection({ id: 'zed', name: 'Zed', parentId: 'root' }),
+    makeCollection({ id: 'alpha', name: 'Alfa', parentId: 'root' }),
+    makeCollection({ id: 'deep', name: 'Fundo', parentId: 'alpha' }),
+    makeCollection({ id: 'deeper', name: 'Ainda mais', parentId: 'deep' }),
+    makeCollection({ id: 'lone', name: 'Sozinha' }),
+  ]);
+
+  it('returns the collection itself when it has no children', () => {
+    expect(firstLeaf('lone', tree)).toBe('lone');
+  });
+
+  it('goes to the alphabetically first child', () => {
+    expect(firstLeaf('deep', tree)).toBe('deeper');
+  });
+
+  it('descends through several levels', () => {
+    expect(firstLeaf('root', tree)).toBe('deeper');
+  });
+
+  it('picks the first child by name, not by insertion', () => {
+    const flat = buildChildrenOf([
+      makeCollection({ id: 'p', name: 'P' }),
+      makeCollection({ id: 'b', name: 'Bravo', parentId: 'p' }),
+      makeCollection({ id: 'a', name: 'Alfa', parentId: 'p' }),
+    ]);
+    expect(firstLeaf('p', flat)).toBe('a');
   });
 });
 

@@ -3,6 +3,8 @@
   class="dialog"
   data-grm
   data-theme-scope
+  [class.size-wide]="size() === 'wide'"
+  [class.size-split]="size() === 'split'"
   [attr.aria-labelledby]="labelledBy()"
   [style.--theme-primary]="roles().primary"
   [style.--theme-primary-hover]="roles().primaryHover"
@@ -44,4 +46,5 @@
       </div>
     </div>
   </div>
+  <app-toast-outlet [active]="true" />
 </dialog>

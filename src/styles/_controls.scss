@@ -142,6 +142,59 @@
   color: var(--color-danger);
 }
 
+// ── Check ───────────────────────────────────────────────────────────────────
+// A label wrapping a native checkbox (kept focusable and announced), restyled: an 18px box, a
+// 10px role-primary square when checked, no ✓ glyph.
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  cursor: pointer;
+
+  input {
+    appearance: none;
+    flex: none;
+    display: grid;
+    place-content: center;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    cursor: inherit;
+    transition: border-color var(--duration-fast) var(--ease-standard);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+
+    &::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--role-primary);
+      transform: scale(0);
+    }
+
+    &:checked::before {
+      transform: scale(1);
+    }
+
+    &:hover:not(:disabled),
+    &:checked {
+      border-color: var(--role-primary);
+    }
+  }
+
+  &:has(input:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 // ── Info plate, labels, divider ─────────────────────────────────────────────
 .plate {
   display: flex;
