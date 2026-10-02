@@ -1,0 +1,226 @@
+@use 'breakpoints' as bp;
+
+:host {
+  display: contents;
+}
+
+// Two panes inside the split modal: the printing on the left, the ownership fields on the right.
+.modal {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  min-height: 0;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  border-right: 1px solid var(--color-border);
+  background: var(--wash-header, var(--color-surface));
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--touch-target) var(--space-6) var(--space-6);
+  min-width: 0;
+}
+
+.image {
+  aspect-ratio: 5 / 7;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--color-surface);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: var(--space-3);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.plate--error {
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+}
+
+.printing-loading {
+  text-align: left;
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.printing-face {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.thumb {
+  flex: none;
+  width: 28px;
+  aspect-ratio: 5 / 7;
+  border-radius: var(--radius-sm);
+  object-fit: contain;
+  background: var(--color-surface);
+}
+
+.option-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.option-artist {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.set-none {
+  margin: 0;
+  padding: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-right: var(--touch-target);
+}
+
+.name {
+  margin: 0;
+  font: 600 var(--font-size-xl) / var(--line-height-tight) var(--font-display);
+  text-shadow: var(--glow-title);
+  overflow-wrap: anywhere;
+}
+
+.type-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.artist {
+  text-align: right;
+}
+
+// A single 1px rule, not `.divider` (handoff C2).
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.notes {
+  grid-column: 1 / -1;
+}
+
+.foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+// Phone: one full-bleed column in a fixed order, the panes dissolved into it.
+@include bp.mobile {
+  .modal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .left,
+  .right {
+    display: contents;
+  }
+
+  .head {
+    order: 1;
+    padding-right: 0;
+  }
+
+  .image {
+    order: 2;
+    align-self: center;
+    width: min(200px, 100%);
+  }
+
+  .left > .plate--error {
+    order: 2;
+  }
+
+  .set-filter {
+    order: 3;
+  }
+
+  .printing {
+    order: 4;
+  }
+
+  .fields {
+    order: 5;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .foot {
+    order: 6;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}

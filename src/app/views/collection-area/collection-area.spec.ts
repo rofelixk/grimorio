@@ -1,14 +1,18 @@
+import type { Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NavigationEnd, Router, provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import type { CardEntry } from '@models/card.model';
+import type { CatalogCard } from '@models/catalog.model';
 import type { Collection, CollectionColorHex } from '@models/collection.model';
+import { CardCatalogService } from '@services/card-catalog.service';
 import { CardService } from '@services/card.service';
 import { CardViewModeService } from '@services/card-view-mode.service';
 import { CollectionService } from '@services/collection.service';
 import { ToastService } from '@services/toast.service';
 import { mockCardEntry } from '@testing/card.mocks';
 import { stubDialog } from '@testing/dialog';
+import { installIntersectionObserver, restoreIntersectionObserver } from '@testing/intersection-observer';
 import { SWEEP_MS, SweepLoop } from '@shared/effects/page-sweep/sweep-loop';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { collectionMatcher } from '../../app.routes';
@@ -50,10 +54,13 @@ async function seed(profileId: string, collections: Collection[], cards: CardEnt
   ]);
 }
 
-async function setUp(url: string, media: Media = {}) {
+async function setUp(url: string, media: Media = {}, extra: Provider[] = []) {
   stubMedia(media);
   TestBed.configureTestingModule({
-    providers: [provideRouter([{ matcher: collectionMatcher, component: CollectionArea }], withComponentInputBinding())],
+    providers: [
+      provideRouter([{ matcher: collectionMatcher, component: CollectionArea }], withComponentInputBinding()),
+      ...extra,
+    ],
   });
   const cards = TestBed.inject(CardService);
   const collections = TestBed.inject(CollectionService);
@@ -409,6 +416,106 @@ describe('CollectionArea', () => {
       expect(router.url).toBe('/collection/azuis');
       expect(text(el.querySelector('h1'))).toBe('Azuis e verdes');
       expect(el.querySelector('[aria-current="page"]')?.textContent).toBe('Azuis e verdes');
+    });
+  });
+
+  describe('add cards', () => {
+    let restore: () => void;
+    beforeEach(() => {
+      restore = stubDialog();
+      installIntersectionObserver();
+    });
+    afterEach(() => {
+      TestBed.resetTestingModule();
+      restoreIntersectionObserver();
+      restore();
+    });
+
+    const solRing: CatalogCard = {
+      oracleId: 'o-sol',
+      name: 'Sol Ring',
+      typeLine: 'Artifact',
+      colorIdentity: [],
+      imageUrl: null,
+    };
+    const catalog = {
+      search: () => Promise.resolve({ cards: [solRing], hasMore: false }),
+      detail: () =>
+        Promise.resolve({
+          ...solRing,
+          oracleText: '{T}: Add {C}{C}.',
+          commanderLegality: 'legal',
+          cardFaces: null,
+          printings: [
+            {
+              scryfallId: 'sf-sol',
+              setCode: 'CMD',
+              setName: 'Commander 2011',
+              collectorNumber: '1',
+              rarity: 'uncommon',
+              lang: 'en',
+              releasedAt: '2011-06-17',
+              imageUrl: null,
+              imageSmall: null,
+              artist: null,
+              faces: null,
+            },
+          ],
+        }),
+    };
+    const withCatalog: Provider[] = [{ provide: CardCatalogService, useValue: catalog }];
+
+    it('opens the search with the name field focused from the list bar and from the empty plate', async () => {
+      await seed('p1', tree, treeCards);
+      for (const url of ['/collection/trocas', '/collection/album']) {
+        const { el, harness } = await setUp(url, {}, withCatalog);
+        const button = el.querySelector<HTMLButtonElement>('.add-btn, .choice-btn')!;
+        expect(button.disabled).toBe(false);
+        button.click();
+        await settle(harness);
+        expect(el.querySelector('app-card-search-modal')).not.toBeNull();
+        expect(document.activeElement).toBe(el.querySelector('app-card-search-modal input'));
+        TestBed.resetTestingModule();
+      }
+    });
+
+    it('adds a card: it lands first in the grid and the summary goes up', async () => {
+      await seed('p1', tree, treeCards);
+      const { el, harness } = await setUp('/collection/trocas', {}, withCatalog);
+      expect(text(el.querySelector('.summary'))).toBe('240 cartas · 239 à venda');
+
+      el.querySelector<HTMLButtonElement>('.add-btn')!.click();
+      await settle(harness);
+      const field = el.querySelector<HTMLInputElement>('app-card-search-modal input')!;
+      field.value = 'sol ring';
+      field.dispatchEvent(new Event('input'));
+      await wait(300);
+      await settle(harness);
+
+      el.querySelector<HTMLButtonElement>('app-card-search-modal app-card-tile button')!.click();
+      await settle(harness);
+      const save = [...el.querySelectorAll<HTMLButtonElement>('app-card-modal .actions button')].find(
+        (b) => text(b) === 'Salvar',
+      )!;
+      expect(save.disabled).toBe(false);
+      save.click();
+      await settle(harness);
+
+      const names = [...el.querySelectorAll('app-card-grid .tile')].map((t) => t.getAttribute('aria-label')!.split(',')[0]);
+      expect(names[0]).toBe('Sol Ring');
+      expect(names).toHaveLength(3);
+      expect(text(el.querySelector('.summary'))).toBe('241 cartas · 239 à venda');
+      expect(el.querySelector('app-card-search-modal')).toBeNull();
+      expect(el.querySelector('app-card-modal')).toBeNull();
+    });
+
+    it('offers no add action on a parent collection or the holding box', async () => {
+      await seed('p1', tree, [...treeCards, mockCardEntry({ id: 'h1', locationId: 'gone' })]);
+      for (const url of ['/collection/fich', '/collection/caixa']) {
+        const { el } = await setUp(url, {}, withCatalog);
+        expect(el.querySelector('.add-btn, .choice-btn')).toBeNull();
+        TestBed.resetTestingModule();
+      }
     });
   });
 

@@ -5,11 +5,15 @@ import { HOLDING_REF, MAX_DEPTH, colorOf, type Collection } from '@models/collec
 import { CardService } from '@services/card.service';
 import { CardViewModeService } from '@services/card-view-mode.service';
 import { CollectionService } from '@services/collection.service';
+import { IdentityService } from '@services/identity.service';
 import { ShellState } from '@services/shell-state.service';
 import { ToastService } from '@services/toast.service';
 import { MOBILE_QUERY, mediaQuerySignal } from '@shared/ds/media-query';
 import { CardGrid } from '@shared/cards/card-grid/card-grid';
+import { CardModal } from '@shared/cards/card-modal/card-modal';
+import { CardSearchModal } from '@shared/cards/card-search-modal/card-search-modal';
 import { CardViewToggle } from '@shared/cards/card-view-toggle/card-view-toggle';
+import { MovedNotice } from '@shared/cards/moved-notice/moved-notice';
 import {
   CollectionDeleteDialog,
   type CollectionDeleted,
@@ -25,6 +29,7 @@ import { COLLECTION, formatCount } from '@utils/collection-copy';
 import { type CollectionPlace, COLLECTION_PAGES } from '@utils/collection-pages.util';
 import { subtreeIds } from '@utils/collection-tree.util';
 import { NO_SWEEP_INFO } from '@utils/page-change.util';
+import { CardFlow } from './card-flow';
 
 const collectionId = (place: CollectionPlace | null) => (place?.kind === 'collection' ? place.id : null);
 
@@ -38,7 +43,10 @@ const collectionId = (place: CollectionPlace | null) => (place?.kind === 'collec
   selector: 'app-collection-area',
   imports: [
     CardGrid,
+    CardModal,
+    CardSearchModal,
     CardViewToggle,
+    MovedNotice,
     CollectionDeleteDialog,
     CollectionFormDialog,
     CollectionRow,
@@ -48,6 +56,7 @@ const collectionId = (place: CollectionPlace | null) => (place?.kind === 'collec
     PageSweep,
     RouterLink,
   ],
+  providers: [CardFlow],
   styleUrl: './collection-area.scss',
   templateUrl: './collection-area.html',
 })
@@ -62,6 +71,8 @@ export class CollectionArea {
 
   private readonly cardService = inject(CardService);
   protected readonly viewMode = inject(CardViewModeService);
+  protected readonly flow = inject(CardFlow);
+  protected readonly roles = inject(IdentityService).roles;
 
   protected readonly copy = COLLECTION;
   protected readonly card = CARD;

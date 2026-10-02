@@ -1,0 +1,165 @@
+<app-compact-modal [roles]="roles()" size="split" [labelledBy]="titleId" (closed)="closed.emit()">
+  <form class="modal" novalidate (submit)="submit(false, $event)">
+    <div class="left">
+      @if (detailState() === 'failed') {
+        <div class="plate plate--error">
+          <p>{{ copy.failed }}</p>
+          <button type="button" class="btn btn--secondary" (click)="load()">{{ copy.retry }}</button>
+        </div>
+      } @else {
+        <div class="image">
+          @if (image(); as src) {
+            <img [src]="src" alt="" decoding="async" />
+          } @else {
+            <span class="placeholder" aria-hidden="true">{{ identity()?.name }}</span>
+          }
+        </div>
+
+        <div class="field set-filter">
+          <label class="field__label" [for]="setFilterId">{{ copy.setFilter }}</label>
+          <input
+            class="field__input"
+            type="text"
+            autocomplete="off"
+            [id]="setFilterId"
+            [placeholder]="copy.setFilterPlaceholder"
+            [disabled]="detailState() !== 'ready'"
+            [value]="setFilter()"
+            (input)="setFilter.set($any($event.target).value)"
+          />
+        </div>
+
+        <div class="field printing">
+          <span class="field__label">{{ copy.printing }}</span>
+          @if (detailState() === 'ready' && selectedPrinting(); as selected) {
+            <app-select-list
+              [options]="printings()"
+              [selected]="selected"
+              (selectedChange)="selectPrinting($event)"
+              [key]="printingKey"
+              [label]="copy.printing"
+            >
+              <ng-template appSelectTrigger let-item>
+                <span class="printing-face">{{ copy.printingOption(item.setName, item.setCode, item.collectorNumber) }}</span>
+              </ng-template>
+              <ng-template appSelectOption let-item>
+                <span class="option-row">
+                  @if (item.imageSmall ?? item.imageUrl; as thumb) {
+                    <img class="thumb" [src]="thumb" alt="" loading="lazy" decoding="async" />
+                  } @else {
+                    <span class="thumb" aria-hidden="true"></span>
+                  }
+                  <span class="option-text">
+                    <span>{{ copy.printingOption(item.setName, item.setCode, item.collectorNumber) }}</span>
+                    @if (item.artist) {
+                      <span class="option-artist">{{ item.artist }}</span>
+                    }
+                  </span>
+                </span>
+              </ng-template>
+              @if (noSetMatch()) {
+                <ng-template appSelectEmpty>
+                  <p class="set-none">{{ copy.setNone }}</p>
+                </ng-template>
+              }
+            </app-select-list>
+          } @else {
+            <button
+              type="button"
+              class="field__input printing-loading"
+              aria-disabled="true"
+              data-autofocus
+              [attr.aria-label]="copy.printing"
+            >
+              {{ copy.printingsLoading }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="right">
+      <div class="head">
+        <span class="eyebrow">{{ mode() === 'add' ? copy.eyebrowAdd : copy.eyebrowEdit }}</span>
+        <h2 class="name" [id]="titleId">{{ identity()?.name }}</h2>
+        <p class="type-row">
+          <span>{{ identity()?.typeLine }}</span>
+          @if (artist(); as name) {
+            <span class="artist">{{ name }}</span>
+          }
+        </p>
+      </div>
+
+      <div class="fields">
+        <div class="field">
+          <label class="field__label" [for]="finishId">{{ copy.finish }}</label>
+          <select class="field__input" [id]="finishId" (change)="finish.set($any($event.target).value)">
+            @for (option of finishes; track option.value) {
+              <option [value]="option.value" [selected]="option.value === finish()">{{ option.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label" [for]="languageId">{{ copy.language }}</label>
+          <select class="field__input" [id]="languageId" (change)="language.set($any($event.target).value)">
+            @for (option of languages; track option.code) {
+              <option [value]="option.code" [selected]="option.code === language()">{{ option.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label" [for]="conditionId">{{ copy.condition }}</label>
+          <select class="field__input" [id]="conditionId" (change)="condition.set($any($event.target).value)">
+            @for (option of conditions; track option.value) {
+              <option [value]="option.value" [selected]="option.value === condition()">{{ option.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label" [for]="quantityId">{{ copy.quantityLabel }}</label>
+          <input
+            class="field__input"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            [id]="quantityId"
+            [value]="quantityText()"
+            [attr.aria-invalid]="quantityValid() ? null : true"
+            [attr.aria-describedby]="quantityValid() ? null : quantityErrorId"
+            (input)="quantityText.set($any($event.target).value)"
+          />
+          @if (!quantityValid()) {
+            <span class="field__error" [id]="quantityErrorId">{{ copy.quantityError }}</span>
+          }
+        </div>
+        <div class="field notes">
+          <label class="field__label" [for]="notesId">{{ copy.notes }}</label>
+          <textarea
+            class="field__input"
+            rows="2"
+            [id]="notesId"
+            [placeholder]="copy.notesPlaceholder"
+            [value]="notes()"
+            (input)="notes.set($any($event.target).value)"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="foot">
+        <label class="check">
+          <input type="checkbox" [checked]="forSale()" (change)="forSale.set($any($event.target).checked)" />
+          <span>{{ copy.forSale }}</span>
+        </label>
+        <div class="actions">
+          <button type="button" class="btn btn--ghost" (click)="closed.emit()">{{ copy.cancel }}</button>
+          @if (mode() === 'add') {
+            <button type="button" class="btn btn--secondary" [disabled]="!canSave()" (click)="submit(true)">
+              {{ copy.saveAgain }}
+            </button>
+          }
+          <button type="submit" class="btn btn--primary" [disabled]="!canSave()">{{ copy.save }}</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</app-compact-modal>

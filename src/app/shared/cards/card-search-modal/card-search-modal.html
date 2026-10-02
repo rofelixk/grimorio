@@ -1,0 +1,79 @@
+<app-compact-modal [roles]="roles()" size="wide" [labelledBy]="titleId" (closed)="closed.emit()">
+  <div class="search">
+    <h2 class="title" [id]="titleId">{{ copy.searchTitle }}</h2>
+
+    <div class="field">
+      <label class="field__label" [for]="inputId">{{ copy.nameLabel }}</label>
+      <input
+        #field
+        class="field__input"
+        type="text"
+        autocomplete="off"
+        data-autofocus
+        [id]="inputId"
+        [placeholder]="copy.namePlaceholder"
+        [attr.aria-describedby]="helpId"
+        (input)="onInput($any($event.target).value)"
+      />
+      <span class="field__helper" [id]="helpId">{{ copy.nameHelp }}</span>
+    </div>
+
+    <div #area class="results">
+      @switch (state().status) {
+        @case ('idle') {
+          <p class="message">{{ copy.idle }}</p>
+        }
+        @case ('short') {
+          <p class="message">{{ copy.short }}</p>
+        }
+        @case ('loading') {
+          <div class="grid" aria-hidden="true">
+            @for (n of placeholders; track n) {
+              <span class="skeleton"></span>
+            }
+          </div>
+          <p class="message micro-label">{{ copy.loading }}</p>
+        }
+        @case ('empty') {
+          <p class="message">{{ copy.empty(state().text) }}</p>
+        }
+        @case ('offline') {
+          <div class="plate plate--error">
+            <p>{{ copy.offline }}</p>
+            <button type="button" class="btn btn--secondary" (click)="retry()">{{ copy.retry }}</button>
+          </div>
+        }
+        @case ('failed') {
+          <div class="plate plate--error">
+            <p>{{ copy.failed }}</p>
+            <button type="button" class="btn btn--secondary" (click)="retry()">{{ copy.retry }}</button>
+          </div>
+        }
+        @case ('ok') {
+          <div class="grid">
+            @for (card of state().results; track card.oracleId) {
+              <app-card-tile
+                [card]="card"
+                [interactive]="true"
+                [label]="copy.resultLabel(card.name, card.typeLine)"
+                (activate)="pick.emit(card)"
+              />
+            }
+          </div>
+          @if (state().loadingMore) {
+            <p class="message">{{ copy.loadingMore }}</p>
+          }
+          @if (state().moreFailed) {
+            <div class="plate plate--error">
+              <p>{{ copy.moreFailed }}</p>
+              <button type="button" class="btn btn--secondary" (click)="retryMore()">{{ copy.retry }}</button>
+            </div>
+          }
+          <div #sentinel class="sentinel" aria-hidden="true"></div>
+        }
+      }
+    </div>
+
+    <p class="visually-hidden" role="status" aria-live="polite">{{ announcement() }}</p>
+  </div>
+</app-compact-modal>

@@ -175,7 +175,9 @@
                 @if (p.kind === 'cards') {
                   <div class="list-bar">
                     <app-card-view-toggle [mode]="viewMode.mode()" (modeChange)="viewMode.set($event)" />
-                    <button type="button" class="btn btn--primary add-btn" disabled>{{ card.add }}</button>
+                    <button type="button" class="btn btn--primary add-btn" (click)="flow.openSearch(collection.id)">
+                      {{ card.add }}
+                    </button>
                   </div>
                 }
               </div>
@@ -208,7 +210,9 @@
                     <div class="plate choice">
                       <span class="choice-title">{{ card.keepCards }}</span>
                       <p class="muted-copy">{{ card.keepCardsCopy }}</p>
-                      <button type="button" class="btn btn--primary choice-btn" disabled>{{ card.add }}</button>
+                      <button type="button" class="btn btn--primary choice-btn" (click)="flow.openSearch(collection.id)">
+                        {{ card.add }}
+                      </button>
                     </div>
                     @if (p.depth < maxDepth) {
                       <div class="plate choice">
@@ -301,4 +305,26 @@
 
 @if (del(); as d) {
   <app-collection-delete-dialog [collectionId]="d.id" (closed)="del.set(null)" (deleted)="onDeleted($event)" />
+}
+
+@let step = flow.step();
+@if (step.kind === 'search' || step.kind === 'add' || step.kind === 'moved') {
+  <app-card-search-modal
+    [roles]="roles()"
+    [underneath]="step.kind !== 'search'"
+    (pick)="flow.pick($event)"
+    (closed)="flow.close()"
+  />
+}
+@if (step.kind === 'add') {
+  <app-card-modal
+    mode="add"
+    [catalogCard]="step.card"
+    [collectionName]="collections.byId().get(step.collectionId)?.name ?? ''"
+    (save)="flow.save($event.draft, $event.again)"
+    (closed)="flow.cancel()"
+  />
+}
+@if (step.kind === 'moved') {
+  <app-moved-notice [card]="step.card" [from]="step.from" [to]="step.to" (closed)="flow.dismissMoved()" />
 }

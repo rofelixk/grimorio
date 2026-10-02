@@ -1,0 +1,20 @@
+<app-compact-modal [roles]="roles()" [locked]="true" [labelledBy]="titleId">
+  <div class="notice">
+    <div class="heading">
+      <h2 class="title" [id]="titleId">{{ copy.movedTitle }}</h2>
+      <p class="subtitle">{{ copy.movedCopy(from().name, to().name) }}</p>
+    </div>
+
+    <div class="plate card-row">
+      <span class="info">
+        <span class="name">{{ card().name }}</span>
+        <span class="meta">{{ details() }}</span>
+      </span>
+      <span class="micro-label">{{ to().name }}</span>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn--primary" data-autofocus (click)="closed.emit()">{{ copy.ok }}</button>
+    </div>
+  </div>
+</app-compact-modal>
