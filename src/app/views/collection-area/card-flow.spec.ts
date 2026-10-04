@@ -156,6 +156,116 @@ describe('CardFlow', () => {
     expect(cards.cards()).toEqual([]);
   });
 
+  describe('duplicates', () => {
+    function own(locationId: string, quantity = 3) {
+      const { canBeCommander, ...rest } = draft({ quantity });
+      return cards.add({ ...rest, canBeCommander: canBeCommander ?? false, locationId });
+    }
+
+    function duplicateStep() {
+      const step = flow.step();
+      if (step.kind !== 'duplicate') throw new Error(`expected duplicate, got ${step.kind}`);
+      return step;
+    }
+
+    it('opens the notice with nothing saved when the card matches an owned row', () => {
+      const a = make('Fichário');
+      const existing = own(a.id);
+      toBeDraftingIn(a.id);
+      flow.save(draft(), false);
+
+      const step = duplicateStep();
+      expect(step.matches.map((m) => m.card.id)).toEqual([existing.id]);
+      expect(step.destination.id).toBe(a.id);
+      expect(cards.cards().length).toBe(1);
+    });
+
+    it('merge grows the existing row and adds none', () => {
+      const a = make('Fichário');
+      const existing = own(a.id);
+      toBeDraftingIn(a.id);
+      flow.save(draft(), false);
+      flow.decide('merge', duplicateStep().matches[0]);
+
+      expect(cards.cards().length).toBe(1);
+      expect(cards.cards()[0]).toMatchObject({ id: existing.id, quantity: 5, addedAt: existing.addedAt });
+      expect(toasts.toast()).toMatchObject({ label: 'Carta adicionada', text: 'Sol Ring ×2 em “Fichário”.' });
+      expect(flow.step()).toEqual({ kind: 'idle' });
+    });
+
+    it('separate adds a second row; with save-again the search stays open', () => {
+      const a = make('Fichário');
+      own(a.id);
+      toBeDraftingIn(a.id);
+      flow.save(draft(), true);
+      flow.decide('separate', duplicateStep().matches[0]);
+
+      expect(cards.cards().length).toBe(2);
+      expect(cards.cards().every((c) => c.locationId === a.id)).toBe(true);
+      expect(flow.step()).toEqual({ kind: 'search', collectionId: a.id });
+    });
+
+    it('cancel goes back to the card modal and saves nothing', () => {
+      const a = make('Fichário');
+      own(a.id);
+      toBeDraftingIn(a.id);
+      flow.save(draft(), false);
+      flow.cancel();
+
+      expect(flow.step()).toEqual({ kind: 'add', collectionId: a.id, card: picked });
+      expect(cards.cards().length).toBe(1);
+    });
+
+    it('a match outside collections (a deck, the holding box) saves without a notice', () => {
+      const a = make('Fichário');
+      own('deck-1');
+      toBeDraftingIn(a.id);
+      flow.save(draft(), false);
+
+      expect(flow.step()).toEqual({ kind: 'idle' });
+      expect(cards.cards().length).toBe(2);
+    });
+
+    it('a card saved twice in a row warns the second time', () => {
+      const a = make('Fichário');
+      toBeDraftingIn(a.id);
+      flow.save(draft(), true);
+      flow.pick(picked);
+      flow.save(draft(), true);
+      expect(duplicateStep().matches.length).toBe(1);
+    });
+
+    it('with matches in two collections, the destination comes first and merge grows only the chosen row', () => {
+      const a = make('Fichário');
+      const b = make('Arquivo');
+      const inB = own(b.id, 7);
+      const inA = own(a.id, 3);
+      toBeDraftingIn(a.id);
+      flow.save(draft(), false);
+
+      const step = duplicateStep();
+      expect(step.matches.map((m) => m.card.id)).toEqual([inA.id, inB.id]);
+      flow.decide('merge', step.matches[1]);
+
+      const byId = new Map(cards.cards().map((c) => [c.id, c.quantity]));
+      expect(byId.get(inA.id)).toBe(3);
+      expect(byId.get(inB.id)).toBe(9);
+      expect(toasts.toast()?.text).toBe('Sol Ring ×2 em “Arquivo”.');
+    });
+
+    it('closes the notice when the collection is deleted meanwhile', async () => {
+      const a = make('Fichário');
+      own(a.id);
+      toBeDraftingIn(a.id);
+      flow.save(draft(), false);
+      await collections.remove(a.id, 'delete');
+      TestBed.tick();
+
+      expect(flow.step()).toEqual({ kind: 'idle' });
+      expect(toasts.toast()?.label).toBe('Nada foi salvo');
+    });
+  });
+
   it('never starts a sync', () => {
     const syncNow = vi.spyOn(sync, 'syncNow');
     const a = make('Fichário');

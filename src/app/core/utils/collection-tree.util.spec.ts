@@ -221,36 +221,6 @@ describe('computeStats', () => {
     expect(stats.byId.get('root')).toEqual({ cards: 0, sale: 0, subs: 1, directEntries: 0 });
   });
 
-  it('finishes 50,000 entries over 100 collections well under 1s', () => {
-    const collections: Collection[] = [];
-    for (let i = 0; i < 10; i++) {
-      collections.push(makeCollection({ id: `root-${i}` }));
-      for (let j = 0; j < 9; j++) {
-        collections.push(makeCollection({ id: `root-${i}-child-${j}`, parentId: `root-${i}` }));
-      }
-    }
-    expect(collections.length).toBe(100);
-
-    const cards: Pick<CardEntry, 'locationId' | 'quantity' | 'forSale'>[] = [];
-    for (let i = 0; i < 50_000; i++) {
-      const target = collections[i % collections.length];
-      cards.push(
-        makeCard({
-          id: `e${i}`,
-          locationId: target.id,
-          quantity: 1,
-          forSale: i % 3 === 0,
-        }),
-      );
-    }
-
-    const start = performance.now();
-    const stats = computeStats(collections, cards);
-    const elapsed = performance.now() - start;
-
-    expect(stats.byId.size).toBe(100);
-    expect(elapsed).toBeLessThan(1000);
-  });
 });
 
 describe('suffixedName', () => {

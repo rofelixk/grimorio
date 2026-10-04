@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import type { CatalogCardDetail, CatalogPrinting } from '@models/catalog.model';
+import type { Collection } from '@models/collection.model';
+import { mockCardEntry } from '@testing/card.mocks';
 import {
   canBeCommander,
   detailsLine,
   entryFromPrinting,
   filterPrintings,
+  findMatches,
   initialPrinting,
+  matchKey,
   printingIdentity,
   sortPrintings,
   validateQuantity,
@@ -191,5 +195,62 @@ describe('detailsLine', () => {
   it('joins finish, language and condition', () => {
     expect(detailsLine({ finish: 'foil', language: 'en', condition: 'NM' })).toBe('Foil · EN · NM');
     expect(detailsLine({ finish: 'nonfoil', language: 'kr', condition: 'DMG' })).toBe('Normal · KO · DMG');
+  });
+});
+
+describe('matchKey', () => {
+  it('joins printing, finish, language and condition', () => {
+    expect(matchKey(mockCardEntry({ scryfallId: 's9', finish: 'foil', language: 'jp', condition: 'LP' }))).toBe(
+      's9|foil|jp|LP',
+    );
+  });
+});
+
+describe('findMatches', () => {
+  const collection = (id: string, name: string): Collection => ({
+    id,
+    name,
+    color: '#d8cdb0',
+    parentId: null,
+    updatedAt: '2026-01-01T00:00:00.000Z',
+  });
+  const byId = new Map([
+    ['dest', collection('dest', 'Zebra')],
+    ['a', collection('a', 'Árvore')],
+    ['b', collection('b', 'Bolsa')],
+  ]);
+  const pathName = (id: string) => byId.get(id)!.name;
+  const key = matchKey(mockCardEntry());
+
+  it('ignores deck and holding-box rows', () => {
+    const cards = [mockCardEntry({ id: 'in-deck', locationId: 'deck-1' }), mockCardEntry({ id: 'loose', locationId: 'gone' })];
+    expect(findMatches(cards, key, byId, 'dest', pathName)).toEqual([]);
+  });
+
+  it('ignores rows with another finish, language, condition or printing', () => {
+    const cards = [
+      mockCardEntry({ id: 'f', locationId: 'a', finish: 'foil' }),
+      mockCardEntry({ id: 'l', locationId: 'a', language: 'pt' }),
+      mockCardEntry({ id: 'c', locationId: 'a', condition: 'MP' }),
+      mockCardEntry({ id: 's', locationId: 'a', scryfallId: 'other' }),
+    ];
+    expect(findMatches(cards, key, byId, 'dest', pathName)).toEqual([]);
+  });
+
+  it('leaves out the edited row', () => {
+    const cards = [mockCardEntry({ id: 'me', locationId: 'a' }), mockCardEntry({ id: 'other', locationId: 'b' })];
+    expect(findMatches(cards, key, byId, 'dest', pathName, 'me').map((m) => m.card.id)).toEqual(['other']);
+  });
+
+  it('orders the destination first, then PT-BR path name, then quantity desc; one entry per row', () => {
+    const cards = [
+      mockCardEntry({ id: 'b1', locationId: 'b', quantity: 1 }),
+      mockCardEntry({ id: 'a1', locationId: 'a', quantity: 1 }),
+      mockCardEntry({ id: 'a5', locationId: 'a', quantity: 5 }),
+      mockCardEntry({ id: 'd1', locationId: 'dest', quantity: 1 }),
+    ];
+    const matches = findMatches(cards, key, byId, 'dest', pathName);
+    expect(matches.map((m) => m.card.id)).toEqual(['d1', 'a5', 'a1', 'b1']);
+    expect(matches[1].collection).toBe(byId.get('a'));
   });
 });

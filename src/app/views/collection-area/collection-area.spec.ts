@@ -128,6 +128,7 @@ describe('CollectionArea', () => {
       await cards.load('p2');
       await collections.load('p2');
       await settle(harness);
+      console.log('DEBUG url', TestBed.inject(Router).url, collections.collections().length, cards.cards().length);
       expect(names()).toEqual(['Dela']);
     });
 

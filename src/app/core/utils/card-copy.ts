@@ -114,6 +114,7 @@ export const CARD = {
     `A quantidade desta carta é somada à outra linha (${formatCount(n)} → ${formatCount(n + q)} cópias), e esta linha deixa de existir.`,
   separate: 'Adicionar como linha separada',
   separateSub: (collection: string) => `Cria uma nova linha em “${collection}”.`,
+  separateSubMany: (collection: string) => `Cria uma nova linha em “${collection}”, a coleção que você está usando.`,
   keep: 'Manter as duas linhas',
   continue: 'Continuar',
 

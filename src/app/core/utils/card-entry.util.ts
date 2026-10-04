@@ -10,6 +10,7 @@ import {
   type CardFinish,
 } from '@models/card.model';
 import type { CatalogCardDetail, CatalogPrinting } from '@models/catalog.model';
+import type { Collection } from '@models/collection.model';
 import { FINISH_NAMES } from './card-copy';
 import { searchKey } from './card-search.util';
 
@@ -148,6 +149,50 @@ export function validateQuantity(text: string): QuantityResult {
   }
   const value = Number(text);
   return value >= 1 && value <= MAX_QUANTITY ? { ok: true, value } : { ok: false };
+}
+
+/** Two rows are the same card when printing, finish, language and condition agree (FR-015). */
+export function matchKey(card: Pick<CardEntry, 'scryfallId' | 'finish' | 'language' | 'condition'>): string {
+  return `${card.scryfallId}|${card.finish}|${card.language}|${card.condition}`;
+}
+
+export interface CardMatch {
+  card: CardEntry;
+  collection: Collection;
+}
+
+/**
+ * The rows of a collection matching `key` (R9): deck and holding-box rows never match, `excludeId`
+ * (the edited row) is left out. Rows in the destination come first, then by their collection's
+ * path name in PT-BR order, then by quantity, largest first. One entry per row.
+ */
+export function findMatches(
+  cards: readonly CardEntry[],
+  key: string,
+  collectionsById: ReadonlyMap<string, Collection>,
+  destinationId: string,
+  pathName: (id: string) => string,
+  excludeId?: string,
+): CardMatch[] {
+  const matches: CardMatch[] = [];
+  for (const card of cards) {
+    const collection = collectionsById.get(card.locationId);
+    if (collection && card.id !== excludeId && matchKey(card) === key) {
+      matches.push({ card, collection });
+    }
+  }
+  const names = new Map(matches.map((m) => [m.collection.id, pathName(m.collection.id)]));
+  return matches.sort((a, b) => {
+    const inA = a.collection.id === destinationId;
+    const inB = b.collection.id === destinationId;
+    if (inA !== inB) {
+      return inA ? -1 : 1;
+    }
+    return (
+      names.get(a.collection.id)!.localeCompare(names.get(b.collection.id)!, 'pt-BR') ||
+      b.card.quantity - a.card.quantity
+    );
+  });
 }
 
 /** "Foil · EN · NM". */

@@ -13,6 +13,7 @@ import { CardGrid } from '@shared/cards/card-grid/card-grid';
 import { CardModal } from '@shared/cards/card-modal/card-modal';
 import { CardSearchModal } from '@shared/cards/card-search-modal/card-search-modal';
 import { CardViewToggle } from '@shared/cards/card-view-toggle/card-view-toggle';
+import { DuplicateNotice } from '@shared/cards/duplicate-notice/duplicate-notice';
 import { MovedNotice } from '@shared/cards/moved-notice/moved-notice';
 import {
   CollectionDeleteDialog,
@@ -46,6 +47,7 @@ const collectionId = (place: CollectionPlace | null) => (place?.kind === 'collec
     CardModal,
     CardSearchModal,
     CardViewToggle,
+    DuplicateNotice,
     MovedNotice,
     CollectionDeleteDialog,
     CollectionFormDialog,
@@ -152,6 +154,7 @@ export class CollectionArea {
       if (!this.missing()) return;
       const place = this.routed();
       untracked(() => {
+        console.log('DEBUG redirect', JSON.stringify(place), this.collections.collections().length);
         const del = this.del();
         const inDeleted = place.kind === 'collection' && del?.subtree.has(place.id) && del.parentId;
         void this.router.navigate(inDeleted ? ['/collection', del!.parentId] : ['/collection'], {

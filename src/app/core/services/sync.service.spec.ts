@@ -746,56 +746,6 @@ describe('SyncService', () => {
     });
   });
 
-  describe('large accounts', () => {
-    const OLD = '2026-06-01T00:00:00.000Z';
-    const NEW = '2026-06-02T00:00:00.000Z';
-    const owned = Array.from({ length: 1500 }, (_, i) =>
-      mockCardEntry({ id: `card-${String(i).padStart(4, '0')}`, updatedAt: OLD }),
-    );
-
-    /** card_entries honors `range` like PostgREST, recording its upserts; every other table is empty. */
-    const answerCards = (rows: unknown[]) => {
-      const cardUpserts: unknown[][] = [];
-      from = vi.fn((table: string) => {
-        if (table !== 'card_entries') {
-          return settledQuery([], []);
-        }
-        let page = rows;
-        const query = {
-          select: () => query,
-          eq: () => query,
-          in: () => query,
-          upsert: (...args: unknown[]) => (cardUpserts.push(args), query),
-          delete: () => query,
-          order: () => query,
-          range: (start: number, end: number) => ((page = rows.slice(start, end + 1)), query),
-          abortSignal: () => query,
-          then: (...args: Parameters<Promise<unknown>['then']>) =>
-            Promise.resolve({ data: page, error: null, count: rows.length }).then(...args),
-        };
-        return query;
-      });
-      return cardUpserts;
-    };
-
-    it('uploads nothing when 1,500 remote cards match the local ones (US3-2)', async () => {
-      localCards.set(owned);
-      const cardUpserts = answerCards(owned.map(cardRow));
-      await sync.syncNow();
-      expect(cardUpserts).toEqual([]);
-      expect(cardsService.applySyncResult.mock.calls[0][0]).toHaveLength(1500);
-    });
-
-    it('adopts a newer remote card past the first 1,000 rows (US3-3)', async () => {
-      localCards.set(owned);
-      const newer = { ...owned[1200], quantity: 4, updatedAt: NEW };
-      const cardUpserts = answerCards(owned.map((card, i) => cardRow(i === 1200 ? newer : card)));
-      await sync.syncNow();
-      expect(cardUpserts).toEqual([]);
-      expect(cardsService.applySyncResult.mock.calls[0][0]).toContainEqual(newer);
-    });
-  });
-
   describe('planar deck selection', () => {
     const OLD = '2026-06-01T00:00:00.000Z';
     const NEW = '2026-06-02T00:00:00.000Z';

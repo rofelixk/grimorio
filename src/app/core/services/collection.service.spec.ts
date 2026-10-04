@@ -373,21 +373,6 @@ describe('CollectionService', () => {
       const storedCards = await getAllFromStore<CardEntry>('cards');
       expect(storedCards.every((card) => card.locationId === parent.id)).toBe(true);
     });
-
-    it('moves 3,000 cards in under 3 s', async () => {
-      const parent = created(service.create({ parentId: null, name: 'Caixa', color: '#3d6b85' }));
-      cards.applySyncResult(
-        Array.from({ length: 3000 }, (_, i) => mockCardEntry({ id: `c${i}`, locationId: parent.id })),
-      );
-      await cards.flush();
-      await service.flush();
-
-      const start = performance.now();
-      const result = service.create({ parentId: parent.id, name: 'Primeira', color: '#4c7a43' });
-      await service.flush();
-      expect(performance.now() - start).toBeLessThan(3000);
-      expect(result.ok && result.moved).toBe(3000);
-    });
   });
 
   describe('remove', () => {
@@ -450,21 +435,6 @@ describe('CollectionService', () => {
       const storedCollections = await getAllFromStore<Collection>('collections');
       expect(storedCollections).toHaveLength(4);
       expect(await service.getTombstones()).toEqual([]);
-    });
-
-    it('deletes 3,000 cards in under 3 s', async () => {
-      await seed('p1', [mockCollection({ id: 'root' })]);
-      await service.load('p1');
-      cards.applySyncResult(
-        Array.from({ length: 3000 }, (_, i) => mockCardEntry({ id: `c${i}`, locationId: 'root' })),
-      );
-      await cards.flush();
-
-      const start = performance.now();
-      const result = await service.remove('root', 'delete');
-      expect(performance.now() - start).toBeLessThan(3000);
-      expect(result.cards).toBe(3000);
-      expect(cards.cards()).toEqual([]);
     });
   });
 

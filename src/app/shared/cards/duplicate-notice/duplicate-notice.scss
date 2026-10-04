@@ -1,0 +1,73 @@
+@use '../../collections/dialog';
+@use '../../collections/choices';
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.choice.selected {
+  box-shadow: var(--glow-plate-hover);
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.edited {
+  padding: 0 var(--space-3);
+}
+
+.info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.qty {
+  flex: none;
+  font-weight: 700;
+}
+
+.thumb {
+  flex: none;
+  width: 36px;
+  aspect-ratio: 5 / 7;
+  border-radius: 3px;
+  object-fit: contain;
+  background: var(--color-surface);
+}
+
+.thumb--small {
+  width: 22px;
+}
+
+.where-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.where-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

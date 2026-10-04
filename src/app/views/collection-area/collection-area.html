@@ -308,7 +308,7 @@
 }
 
 @let step = flow.step();
-@if (step.kind === 'search' || step.kind === 'add' || step.kind === 'moved') {
+@if (step.kind === 'search' || step.kind === 'add' || step.kind === 'duplicate' || step.kind === 'moved') {
   <app-card-search-modal
     [roles]="roles()"
     [underneath]="step.kind !== 'search'"
@@ -316,12 +316,22 @@
     (closed)="flow.close()"
   />
 }
-@if (step.kind === 'add') {
+@if (step.kind === 'add' || step.kind === 'duplicate') {
   <app-card-modal
     mode="add"
     [catalogCard]="step.card"
     [collectionName]="collections.byId().get(step.collectionId)?.name ?? ''"
     (save)="flow.save($event.draft, $event.again)"
+    (closed)="flow.cancel()"
+  />
+}
+@if (step.kind === 'duplicate') {
+  <app-duplicate-notice
+    [mode]="step.mode"
+    [draft]="step.draft"
+    [matches]="step.matches"
+    [destination]="step.destination"
+    (decide)="flow.decide($event.choice, $event.match)"
     (closed)="flow.cancel()"
   />
 }

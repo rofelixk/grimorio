@@ -1,0 +1,106 @@
+<app-compact-modal [roles]="roles()" [labelledBy]="titleId" (closed)="closed.emit()">
+  <div class="notice">
+    <div class="heading">
+      <h2 class="title" [id]="titleId">{{ title() }}</h2>
+      <p class="subtitle" [id]="subtitleId">{{ subtitle() }}</p>
+    </div>
+
+    @if (mode() === 'edit') {
+      <div class="card-row edited">
+        <span class="info">
+          <span class="name">{{ draft().name }}</span>
+          <span class="meta">{{ draftLine() }}</span>
+        </span>
+        <span class="qty">{{ copy.quantity(draft().quantity) }}</span>
+      </div>
+    }
+
+    @if (many()) {
+      <div class="field">
+        <span class="field__label" aria-hidden="true">{{ copy.where }}</span>
+        <app-select-list [options]="matches()" [(selected)]="match" [key]="matchKey" [label]="copy.where">
+          <ng-template appSelectTrigger let-item>
+            <span class="where-row">
+              <span class="where-name">{{ item.collection.name }}</span>
+              <span class="qty">{{ copy.quantity(item.card.quantity) }}</span>
+            </span>
+          </ng-template>
+          <ng-template appSelectOption let-item>
+            <span class="where-row">
+              @if (item.card.imageUrl) {
+                <img class="thumb thumb--small" [src]="item.card.imageUrl" alt="" loading="lazy" decoding="async" />
+              } @else {
+                <span class="thumb thumb--small" aria-hidden="true"></span>
+              }
+              <span class="where-name">{{ item.collection.name }}</span>
+              <span class="qty">{{ copy.quantity(item.card.quantity) }}</span>
+            </span>
+          </ng-template>
+        </app-select-list>
+      </div>
+    } @else {
+      <div class="plate card-row match">
+        @if (match().card.imageUrl) {
+          <img class="thumb" [src]="match().card.imageUrl" alt="" decoding="async" />
+        } @else {
+          <span class="thumb" aria-hidden="true"></span>
+        }
+        <span class="info">
+          <span class="name">{{ match().card.name }}</span>
+          <span class="meta">{{ matchLine() }}</span>
+          <span class="micro-label">{{ match().collection.name }}</span>
+        </span>
+        <span class="qty">{{ copy.quantity(match().card.quantity) }}</span>
+      </div>
+    }
+
+    <div
+      class="choices"
+      role="radiogroup"
+      [attr.aria-labelledby]="subtitleId"
+      [appRovingRadios]="radioIndex()"
+      (radioMove)="pickIndex($event)"
+    >
+      <button
+        type="button"
+        class="choice"
+        role="radio"
+        data-choice="merge"
+        data-autofocus
+        [class.selected]="radio() === 'merge'"
+        [attr.aria-checked]="radio() === 'merge'"
+        [attr.tabindex]="radio() === 'merge' ? 0 : -1"
+        (click)="radio.set('merge')"
+      >
+        <span class="indicator" aria-hidden="true"></span>
+        <span class="choice-text">
+          <span class="choice-title">{{ copy.merge }}</span>
+          <span class="choice-sub">{{ mergeSub() }}</span>
+        </span>
+      </button>
+      <button
+        type="button"
+        class="choice"
+        role="radio"
+        data-choice="other"
+        [class.selected]="radio() === 'other'"
+        [attr.aria-checked]="radio() === 'other'"
+        [attr.tabindex]="radio() === 'other' ? 0 : -1"
+        (click)="radio.set('other')"
+      >
+        <span class="indicator" aria-hidden="true"></span>
+        <span class="choice-text">
+          <span class="choice-title">{{ otherTitle() }}</span>
+          @if (otherSub(); as sub) {
+            <span class="choice-sub">{{ sub }}</span>
+          }
+        </span>
+      </button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn--ghost" (click)="closed.emit()">{{ copy.cancel }}</button>
+      <button type="button" class="btn btn--primary" (click)="confirm()">{{ copy.continue }}</button>
+    </div>
+  </div>
+</app-compact-modal>
