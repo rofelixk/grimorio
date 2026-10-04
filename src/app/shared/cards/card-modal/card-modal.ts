@@ -34,6 +34,7 @@ import {
   canBeCommander,
   filterPrintings,
   initialPrinting,
+  printingFromEntry,
   printingIdentity,
   validateQuantity,
   type OwnershipFields,
@@ -57,7 +58,9 @@ let nextId = 0;
 
 // The add / edit card modal (ui.md §2.5, FR-010–FR-014): the printing on the left (image, set filter,
 // printing list), the ownership fields on the right. Add mode loads the card's printings from the
-// catalog; until they arrive the fields are usable but nothing can be saved.
+// catalog; until they arrive the fields are usable but nothing can be saved. Edit mode shows the
+// owned card's own printing at once and loads the list in the background; without it (offline)
+// only the printing can't change (R13).
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-card-modal',
@@ -107,15 +110,19 @@ export class CardModal implements OnInit {
   protected readonly notes = signal('');
   protected readonly forSale = signal(false);
 
-  /** The picked search result's identity, available before the printings load. */
-  protected readonly identity = computed(() => this.catalogCard());
+  /** The card's identity, available before the printings load: the picked result, or the owned card. */
+  protected readonly identity = computed(() => this.catalogCard() ?? this.card());
   protected readonly palette = computed(() => cardPalette(this.identity()?.colorIdentity ?? []));
   protected readonly roles = computed(() => this.palette().roles);
 
+  /** Until the list loads (or when it can't), an edit offers only the current printing. */
   protected readonly printings = computed(() => {
     const detail = this.detail();
     const selected = this.selectedPrinting();
-    return detail && selected ? filterPrintings(detail.printings, this.setFilter(), selected.scryfallId) : [];
+    if (!selected) {
+      return [];
+    }
+    return detail ? filterPrintings(detail.printings, this.setFilter(), selected.scryfallId) : [selected];
   });
   protected readonly noSetMatch = computed(() => this.detailState() === 'ready' && this.printings().length === 0);
   protected readonly artist = computed(() => this.selectedPrinting()?.artist ?? null);
@@ -128,15 +135,28 @@ export class CardModal implements OnInit {
 
   protected readonly quantityValid = computed(() => validateQuantity(this.quantityText()).ok);
   protected readonly canSave = computed(
-    () => this.detailState() === 'ready' && this.selectedPrinting() !== null && this.quantityValid(),
+    () =>
+      (this.mode() === 'edit' || this.detailState() === 'ready') &&
+      this.selectedPrinting() !== null &&
+      this.quantityValid(),
   );
 
   ngOnInit(): void {
+    const card = this.card();
+    if (this.mode() === 'edit' && card) {
+      this.selectedPrinting.set(printingFromEntry(card));
+      this.finish.set(card.finish);
+      this.language.set(card.language);
+      this.condition.set(card.condition);
+      this.quantityText.set(String(card.quantity));
+      this.notes.set(card.notes ?? '');
+      this.forSale.set(card.forSale);
+    }
     void this.load();
   }
 
   protected async load(): Promise<void> {
-    const oracleId = this.catalogCard()?.oracleId;
+    const oracleId = this.identity()?.oracleId;
     if (!oracleId) {
       return;
     }
@@ -147,8 +167,13 @@ export class CardModal implements OnInit {
         throw new Error('no printings');
       }
       const hadFocus = this.host.contains(document.activeElement) && this.loadingTrigger() === document.activeElement;
+      const current = this.selectedPrinting();
       this.detail.set(detail);
-      this.selectedPrinting.set(initialPrinting(detail.printings));
+      this.selectedPrinting.set(
+        current
+          ? (detail.printings.find((printing) => printing.scryfallId === current.scryfallId) ?? current)
+          : initialPrinting(detail.printings),
+      );
       this.detailState.set('ready');
       if (hadFocus) {
         afterNextRender(() => this.host.querySelector<HTMLElement>('.printing app-select-list button')?.focus(), {
@@ -173,22 +198,59 @@ export class CardModal implements OnInit {
     const detail = this.detail();
     const printing = this.selectedPrinting();
     const quantity = validateQuantity(this.quantityText());
-    if (!this.canSave() || !detail || !printing || !quantity.ok) {
+    if (!this.canSave() || !printing || !quantity.ok) {
       return;
     }
     const notes = this.notes().trim();
+    const ownership: OwnershipFields = {
+      finish: this.finish(),
+      language: this.language(),
+      condition: this.condition(),
+      quantity: quantity.value,
+      forSale: this.forSale(),
+      notes: notes ? notes : undefined,
+    };
+    const card = this.card();
+    if (this.mode() === 'edit' && card) {
+      this.save.emit({ again: false, draft: { ...this.editIdentity(card, detail, printing), ...ownership } });
+      return;
+    }
+    if (!detail) {
+      return;
+    }
     this.save.emit({
       again,
       draft: {
         ...printingIdentity(detail, printing),
         canBeCommander: canBeCommander(detail.typeLine, detail.oracleText, detail.cardFaces),
-        finish: this.finish(),
-        language: this.language(),
-        condition: this.condition(),
-        quantity: quantity.value,
-        forSale: this.forSale(),
-        notes: notes ? notes : undefined,
+        ...ownership,
       },
     });
+  }
+
+  /**
+   * The owned card's identity, or the chosen printing's when it changed. `artist` and `faces` are
+   * always present so a patch clears what the new printing lacks.
+   */
+  private editIdentity(card: CardEntry, detail: CatalogCardDetail | null, printing: CatalogPrinting): PrintingFields {
+    if (detail && printing.scryfallId !== card.scryfallId) {
+      const identity = printingIdentity(detail, printing);
+      return { ...identity, artist: identity.artist };
+    }
+    return {
+      name: card.name,
+      scryfallId: card.scryfallId,
+      oracleId: card.oracleId,
+      setCode: card.setCode,
+      setName: card.setName,
+      collectorNumber: card.collectorNumber,
+      rarity: card.rarity,
+      commanderLegality: card.commanderLegality,
+      colorIdentity: card.colorIdentity,
+      typeLine: card.typeLine,
+      imageUrl: card.imageUrl,
+      faces: card.faces,
+      artist: card.artist,
+    };
   }
 }

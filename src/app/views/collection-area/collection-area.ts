@@ -154,7 +154,6 @@ export class CollectionArea {
       if (!this.missing()) return;
       const place = this.routed();
       untracked(() => {
-        console.log('DEBUG redirect', JSON.stringify(place), this.collections.collections().length);
         const del = this.del();
         const inDeleted = place.kind === 'collection' && del?.subtree.has(place.id) && del.parentId;
         void this.router.navigate(inDeleted ? ['/collection', del!.parentId] : ['/collection'], {

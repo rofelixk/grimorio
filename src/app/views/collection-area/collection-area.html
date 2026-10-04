@@ -203,7 +203,12 @@
                     <ng-container *ngTemplateOutlet="splitRow; context: { $implicit: p }" />
                     <ng-container *ngTemplateOutlet="searchRow" />
                   }
-                  <app-card-grid [cards]="p.cards" [mode]="viewMode.mode()" [editable]="false" />
+                  <app-card-grid
+                    [cards]="p.cards"
+                    [mode]="viewMode.mode()"
+                    [editable]="true"
+                    (edit)="flow.openEdit($event.id)"
+                  />
                 }
                 @case ('empty') {
                   <div class="choices">
@@ -308,7 +313,8 @@
 }
 
 @let step = flow.step();
-@if (step.kind === 'search' || step.kind === 'add' || step.kind === 'duplicate' || step.kind === 'moved') {
+@let adding = step.kind === 'add' || (step.kind === 'duplicate' && step.mode === 'add');
+@if (step.kind === 'search' || adding || step.kind === 'moved') {
   <app-card-search-modal
     [roles]="roles()"
     [underneath]="step.kind !== 'search'"
@@ -316,7 +322,7 @@
     (closed)="flow.close()"
   />
 }
-@if (step.kind === 'add' || step.kind === 'duplicate') {
+@if (step.kind === 'add' || (step.kind === 'duplicate' && step.mode === 'add')) {
   <app-card-modal
     mode="add"
     [catalogCard]="step.card"
@@ -324,6 +330,17 @@
     (save)="flow.save($event.draft, $event.again)"
     (closed)="flow.cancel()"
   />
+}
+@if (step.kind === 'edit' || (step.kind === 'duplicate' && step.mode === 'edit')) {
+  @if (flow.editedCard(); as edited) {
+    <app-card-modal
+      mode="edit"
+      [card]="edited"
+      [collectionName]="collections.byId().get(step.collectionId)?.name ?? ''"
+      (save)="flow.save($event.draft, false)"
+      (closed)="flow.cancel()"
+    />
+  }
 }
 @if (step.kind === 'duplicate') {
   <app-duplicate-notice

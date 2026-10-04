@@ -1,7 +1,7 @@
 <app-compact-modal [roles]="roles()" size="split" [labelledBy]="titleId" (closed)="closed.emit()">
   <form class="modal" novalidate (submit)="submit(false, $event)">
     <div class="left">
-      @if (detailState() === 'failed') {
+      @if (detailState() === 'failed' && mode() === 'add') {
         <div class="plate plate--error">
           <p>{{ copy.failed }}</p>
           <button type="button" class="btn btn--secondary" (click)="load()">{{ copy.retry }}</button>
@@ -31,7 +31,7 @@
 
         <div class="field printing">
           <span class="field__label">{{ copy.printing }}</span>
-          @if (detailState() === 'ready' && selectedPrinting(); as selected) {
+          @if ((mode() === 'edit' || detailState() === 'ready') && selectedPrinting(); as selected) {
             <app-select-list
               [options]="printings()"
               [selected]="selected"
@@ -60,6 +60,13 @@
               @if (noSetMatch()) {
                 <ng-template appSelectEmpty>
                   <p class="set-none">{{ copy.setNone }}</p>
+                </ng-template>
+              } @else if (detailState() === 'failed') {
+                <ng-template appSelectEmpty>
+                  <div class="printings-failed">
+                    <p>{{ copy.printingsFailed }}</p>
+                    <button type="button" class="btn btn--secondary" (click)="load()">{{ copy.retry }}</button>
+                  </div>
                 </ng-template>
               }
             </app-select-list>
@@ -93,7 +100,12 @@
       <div class="fields">
         <div class="field">
           <label class="field__label" [for]="finishId">{{ copy.finish }}</label>
-          <select class="field__input" [id]="finishId" (change)="finish.set($any($event.target).value)">
+          <select
+            class="field__input"
+            [id]="finishId"
+            [attr.data-autofocus]="mode() === 'edit' ? '' : null"
+            (change)="finish.set($any($event.target).value)"
+          >
             @for (option of finishes; track option.value) {
               <option [value]="option.value" [selected]="option.value === finish()">{{ option.name }}</option>
             }

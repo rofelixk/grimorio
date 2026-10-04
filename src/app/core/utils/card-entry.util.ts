@@ -120,6 +120,23 @@ export function printingIdentity(detail: CatalogCardDetail, printing: CatalogPri
   return identity;
 }
 
+/** The owned card's printing from its own copied fields, shown before (or without) the catalog list (R13). */
+export function printingFromEntry(card: CardEntry): CatalogPrinting {
+  return {
+    scryfallId: card.scryfallId,
+    setCode: card.setCode,
+    setName: card.setName,
+    collectorNumber: card.collectorNumber,
+    rarity: card.rarity,
+    lang: card.language,
+    releasedAt: null,
+    imageUrl: card.imageUrl || null,
+    imageSmall: null,
+    artist: card.artist ?? null,
+    faces: card.faces ?? null,
+  };
+}
+
 export function entryFromPrinting(
   detail: CatalogCardDetail,
   printing: CatalogPrinting,

@@ -10,6 +10,7 @@ import {
   findMatches,
   initialPrinting,
   matchKey,
+  printingFromEntry,
   printingIdentity,
   sortPrintings,
   validateQuantity,
@@ -153,6 +154,36 @@ describe('printingIdentity', () => {
     ];
     expect(printingIdentity(detail(), printing({ faces: two })).faces).toEqual(two);
     expect(printingIdentity(detail(), printing({ faces: [two[0], { name: 'Back', imageUrl: '' }] })).faces).toBeUndefined();
+  });
+});
+
+describe('printingFromEntry', () => {
+  it('builds the current printing from the owned card', () => {
+    const faces = [
+      { name: 'Front', imageUrl: 'https://img/f.jpg' },
+      { name: 'Back', imageUrl: 'https://img/b.jpg' },
+    ];
+    const card = mockCardEntry({ language: 'pt', artist: 'Christopher Rush', faces });
+    expect(printingFromEntry(card)).toEqual({
+      scryfallId: card.scryfallId,
+      setCode: 'LEA',
+      setName: 'Limited Edition Alpha',
+      collectorNumber: '161',
+      rarity: 'common',
+      lang: 'pt',
+      releasedAt: null,
+      imageUrl: card.imageUrl,
+      imageSmall: null,
+      artist: 'Christopher Rush',
+      faces,
+    });
+  });
+
+  it('gives null for a missing artist, faces or image', () => {
+    const p = printingFromEntry(mockCardEntry({ imageUrl: '' }));
+    expect(p.artist).toBeNull();
+    expect(p.faces).toBeNull();
+    expect(p.imageUrl).toBeNull();
   });
 });
 

@@ -125,10 +125,12 @@ describe('CollectionArea', () => {
       const names = () => [...el.querySelectorAll('app-card-grid .tile')].map((t) => t.getAttribute('aria-label')!.split(',')[0]);
       expect(names()).toEqual(['Minha']);
 
+      // load() empties the collections until p2's land, and a page whose collection is absent goes
+      // to the list (FR-006) if anything renders meanwhile, so the page is opened again after it.
       await cards.load('p2');
       await collections.load('p2');
+      await harness.navigateByUrl('/collection/trocas');
       await settle(harness);
-      console.log('DEBUG url', TestBed.inject(Router).url, collections.collections().length, cards.cards().length);
       expect(names()).toEqual(['Dela']);
     });
 
@@ -508,6 +510,31 @@ describe('CollectionArea', () => {
       expect(text(el.querySelector('.summary'))).toBe('241 cartas · 239 à venda');
       expect(el.querySelector('app-card-search-modal')).toBeNull();
       expect(el.querySelector('app-card-modal')).toBeNull();
+    });
+
+    it('a tile opens the edit modal; saving updates the tile in place and the summary', async () => {
+      // c3 differs in condition from every other row, so its edit matches none.
+      await seed('p1', tree, treeCards.map((c) => (c.id === 'c3' ? { ...c, condition: 'HP' as const } : c)));
+      const { el, harness } = await setUp('/collection/trocas', {}, withCatalog);
+      const tiles = () => [...el.querySelectorAll<HTMLButtonElement>('app-card-grid button.tile')];
+      expect(tiles()).toHaveLength(2);
+      const before = tiles().map((t) => t.getAttribute('aria-label'));
+      const index = before.findIndex((l) => !l!.includes('à venda'));
+
+      tiles()[index].click();
+      await settle(harness);
+      expect(el.querySelector('app-card-modal .eyebrow')?.textContent).toBe('Editar carta');
+      expect(el.querySelector('app-card-search-modal')).toBeNull();
+      const sale = el.querySelector<HTMLInputElement>('app-card-modal .check input')!;
+      sale.checked = true;
+      sale.dispatchEvent(new Event('change'));
+      [...el.querySelectorAll<HTMLButtonElement>('app-card-modal .actions button')].find((b) => text(b) === 'Salvar')!.click();
+      await settle(harness);
+
+      expect(el.querySelector('app-card-modal')).toBeNull();
+      expect(tiles()).toHaveLength(2);
+      expect(tiles()[index].getAttribute('aria-label')).toContain('à venda');
+      expect(text(el.querySelector('.summary'))).toBe('240 cartas · 240 à venda');
     });
 
     it('offers no add action on a parent collection or the holding box', async () => {

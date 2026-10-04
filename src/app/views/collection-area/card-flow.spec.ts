@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import type { CardEntry } from '@models/card.model';
 import type { CatalogCard } from '@models/catalog.model';
 import type { Collection } from '@models/collection.model';
 import { CardService } from '@services/card.service';
@@ -263,6 +264,122 @@ describe('CardFlow', () => {
 
       expect(flow.step()).toEqual({ kind: 'idle' });
       expect(toasts.toast()?.label).toBe('Nada foi salvo');
+    });
+  });
+
+  describe('edit', () => {
+    function own(locationId: string, over: Partial<CardDraft> = {}) {
+      const { canBeCommander, ...rest } = draft(over);
+      return cards.add({ ...rest, canBeCommander: canBeCommander ?? false, locationId });
+    }
+
+    /** What the edit modal emits: the card's fields with the changes, no canBeCommander. */
+    function editDraft(card: CardEntry, over: Partial<CardDraft> = {}): CardDraft {
+      const { id: _i, locationId: _l, addedAt: _a, updatedAt: _u, canBeCommander: _c, ...rest } = card;
+      void [_i, _l, _a, _u, _c];
+      return { ...rest, ...over };
+    }
+
+    it('opens the edit step on the card where it is', () => {
+      const a = make('Fichário');
+      const card = own(a.id);
+      flow.openEdit(card.id);
+      expect(flow.step()).toEqual({ kind: 'edit', collectionId: a.id, cardId: card.id });
+      expect(flow.editedCard()).toEqual(card);
+    });
+
+    it('a plain edit updates in place, keeps addedAt and the order, and toasts', async () => {
+      const a = make('Fichário');
+      const first = own(a.id, { scryfallId: 's-first' });
+      await new Promise((r) => setTimeout(r, 2));
+      const card = own(a.id);
+      await new Promise((r) => setTimeout(r, 2));
+      flow.openEdit(card.id);
+      flow.save(editDraft(card, { condition: 'HP', quantity: 4, forSale: true, notes: 'troca' }), false);
+
+      const updated = cards.cards().find((c) => c.id === card.id)!;
+      expect(updated).toMatchObject({ condition: 'HP', quantity: 4, forSale: true, notes: 'troca', locationId: a.id });
+      expect(updated.addedAt).toBe(card.addedAt);
+      expect(updated.updatedAt > card.updatedAt).toBe(true);
+      expect(cards.byLocation().get(a.id)!.map((c) => c.id)).toEqual([card.id, first.id]);
+      expect(cards.cards().length).toBe(2);
+      expect(toasts.toast()).toMatchObject({ label: 'Carta atualizada', text: 'Sol Ring foi atualizada.' });
+      expect(flow.step()).toEqual({ kind: 'idle' });
+    });
+
+    it('a printing change replaces the identity fields', () => {
+      const a = make('Fichário');
+      const card = own(a.id, { artist: 'Old' });
+      flow.openEdit(card.id);
+      flow.save(editDraft(card, { scryfallId: 's2', setCode: 'LEA', collectorNumber: '9', artist: undefined }), false);
+      const updated = cards.cards().find((c) => c.id === card.id)!;
+      expect(updated).toMatchObject({ scryfallId: 's2', setCode: 'LEA', collectorNumber: '9' });
+      expect(updated.artist).toBeUndefined();
+    });
+
+    it('an edit into a match opens the edit notice; merge removes the edited row and grows the other', async () => {
+      const a = make('Fichário');
+      const other = own(a.id, { condition: 'NM', quantity: 5 });
+      const card = own(a.id, { condition: 'LP', quantity: 2 });
+      flow.openEdit(card.id);
+      flow.save(editDraft(card, { condition: 'NM' }), false);
+
+      const step = flow.step();
+      if (step.kind !== 'duplicate' || step.mode !== 'edit') throw new Error('expected the edit notice');
+      expect(step.matches.map((m) => m.card.id)).toEqual([other.id]);
+      flow.decide('merge', step.matches[0]);
+
+      expect(cards.cards().map((c) => [c.id, c.quantity])).toEqual([[other.id, 7]]);
+      await cards.flush();
+      expect((await cards.getTombstones()).map((t) => t.id)).toEqual([card.id]);
+      expect(toasts.toast()?.label).toBe('Carta atualizada');
+      expect(flow.step()).toEqual({ kind: 'idle' });
+    });
+
+    it('keep updates the edited row and leaves both', () => {
+      const a = make('Fichário');
+      const other = own(a.id, { condition: 'NM', quantity: 5 });
+      const card = own(a.id, { condition: 'LP', quantity: 2 });
+      flow.openEdit(card.id);
+      flow.save(editDraft(card, { condition: 'NM' }), false);
+      const step = flow.step();
+      if (step.kind !== 'duplicate') throw new Error('expected the notice');
+      flow.decide('keep', step.matches[0]);
+
+      const byId = new Map(cards.cards().map((c) => [c.id, c]));
+      expect(byId.get(other.id)?.quantity).toBe(5);
+      expect(byId.get(card.id)).toMatchObject({ condition: 'NM', quantity: 2 });
+    });
+
+    it('cancel on the notice returns to the edit; cancel on the edit closes with nothing saved', () => {
+      const a = make('Fichário');
+      own(a.id, { condition: 'NM' });
+      const card = own(a.id, { condition: 'LP' });
+      flow.openEdit(card.id);
+      flow.save(editDraft(card, { condition: 'NM' }), false);
+      flow.cancel();
+      expect(flow.step()).toEqual({ kind: 'edit', collectionId: a.id, cardId: card.id });
+      flow.cancel();
+      expect(flow.step()).toEqual({ kind: 'idle' });
+      expect(cards.cards().find((c) => c.id === card.id)?.condition).toBe('LP');
+    });
+
+    it('closes with "Nada foi salvo" when the card leaves the collection mid-edit', async () => {
+      const a = make('Fichário');
+      const card = own(a.id);
+      flow.openEdit(card.id);
+      await collections.remove(a.id, 'delete');
+      TestBed.tick();
+      expect(flow.step()).toEqual({ kind: 'idle' });
+      expect(toasts.toast()?.label).toBe('Nada foi salvo');
+
+      const b = make('Arquivo');
+      const moved = own(b.id);
+      flow.openEdit(moved.id);
+      cards.applyMoved(new Set([moved.id]), 'elsewhere', new Date().toISOString());
+      TestBed.tick();
+      expect(flow.step()).toEqual({ kind: 'idle' });
+      expect(toasts.toast()).toMatchObject({ label: 'Nada foi salvo', text: 'Esta carta não está mais nesta coleção.' });
     });
   });
 

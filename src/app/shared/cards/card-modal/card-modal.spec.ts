@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CatalogError, type CatalogCard, type CatalogCardDetail, type CatalogPrinting } from '@models/catalog.model';
 import { CardCatalogService } from '@services/card-catalog.service';
+import { mockCardEntry } from '@testing/card.mocks';
 import { stubDialog } from '@testing/dialog';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CardModal, type CardSave } from './card-modal';
@@ -236,5 +237,133 @@ describe('CardModal (add)', () => {
     button('Cancelar').click();
     expect(closes()).toBe(1);
     expect(saves).toEqual([]);
+  });
+});
+
+describe('CardModal (edit)', () => {
+  let restoreDialog: () => void;
+  let catalog: FakeCatalog;
+
+  const owned = mockCardEntry({
+    id: 'c1',
+    oracleId: 'o1',
+    scryfallId: 'a',
+    name: 'Sol Ring',
+    typeLine: 'Artifact',
+    colorIdentity: [],
+    setCode: 'CMD',
+    setName: 'Commander 2011',
+    collectorNumber: '1',
+    imageUrl: 'https://img/a.jpg',
+    artist: 'Mike Bierek',
+    finish: 'foil',
+    language: 'pt',
+    condition: 'LP',
+    quantity: 3,
+    forSale: true,
+    notes: 'de um amigo',
+    canBeCommander: false,
+  });
+
+  beforeEach(() => {
+    restoreDialog = stubDialog();
+    catalog = new FakeCatalog();
+    TestBed.configureTestingModule({ providers: [{ provide: CardCatalogService, useValue: catalog }] });
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    restoreDialog();
+  });
+
+  function render() {
+    const fixture = TestBed.createComponent(CardModal);
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.componentRef.setInput('card', owned);
+    fixture.componentRef.setInput('collectionName', 'Fichário');
+    const saves: CardSave[] = [];
+    fixture.componentInstance.save.subscribe((s) => saves.push(s));
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const flush = async () => {
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+    const buttons = () => [...el.querySelectorAll<HTMLButtonElement>('.actions button')];
+    const save = () => buttons().find((b) => b.textContent?.trim() === 'Salvar')!;
+    const trigger = () => el.querySelector<HTMLButtonElement>('.printing app-select-list button')!;
+    return { fixture, el, flush, buttons, save, trigger, saves };
+  }
+
+  it('presets every field and shows the current printing at once, saving enabled', () => {
+    const { el, buttons, trigger } = render();
+    expect(catalog.calls).toEqual(['o1']);
+    expect(el.querySelector('.eyebrow')?.textContent).toBe('Editar carta');
+    expect(el.querySelector('h2')?.textContent).toBe('Sol Ring');
+    expect(trigger().textContent).toContain('Commander 2011');
+    expect(el.querySelector('.image img')?.getAttribute('src')).toBe('https://img/a.jpg');
+    expect(el.querySelector('.artist')?.textContent).toBe('Mike Bierek');
+    const selects = el.querySelectorAll<HTMLSelectElement>('select');
+    expect([selects[0].value, selects[1].value, selects[2].value]).toEqual(['foil', 'pt', 'LP']);
+    expect(el.querySelector<HTMLInputElement>('input[inputmode="numeric"]')!.value).toBe('3');
+    expect(el.querySelector<HTMLTextAreaElement>('textarea')!.value).toBe('de um amigo');
+    expect(el.querySelector<HTMLInputElement>('.check input')!.checked).toBe(true);
+    expect(buttons().map((b) => [b.textContent?.trim(), b.disabled])).toEqual([
+      ['Cancelar', false],
+      ['Salvar', false],
+    ]);
+    expect(document.activeElement).toBe(selects[0]);
+  });
+
+  it('emits an edit draft without canBeCommander, the identity unchanged', () => {
+    const { save, saves } = render();
+    save().click();
+    expect(saves.length).toBe(1);
+    expect(saves[0].again).toBe(false);
+    const draft = saves[0].draft;
+    expect(draft).toMatchObject({ scryfallId: 'a', setCode: 'CMD', artist: 'Mike Bierek', quantity: 3, condition: 'LP' });
+    expect('canBeCommander' in draft).toBe(false);
+    expect('addedAt' in draft).toBe(false);
+    expect('locationId' in draft).toBe(false);
+  });
+
+  it('keeps the current printing and saves when the printings fail, showing the error in the list', async () => {
+    const { el, flush, save, saves, trigger } = render();
+    catalog.pending[0].reject(new CatalogError('offline'));
+    await flush();
+    expect(el.querySelector('.plate--error')).toBeNull();
+    expect(trigger().textContent).toContain('Commander 2011');
+    trigger().click();
+    await flush();
+    expect(el.querySelector('.printings-failed')?.textContent).toContain('Não foi possível carregar as impressões');
+    expect(el.querySelector('[role="option"]')).toBeNull();
+
+    el.querySelector<HTMLButtonElement>('.printings-failed button')!.click();
+    expect(catalog.calls.length).toBe(2);
+
+    save().click();
+    expect(saves[0].draft.scryfallId).toBe('a');
+  });
+
+  it('a printing change replaces the identity fields in the draft', async () => {
+    const { el, flush, save, saves, trigger } = render();
+    catalog.pending[0].resolve(
+      detail([printing('a'), printing('b', { setCode: 'lea', setName: 'Alpha', collectorNumber: '9', artist: null })]),
+    );
+    await flush();
+    trigger().click();
+    await flush();
+    const options = [...el.querySelectorAll<HTMLElement>('[role="option"]')];
+    expect(options.length).toBe(2);
+    expect(options.find((o) => o.getAttribute('aria-selected') === 'true')?.textContent).toContain('Commander 2011');
+    options.find((o) => o.textContent?.includes('Alpha'))!.click();
+    await flush();
+
+    save().click();
+    const draft = saves[0].draft;
+    expect(draft).toMatchObject({ scryfallId: 'b', setCode: 'LEA', setName: 'Alpha', collectorNumber: '9' });
+    expect('artist' in draft).toBe(true);
+    expect(draft.artist).toBeUndefined();
+    expect('canBeCommander' in draft).toBe(false);
   });
 });
