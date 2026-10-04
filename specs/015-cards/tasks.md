@@ -147,8 +147,8 @@ description: "Task list for 015 Cards"
 
 **Independent Test**: Quickstart row 25 on two browsers linked to one account.
 
-- [ ] T043 [US5] Extend `src/app/core/services/sync.service.spec.ts` (or the cards step's spec, `src/app/core/services/sync/cards-sync.step.ts`'s neighbor) with the fake remote: a card added through `CardService.add` uploads `artist` and `added_at`; a pulled row restores `artist` (null → absent) and `addedAt`; an edit-merge's tombstone deletes the removed row remotely; a card edited on two copies resolves to the later `updatedAt` with `addedAt` unchanged. Change `cards-sync.step.ts` only if a case fails.
-- [ ] T044 [US5] Checkpoint: run the full suite and lint via `test-runner`, fix everything, then commit Phase 7 ("Cards: sync").
+- [X] T043 [US5] Extend `src/app/core/services/sync.service.spec.ts` (or the cards step's spec, `src/app/core/services/sync/cards-sync.step.ts`'s neighbor) with the fake remote: a card added through `CardService.add` uploads `artist` and `added_at`; a pulled row restores `artist` (null → absent) and `addedAt`; an edit-merge's tombstone deletes the removed row remotely; a card edited on two copies resolves to the later `updatedAt` with `addedAt` unchanged. Change `cards-sync.step.ts` only if a case fails.
+- [X] T044 [US5] Checkpoint: run the full suite and lint via `test-runner`, fix everything, then commit Phase 7 ("Cards: sync").
 
 ---
 
