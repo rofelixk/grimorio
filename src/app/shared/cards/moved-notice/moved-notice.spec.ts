@@ -45,10 +45,10 @@ describe('MovedNotice', () => {
     expect(el.querySelector('.card-row .micro-label')?.textContent).toBe('Página 1');
   });
 
-  it('ignores Esc and ✕, and closes only through Ok', () => {
+  it('has no ✕, ignores Esc, and closes only through Ok', () => {
     const { el, closes } = render();
+    expect(el.querySelector('.close')).toBeNull();
     el.querySelector('dialog')!.dispatchEvent(new Event('cancel', { cancelable: true }));
-    el.querySelector<HTMLButtonElement>('.close')?.click();
     expect(closes()).toBe(0);
 
     el.querySelector<HTMLButtonElement>('.actions .btn--primary')!.click();

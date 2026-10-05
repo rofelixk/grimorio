@@ -30,5 +30,5 @@ When a spec ships, delete its entry here and its items from pending-items.md; th
 
 Not scheduled yet. Spec 010 removed all card components, card reading (OCR), catalog lookup and CSV import, so the card features start fresh; [reference/card-features.md](reference/card-features.md) records their tuned configuration. Items waiting for them:
 
-- #13 Sync card artist data
+- ~~#13 Sync card artist data~~ — done in spec 015 (`printings.artist`, `CardEntry.artist`)
 - #38 Card-reading guardrails (lint guard and bundle budget for `tesseract.js`)

@@ -269,7 +269,8 @@
   .page--wide & {
     position: sticky;
     top: 0;
-    z-index: 2;
+    // Above a hovered tile (z-index 10), which scales out of its cell.
+    z-index: 11;
     padding-top: var(--space-5);
     background: var(--color-bg);
 

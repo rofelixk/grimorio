@@ -118,13 +118,20 @@
   font: inherit;
   transition: border-color var(--duration-fast) var(--ease-standard);
 
-  // No hover tint while focused (the focus outline already frames the field) or invalid.
-  &:hover:not(:focus-visible, [aria-invalid='true']) {
+  // No hover tint while focused (the focus outline already frames the field), invalid or disabled.
+  &:hover:not(:focus-visible, [aria-invalid='true'], :disabled, [aria-disabled='true']) {
     border-color: var(--role-primary);
   }
 
   &[aria-invalid='true'] {
     border-color: var(--color-danger);
+  }
+
+  // Like buttons: opacity .5 and `not-allowed`.
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   &[readonly] {

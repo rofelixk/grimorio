@@ -8,6 +8,13 @@ $bp-wide: 960px;
   }
 }
 
+// The complement of `mobile`.
+@mixin above-mobile {
+  @media (min-width: $bp-mobile + 1) {
+    @content;
+  }
+}
+
 @mixin wide {
   @media (min-width: $bp-wide) {
     @content;

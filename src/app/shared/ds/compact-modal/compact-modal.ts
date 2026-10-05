@@ -38,6 +38,8 @@ export class CompactModal {
   readonly size = input<'compact' | 'wide' | 'split'>('compact');
   readonly labelledBy = input<string | null>(null);
   readonly locked = input(false);
+  /** False hides the ✕ (a dialog that can only be left through its own action). */
+  readonly closable = input(true);
   /** ✕, Esc or a backdrop click, unless locked. */
   readonly closed = output<void>();
 

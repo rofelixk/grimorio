@@ -26,7 +26,6 @@ Known work that isn't specced yet. [features.md](features.md) groups items into 
 | **Layout** | | | |
 | 15 | Mobile-landscape layout | **L** | 6 |
 | **Card features (deferred)** | | | |
-| 13 | Sync card artist data | M | deferred |
 | 38 | Card-reading guardrails | S | deferred |
 
 ---
@@ -95,10 +94,6 @@ A phone in landscape is short (~390px tall) but often wider than `$bp-mobile` (6
 ## Card features (deferred)
 
 Spec 010 removed every card component, card reading (OCR), catalog lookup and CSV import; the card features start fresh. Their tuned configuration is in [reference/card-features.md](reference/card-features.md). These items wait for those specs (see features.md, "Deferred: card features").
-
-### #13 · Sync card artist data — M
-
-Scryfall provides artist info, but `scripts/sync-scryfall.ts` doesn't extract it. The `ScryfallCard` interface has the artist field available, but `toCardRow` and `toPrintingRow` skip it. Add `artist` to the sync (likely to `printings` table since it's printing-specific in Scryfall) and ensure the Supabase schema has the column.
 
 ### #38 · Card-reading guardrails — S
 

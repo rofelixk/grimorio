@@ -154,12 +154,12 @@ description: "Task list for 015 Cards"
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T045 Run `npm run build` and confirm it stays within every budget in `angular.json` (`initial`, `anyComponentStyle`, the named lazy bundles); fix any overrun in the new component styles rather than raising a budget without asking the user.
-- [ ] T046 Run the `design-auditor` agent over the whole feature (DESIGN.md and ui.md, every new and changed component) and fix everything it reports.
-- [ ] T047 Walk the quickstart.md manual scenarios 1–26 (the user's own `npm start` server; never start or stop it), using the `run` skill where a scenario can be driven headless; record any failure as a fix in this phase.
-- [ ] T048 Propose the architecture.md edits listed in plan.md "Docs to update" (shared folders gain `cards/`; "Card catalog" now queried by `CardCatalogService` with the anonymous `grm-catalog` client, `cards.search_name` via `searchKey`, `printings.artist`/`faces`, replacing "The app itself queries no catalog"; "Domain model": `CardEntry.addedAt`/`artist`, `CardService` writing per row through `writeRows`; "Testing": `@testing/intersection-observer`; "Modals": `CompactModal`'s `size` and toast outlet, the `SelectList` primitive) to the user, then apply them to `.claude/docs/architecture.md` once reviewed. `commands.md` needs nothing.
-- [ ] T049 [P] Mark backlog #13 (catalog artist) done in `backlog/pending-items.md` (or wherever #13 is listed), pointing to spec 015.
-- [ ] T050 Checkpoint: run the full suite and lint via `test-runner`, fix everything, then commit the polish phase ("Cards: polish").
+- [X] T045 Run `npm run build` and confirm it stays within every budget in `angular.json` (`initial`, `anyComponentStyle`, the named lazy bundles); fix any overrun in the new component styles rather than raising a budget without asking the user.
+- [X] T046 Run the `design-auditor` agent over the whole feature (DESIGN.md and ui.md, every new and changed component) and fix everything it reports.
+- [X] T047 Walk the quickstart.md manual scenarios 1–26 (the user's own `npm start` server; never start or stop it), using the `run` skill where a scenario can be driven headless; record any failure as a fix in this phase.
+- [X] T048 Propose the architecture.md edits listed in plan.md "Docs to update" (shared folders gain `cards/`; "Card catalog" now queried by `CardCatalogService` with the anonymous `grm-catalog` client, `cards.search_name` via `searchKey`, `printings.artist`/`faces`, replacing "The app itself queries no catalog"; "Domain model": `CardEntry.addedAt`/`artist`, `CardService` writing per row through `writeRows`; "Testing": `@testing/intersection-observer`; "Modals": `CompactModal`'s `size` and toast outlet, the `SelectList` primitive) to the user, then apply them to `.claude/docs/architecture.md` once reviewed. `commands.md` needs nothing.
+- [X] T049 [P] Mark backlog #13 (catalog artist) done in `backlog/pending-items.md` (or wherever #13 is listed), pointing to spec 015.
+- [X] T050 Checkpoint: run the full suite and lint via `test-runner`, fix everything, then commit the polish phase ("Cards: polish").
 
 ---
 

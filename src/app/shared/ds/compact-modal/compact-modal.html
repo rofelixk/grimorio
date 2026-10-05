@@ -21,23 +21,27 @@
         @if (mobile()) {
           <header class="m-header">
             <span class="wordmark">{{ wordmark }}</span>
-            <button
-              type="button"
-              class="close"
-              [attr.aria-label]="closeLabel"
-              [attr.aria-disabled]="locked() || null"
-              (click)="requestClose()"
-            >✕</button>
+            @if (closable()) {
+              <button
+                type="button"
+                class="close"
+                [attr.aria-label]="closeLabel"
+                [attr.aria-disabled]="locked() || null"
+                (click)="requestClose()"
+              >✕</button>
+            }
           </header>
         } @else {
           <div class="close-row">
-            <button
-              type="button"
-              class="close"
-              [attr.aria-label]="closeLabel"
-              [attr.aria-disabled]="locked() || null"
-              (click)="requestClose()"
-            >✕</button>
+            @if (closable()) {
+              <button
+                type="button"
+                class="close"
+                [attr.aria-label]="closeLabel"
+                [attr.aria-disabled]="locked() || null"
+                (click)="requestClose()"
+              >✕</button>
+            }
           </div>
         }
         <div class="body">

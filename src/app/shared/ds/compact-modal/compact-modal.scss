@@ -20,7 +20,7 @@
   width: min(480px, calc(100vw - 2rem));
 }
 
-@media (min-width: 641px) {
+@include bp.above-mobile {
   .size-wide .ring {
     width: min(720px, calc(100vw - 2rem));
   }
@@ -104,6 +104,8 @@
 .close-row {
   display: flex;
   justify-content: flex-end;
+  // Keeps its height when the ✕ is hidden.
+  min-height: var(--touch-target);
 }
 
 .close {

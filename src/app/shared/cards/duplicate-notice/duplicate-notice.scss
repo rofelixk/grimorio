@@ -48,7 +48,7 @@
   flex: none;
   width: 36px;
   aspect-ratio: 5 / 7;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   object-fit: contain;
   background: var(--color-surface);
 }
