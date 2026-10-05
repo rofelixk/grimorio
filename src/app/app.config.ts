@@ -6,7 +6,6 @@ import { ProfileStore } from '@services/profile-store.service';
 import { ProfileSessionService } from '@services/profile-session.service';
 import { PlanechaseGameService } from '@services/planechase-game.service';
 import { StoragePersistenceService } from '@services/storage-persistence.service';
-import { runLegacyCleanup } from './core/db/legacy-cleanup';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,7 +22,6 @@ export const appConfig: ApplicationConfig = {
       const session = inject(ProfileSessionService);
       const planechase = inject(PlanechaseGameService);
       const persistence = inject(StoragePersistenceService);
-      await runLegacyCleanup();
       await store.whenReady();
       // Fire-and-forget (FR-006): startup never waits on the browser's answer.
       void persistence.request('startup');
