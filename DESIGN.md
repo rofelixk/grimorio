@@ -448,7 +448,7 @@ Two modals use this shell, and only one is ever open at a time.
 - Progress rewrites the label ("Entrando…", "Criando perfil…", "Enviando…", "Saindo…"); the button is locked until the request resolves, so double-submit is impossible.
 
 ### Inputs
-- **Field:** surface background, hairline, 4px radius, 44px minimum height. The label (0.875rem) sits above the field.
+- **Field:** surface background, hairline, 4px radius, 44px minimum height. The label (0.875rem) sits above the field. Disabled is `opacity .5` + `not-allowed`, like buttons, with no hover tint.
 - **Helper:** 0.75rem muted, below the field. It is hidden while an error shows.
 - **Field error:** 0.875rem danger, directly under the field.
 - **Form-level error** (wrong credentials, offline, unrecognized error, account linked elsewhere): 0.875rem danger, `role="alert"`, right above the primary button.
@@ -604,7 +604,7 @@ The first gameplay mode (spec 006). All of it is routed pages inside the view ar
 ### Collections
 The collection area (spec 008): a list of collections, a per-collection page, and a holding box for cards whose collection was deleted.
 
-**Page column.** 760px, centered; 1080px with the 220px filters aside at ≥ 960px (`minmax(0,1fr) 220px`, gap `space-6`). Padding `space-5` (`space-4` at ≤ 640px); the content stack is a flex column, gap `space-4`.
+**Page column** (the collections list; collection pages use "Page layout v2" under "Cards"). 760px, centered; 1080px with the 220px filters aside at ≥ 960px (`minmax(0,1fr) 220px`, gap `space-6`). Padding `space-5` (`space-4` at ≤ 640px); the content stack is a flex column, gap `space-4`.
 
 **Collection row** (`app-collection-row`). Built like an action row: a full-width `<button>`, min-height 56px, padding `space-2 space-3`, 1px border, 8px radius, `surface-raised → surface` gradient. Hover/focus: border role-primary, `--glow-plate-hover`, `fast` easing. Lead: a 20px color swatch (Ônix adds its 1px `#6b635c` outline). Text: the name (700, one line, ellipsis) over the meta (0.75rem muted). Trailing `.micro-label` "Abrir". Meta format: "{n} cartas · {s} à venda · {k} subcoleções", pt-BR grouping and singular forms, the subcollection part omitted when there are none, "Vazia" when both are zero — counts roll up the whole subtree. Accessible name: "{nome}, cor {Cor}. {meta}." — the swatch and the row's own text are `aria-hidden` in favor of it, since color is never the only cue.
 
@@ -635,8 +635,8 @@ The collection area (spec 008): a list of collections, a per-collection page, an
 ### Cards
 Spec 015: the card list inside collection pages, the holding grid, and the add/edit flow. Visual source: `design_handoff_cards/`.
 
-**Page layout v2** (every collection page and the holding box). A 1080px column, grid `minmax(0,1fr) 220px`, gap `space-6`, padding `space-5`.
-- **Sticky header** (`position: sticky; top: 0`, `bg`, z-index 2): the path row with "Editar" (secondary) and "Excluir" (danger) at its right end (none on the holding box), the title, then the list bar. A 32px `linear-gradient(bg, transparent)` fade sits beneath it, `pointer-events: none`, so tiles dissolve under the header instead of meeting a hard line. Only the grid scrolls.
+**Page layout v2** (every collection page and the holding box). The full width of the view area, so the cards show large; grid `minmax(0,1fr) 220px`, gap `space-6`, padding `space-5`. The page isolates its stacking (`isolation: isolate`), so the page sweep paints over its sticky header.
+- **Sticky header** (`position: sticky; top: 0`, `bg`, z-index 11, above a hovered tile): the path row with "Editar" (secondary) and "Excluir" (danger) at its right end (none on the holding box), the title, then the list bar. A 32px `linear-gradient(bg, transparent)` fade sits beneath it, `pointer-events: none`, so tiles dissolve under the header instead of meeting a hard line. Only the grid scrolls.
 - **List bar** (cards kind): the "Exibição" toggle at the start, a primary "Adicionar cartas" at the end. Absent on the holding box and on pages with subcollections.
 - **Side column** (sticky, 1px left border, `space-5` left padding): the summary "{n} cartas · {s} à venda" (sm, muted, numbers in `text`, one line, 1px rule below), the "Buscar e filtrar" eyebrow, the disabled search field, "Filtros em breve.", and for a leaf collection holding cards the dashed "Dividir em subcoleções" row (replaced by the "Último nível" meta at level 3), separated by `space-5`. It counts the subtree's cards, never subcollections.
 - **Phone and mid (< 960px):** one column, header not sticky, no side column. Editar/Excluir take their own 50/50 row on phone; order: path, title, summary line, list bar ("Adicionar cartas" full width on phone), split row, disabled search + "Filtros", grid.
@@ -644,7 +644,7 @@ Spec 015: the card list inside collection pages, the holding grid, and the add/e
 
 **Display toggle** (`app-card-view-toggle`). A `role="radiogroup"` "Exibição" with two radios, "Só imagens" and "Com detalhes" (sm, 44px targets), roving tabindex. Kept per profile.
 
-**Card grid.** "Só imagens": 3 columns on phone, 5 at 640–959px, 6 at ≥ 960px, gap `space-3`. "Com detalhes": 2, 3 and 4, gap `space-4` (row) × `space-3` (column). Tiles use `content-visibility: auto` with an intrinsic size matching 5:7.
+**Card grid.** 3 columns on phone, 5 at 640–959px, 6 at ≥ 960px, gap `space-3`, the same in both display modes ("Com detalhes" only adds the plate under each tile). Tiles use `content-visibility: auto` with an intrinsic size matching 5:7.
 
 **Card tile** (`app-card-tile`, "5b"). Image and details plate glued, no outer frame.
 - **Image:** 5:7, 1px `border`, 6px radius (6 6 0 0 while the plate shows); `alt=""` (the name is on the tile). No image: a `surface-raised → surface` gradient of the same shape holding the name as muted text.
@@ -657,7 +657,7 @@ Spec 015: the card list inside collection pages, the holding grid, and the add/e
 
 **Duplicate notice.** `CompactModal` `compact`, card roles, body padding `0 space-6 space-6`, gap `space-4`: a `.plate` for the existing row (36px thumbnail, name 700, the details line, `×qtd`, the collection `.micro-label`), or the "Onde ela está" select list when there are two or more matches, then two radio rows in the "Delete radios" recipe with role-primary selection, then Cancelar (ghost) and Continuar (primary). In the edit variant, the edited card's own row (name 700, the details line, `×qtd` 700; no plate, `0 space-3` padding) sits above the match plate or the select list.
 
-**Moved notice.** `CompactModal` locked, in the destination collection's color: title, one sentence, the card row with the subcollection `.micro-label`, a single primary "Ok".
+**Moved notice.** `CompactModal` locked with no ✕ (`closable` false), in the destination collection's color: title, one sentence, the card row with the subcollection `.micro-label`, a single primary "Ok".
 
 **Toasts** keep their host's roles (the profile's at the app root and in the search modal), not the collection's color as the handoff draws them.
 

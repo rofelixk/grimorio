@@ -105,7 +105,7 @@ Found by `design-auditor` in spec 015's whole-feature audit: UI that ships but t
 
 ### #41 · DESIGN.md: page column width vs. the shell — S
 
-`.page--v2` in `views/collection-area/collection-area.scss` sets `max-width: 1080px` and inherits the centered `.page` margin. architecture.md says view `.scss` files set no max-width or centering, while DESIGN.md "Collections → Page column" and "Cards → Page layout v2" describe a 1080px column. Decide whether the shell owns the column width or DESIGN.md records the view-level exception.
+`.page--list` in `views/collection-area/collection-area.scss` sets `max-width: 760px` (1080px with the filters aside) and `margin: 0 auto`; collection pages are full width. architecture.md says view `.scss` files set no max-width or centering, while DESIGN.md "Collections → Page column" describes the centered list column. Decide whether the shell owns the column width or DESIGN.md records the view-level exception.
 
 ### #42 · DESIGN.md: Select list details — S
 
