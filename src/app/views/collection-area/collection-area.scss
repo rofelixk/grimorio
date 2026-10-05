@@ -10,18 +10,24 @@
 }
 
 // ── Page column (ui.md §2) ─────────────────────────────────────────────────
-// Centered, 760px max; 1080px with the 220px filters aside. No max-width on the host itself. The
-// explicit width keeps it the same size as a flex item of the host and inside the sweep layer.
+// Full width on collection pages. The explicit width keeps it the same size as a flex item of the
+// host and inside the sweep layer. `isolation` keeps the sticky header's and hovered tiles' z-index
+// inside the page, so the sweep's outgoing page and dust, which come after it, still paint over it.
 .page {
   box-sizing: border-box;
   width: 100%;
-  max-width: 760px;
-  margin: 0 auto;
   padding: var(--space-5);
+  isolation: isolate;
 
   @include bp.mobile {
     padding: var(--space-4);
   }
+}
+
+// The collections list: centered, 760px max; 1080px with the 220px filters aside.
+.page--list {
+  max-width: 760px;
+  margin: 0 auto;
 }
 
 .page--aside {
@@ -89,8 +95,6 @@
 
 .search {
   flex: 1;
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .filters-btn {
@@ -239,13 +243,9 @@
 }
 
 // ── Page layout v2 (DESIGN.md "Cards"): collection pages and the holding box ──
-// One column below 960px with the header scrolling away; at ≥ 960px a 1080px column with a sticky
-// header and a sticky 220px side column, so only the grid scrolls past them.
-.page--v2 {
-  max-width: 1080px;
-}
-
-.page--v2.page--wide {
+// One column below 960px with the header scrolling away; at ≥ 960px a sticky header and a sticky
+// 220px side column, so only the grid scrolls past them.
+.page--wide {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 220px;
   gap: var(--space-6);

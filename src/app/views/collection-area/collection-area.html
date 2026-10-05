@@ -4,7 +4,7 @@
     @switch (place.kind) {
       @case ('list') {
         @let showAside = wide() && !empty();
-        <div class="page" [class.page--aside]="showAside">
+        <div class="page page--list" [class.page--aside]="showAside">
           <div class="content">
             <div class="header">
               <h1 class="title" tabindex="-1">{{ copy.title }}</h1>
@@ -74,7 +74,7 @@
 
       @case ('holding') {
         @let holding = stats().holding;
-        <div class="page page--v2" [class.page--wide]="wide()">
+        <div class="page" [class.page--wide]="wide()">
           <div class="main">
             <div class="sticky-head">
               <div class="path-row">
@@ -133,7 +133,7 @@
       @case ('collection') {
         @if (leaving ? leavingPage() : shownPage(); as p) {
           @let collection = p.collection;
-          <div class="page page--v2" [class.page--wide]="wide()">
+          <div class="page" [class.page--wide]="wide()">
             <div class="main">
               <div class="sticky-head">
                 <div class="path-row">
