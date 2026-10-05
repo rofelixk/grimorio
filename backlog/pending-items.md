@@ -25,14 +25,6 @@ Known work that isn't specced yet. [features.md](features.md) groups items into 
 | 40 | Card refresh vs. a pending collection write | S | — |
 | **Layout** | | | |
 | 15 | Mobile-landscape layout | **L** | 6 |
-| **Design system** | | | |
-| 41 | DESIGN.md: page column width vs. the shell | S | — |
-| 42 | DESIGN.md: Select list details | S | — |
-| 43 | DESIGN.md: error plate | S | — |
-| 44 | DESIGN.md: loading select trigger | S | — |
-| 45 | DESIGN.md: muted notes | S | — |
-| 46 | `vh` vs. `dvh` for modal heights | S | — |
-| 47 | DESIGN.md: card display toggle | S | — |
 | **Card features (deferred)** | | | |
 | 38 | Card-reading guardrails | S | deferred |
 
@@ -96,40 +88,6 @@ Found in spec 011. `CardService.refresh()` (run when another copy announces `car
 ### #15 · Mobile-landscape layout — L
 
 A phone in landscape is short (~390px tall) but often wider than `$bp-mobile` (640px), so it gets the tablet/desktop layout on a very short screen. The breakpoints only look at width. Add a height-aware condition (e.g. `(orientation: landscape) and (max-height: …)`), then check the app shell, top bar, modals (the fluid-height faces and their viewport cap) and the Planechase phone dock against it.
-
----
-
-## Design system
-
-Found by `design-auditor` in spec 015's whole-feature audit: UI that ships but that DESIGN.md doesn't decide, so by its own rule the design is undecided. Each needs a DESIGN.md entry (or a code change to match one).
-
-### #41 · DESIGN.md: page column width vs. the shell — S
-
-`.page--list` in `views/collection-area/collection-area.scss` sets `max-width: 760px` (1080px with the filters aside) and `margin: 0 auto`; collection pages are full width. architecture.md says view `.scss` files set no max-width or centering, while DESIGN.md "Collections → Page column" describes the centered list column. Decide whether the shell owns the column width or DESIGN.md records the view-level exception.
-
-### #42 · DESIGN.md: Select list details — S
-
-`shared/ds/select-list/select-list.scss` draws the active option as a 1px role-primary inset outline; DESIGN.md "Select list" says only "the hover treatment", which it never defines. The popup's `z-index: 20` and `max-height: 260px` aren't recorded either.
-
-### #43 · DESIGN.md: error plate — S
-
-`.plate--error` (a centered plate with a message and a secondary "Tentar de novo") appears in `card-search-modal.scss` and `card-modal.scss` with no DESIGN.md entry. The edit modal's `.printings-failed` block (the same message and button inside the select list) belongs to the same entry.
-
-### #44 · DESIGN.md: loading select trigger — S
-
-The card modal's "Carregando impressões…" placeholder (`.printing-loading` in `card-modal.scss`): a left-aligned, muted, `aria-disabled` `field__input` button standing in for the Select list trigger until the printings load.
-
-### #45 · DESIGN.md: muted notes — S
-
-`.meta`, a lone 0.75rem muted note (`collection-area.scss`: "Uma coleção guarda…", "Último nível"), and `.holding-copy`, muted copy capped at 52ch. DESIGN.md has no note type besides the 72ch legal notice and the Planechase size notice.
-
-### #46 · `vh` vs. `dvh` for modal heights — S
-
-`shared/ds/compact-modal/compact-modal.scss` sizes the `wide` face with `min(640px, 100vh - 4rem)`, and the face cap uses `calc(100vh - 4rem)`. DESIGN.md says "viewport height"; on phone browsers with dynamic toolbars `dvh` may be the right unit. Decide the unit in DESIGN.md and apply it to every modal that caps on the viewport.
-
-### #47 · DESIGN.md: card display toggle — S
-
-`shared/cards/card-view-toggle/` ("Só imagens" / "Com detalhes") is a second pill-style radio group, mirroring the "Format picker" look. DESIGN.md's Cards entry names the toggle but doesn't describe its visuals.
 
 ---
 

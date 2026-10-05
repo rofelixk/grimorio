@@ -67,11 +67,6 @@
   min-height: var(--touch-target);
   padding: var(--space-2) var(--space-3);
   cursor: pointer;
-  transition: background var(--duration-fast) var(--ease-standard);
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
 
   &.is-selected {
     background: var(--color-surface-raised);

@@ -293,7 +293,7 @@ The hover role for silver and gold is their light variant. A modal colored this 
   - A scrolling body; the prompt pins to the bottom.
 - **Fluid height:** the desktop surface animates its height to its content (minimum 460px) over `base` 0.24s. Content changes (mode switches, errors appearing, confirmation screens) resize the modal smoothly; it never jumps.
   - Height changes animate only after the first pointer or key press inside the modal; while it opens and its content settles, it takes its height instantly. Instant under reduced motion.
-  - The face stops at the viewport height less `space-6` on each side; only then does the form pane scroll. No scrollbar shows while the height animates.
+  - The face stops at the viewport height (`100dvh`, so a phone's dynamic toolbar never hides its end) less `space-6` on each side; only then does the form pane scroll. No scrollbar shows while the height animates.
 - **Reserved space:** text that swaps under the wheel reserves two lines, so hover previews never shift the wheel.
 
 ## Elevation & depth
@@ -463,6 +463,13 @@ Two modals use this shell, and only one is ever open at a time.
 The e-mail chip ("Conta na nuvem" eyebrow + address) and status notices ("Você saiu de rafa…"): surface background, hairline, 4px radius, `role="status"` for notices.
 
 - **Danger plate:** a `.plate` modifier with a `danger` border, for a warning that blocks nothing but loses data if ignored (the unsynced-changes block before deleting a profile). Its text is `danger`; its actions are secondary buttons.
+- **Error plate** (`.plate--error`): a load that failed and can be retried (catalog search, a card's details). A centered `.plate` with neutral border and text, gap `space-3`: the 0.875rem message ("Sem conexão…", a failed load) over a secondary "Tentar de novo". Inside a select list's popup (the card modal's printings) the same message, muted, and button sit left-aligned, with no plate, padding `space-3`.
+
+### Notes
+Muted plain text that explains, never a plate (plates read as buttons):
+- **Meta note:** a lone 0.75rem muted line ("Uma coleção guarda…", "Último nível").
+- **Muted copy:** 0.875rem muted prose (empty states, the holding box's explanation), at most 52ch when it runs beside wider content.
+- The legal notice and the Planechase size notice are longer notes capped at 72ch (see their entries).
 
 ### Action rows
 The hub's and sub-screens' entries into a screen or an action step. Built like the profile list rows.
@@ -624,9 +631,9 @@ The collection area (spec 008): a list of collections, a per-collection page, an
 
 **Reserved placeholders** (must ship now, disabled or muted, so later specs drop in without a layout change): a disabled search `.field__input` and a disabled "Filtros" secondary button below 960px; a sticky 220px filters aside (kept even with only its placeholder) at ≥ 960px. Search and filters are hidden in the empty state; inside a collection page the placeholder search and "Filtros em breve." live in the side column (see "Cards"). The card-list plate and the disabled "Adicionar cartas" are gone: the card list and a live "Adicionar cartas" ship with spec 015.
 
-**Compact modal** (`app-compact-modal`, the create/edit and delete dialogs). A narrow themed-modal ring: `width: min(480px, 100vw - 2rem)`, 2px padding, 10px radius, the same ring/halo recipe as the auth blueprint. Phone (≤ 640px): full-bleed, no ring or halo, a header with the "Grimorio" wordmark (Grenze 700 1.25rem, role-primary, title glow) and ✕, hairline below, `--wash-header`; buttons stack full-width in `column-reverse` order. Desktop: the face follows its content's height over `base` 0.24s, with the auth blueprint's fluid-height rule: animated only after the first pointer or key press inside it, instant under reduced motion, no scrollbar while it animates. It has no minimum; it stops at the viewport height less 4rem, and past that the whole face scrolls.
+**Compact modal** (`app-compact-modal`, the create/edit and delete dialogs). A narrow themed-modal ring: `width: min(480px, 100vw - 2rem)`, 2px padding, 10px radius, the same ring/halo recipe as the auth blueprint. Phone (≤ 640px): full-bleed, no ring or halo, a header with the "Grimorio" wordmark (Grenze 700 1.25rem, role-primary, title glow) and ✕, hairline below, `--wash-header`; buttons stack full-width in `column-reverse` order. Desktop: the face follows its content's height over `base` 0.24s, with the auth blueprint's fluid-height rule: animated only after the first pointer or key press inside it, instant under reduced motion, no scrollbar while it animates. It has no minimum; it stops at the viewport height (`100dvh`) less 4rem, and past that the whole face scrolls.
 
-**Compact modal sizes** (`size` input). `compact` is the 480px ring above. `wide` is 720px with a fixed 640px face (fluid height off; only the content's own scroll area scrolls). `split` is 880px, fluid, with two panes (the card modal: a 300px left pane on `--wash-header` with a right border, a content pane). The phone full-bleed with the wordmark header applies to every size. The modal hosts a toast outlet, so a toast shows inside the top `<dialog>`.
+**Compact modal sizes** (`size` input). `compact` is the 480px ring above. `wide` is 720px with a fixed face of 640px (less on a short viewport: `min(640px, 100dvh − 4rem)`) (fluid height off; only the content's own scroll area scrolls). `split` is 880px, fluid, with two panes (the card modal: a 300px left pane on `--wash-header` with a right border, a content pane). The phone full-bleed with the wordmark header applies to every size. The modal hosts a toast outlet, so a toast shows inside the top `<dialog>`.
 
 **Color picker.** A centered `role="radiogroup"`, 16 swatches in a 5/6/5 honeycomb from `COLLECTION_COLORS` order; rows 1 and 3 indented 24px so they nest between row 2's swatches. Row gap 6px, swatch gap 12px. Each swatch is a 36px circular `button role="radio"`, named and titled with the color name. Selected: `box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 4px {hex}, 0 0 20px {hex}80` over `slow` 0.5s (Ônix's ring uses `#8a837e`).
 
@@ -642,7 +649,7 @@ Spec 015: the card list inside collection pages, the holding grid, and the add/e
 - **Phone and mid (< 960px):** one column, header not sticky, no side column. Editar/Excluir take their own 50/50 row on phone; order: path, title, summary line, list bar ("Adicionar cartas" full width on phone), split row, disabled search + "Filtros", grid.
 - **Holding box:** a hollow 24px square, the title, the toggle, the note, the same grid, read-only.
 
-**Display toggle** (`app-card-view-toggle`). A `role="radiogroup"` "Exibição" with two radios, "Só imagens" and "Com detalhes" (sm, 44px targets), roving tabindex. Kept per profile.
+**Display toggle** (`app-card-view-toggle`). A `role="radiogroup"` "Exibição" with two radios, "Só imagens" and "Com detalhes", roving tabindex. Kept per profile. Built like the Format picker's buttons, in a wrapping flex row (gap `space-2`): min-height 44px, padding `0 space-3`, sm text, 1px border, 4px radius, transparent, muted text; hover turns the border role-primary over `fast`. Selected: border and text role-primary, 700, `--glow-button` plus `--glow-button-text`.
 
 **Card grid.** 3 columns on phone, 5 at 640–959px, 6 at ≥ 960px, gap `space-3`, the same in both display modes ("Com detalhes" only adds the plate under each tile). Tiles use `content-visibility: auto` with an intrinsic size matching 5:7.
 
@@ -651,7 +658,7 @@ Spec 015: the card list inside collection pages, the holding grid, and the add/e
 - **Plate:** `margin-top: -1px`, `space-2` padding, 1px border, `0 0 6px 6px`, `surface`. Line 1: `SET · nº` (xs, text) at the start, `Acabamento · Idioma · Condição` (xs, muted) at the end. Line 2: the `.micro-label` "À venda" only when for sale, `×{qtd}` (700) at the end. No name, no artist.
 - **Hover/focus-visible:** the card hover recipe (see Motion), colors from "Card colors". An interactive tile is a `<button>`; on the holding box it is a non-focusable `role="img"`.
 
-**Search modal.** `CompactModal` `wide`, profile roles: title (Grenze 600 xl, glow), the "Nome da carta" field, then the results area, the only scroller (thin scrollbar, padding `space-3` so a hovered tile can grow): 5 columns of image-only tiles (3 on phone), gap `space-4` × `space-3`. Loading shows 10 `surface` 5:7 rectangles at .6 opacity plus a `.micro-label`; "Carregando mais…" and the error plates follow the grid.
+**Search modal.** `CompactModal` `wide`, profile roles: title (Grenze 600 xl, glow), the "Nome da carta" field, then the results area, the only scroller (thin scrollbar, padding `space-3` so a hovered tile can grow): 5 columns of image-only tiles (3 on phone), gap `space-4` × `space-3`. Loading shows 10 `surface` 5:7 rectangles (1px `border`, 6px radius) at .6 opacity plus a `.micro-label`. The idle hint, the too-short query, no results and "Carregando mais…" are centered 0.875rem muted lines (margin `space-3` above and below); "Carregando mais…" and the error plates follow the grid.
 
 **Card modal.** `CompactModal` `split`, roles from the card's color identity. Left pane (padding `space-6 space-5`, gap `space-3`): the printing image (5:7, 6px radius, full width), "Buscar set" and the "Impressão" select list. Right pane: a 44px ✕ row, then (padding `0 space-6 space-6`) the eyebrow, the name (Grenze 600 xl, glow), the type line at the start and the artist at the end (sm, muted), a single 1px `border-top` rule (not `.divider`, which draws two lines), a two-column field grid (gap `space-4`), notes, and a footer pinned to the bottom (`margin-top: auto`, 1px top border, `space-4` padding) with the "À venda" check at the start and Cancelar, Salvar e adicionar outra (add only) and Salvar at the end.
 
@@ -664,8 +671,12 @@ Spec 015: the card list inside collection pages, the holding grid, and the add/e
 ### Select list
 `app-select-list`: a dropdown that can hold thumbnails, which a native `<select>` can't render.
 - **Trigger:** a `<button class="field__input">` showing the selection, with a chevron drawn as a 7px square with two borders rotated 45° (no glyph); it flips when open.
-- **Listbox:** `role="listbox"`, surface face, 1px border role-primary, `--glow-plate-hover`, 8px radius, max-height with its own scroll; options `role="option"`, `space-2 space-3` padding, `fast` hover. The selected option sits on `surface-raised`; the active option gets the hover treatment.
+- **Trigger while loading:** until the options load (the card modal's "Carregando impressões…"), an `aria-disabled` `field__input` button with left-aligned muted text and no chevron stands in for the trigger.
+- **Listbox:** `role="listbox"`, an absolutely positioned popup `space-1` below the trigger at z-index 20, surface face, 1px border role-primary, `--glow-plate-hover`, 8px radius, max-height 260px with its own thin scroll; options `role="option"`, min-height 44px, `space-2 space-3` padding. The selected option sits on `surface-raised`. The active option (moved by the pointer and by the arrow keys alike, so hover and keyboard look the same) gets a 1px role-primary outline inset by 1px.
 - **Open:** the trigger's border turns role-primary. Esc closes the list only; a click outside closes it.
+- **Thumbnail option** (the card modal's printings): a 28px 5:7 thumbnail (4px radius, `surface` behind it), gap `space-2`, then the printing over its artist (0.75rem muted).
+- **Empty:** when no option matches (no printing in the searched set), the popup holds one 0.875rem muted line, padding `space-3`.
+- **Load failed:** the popup shows the error plate's in-list form (see "Info plates").
 
 ### Check
 `.check`: a label wrapping a visually restyled native checkbox. An 18px box, 1px `border`, 4px radius; checked adds a 10px inner square in role-primary. No ✓ glyph. A 44px target, focus ring from the base styles. Disabled is opacity .5 with `not-allowed`, like buttons.
