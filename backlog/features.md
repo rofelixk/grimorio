@@ -26,6 +26,14 @@ When a spec ships, delete its entry here and its items from pending-items.md; th
 
 ---
 
+## Opportunities
+
+Needs too big for one spec are shaped in [opportunities/](../opportunities/README.md), and their features become specs from there.
+
+- [OPP-001 Selling from a large collection](../opportunities/001-selling-collection.md): draft, build order pending.
+
+---
+
 ## Deferred: card features
 
 Not scheduled yet. Spec 010 removed all card components, card reading (OCR), catalog lookup and CSV import, so the card features start fresh; [reference/card-features.md](reference/card-features.md) records their tuned configuration. Items waiting for them:
